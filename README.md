@@ -28,8 +28,10 @@ npm install
 ### 2. Environment Setup
 
 ```bash
-cp .env.example .env
-# Edit .env with your values if needed
+# Copy example env and configure your credentials
+cp backend/.env.example backend/.env
+
+# Edit backend/.env with your database credentials
 ```
 
 ### 3. Start Database
@@ -58,17 +60,19 @@ DB_TYPE=mysql npm run dev
 
 The application supports both PostgreSQL and MySQL. PostgreSQL is the default for Render deployment compatibility.
 
-### Environment Variables
+### Required Environment Variables
 
-| Variable | Default (PostgreSQL) | Default (MySQL) | Description |
-|----------|---------------------|-----------------|-------------|
-| `DB_TYPE` | `postgres` | `mysql` | Database type |
-| `DB_HOST` | `localhost` | `localhost` | Database host |
-| `DB_PORT` | `5432` | `3306` | Database port |
-| `DB_USERNAME` | `postgres` | `root` | Database user |
-| `DB_PASSWORD` | `postgres` | `root` | Database password |
-| `DB_DATABASE` | `bookeasy` | `bookeasy` | Database name |
-| `DB_SSL` | `false` | `false` | Enable SSL (set `true` for production) |
+All database credentials must be set in your `.env` file:
+
+| Variable | Description |
+|----------|-------------|
+| `DB_HOST` | Database host (required) |
+| `DB_USERNAME` | Database user (required) |
+| `DB_PASSWORD` | Database password (required) |
+| `DB_DATABASE` | Database name (required) |
+| `DB_TYPE` | `postgres` (default) or `mysql` |
+| `DB_PORT` | Port (default: 5432 for postgres, 3306 for mysql) |
+| `DB_SSL` | Enable SSL (set `true` for production) |
 
 ### Quick Commands
 
@@ -167,9 +171,11 @@ sme_booking_digital_presence/
 
 ### Environment Variables for Production
 
+Set these in your hosting platform (Render, etc.):
+
 ```env
 DB_TYPE=postgres
-DB_HOST=your-render-db-host
+DB_HOST=your-db-host
 DB_PORT=5432
 DB_USERNAME=your-username
 DB_PASSWORD=your-password
@@ -177,7 +183,7 @@ DB_DATABASE=your-database
 DB_SSL=true
 JWT_SECRET=your-secure-jwt-secret
 NODE_ENV=production
-CORS_ORIGIN=https://your-frontend.onrender.com
+CORS_ORIGIN=https://your-frontend-url
 ```
 
 ## License

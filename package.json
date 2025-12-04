@@ -1,0 +1,28 @@
+{
+  "name": "bookeasy",
+  "version": "1.0.0",
+  "description": "Mobile-first booking platform for SMEs",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "db:up": "docker-compose up db -d",
+    "db:down": "docker-compose down",
+    "db:migrate": "npm run migration:run --workspace=backend",
+    "db:sync": "npm run start:dev --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
+

@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { BusinessCategory } from '../../business-categories/entities/business-category.entity';
 import { BusinessType } from '../../business-categories/entities/business-type.entity';
@@ -10,17 +10,67 @@ import { Booking } from '../../bookings/entities/booking.entity';
 // Load environment variables
 config();
 
+/**
+ * Supported database types
+ */
+type DatabaseType = 'postgres' | 'mysql';
+
+/**
+ * Database defaults per type
+ */
+const DATABASE_DEFAULTS: Record<
+  DatabaseType,
+  { port: number; username: string; password: string }
+> = {
+  postgres: {
+    port: 5432,
+    username: 'postgres',
+    password: 'postgres',
+  },
+  mysql: {
+    port: 3306,
+    username: 'root',
+    password: 'root',
+  },
+};
+
+/**
+ * Get and validate database type
+ */
+function getDatabaseType(): DatabaseType {
+  const dbType = process.env.DB_TYPE || 'postgres';
+
+  if (dbType !== 'postgres' && dbType !== 'mysql') {
+    console.error(`❌ Invalid DB_TYPE: "${dbType}"`);
+    console.error('   Supported values: "postgres", "mysql"');
+    process.exit(1);
+  }
+
+  return dbType;
+}
+
+// Get configuration
+const type = getDatabaseType();
+const defaults = DATABASE_DEFAULTS[type];
+
+// Build SSL config for PostgreSQL
+const sslConfig =
+  process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined;
+
 const dataSource = new DataSource({
-  type: 'mysql',
+  type: type as 'postgres' | 'mysql',
   host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306', 10),
-  username: process.env.DB_USERNAME || 'root',
-  password: process.env.DB_PASSWORD || 'root',
+  port: parseInt(process.env.DB_PORT || String(defaults.port), 10),
+  username: process.env.DB_USERNAME || defaults.username,
+  password: process.env.DB_PASSWORD || defaults.password,
   database: process.env.DB_DATABASE || 'bookeasy',
+  ssl: sslConfig,
   entities: [BusinessCategory, BusinessType, Business, Owner, Service, Booking],
-  synchronize: true, // Create tables if they don't exist
+  synchronize: true,
   logging: true,
-});
+} as DataSourceOptions);
+
+console.log(`📦 Database: ${type}://${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || defaults.port}/${process.env.DB_DATABASE || 'bookeasy'}`);
 
 interface CategorySeed {
   slug: string;
@@ -126,4 +176,3 @@ async function seed() {
 }
 
 seed();
-

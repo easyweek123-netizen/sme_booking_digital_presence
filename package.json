@@ -13,9 +13,12 @@
     "dev:backend": "npm run start:dev --workspace=backend",
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
-    "db:up": "docker-compose up db -d",
-    "db:down": "docker-compose down",
+    "db:up": "docker compose up postgres -d",
+    "db:postgres": "docker compose up postgres -d",
+    "db:mysql": "docker compose up mysql -d",
+    "db:down": "docker compose down",
     "db:migrate": "npm run migration:run --workspace=backend",
+    "db:seed": "npm run db:seed --workspace=backend",
     "db:sync": "npm run start:dev --workspace=backend"
   },
   "devDependencies": {
@@ -25,4 +28,3 @@
     "node": ">=22.0.0"
   }
 }
-

@@ -1,12 +1,31 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8.0
-    container_name: bookeasy-db
+  # PostgreSQL - Default database (recommended for Render deployment)
+  postgres:
+    image: postgres:15
+    container_name: bookeasy-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bookeasy
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_DATABASE:-bookeasy}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MySQL - Alternative database (for legacy support)
+  mysql:
+    image: mysql:8.0
+    container_name: bookeasy-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_DATABASE:-bookeasy}
     ports:
       - "3306:3306"
     volumes:
@@ -18,5 +37,5 @@ services:
       retries: 5
 
 volumes:
+  postgres_data:
   mysql_data:
-

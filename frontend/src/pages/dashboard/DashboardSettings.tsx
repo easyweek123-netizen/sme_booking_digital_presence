@@ -76,8 +76,10 @@ export function DashboardSettings() {
     try {
       await updateBusiness({
         id: business.id,
-        ...formData,
-        workingHours: workingHours || undefined,
+        data: {
+          ...formData,
+          workingHours: workingHours || undefined,
+        },
       }).unwrap();
 
       toast({
@@ -86,7 +88,7 @@ export function DashboardSettings() {
         duration: 3000,
       });
       setHasChanges(false);
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Could not save settings. Please try again.',

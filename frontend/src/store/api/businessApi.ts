@@ -1,5 +1,10 @@
 import { baseApi } from './baseApi';
-import type { Business, BusinessWithServices, CreateBusinessRequest } from '../../types';
+import type {
+  Business,
+  BusinessWithServices,
+  CreateBusinessRequest,
+  UpdateBusinessRequest,
+} from '../../types';
 
 export const businessApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -18,7 +23,7 @@ export const businessApi = baseApi.injectEndpoints({
     getBusinessBySlug: builder.query<BusinessWithServices, string>({
       query: (slug) => `/business/slug/${slug}`,
     }),
-    updateBusiness: builder.mutation<Business, { id: number; data: Partial<CreateBusinessRequest> }>({
+    updateBusiness: builder.mutation<Business, { id: number; data: UpdateBusinessRequest }>({
       query: ({ id, data }) => ({
         url: `/business/${id}`,
         method: 'PATCH',

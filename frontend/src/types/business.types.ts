@@ -104,6 +104,8 @@ export interface UpdateBusinessRequest {
   description?: string;
   address?: string;
   city?: string;
+  website?: string;
+  instagram?: string;
   workingHours?: WorkingHours;
 }
 

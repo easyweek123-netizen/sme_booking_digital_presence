@@ -48,8 +48,8 @@ export function DashboardServices() {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deletingService, setDeletingService] = useState<Service | null>(null);
 
-  const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
-  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
+  const [createService] = useCreateServiceMutation();
+  const [updateService] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
 
   const handleAddService = () => {
@@ -67,17 +67,19 @@ export function DashboardServices() {
     openDelete();
   };
 
-  const handleSaveService = async (serviceItem: ServiceItem) => {
+  const handleSaveService = async (
+    serviceData: Omit<ServiceItem, 'id'> & { id?: string }
+  ) => {
     if (!business) return;
 
     try {
       if (editingService) {
         await updateService({
           id: editingService.id,
-          name: serviceItem.name,
-          durationMinutes: serviceItem.durationMinutes,
-          price: serviceItem.price,
-          availableDays: serviceItem.availableDays,
+          name: serviceData.name,
+          durationMinutes: serviceData.durationMinutes,
+          price: serviceData.price,
+          availableDays: serviceData.availableDays,
         }).unwrap();
         toast({
           title: 'Service updated',
@@ -87,10 +89,10 @@ export function DashboardServices() {
       } else {
         await createService({
           businessId: business.id,
-          name: serviceItem.name,
-          durationMinutes: serviceItem.durationMinutes,
-          price: serviceItem.price,
-          availableDays: serviceItem.availableDays,
+          name: serviceData.name,
+          durationMinutes: serviceData.durationMinutes,
+          price: serviceData.price,
+          availableDays: serviceData.availableDays,
         }).unwrap();
         toast({
           title: 'Service created',
@@ -99,7 +101,7 @@ export function DashboardServices() {
         });
       }
       closeModal();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Something went wrong. Please try again.',

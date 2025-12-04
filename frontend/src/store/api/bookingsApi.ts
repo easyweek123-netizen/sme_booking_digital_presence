@@ -2,7 +2,6 @@ import { baseApi } from './baseApi';
 import type {
   Booking,
   CreateBookingRequest,
-  UpdateBookingStatusRequest,
   AvailabilityResponse,
   BookingStats,
 } from '../../types';

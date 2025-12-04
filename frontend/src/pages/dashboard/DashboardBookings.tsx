@@ -35,7 +35,6 @@ import { formatBookingDate, formatPrice, getTodayString } from '../../utils/form
 import type { Booking } from '../../types';
 
 export function DashboardBookings() {
-  const toast = useToast();
   const { data: business } = useGetMyBusinessQuery();
   const [tabIndex, setTabIndex] = useState(0);
 

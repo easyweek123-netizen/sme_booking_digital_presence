@@ -16,23 +16,25 @@ config();
 type DatabaseType = 'postgres' | 'mysql';
 
 /**
- * Database defaults per type
+ * Default ports per database type
  */
-const DATABASE_DEFAULTS: Record<
-  DatabaseType,
-  { port: number; username: string; password: string }
-> = {
-  postgres: {
-    port: 5432,
-    username: 'postgres',
-    password: 'postgres',
-  },
-  mysql: {
-    port: 3306,
-    username: 'root',
-    password: 'root',
-  },
+const DEFAULT_PORTS: Record<DatabaseType, number> = {
+  postgres: 5432,
+  mysql: 3306,
 };
+
+/**
+ * Validates required environment variable exists
+ */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`❌ Missing required environment variable: ${name}`);
+    console.error('   Please check your .env file.');
+    process.exit(1);
+  }
+  return value;
+}
 
 /**
  * Get and validate database type
@@ -49,28 +51,32 @@ function getDatabaseType(): DatabaseType {
   return dbType;
 }
 
-// Get configuration
+// Get configuration from environment
 const type = getDatabaseType();
-const defaults = DATABASE_DEFAULTS[type];
+const host = requireEnv('DB_HOST');
+const username = requireEnv('DB_USERNAME');
+const password = requireEnv('DB_PASSWORD');
+const database = requireEnv('DB_DATABASE');
+const port = parseInt(process.env.DB_PORT || String(DEFAULT_PORTS[type]), 10);
 
-// Build SSL config for PostgreSQL
+// Build SSL config
 const sslConfig =
   process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined;
 
 const dataSource = new DataSource({
   type: type as 'postgres' | 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || String(defaults.port), 10),
-  username: process.env.DB_USERNAME || defaults.username,
-  password: process.env.DB_PASSWORD || defaults.password,
-  database: process.env.DB_DATABASE || 'bookeasy',
+  host,
+  port,
+  username,
+  password,
+  database,
   ssl: sslConfig,
   entities: [BusinessCategory, BusinessType, Business, Owner, Service, Booking],
   synchronize: true,
   logging: true,
 } as DataSourceOptions);
 
-console.log(`📦 Database: ${type}://${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || defaults.port}/${process.env.DB_DATABASE || 'bookeasy'}`);
+console.log(`📦 Database: ${type}://${host}:${port}/${database}`);
 
 interface CategorySeed {
   slug: string;

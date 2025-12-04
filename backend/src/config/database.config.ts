@@ -6,23 +6,26 @@ import { registerAs } from '@nestjs/config';
 export type DatabaseType = 'postgres' | 'mysql';
 
 /**
- * Database configuration defaults per type
+ * Default ports per database type
  */
-const DATABASE_DEFAULTS: Record<
-  DatabaseType,
-  { port: number; username: string; password: string }
-> = {
-  postgres: {
-    port: 5432,
-    username: 'postgres',
-    password: 'postgres',
-  },
-  mysql: {
-    port: 3306,
-    username: 'root',
-    password: 'root',
-  },
+const DEFAULT_PORTS: Record<DatabaseType, number> = {
+  postgres: 5432,
+  mysql: 3306,
 };
+
+/**
+ * Validates required environment variable exists
+ * @throws Error if variable is missing
+ */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(
+      `Missing required environment variable: ${name}. Please check your .env file.`,
+    );
+  }
+  return value;
+}
 
 /**
  * Validates and returns the database type from environment
@@ -46,29 +49,30 @@ function getDatabaseType(): DatabaseType {
  * Defaults to PostgreSQL for Render deployment compatibility.
  * Set DB_TYPE=mysql for MySQL.
  *
- * Environment Variables:
+ * Required Environment Variables:
+ * - DB_HOST: Database host
+ * - DB_USERNAME: Database user
+ * - DB_PASSWORD: Database password
+ * - DB_DATABASE: Database name
+ *
+ * Optional Environment Variables:
  * - DB_TYPE: 'postgres' (default) | 'mysql'
- * - DB_HOST: Database host (default: 'localhost')
  * - DB_PORT: Database port (default: 5432 for postgres, 3306 for mysql)
- * - DB_USERNAME: Database user (default: 'postgres' or 'root')
- * - DB_PASSWORD: Database password (default: 'postgres' or 'root')
- * - DB_DATABASE: Database name (default: 'bookeasy')
  * - DB_SSL: Enable SSL connection (default: 'false', set 'true' for production)
  * - NODE_ENV: Environment (affects synchronize and logging)
  */
 export default registerAs('database', () => {
   const type = getDatabaseType();
-  const defaults = DATABASE_DEFAULTS[type];
   const isProduction = process.env.NODE_ENV === 'production';
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   return {
     type,
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || String(defaults.port), 10),
-    username: process.env.DB_USERNAME || defaults.username,
-    password: process.env.DB_PASSWORD || defaults.password,
-    database: process.env.DB_DATABASE || 'bookeasy',
+    host: requireEnv('DB_HOST'),
+    port: parseInt(process.env.DB_PORT || String(DEFAULT_PORTS[type]), 10),
+    username: requireEnv('DB_USERNAME'),
+    password: requireEnv('DB_PASSWORD'),
+    database: requireEnv('DB_DATABASE'),
     ssl:
       process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     // Never auto-sync in production

@@ -8,14 +8,14 @@ import { BusinessModule } from './business/business.module';
 import { ServicesModule } from './services/services.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { BusinessCategoriesModule } from './business-categories/business-categories.module';
-import { configuration, databaseConfig, appConfig, jwtConfig } from './config';
+import { databaseConfig, appConfig, jwtConfig } from './config';
 
 @Module({
   imports: [
     // Load configuration first
     ConfigModule.forRoot({
       isGlobal: true, // Makes ConfigModule available everywhere
-      load: [configuration, databaseConfig, appConfig, jwtConfig],
+      load: [databaseConfig, appConfig, jwtConfig],
       envFilePath: ['.env.local', '.env'], // Load .env.local first, then .env
     }),
     DatabaseModule,

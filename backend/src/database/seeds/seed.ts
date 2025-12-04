@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { BusinessCategory } from '../../business-categories/entities/business-category.entity';
 import { BusinessType } from '../../business-categories/entities/business-type.entity';
@@ -10,17 +10,73 @@ import { Booking } from '../../bookings/entities/booking.entity';
 // Load environment variables
 config();
 
+/**
+ * Supported database types
+ */
+type DatabaseType = 'postgres' | 'mysql';
+
+/**
+ * Default ports per database type
+ */
+const DEFAULT_PORTS: Record<DatabaseType, number> = {
+  postgres: 5432,
+  mysql: 3306,
+};
+
+/**
+ * Validates required environment variable exists
+ */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`❌ Missing required environment variable: ${name}`);
+    console.error('   Please check your .env file.');
+    process.exit(1);
+  }
+  return value;
+}
+
+/**
+ * Get and validate database type
+ */
+function getDatabaseType(): DatabaseType {
+  const dbType = process.env.DB_TYPE || 'postgres';
+
+  if (dbType !== 'postgres' && dbType !== 'mysql') {
+    console.error(`❌ Invalid DB_TYPE: "${dbType}"`);
+    console.error('   Supported values: "postgres", "mysql"');
+    process.exit(1);
+  }
+
+  return dbType;
+}
+
+// Get configuration from environment
+const type = getDatabaseType();
+const host = requireEnv('DB_HOST');
+const username = requireEnv('DB_USERNAME');
+const password = requireEnv('DB_PASSWORD');
+const database = requireEnv('DB_DATABASE');
+const port = parseInt(process.env.DB_PORT || String(DEFAULT_PORTS[type]), 10);
+
+// Build SSL config
+const sslConfig =
+  process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined;
+
 const dataSource = new DataSource({
-  type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306', 10),
-  username: process.env.DB_USERNAME || 'root',
-  password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_DATABASE || 'bookeasy',
+  type: type as 'postgres' | 'mysql',
+  host,
+  port,
+  username,
+  password,
+  database,
+  ssl: sslConfig,
   entities: [BusinessCategory, BusinessType, Business, Owner, Service, Booking],
-  synchronize: true, // Create tables if they don't exist
+  synchronize: true,
   logging: true,
-});
+} as DataSourceOptions);
+
+console.log(`📦 Database: ${type}://${host}:${port}/${database}`);
 
 interface CategorySeed {
   slug: string;
@@ -126,4 +182,3 @@ async function seed() {
 }
 
 seed();
-

@@ -10,6 +10,7 @@ import {
   Min,
   MaxLength,
   IsBoolean,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -105,6 +106,16 @@ export class CreateBusinessDto {
   @IsString()
   @MaxLength(100)
   city?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  logoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^#[0-9A-Fa-f]{6}$/, { message: 'Brand color must be a valid hex color (e.g., #FF5733)' })
+  brandColor?: string;
 
   @IsObject()
   @ValidateNested()

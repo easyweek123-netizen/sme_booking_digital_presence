@@ -71,6 +71,8 @@ export class BusinessService {
       business.description = createBusinessDto.description || null;
       business.address = createBusinessDto.address || null;
       business.city = createBusinessDto.city || null;
+      business.logoUrl = createBusinessDto.logoUrl || null;
+      business.brandColor = createBusinessDto.brandColor || null;
       business.workingHours = createBusinessDto.workingHours;
       business.businessTypeId = null; // Category is optional, can be set later
 
@@ -190,6 +192,18 @@ export class BusinessService {
     }
     if (updateBusinessDto.city !== undefined) {
       business.city = updateBusinessDto.city || null;
+    }
+    if (updateBusinessDto.website !== undefined) {
+      business.website = updateBusinessDto.website || null;
+    }
+    if (updateBusinessDto.instagram !== undefined) {
+      business.instagram = updateBusinessDto.instagram || null;
+    }
+    if (updateBusinessDto.logoUrl !== undefined) {
+      business.logoUrl = updateBusinessDto.logoUrl || null;
+    }
+    if (updateBusinessDto.brandColor !== undefined) {
+      business.brandColor = updateBusinessDto.brandColor || null;
     }
     if (updateBusinessDto.workingHours !== undefined) {
       business.workingHours = updateBusinessDto.workingHours;

@@ -79,6 +79,7 @@ export interface Business {
   website: string | null;
   instagram: string | null;
   logoUrl: string | null;
+  brandColor: string | null;
   workingHours: WorkingHours | null;
   createdAt: string;
   updatedAt: string;
@@ -94,6 +95,8 @@ export interface CreateBusinessRequest {
   description?: string;
   address?: string;
   city?: string;
+  logoUrl?: string;
+  brandColor?: string;
   workingHours: WorkingHours;
   services: ServiceDto[];
 }
@@ -106,6 +109,8 @@ export interface UpdateBusinessRequest {
   city?: string;
   website?: string;
   instagram?: string;
+  logoUrl?: string;
+  brandColor?: string;
   workingHours?: WorkingHours;
 }
 
@@ -116,6 +121,8 @@ export interface BusinessProfile {
   description: string;
   address: string;
   city: string;
+  logoUrl: string;
+  brandColor: string;
   workingHours: WorkingHours;
 }
 

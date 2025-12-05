@@ -21,6 +21,7 @@ import {
   useUpdateBusinessMutation,
 } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
+import { BrandingFields } from '../../components/ui/BrandingFields';
 import { CopyIcon } from '../../components/icons';
 import { useCopyBookingLink } from '../../hooks';
 import { TOAST_DURATION } from '../../constants';
@@ -40,6 +41,8 @@ export function DashboardSettings() {
     city: '',
     website: '',
     instagram: '',
+    logoUrl: '',
+    brandColor: '',
   });
   const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -55,6 +58,8 @@ export function DashboardSettings() {
         city: business.city || '',
         website: business.website || '',
         instagram: business.instagram || '',
+        logoUrl: business.logoUrl || '',
+        brandColor: business.brandColor || '',
       });
       setWorkingHours(business.workingHours);
     }
@@ -70,6 +75,16 @@ export function DashboardSettings() {
 
   const handleWorkingHoursChange = (hours: WorkingHours) => {
     setWorkingHours(hours);
+    setHasChanges(true);
+  };
+
+  const handleLogoUrlChange = (url: string) => {
+    setFormData((prev) => ({ ...prev, logoUrl: url }));
+    setHasChanges(true);
+  };
+
+  const handleBrandColorChange = (color: string) => {
+    setFormData((prev) => ({ ...prev, brandColor: color }));
     setHasChanges(true);
   };
 
@@ -160,6 +175,22 @@ export function DashboardSettings() {
             Copy
           </Button>
         </Flex>
+      </Box>
+
+      {/* Branding */}
+      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={6}>
+        <Heading size="sm" color="gray.900" mb={4}>
+          Branding
+        </Heading>
+        <Text fontSize="sm" color="gray.500" mb={4}>
+          Customize your booking page with your logo and brand color
+        </Text>
+        <BrandingFields
+          logoUrl={formData.logoUrl}
+          brandColor={formData.brandColor}
+          onLogoUrlChange={handleLogoUrlChange}
+          onBrandColorChange={handleBrandColorChange}
+        />
       </Box>
 
       {/* Business Profile */}

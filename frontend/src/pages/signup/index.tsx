@@ -21,6 +21,7 @@ import { useRegisterMutation } from '../../store/api/authApi';
 import { useAppDispatch } from '../../store/hooks';
 import { setCredentials } from '../../store/slices/authSlice';
 import { ROUTES } from '../../config/routes';
+import { TOAST_DURATION } from '../../constants';
 
 interface FormErrors {
   name?: string;
@@ -80,7 +81,7 @@ export function SignupPage() {
         title: 'Account created!',
         description: 'Welcome to BookEasy',
         status: 'success',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
         isClosable: true,
       });
       navigate(ROUTES.DASHBOARD.ROOT);
@@ -90,7 +91,7 @@ export function SignupPage() {
         title: 'Registration failed',
         description: err.data?.message || 'Something went wrong',
         status: 'error',
-        duration: 5000,
+        duration: TOAST_DURATION.LONG,
         isClosable: true,
       });
     }

@@ -28,7 +28,7 @@ import {
   useGetPendingCountQuery,
 } from '../../store/api/bookingsApi';
 import { ClockIcon, PhoneIcon, MailIcon, CheckIcon, CloseIcon } from '../../components/icons';
-import { formatTime, BOOKING_STATUS_CONFIG } from '../../constants';
+import { formatTime, BOOKING_STATUS_CONFIG, TOAST_DURATION } from '../../constants';
 import { formatBookingDate, formatPrice, getTodayString } from '../../utils/format';
 import type { Booking, BookingStatus } from '../../types';
 
@@ -201,14 +201,14 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         title: 'Booking confirmed!',
         description: `${booking.customerName}'s appointment has been confirmed.`,
         status: 'success',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
     } catch {
       toast({
         title: 'Failed to confirm',
         description: 'Something went wrong. Please try again.',
         status: 'error',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
     } finally {
       setLoadingBookingId(null);
@@ -243,7 +243,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
       toast({
         title: messages[actionType],
         status: actionType === 'decline' || actionType === 'cancel' ? 'info' : 'success',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
       onClose();
     } catch {
@@ -251,7 +251,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         title: 'Action failed',
         description: 'Something went wrong. Please try again.',
         status: 'error',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
     }
   };

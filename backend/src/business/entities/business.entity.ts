@@ -43,6 +43,9 @@ export class Business {
   @Column({ type: 'varchar', length: 500, nullable: true })
   logoUrl: string | null;
 
+  @Column({ type: 'varchar', length: 7, nullable: true })
+  brandColor: string | null;
+
   @Column({ type: 'json', nullable: true })
   workingHours: WorkingHours | null;
 

@@ -17,7 +17,7 @@ import {
   useToast,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DateSelector } from './DateSelector';
 import { TimeSlotGrid } from './TimeSlotGrid';
@@ -25,8 +25,9 @@ import { CustomerForm } from './CustomerForm';
 import { BookingSuccess } from './BookingSuccess';
 import { useGetAvailabilityQuery, useCreateBookingMutation } from '../../store/api/bookingsApi';
 import type { Service, BusinessWithServices, Booking, CustomerData } from '../../types';
-import { formatTime } from '../../constants/booking';
+import { formatTime, TOAST_DURATION } from '../../constants';
 import { formatDuration, formatPrice, formatDateDisplay, getTodayString } from '../../utils/format';
+import { generateBrandColorCss, isValidHexColor } from '../../utils/brandColor';
 
 const MotionBox = motion.create(Box);
 
@@ -43,6 +44,14 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
   const toast = useToast();
   const placement = useBreakpointValue<'bottom' | 'right'>({ base: 'bottom', md: 'right' }) || 'bottom';
   const isDesktop = placement === 'right';
+
+  // Generate brand color CSS variables if business has custom color
+  const brandColorStyles = useMemo(() => {
+    if (business.brandColor && isValidHexColor(business.brandColor)) {
+      return generateBrandColorCss(business.brandColor);
+    }
+    return {};
+  }, [business.brandColor]);
   
   // State
   const [selectedDate, setSelectedDate] = useState<string>(getTodayString());
@@ -112,7 +121,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
         title: 'Booking Failed',
         description: apiError.data?.message || 'Something went wrong. Please try again.',
         status: 'error',
-        duration: 5000,
+        duration: TOAST_DURATION.LONG,
         isClosable: true,
       });
     }
@@ -126,6 +135,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
         borderLeftRadius={isDesktop ? 'xl' : 'none'}
         maxH={isDesktop ? '100vh' : '90vh'}
         bg="white"
+        style={brandColorStyles}
       >
         <DrawerCloseButton size="lg" top={4} right={4} />
         

@@ -72,6 +72,8 @@ const onboardingSlice = createSlice({
           description: '',
           address: '',
           city: '',
+          logoUrl: '',
+          brandColor: '',
           workingHours: defaultWorkingHours,
           ...action.payload,
         };

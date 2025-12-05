@@ -16,19 +16,21 @@ import {
   InputGroup,
   InputLeftAddon,
   Badge,
+  Image,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useGetBusinessBySlugQuery } from '../../store/api/businessApi';
 import { ROUTES } from '../../config/routes';
 import { bookingsApi } from '../../store/api/bookingsApi';
-import { PhoneIcon, MapPinIcon, ClockIcon, ChevronRightIcon, SearchIcon } from '../../components/icons';
+import { PhoneIcon, MapPinIcon, ClockIcon, ChevronRightIcon, SearchIcon, InstagramIcon, GlobeIcon } from '../../components/icons';
 import { Logo } from '../../components/ui/Logo';
 import { BookingDrawer } from '../../components/Booking/BookingDrawer';
 import type { Service, Booking } from '../../types';
 import { formatTime, DAY_LABELS, DAYS_OF_WEEK, BOOKING_STATUS_CONFIG } from '../../constants';
 import { formatDuration, formatPrice, formatBookingDate } from '../../utils/format';
+import { generateBrandColorCss, isValidHexColor } from '../../utils/brandColor';
 
 export function BookingPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -47,6 +49,18 @@ export function BookingPage() {
   const [referenceCode, setReferenceCode] = useState('');
   const [triggerGetBooking, { data: foundBooking, isLoading: isSearching, error: searchError }] = 
     bookingsApi.useLazyGetBookingByReferenceQuery();
+  
+  // Logo loading error state
+  const [logoError, setLogoError] = useState(false);
+
+  // Generate brand color CSS variables if custom color is set
+  // MUST be before any conditional returns to follow Rules of Hooks
+  const brandColorStyles = useMemo(() => {
+    if (business?.brandColor && isValidHexColor(business.brandColor)) {
+      return generateBrandColorCss(business.brandColor);
+    }
+    return {};
+  }, [business?.brandColor]);
 
   const handleBookService = (service: Service) => {
     setSelectedService(service);
@@ -112,7 +126,7 @@ export function BookingPage() {
   const activeServices = business.services?.filter((s) => s.isActive) || [];
 
   return (
-    <Box minH="100vh" bg="gray.50">
+    <Box minH="100vh" bg="gray.50" style={brandColorStyles}>
       {/* Header */}
       <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
         <Container maxW="lg">
@@ -120,34 +134,138 @@ export function BookingPage() {
         </Container>
       </Box>
 
-      {/* Business Info */}
-      <Box bg="white" pb={6} pt={8} borderBottom="1px" borderColor="gray.100">
+      {/* Business Info - with gradient background */}
+      <Box
+        pb={6}
+        pt={8}
+        borderBottom="1px"
+        borderColor="gray.100"
+        bg={business.brandColor 
+          ? `linear-gradient(135deg, ${business.brandColor}12 0%, ${business.brandColor}05 50%, white 100%)`
+          : 'linear-gradient(135deg, #f8faf9 0%, #f5f7f6 50%, white 100%)'
+        }
+      >
         <Container maxW="lg">
           <VStack spacing={4} align="stretch">
-            {/* Business Name & Description */}
-            <Box>
-              <Heading size="xl" color="gray.900" mb={2}>
-                {business.name}
-              </Heading>
-              {business.description && (
-                <Text color="gray.600" fontSize="md">
-                  {business.description}
-                </Text>
+            {/* Business Logo & Name */}
+            <HStack spacing={4} align="center">
+              {/* Logo or Initial */}
+              {business.logoUrl && !logoError ? (
+                <Box
+                  maxW="80px"
+                  maxH="80px"
+                  minW="60px"
+                  minH="60px"
+                  borderRadius="xl"
+                  overflow="hidden"
+                  bg="white"
+                  flexShrink={0}
+                  border="1px"
+                  borderColor="gray.200"
+                  boxShadow="sm"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  p={1}
+                >
+                  <Image
+                    src={business.logoUrl}
+                    alt={`${business.name} logo`}
+                    maxW="100%"
+                    maxH="100%"
+                    objectFit="contain"
+                    onError={() => setLogoError(true)}
+                  />
+                </Box>
+              ) : (
+                // Colored Initial Fallback
+                <Box
+                  w="60px"
+                  h="60px"
+                  borderRadius="xl"
+                  bg={business.brandColor || 'brand.500'}
+                  flexShrink={0}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  boxShadow="sm"
+                >
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="bold"
+                    color="white"
+                    textTransform="uppercase"
+                  >
+                    {business.name.charAt(0)}
+                  </Text>
+                </Box>
               )}
-            </Box>
+              
+              {/* Business Name & Description */}
+              <Box flex={1}>
+                <Heading size="xl" color="gray.900" mb={1}>
+                  {business.name}
+                </Heading>
+                {business.description && (
+                  <Text color="gray.600" fontSize="md" noOfLines={2}>
+                    {business.description}
+                  </Text>
+                )}
+              </Box>
+            </HStack>
 
-            {/* Contact Info */}
+            {/* Contact & Social Info */}
             <HStack spacing={4} flexWrap="wrap">
               {business.city && (
-                <HStack spacing={1} color="gray.500" fontSize="sm">
-                  <MapPinIcon size={16} />
+                <HStack spacing={1.5} color="gray.600" fontSize="sm">
+                  <MapPinIcon size={15} />
                   <Text>{business.city}</Text>
                 </HStack>
               )}
               {business.phone && (
-                <HStack spacing={1} color="gray.500" fontSize="sm">
-                  <PhoneIcon size={16} />
+                <HStack
+                  as="a"
+                  href={`tel:${business.phone}`}
+                  spacing={1.5}
+                  color="gray.600"
+                  fontSize="sm"
+                  _hover={{ color: 'brand.600' }}
+                  transition="color 0.2s"
+                >
+                  <PhoneIcon size={15} />
                   <Text>{business.phone}</Text>
+                </HStack>
+              )}
+              {business.instagram && (
+                <HStack
+                  as="a"
+                  href={`https://instagram.com/${business.instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  spacing={1.5}
+                  color="gray.600"
+                  fontSize="sm"
+                  _hover={{ color: 'brand.600' }}
+                  transition="color 0.2s"
+                >
+                  <InstagramIcon size={15} />
+                  <Text>{business.instagram.startsWith('@') ? business.instagram : `@${business.instagram}`}</Text>
+                </HStack>
+              )}
+              {business.website && (
+                <HStack
+                  as="a"
+                  href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  spacing={1.5}
+                  color="gray.600"
+                  fontSize="sm"
+                  _hover={{ color: 'brand.600' }}
+                  transition="color 0.2s"
+                >
+                  <GlobeIcon size={15} />
+                  <Text>Website</Text>
                 </HStack>
               )}
             </HStack>

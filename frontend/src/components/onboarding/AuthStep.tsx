@@ -22,6 +22,7 @@ import { setCredentials } from '../../store/slices/authSlice';
 import { resetOnboarding } from '../../store/slices/onboardingSlice';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../config/routes';
+import { TOAST_DURATION } from '../../constants';
 
 const MotionBox = motion.create(Box);
 
@@ -98,6 +99,8 @@ export function AuthStep() {
           description: businessProfile.description || undefined,
           address: businessProfile.address || undefined,
           city: businessProfile.city || undefined,
+          logoUrl: businessProfile.logoUrl || undefined,
+          brandColor: businessProfile.brandColor || undefined,
           workingHours: businessProfile.workingHours,
           services: services.map((s) => ({
             name: s.name,
@@ -115,7 +118,7 @@ export function AuthStep() {
         title: 'Welcome to BookEasy!',
         description: 'Your business has been created successfully.',
         status: 'success',
-        duration: 5000,
+        duration: TOAST_DURATION.LONG,
         isClosable: true,
       });
 
@@ -126,7 +129,7 @@ export function AuthStep() {
         title: isLoginMode ? 'Login failed' : 'Registration failed',
         description: err.data?.message || 'Something went wrong. Please try again.',
         status: 'error',
-        duration: 5000,
+        duration: TOAST_DURATION.LONG,
         isClosable: true,
       });
     }

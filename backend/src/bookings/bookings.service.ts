@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
@@ -10,8 +9,9 @@ import { Booking, BookingStatus } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { SLOT_INTERVAL_MINUTES, DAYS_OF_WEEK, DayOfWeek } from '../common/constants';
+import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
 import { WorkingHours } from '../common/types';
+import { generateBookingReference, verifyBusinessOwnership } from '../common';
 
 interface AvailabilityResult {
   slots: string[];
@@ -193,7 +193,7 @@ export class BookingsService {
     // 4. Calculate end time
     const endTime = this.addMinutesToTime(startTime, service.durationMinutes);
 
-    // 5. Create the booking
+    // 5. Create the booking (defaults to PENDING status)
     const booking = this.bookingRepository.create({
       businessId,
       serviceId,
@@ -203,7 +203,8 @@ export class BookingsService {
       date: new Date(date),
       startTime,
       endTime,
-      status: BookingStatus.CONFIRMED,
+      reference: generateBookingReference(),
+      // status defaults to PENDING via entity
     });
 
     const savedBooking = await this.bookingRepository.save(booking);
@@ -229,6 +230,36 @@ export class BookingsService {
   }
 
   /**
+   * Find booking by reference code (public - for customer status lookup)
+   */
+  async findByReference(reference: string): Promise<Booking> {
+    const booking = await this.bookingRepository.findOne({
+      where: { reference: reference.toUpperCase() },
+      relations: ['service', 'business'],
+    });
+
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    return booking;
+  }
+
+  /**
+   * Get count of pending bookings for a business
+   */
+  async getPendingCount(businessId: number, ownerId: number): Promise<number> {
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
+
+    return this.bookingRepository.count({
+      where: {
+        businessId,
+        status: BookingStatus.PENDING,
+      },
+    });
+  }
+
+  /**
    * Find all bookings for a business with optional filters
    */
   async findByBusiness(
@@ -236,18 +267,7 @@ export class BookingsService {
     ownerId: number,
     filters: BookingsFilter = {},
   ): Promise<Booking[]> {
-    // Verify ownership
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
-    if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this business');
-    }
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     // Build query
     const queryBuilder = this.bookingRepository
@@ -294,10 +314,8 @@ export class BookingsService {
       throw new NotFoundException('Booking not found');
     }
 
-    // Verify ownership
-    if (booking.business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this business');
-    }
+    // Verify ownership via loaded relation
+    await verifyBusinessOwnership(this.businessRepository, booking.businessId, ownerId);
 
     booking.status = status;
     await this.bookingRepository.save(booking);
@@ -312,18 +330,7 @@ export class BookingsService {
     businessId: number,
     ownerId: number,
   ): Promise<{ total: number; today: number }> {
-    // Verify ownership
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
-    if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this business');
-    }
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     const today = new Date();
     const todayDate = new Date(this.getLocalDateString(today));

@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { WorkingHoursEditor } from './WorkingHoursEditor';
+import { BrandingFields } from '../ui/BrandingFields';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   updateBusinessProfile,
@@ -34,6 +35,8 @@ export function ProfileStep() {
   const [description, setDescription] = useState(businessProfile?.description || '');
   const [address, setAddress] = useState(businessProfile?.address || '');
   const [city, setCity] = useState(businessProfile?.city || '');
+  const [logoUrl, setLogoUrl] = useState(businessProfile?.logoUrl || '');
+  const [brandColor, setBrandColor] = useState(businessProfile?.brandColor || '');
   const [workingHours, setWorkingHours] = useState<WorkingHours>(
     businessProfile?.workingHours || defaultWorkingHours
   );
@@ -47,10 +50,12 @@ export function ProfileStep() {
       description,
       address,
       city,
+      logoUrl,
+      brandColor,
       workingHours,
     };
     dispatch(updateBusinessProfile(profile));
-  }, [name, phone, description, address, city, workingHours, dispatch]);
+  }, [name, phone, description, address, city, logoUrl, brandColor, workingHours, dispatch]);
 
   // Validate name field
   useEffect(() => {
@@ -95,6 +100,14 @@ export function ProfileStep() {
           />
           <FormErrorMessage>{errors.name}</FormErrorMessage>
         </FormControl>
+
+        {/* Branding (Logo & Color) */}
+        <BrandingFields
+          logoUrl={logoUrl}
+          brandColor={brandColor}
+          onLogoUrlChange={setLogoUrl}
+          onBrandColorChange={setBrandColor}
+        />
 
         {/* Working Hours */}
         <Box>

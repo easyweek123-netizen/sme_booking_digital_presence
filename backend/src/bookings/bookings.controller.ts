@@ -84,6 +84,31 @@ export class BookingsController {
   }
 
   /**
+   * Get booking status by reference code
+   * GET /api/bookings/status/:reference
+   * Public endpoint (for customer status lookup)
+   */
+  @Get('status/:reference')
+  async findByReference(@Param('reference') reference: string): Promise<Booking> {
+    return this.bookingsService.findByReference(reference);
+  }
+
+  /**
+   * Get pending bookings count for a business (owner only)
+   * GET /api/bookings/pending-count/:businessId
+   * Protected endpoint
+   */
+  @Get('pending-count/:businessId')
+  @UseGuards(JwtAuthGuard)
+  async getPendingCount(
+    @Request() req: RequestWithUser,
+    @Param('businessId', ParseIntPipe) businessId: number,
+  ): Promise<{ count: number }> {
+    const count = await this.bookingsService.getPendingCount(businessId, req.user.id);
+    return { count };
+  }
+
+  /**
    * Get a single booking by ID
    * GET /api/bookings/:id
    * Public endpoint (for confirmation pages)

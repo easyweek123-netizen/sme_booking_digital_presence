@@ -6,6 +6,7 @@ import {
   Button,
   Divider,
   Center,
+  Badge,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, CalendarIcon, ClockIcon, MapPinIcon, PhoneIcon } from '../icons';
@@ -44,11 +45,11 @@ export function BookingSuccess({
               w="80px"
               h="80px"
               borderRadius="full"
-              bg="green.100"
+              bg="yellow.100"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              color="green.500"
+              color="yellow.500"
             >
               <CheckCircleIcon size={48} />
             </Box>
@@ -63,11 +64,14 @@ export function BookingSuccess({
           textAlign="center"
         >
           <Text fontSize="2xl" fontWeight="700" color="gray.900" mb={1}>
-            Booking Confirmed!
+            Request Sent!
           </Text>
-          <Text color="gray.500" fontSize="sm">
-            A confirmation has been sent to {booking.customerEmail}
+          <Text color="gray.500" fontSize="sm" mb={2}>
+            Awaiting confirmation from {business.name}
           </Text>
+          <Badge colorScheme="yellow" fontSize="sm" px={3} py={1} borderRadius="full">
+            Reference: {booking.reference}
+          </Badge>
         </MotionBox>
 
         {/* Booking Details Card */}

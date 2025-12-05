@@ -9,6 +9,7 @@ import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { verifyBusinessOwnership } from '../common';
 
 @Injectable()
 export class ServicesService {
@@ -26,18 +27,11 @@ export class ServicesService {
     ownerId: number,
     createServiceDto: CreateServiceDto,
   ): Promise<Service> {
-    // Verify the business exists and belongs to the owner
-    const business = await this.businessRepository.findOne({
-      where: { id: createServiceDto.businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
-    if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this business');
-    }
+    await verifyBusinessOwnership(
+      this.businessRepository,
+      createServiceDto.businessId,
+      ownerId,
+    );
 
     const service = this.serviceRepository.create({
       businessId: createServiceDto.businessId,
@@ -103,9 +97,7 @@ export class ServicesService {
     }
 
     // Verify ownership
-    if (service.business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this service');
-    }
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
     // Update fields
     if (updateServiceDto.name !== undefined) {
@@ -144,9 +136,7 @@ export class ServicesService {
     }
 
     // Verify ownership
-    if (service.business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this service');
-    }
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
     // Soft delete - mark as inactive
     service.isActive = false;

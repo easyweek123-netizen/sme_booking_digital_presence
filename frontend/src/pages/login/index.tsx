@@ -21,6 +21,7 @@ import { useLoginMutation } from '../../store/api/authApi';
 import { useAppDispatch } from '../../store/hooks';
 import { setCredentials } from '../../store/slices/authSlice';
 import { ROUTES } from '../../config/routes';
+import { TOAST_DURATION } from '../../constants';
 
 interface FormErrors {
   email?: string;
@@ -65,7 +66,7 @@ export function LoginPage() {
       toast({
         title: 'Welcome back!',
         status: 'success',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
         isClosable: true,
       });
       navigate(ROUTES.DASHBOARD.ROOT);
@@ -75,7 +76,7 @@ export function LoginPage() {
         title: 'Login failed',
         description: err.data?.message || 'Invalid credentials',
         status: 'error',
-        duration: 5000,
+        duration: TOAST_DURATION.LONG,
         isClosable: true,
       });
     }

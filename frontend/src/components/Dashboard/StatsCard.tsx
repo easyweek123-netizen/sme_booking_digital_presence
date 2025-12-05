@@ -1,5 +1,6 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const MotionBox = motion.create(Box);
 
@@ -9,6 +10,7 @@ interface StatsCardProps {
   icon: React.ReactNode;
   color?: string;
   index?: number;
+  to?: string;
 }
 
 export function StatsCard({
@@ -17,7 +19,16 @@ export function StatsCard({
   icon,
   color = 'brand.500',
   index = 0,
+  to,
 }: StatsCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+    }
+  };
+
   return (
     <MotionBox
       initial={{ opacity: 0, y: 20 }}
@@ -28,10 +39,14 @@ export function StatsCard({
       border="1px"
       borderColor="gray.100"
       p={5}
-      _hover={{
+      cursor={to ? 'pointer' : 'default'}
+      onClick={handleClick}
+      _hover={to ? {
+        borderColor: 'brand.200',
+        boxShadow: 'md',
+        transform: 'translateY(-3px)',
+      } : {
         borderColor: 'gray.200',
-        boxShadow: 'sm',
-        transform: 'translateY(-2px)',
       }}
       transitionProperty="all"
       transitionDuration="0.2s"

@@ -9,7 +9,10 @@ export const ROUTES = {
     SERVICES: '/dashboard/services',
     SETTINGS: '/dashboard/settings',
   },
-  BOOKING: (slug: string) => `/book/${slug}`,
+  BOOKING: {
+    PATTERN: '/book/:slug',
+    path: (slug: string) => `/book/${slug}`,
+  },
 } as const;
 
 // Helper for type-safe navigation

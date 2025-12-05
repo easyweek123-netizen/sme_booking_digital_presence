@@ -9,7 +9,7 @@ import {
   DrawerContent,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MenuIcon, CloseIcon } from '../icons';
 import { Sidebar } from './Sidebar';
 import { ROUTES } from '../../config/routes';
@@ -30,6 +30,7 @@ interface MobileNavProps {
 export function MobileNav({ businessName }: MobileNavProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
+  const navigate = useNavigate();
   const pageTitle = getPageTitle(location.pathname);
 
   return (
@@ -66,8 +67,26 @@ export function MobileNav({ businessName }: MobileNavProps) {
             )}
           </Box>
 
-          {/* Placeholder for right side to center title */}
-          <Box w="40px" />
+          {/* Logo icon - navigates home */}
+          <Box
+            as="button"
+            w="36px"
+            h="36px"
+            bg="brand.500"
+            borderRadius="lg"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            onClick={() => navigate(ROUTES.HOME)}
+            _hover={{ bg: 'brand.600' }}
+            _active={{ transform: 'scale(0.95)' }}
+            transition="all 0.15s"
+            aria-label="Go to home"
+          >
+            <Text color="white" fontWeight="bold" fontSize="md">
+              B
+            </Text>
+          </Box>
         </Flex>
       </Box>
 

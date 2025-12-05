@@ -36,6 +36,7 @@ import {
 import { PlusIcon, EditIcon, TrashIcon, LayersIcon } from '../../components/icons';
 import { ServiceForm } from '../../components/onboarding/ServiceForm';
 import { formatDuration, formatPrice } from '../../utils/format';
+import { TOAST_DURATION } from '../../constants';
 import type { Service, ServiceItem } from '../../types';
 
 export function DashboardServices() {
@@ -84,7 +85,7 @@ export function DashboardServices() {
         toast({
           title: 'Service updated',
           status: 'success',
-          duration: 3000,
+          duration: TOAST_DURATION.MEDIUM,
         });
       } else {
         await createService({
@@ -97,7 +98,7 @@ export function DashboardServices() {
         toast({
           title: 'Service created',
           status: 'success',
-          duration: 3000,
+          duration: TOAST_DURATION.MEDIUM,
         });
       }
       closeModal();
@@ -106,7 +107,7 @@ export function DashboardServices() {
         title: 'Error',
         description: 'Something went wrong. Please try again.',
         status: 'error',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
     }
   };
@@ -119,15 +120,15 @@ export function DashboardServices() {
       toast({
         title: 'Service deleted',
         status: 'success',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
       closeDelete();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Something went wrong. Please try again.',
         status: 'error',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
     }
   };
@@ -141,14 +142,14 @@ export function DashboardServices() {
       toast({
         title: service.isActive ? 'Service hidden' : 'Service visible',
         status: 'success',
-        duration: 2000,
+        duration: TOAST_DURATION.SHORT,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Could not update service.',
         status: 'error',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
     }
   };

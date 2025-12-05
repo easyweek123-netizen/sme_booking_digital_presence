@@ -8,16 +8,11 @@ import * as bcrypt from 'bcrypt';
 import { OwnerService } from '../owner/owner.service';
 import { RegisterDto, LoginDto } from './dto';
 import { Owner } from '../owner/entities/owner.entity';
+import type { AuthUser } from '../common/types';
 
 export interface JwtPayload {
   sub: number;
   email: string;
-}
-
-export interface AuthUser {
-  id: number;
-  email: string;
-  name: string;
 }
 
 export interface AuthResponse {

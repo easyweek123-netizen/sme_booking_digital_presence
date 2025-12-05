@@ -6,7 +6,6 @@ import {
   SimpleGrid,
   Flex,
   Button,
-  useToast,
   HStack,
   Badge,
 } from '@chakra-ui/react';
@@ -20,29 +19,16 @@ import {
 } from '../../components/icons';
 import { useGetMyBusinessQuery } from '../../store/api/businessApi';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
+import { useCopyBookingLink } from '../../hooks';
 import { ROUTES } from '../../config/routes';
 
 export function DashboardOverview() {
   const navigate = useNavigate();
-  const toast = useToast();
   const { data: business } = useGetMyBusinessQuery();
   const { data: stats } = useGetBookingStatsQuery(business?.id || 0, {
     skip: !business?.id,
   });
-
-  const handleCopyLink = () => {
-    if (business?.slug) {
-      const bookingUrl = `${window.location.origin}/book/${business.slug}`;
-      navigator.clipboard.writeText(bookingUrl);
-      toast({
-        title: 'Link copied!',
-        description: 'Your booking link has been copied to clipboard.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
+  const { copyLink } = useCopyBookingLink(business?.slug);
 
   if (!business) return null;
 
@@ -74,11 +60,22 @@ export function DashboardOverview() {
           align="center"
           gap={3}
         >
-          <Box>
+          <Box flex={1} minW={0}>
             <Text fontSize="xs" color="gray.500" mb={0.5}>
               Your booking page
             </Text>
-            <Text fontSize="sm" fontWeight="500" color="brand.600">
+            <Text
+              as="a"
+              href={`/book/${business.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              fontSize="sm"
+              fontWeight="500"
+              color="brand.600"
+              _hover={{ color: 'brand.700', textDecoration: 'underline' }}
+              display="block"
+              isTruncated
+            >
               /book/{business.slug}
             </Text>
           </Box>
@@ -86,8 +83,9 @@ export function DashboardOverview() {
             size="sm"
             variant="ghost"
             colorScheme="brand"
-            onClick={handleCopyLink}
+            onClick={copyLink}
             leftIcon={<CopyIcon size={16} />}
+            flexShrink={0}
           >
             Copy
           </Button>
@@ -102,6 +100,7 @@ export function DashboardOverview() {
           icon={<CalendarIcon size={24} />}
           color="brand.500"
           index={0}
+          to={ROUTES.DASHBOARD.BOOKINGS}
         />
         <StatsCard
           label="Today's Bookings"
@@ -109,6 +108,7 @@ export function DashboardOverview() {
           icon={<UsersIcon size={24} />}
           color="blue.500"
           index={1}
+          to={ROUTES.DASHBOARD.BOOKINGS}
         />
         <StatsCard
           label="Active Services"
@@ -116,6 +116,7 @@ export function DashboardOverview() {
           icon={<LayersIcon size={24} />}
           color="purple.500"
           index={2}
+          to={ROUTES.DASHBOARD.SERVICES}
         />
       </SimpleGrid>
 

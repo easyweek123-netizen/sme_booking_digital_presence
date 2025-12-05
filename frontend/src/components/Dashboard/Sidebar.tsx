@@ -1,4 +1,4 @@
-import { Box, VStack, Text, Flex, Divider } from '@chakra-ui/react';
+import { Box, VStack, Text, Flex, Divider, Badge } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import {
@@ -11,16 +11,19 @@ import {
 import { ROUTES } from '../../config/routes';
 import { useAppDispatch } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
+import { useGetMyBusinessQuery } from '../../store/api/businessApi';
+import { useGetPendingCountQuery } from '../../store/api/bookingsApi';
 
 interface NavItem {
   label: string;
   icon: React.ReactNode;
   path: string;
+  badgeKey?: 'pending';
 }
 
 const navItems: NavItem[] = [
   { label: 'Overview', icon: <HomeIcon size={20} />, path: ROUTES.DASHBOARD.ROOT },
-  { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings` },
+  { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings`, badgeKey: 'pending' },
   { label: 'Services', icon: <LayersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/services` },
   { label: 'Settings', icon: <SettingsIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/settings` },
 ];
@@ -33,6 +36,13 @@ export function Sidebar({ onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+
+  // Get pending count for badge
+  const { data: business } = useGetMyBusinessQuery();
+  const { data: pendingData } = useGetPendingCountQuery(business?.id || 0, {
+    skip: !business?.id,
+  });
+  const pendingCount = pendingData?.count || 0;
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -50,6 +60,11 @@ export function Sidebar({ onClose }: SidebarProps) {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);
+  };
+
+  const getBadgeCount = (key?: string): number => {
+    if (key === 'pending') return pendingCount;
+    return 0;
   };
 
   return (
@@ -83,13 +98,14 @@ export function Sidebar({ onClose }: SidebarProps) {
 
         {navItems.map((item) => {
           const active = isActive(item.path);
+          const badgeCount = getBadgeCount(item.badgeKey);
           return (
             <Box
               key={item.path}
               as="button"
               display="flex"
               alignItems="center"
-              gap={3}
+              justifyContent="space-between"
               w="full"
               py={3}
               px={3}
@@ -105,8 +121,21 @@ export function Sidebar({ onClose }: SidebarProps) {
               }}
               onClick={() => handleNavigate(item.path)}
             >
-              <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
-              {item.label}
+              <Flex align="center" gap={3}>
+                <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
+                {item.label}
+              </Flex>
+              {badgeCount > 0 && (
+                <Badge
+                  colorScheme="red"
+                  borderRadius="full"
+                  fontSize="xs"
+                  minW="20px"
+                  textAlign="center"
+                >
+                  {badgeCount}
+                </Badge>
+              )}
             </Box>
           );
         })}

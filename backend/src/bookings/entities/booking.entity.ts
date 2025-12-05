@@ -3,15 +3,20 @@ import { Business } from '../../business/entities/business.entity';
 import { Service } from '../../services/entities/service.entity';
 
 export enum BookingStatus {
-  CONFIRMED = 'CONFIRMED',
-  CANCELLED = 'CANCELLED',
-  COMPLETED = 'COMPLETED',
+  PENDING = 'PENDING',       // New booking, awaiting owner confirmation
+  CONFIRMED = 'CONFIRMED',   // Owner confirmed the booking
+  CANCELLED = 'CANCELLED',   // Cancelled by owner or customer
+  COMPLETED = 'COMPLETED',   // Service was delivered
+  NO_SHOW = 'NO_SHOW',       // Customer didn't show up
 }
 
 @Entity('bookings')
 export class Booking {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ type: 'varchar', length: 10, unique: true })
+  reference: string; // e.g., "BK-A3X9" for customer lookup
 
   @Column()
   businessId: number;
@@ -37,7 +42,7 @@ export class Booking {
   @Column({ type: 'time' })
   endTime: string;
 
-  @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.CONFIRMED })
+  @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;
 
   @ManyToOne(() => Business, (business) => business.bookings)

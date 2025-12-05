@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { store, persistor } from './store/store';
 import { theme } from './theme';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import App from './App';
 
 import './index.css';
@@ -20,14 +21,16 @@ const PersistLoader = () => (
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={<PersistLoader />} persistor={persistor}>
-        <ChakraProvider theme={theme}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </ChakraProvider>
-      </PersistGate>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <PersistGate loading={<PersistLoader />} persistor={persistor}>
+          <ChakraProvider theme={theme}>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </ChakraProvider>
+        </PersistGate>
+      </Provider>
+    </ErrorBoundary>
   </StrictMode>
 );

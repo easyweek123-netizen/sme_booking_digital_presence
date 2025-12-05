@@ -12,23 +12,24 @@ const colors = {
     200: '#96DCBE',
     300: '#6CCEA4',
     400: '#4DC391',
-    500: '#2EB67D', // Primary green (EasyWeek-inspired)
+    500: '#2EB67D', // Primary green (eco/fresh)
     600: '#26A06E',
     700: '#1D885D',
     800: '#15704D',
     900: '#0D583D',
   },
+  // Modern Slate palette (Tailwind standard - used by Linear, Vercel, Stripe)
   gray: {
-    50: '#F9FAFB',
-    100: '#F3F4F6',
-    200: '#E5E7EB',
-    300: '#D1D5DB',
-    400: '#9CA3AF',
-    500: '#6B7280',
-    600: '#4B5563',
-    700: '#374151',
-    800: '#1F2937',
-    900: '#111827',
+    50: '#F5F7F9',   // Light cool neutral
+    100: '#F1F5F9',  // Subtle blue undertone
+    200: '#E2E8F0',
+    300: '#CBD5E1',
+    400: '#94A3B8',
+    500: '#64748B',
+    600: '#475569',
+    700: '#334155',
+    800: '#1E293B',  // Rich dark
+    900: '#0F172A',  // Near black with depth
   },
 };
 

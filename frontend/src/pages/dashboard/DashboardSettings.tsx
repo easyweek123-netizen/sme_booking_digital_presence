@@ -22,12 +22,15 @@ import {
 } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
 import { CopyIcon } from '../../components/icons';
+import { useCopyBookingLink } from '../../hooks';
+import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours } from '../../types';
 
 export function DashboardSettings() {
   const toast = useToast();
   const { data: business, isLoading } = useGetMyBusinessQuery();
   const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
+  const { copyLink, bookingUrl } = useCopyBookingLink(business?.slug);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -85,7 +88,7 @@ export function DashboardSettings() {
       toast({
         title: 'Settings saved',
         status: 'success',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
       setHasChanges(false);
     } catch {
@@ -93,29 +96,8 @@ export function DashboardSettings() {
         title: 'Error',
         description: 'Could not save settings. Please try again.',
         status: 'error',
-        duration: 3000,
+        duration: TOAST_DURATION.MEDIUM,
       });
-    }
-  };
-
-  const handleCopyLink = async () => {
-    if (business?.slug) {
-      const bookingUrl = `${window.location.origin}/book/${business.slug}`;
-      try {
-        await navigator.clipboard.writeText(bookingUrl);
-        toast({
-          title: 'Link copied!',
-          status: 'success',
-          duration: 2000,
-        });
-      } catch {
-        toast({
-          title: 'Could not copy link',
-          description: 'Please copy the link manually.',
-          status: 'error',
-          duration: 3000,
-        });
-      }
     }
   };
 
@@ -157,13 +139,14 @@ export function DashboardSettings() {
           p={4}
           align="center"
           justify="space-between"
+          gap={3}
         >
-          <Box>
+          <Box flex={1} minW={0}>
             <Text fontSize="sm" color="gray.500" mb={1}>
               Share this link with your customers
             </Text>
-            <Text fontWeight="500" color="brand.600">
-              {window.location.origin}/book/{business.slug}
+            <Text fontWeight="500" color="brand.600" isTruncated>
+              {bookingUrl}
             </Text>
           </Box>
           <Button
@@ -171,7 +154,8 @@ export function DashboardSettings() {
             colorScheme="brand"
             variant="outline"
             size="sm"
-            onClick={handleCopyLink}
+            onClick={copyLink}
+            flexShrink={0}
           >
             Copy
           </Button>

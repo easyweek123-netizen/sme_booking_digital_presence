@@ -35,3 +35,7 @@ export type {
   BookingStats,
 } from './booking.types';
 
+// API types
+export type { ApiError, RtkQueryError } from './api.types';
+export { isRtkQueryError, getErrorMessage } from './api.types';
+

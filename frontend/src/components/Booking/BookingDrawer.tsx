@@ -106,10 +106,11 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
 
       setCreatedBooking(booking);
       setStep('success');
-    } catch (error: any) {
+    } catch (error) {
+      const apiError = error as { data?: { message?: string } };
       toast({
         title: 'Booking Failed',
-        description: error.data?.message || 'Something went wrong. Please try again.',
+        description: apiError.data?.message || 'Something went wrong. Please try again.',
         status: 'error',
         duration: 5000,
         isClosable: true,

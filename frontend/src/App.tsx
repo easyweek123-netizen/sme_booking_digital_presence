@@ -30,7 +30,7 @@ function App() {
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
         <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
-        <Route path="/book/:slug" element={<BookingPage />} />
+        <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
         
         {/* Protected routes */}
         <Route

@@ -122,7 +122,7 @@ export function DashboardServices() {
         duration: 3000,
       });
       closeDelete();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Something went wrong. Please try again.',
@@ -143,7 +143,7 @@ export function DashboardServices() {
         status: 'success',
         duration: 2000,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Could not update service.',

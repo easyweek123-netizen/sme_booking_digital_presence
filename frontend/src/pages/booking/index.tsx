@@ -12,28 +12,41 @@ import {
   Collapse,
   Button,
   Flex,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  Badge,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useGetBusinessBySlugQuery } from '../../store/api/businessApi';
-import { PhoneIcon, MapPinIcon, ClockIcon, ChevronRightIcon } from '../../components/icons';
+import { ROUTES } from '../../config/routes';
+import { bookingsApi } from '../../store/api/bookingsApi';
+import { PhoneIcon, MapPinIcon, ClockIcon, ChevronRightIcon, SearchIcon } from '../../components/icons';
 import { Logo } from '../../components/ui/Logo';
 import { BookingDrawer } from '../../components/Booking/BookingDrawer';
-import type { Service } from '../../types';
-import { formatTime, DAY_LABELS, DAYS_OF_WEEK } from '../../constants/booking';
-import { formatDuration, formatPrice } from '../../utils/format';
+import type { Service, Booking } from '../../types';
+import { formatTime, DAY_LABELS, DAYS_OF_WEEK, BOOKING_STATUS_CONFIG } from '../../constants';
+import { formatDuration, formatPrice, formatBookingDate } from '../../utils/format';
 
 export function BookingPage() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { data: business, isLoading, error } = useGetBusinessBySlugQuery(slug || '');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const { isOpen: isHoursOpen, onToggle: toggleHours } = useDisclosure();
+  const { isOpen: isStatusOpen, onToggle: toggleStatus } = useDisclosure();
   const {
     isOpen: isDrawerOpen,
     onOpen: openDrawer,
     onClose: closeDrawer,
   } = useDisclosure();
+
+  // Status check state
+  const [referenceCode, setReferenceCode] = useState('');
+  const [triggerGetBooking, { data: foundBooking, isLoading: isSearching, error: searchError }] = 
+    bookingsApi.useLazyGetBookingByReferenceQuery();
 
   const handleBookService = (service: Service) => {
     setSelectedService(service);
@@ -43,6 +56,15 @@ export function BookingPage() {
   const handleDrawerClose = () => {
     closeDrawer();
     setSelectedService(null);
+  };
+
+  const handleCheckStatus = () => {
+    if (referenceCode.trim()) {
+      // Add BK- prefix if not already present
+      const code = referenceCode.trim().toUpperCase();
+      const fullReference = code.startsWith('BK-') ? code : `BK-${code}`;
+      triggerGetBooking(fullReference);
+    }
   };
 
   // Loading state
@@ -94,7 +116,7 @@ export function BookingPage() {
       {/* Header */}
       <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
         <Container maxW="lg">
-          <Logo size="sm" />
+          <Logo size="sm" onClick={() => navigate(ROUTES.HOME)} />
         </Container>
       </Box>
 
@@ -181,6 +203,86 @@ export function BookingPage() {
                 </Collapse>
               </Box>
             )}
+
+            {/* Check Booking Status Toggle */}
+            <Box>
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon={<SearchIcon size={16} />}
+                rightIcon={
+                  <Box
+                    transform={isStatusOpen ? 'rotate(90deg)' : 'rotate(0deg)'}
+                    transition="transform 0.2s"
+                  >
+                    <ChevronRightIcon size={16} />
+                  </Box>
+                }
+                onClick={toggleStatus}
+                color="gray.600"
+                px={0}
+                _hover={{ bg: 'transparent', color: 'gray.900' }}
+              >
+                Check Booking Status
+              </Button>
+              <Collapse in={isStatusOpen}>
+                <Box mt={2} p={4} bg="gray.50" borderRadius="lg">
+                  {/* Reference input */}
+                  <HStack spacing={2} mb={3}>
+                    <InputGroup size="sm">
+                      <InputLeftAddon
+                        bg="white"
+                        borderColor="gray.200"
+                        color="gray.500"
+                        fontWeight="500"
+                        fontSize="xs"
+                      >
+                        BK-
+                      </InputLeftAddon>
+                      <Input
+                        placeholder="XXXX"
+                        value={referenceCode.replace('BK-', '')}
+                        onChange={(e) => setReferenceCode(e.target.value.toUpperCase())}
+                        maxLength={4}
+                        bg="white"
+                        borderColor="gray.200"
+                        textTransform="uppercase"
+                        letterSpacing="wide"
+                        _focus={{ borderColor: 'brand.500' }}
+                      />
+                    </InputGroup>
+                    <Button
+                      size="sm"
+                      colorScheme="brand"
+                      onClick={handleCheckStatus}
+                      isLoading={isSearching}
+                      isDisabled={!referenceCode.trim()}
+                      px={6}
+                    >
+                      Check
+                    </Button>
+                  </HStack>
+
+                  {/* Search result */}
+                  {searchError && (
+                    <Box
+                      p={4}
+                      bg="red.50"
+                      borderRadius="lg"
+                      textAlign="center"
+                    >
+                      <Text color="red.600" fontSize="sm">
+                        Booking not found. Please check your reference code.
+                      </Text>
+                    </Box>
+                  )}
+
+                  {foundBooking && (
+                    <BookingStatusCard booking={foundBooking} />
+                  )}
+                </Box>
+              </Collapse>
+            </Box>
           </VStack>
         </Container>
       </Box>
@@ -268,6 +370,87 @@ function ServiceCard({ service, onBook }: ServiceCardProps) {
           </Button>
         </VStack>
       </Flex>
+    </Box>
+  );
+}
+
+// Booking Status Card Component (for customer status lookup)
+interface BookingStatusCardProps {
+  booking: Booking;
+}
+
+function BookingStatusCard({ booking }: BookingStatusCardProps) {
+  const statusConfig = BOOKING_STATUS_CONFIG[booking.status];
+
+  // Message based on status
+  const statusMessage = {
+    PENDING: 'Your booking request is awaiting confirmation from the business.',
+    CONFIRMED: 'Great news! Your booking is confirmed.',
+    COMPLETED: 'This service has been completed. Thanks for visiting!',
+    CANCELLED: 'This booking was cancelled.',
+    NO_SHOW: 'This booking was marked as a no-show.',
+  }[booking.status];
+
+  return (
+    <Box
+      bg="white"
+      p={4}
+      borderRadius="lg"
+      border="1px"
+      borderColor="gray.200"
+      borderLeftWidth="4px"
+      borderLeftColor={statusConfig.color}
+    >
+      {/* Status Badge */}
+      <Flex justify="space-between" align="center" mb={3}>
+        <Text fontSize="xs" color="gray.400" fontWeight="500">
+          {booking.reference}
+        </Text>
+        <Badge
+          bg={statusConfig.bg}
+          color={statusConfig.color}
+          fontSize="xs"
+          px={2}
+          py={0.5}
+          borderRadius="full"
+          fontWeight="600"
+        >
+          {statusConfig.label}
+        </Badge>
+      </Flex>
+
+      {/* Service Info */}
+      {booking.service && (
+        <Box mb={3}>
+          <Text fontWeight="600" color="gray.900">
+            {booking.service.name}
+          </Text>
+          <Text fontSize="sm" color="gray.500">
+            {booking.service.durationMinutes} min · {formatPrice(Number(booking.service.price))}
+          </Text>
+        </Box>
+      )}
+
+      {/* Date & Time */}
+      <HStack spacing={4} fontSize="sm" color="gray.600" mb={3}>
+        <HStack spacing={1}>
+          <ClockIcon size={14} />
+          <Text>
+            {formatBookingDate(booking.date)} · {formatTime(booking.startTime)}
+          </Text>
+        </HStack>
+      </HStack>
+
+      {/* Status Message */}
+      <Box
+        p={3}
+        bg={statusConfig.bg}
+        borderRadius="md"
+        fontSize="sm"
+        color={statusConfig.color}
+      >
+        {statusMessage}
+      </Box>
     </Box>
   );
 }

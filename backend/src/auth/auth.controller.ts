@@ -8,10 +8,10 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { AuthService, AuthResponse, AuthUser } from './auth.service';
+import { AuthService, AuthResponse } from './auth.service';
 import { RegisterDto, LoginDto } from './dto';
 import { JwtAuthGuard } from './guards';
-import type { RequestWithUser } from '../common';
+import type { RequestWithUser, AuthUser } from '../common';
 
 @Controller('auth')
 export class AuthController {

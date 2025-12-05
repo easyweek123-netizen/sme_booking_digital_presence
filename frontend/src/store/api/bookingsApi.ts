@@ -1,6 +1,7 @@
 import { baseApi } from './baseApi';
 import type {
   Booking,
+  BookingStatus,
   CreateBookingRequest,
   AvailabilityResponse,
   BookingStats,
@@ -25,6 +26,18 @@ export const bookingsApi = baseApi.injectEndpoints({
         body: data,
       }),
       invalidatesTags: ['Booking'],
+    }),
+
+    // Get booking by reference code (public, for customer status lookup)
+    getBookingByReference: builder.query<Booking, string>({
+      query: (reference) => `/bookings/status/${reference}`,
+      providesTags: ['Booking'],
+    }),
+
+    // Get pending bookings count for sidebar badge
+    getPendingCount: builder.query<{ count: number }, number>({
+      query: (businessId) => `/bookings/pending-count/${businessId}`,
+      providesTags: ['Booking'],
     }),
 
     // Get all bookings for a business (protected)
@@ -60,10 +73,10 @@ export const bookingsApi = baseApi.injectEndpoints({
       providesTags: ['Booking'],
     }),
 
-    // Update booking status (cancel or complete)
+    // Update booking status
     updateBookingStatus: builder.mutation<
       Booking,
-      { id: number; status: 'CANCELLED' | 'COMPLETED' }
+      { id: number; status: BookingStatus }
     >({
       query: ({ id, status }) => ({
         url: `/bookings/${id}/status`,
@@ -78,6 +91,8 @@ export const bookingsApi = baseApi.injectEndpoints({
 export const {
   useGetAvailabilityQuery,
   useCreateBookingMutation,
+  useGetBookingByReferenceQuery,
+  useGetPendingCountQuery,
   useGetBookingsQuery,
   useGetBookingStatsQuery,
   useGetBookingQuery,

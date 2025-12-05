@@ -1,4 +1,4 @@
-export type BookingStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
 
 export interface CustomerData {
   name: string;
@@ -8,6 +8,7 @@ export interface CustomerData {
 
 export interface Booking {
   id: number;
+  reference: string;
   businessId: number;
   serviceId: number;
   customerName: string;
@@ -24,6 +25,11 @@ export interface Booking {
     durationMinutes: number;
     price: number;
   };
+  business?: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface CreateBookingRequest {
@@ -37,7 +43,7 @@ export interface CreateBookingRequest {
 }
 
 export interface UpdateBookingStatusRequest {
-  status: 'CANCELLED' | 'COMPLETED';
+  status: BookingStatus;
 }
 
 export interface AvailabilityResponse {

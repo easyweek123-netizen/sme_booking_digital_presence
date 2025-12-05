@@ -2,7 +2,6 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -10,6 +9,7 @@ import { Business } from './entities/business.entity';
 import { Service } from '../services/entities/service.entity';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { assertBusinessOwnership } from '../common';
 
 @Injectable()
 export class BusinessService {
@@ -94,10 +94,16 @@ export class BusinessService {
 
       // Return the business with services
       return this.findByOwner(ownerId);
-    } catch (error) {
+    } catch (error: any) {
       await queryRunner.rollbackTransaction();
-      // Handle duplicate slug error (MySQL error code 1062)
-      if (error.code === 'ER_DUP_ENTRY' && error.message?.includes('slug')) {
+      // Handle duplicate slug error
+      // MySQL: ER_DUP_ENTRY (code 1062), PostgreSQL: code 23505
+      const isDuplicateError =
+        error.code === 'ER_DUP_ENTRY' ||
+        error.code === '23505' ||
+        error.constraint?.includes('slug');
+      
+      if (isDuplicateError) {
         throw new ConflictException(
           'Business with this name already exists. Please choose a different name.',
         );
@@ -167,9 +173,7 @@ export class BusinessService {
     const business = await this.findOne(id);
 
     // Verify ownership
-    if (business.ownerId !== ownerId) {
-      throw new ForbiddenException('You do not own this business');
-    }
+    assertBusinessOwnership(business, ownerId);
 
     // Update fields
     if (updateBusinessDto.name !== undefined) {

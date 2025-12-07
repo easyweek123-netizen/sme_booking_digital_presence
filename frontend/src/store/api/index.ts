@@ -6,7 +6,7 @@ export { useGetHealthQuery } from './healthApi';
 export type { HealthResponse } from './healthApi';
 
 // Auth
-export { useLoginMutation, useRegisterMutation, useGetMeQuery } from './authApi';
+export { useGetMeQuery } from './authApi';
 
 // Business Categories
 export { useGetBusinessCategoriesQuery } from './businessCategoriesApi';
@@ -40,8 +40,6 @@ export {
 // Re-export all types from central types folder
 export type {
   User,
-  LoginRequest,
-  RegisterRequest,
   AuthResponse,
   WorkingHours,
   BusinessType,

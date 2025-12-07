@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
 import { Business } from '../../business/entities/business.entity';
 import { Service } from '../../services/entities/service.entity';
+import { Customer } from '../../customers/entities/customer.entity';
 
 export enum BookingStatus {
   PENDING = 'PENDING',       // New booking, awaiting owner confirmation
@@ -30,9 +31,6 @@ export class Booking {
   @Column({ type: 'varchar', length: 255 })
   customerEmail: string;
 
-  @Column({ type: 'varchar', length: 20 })
-  customerPhone: string;
-
   @Column({ type: 'date' })
   date: Date;
 
@@ -52,6 +50,13 @@ export class Booking {
   @ManyToOne(() => Service, (service) => service.bookings)
   @JoinColumn({ name: 'serviceId' })
   service: Service;
+
+  @Column()
+  customerId: number;
+
+  @ManyToOne(() => Customer, (customer) => customer.bookings)
+  @JoinColumn({ name: 'customerId' })
+  customer: Customer;
 
   @CreateDateColumn()
   createdAt: Date;

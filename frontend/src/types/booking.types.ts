@@ -3,7 +3,6 @@ export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' 
 export interface CustomerData {
   name: string;
   email: string;
-  phone: string;
 }
 
 export interface Booking {
@@ -13,7 +12,6 @@ export interface Booking {
   serviceId: number;
   customerName: string;
   customerEmail: string;
-  customerPhone: string;
   date: string;
   startTime: string;
   endTime: string;
@@ -37,7 +35,6 @@ export interface CreateBookingRequest {
   serviceId: number;
   customerName: string;
   customerEmail: string;
-  customerPhone: string;
   date: string;
   startTime: string;
 }

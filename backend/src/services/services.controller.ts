@@ -14,9 +14,9 @@ import {
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto, UpdateServiceDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards';
+import { FirebaseAuthGuard } from '../auth/guards';
 import { Service } from './entities/service.entity';
-import type { RequestWithUser } from '../common';
+import type { RequestWithFirebaseUser } from '../common';
 
 @Controller('services')
 export class ServicesController {
@@ -27,13 +27,13 @@ export class ServicesController {
    * POST /api/services
    */
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Body() createServiceDto: CreateServiceDto,
   ): Promise<Service> {
-    return this.servicesService.create(req.user.id, createServiceDto);
+    return this.servicesService.create(req.firebaseUser, createServiceDto);
   }
 
   /**
@@ -61,13 +61,13 @@ export class ServicesController {
    * PATCH /api/services/:id
    */
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   async update(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    return this.servicesService.update(id, req.user.id, updateServiceDto);
+    return this.servicesService.update(id, req.firebaseUser, updateServiceDto);
   }
 
   /**
@@ -75,12 +75,12 @@ export class ServicesController {
    * DELETE /api/services/:id
    */
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {
-    return this.servicesService.remove(id, req.user.id);
+    return this.servicesService.remove(id, req.firebaseUser);
   }
 }

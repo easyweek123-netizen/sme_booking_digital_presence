@@ -6,8 +6,10 @@ import { ChakraProvider, Spinner, Center } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 
 import { store, persistor } from './store/store';
+import './store/storeListeners'; // Register store side-effect listeners
 import { theme } from './theme';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { AuthProvider } from './contexts/AuthContext';
 import App from './App';
 
 import './index.css';
@@ -26,7 +28,9 @@ createRoot(document.getElementById('root')!).render(
         <PersistGate loading={<PersistLoader />} persistor={persistor}>
           <ChakraProvider theme={theme}>
             <BrowserRouter>
-              <App />
+              <AuthProvider>
+                <App />
+              </AuthProvider>
             </BrowserRouter>
           </ChakraProvider>
         </PersistGate>

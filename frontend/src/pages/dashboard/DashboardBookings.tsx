@@ -27,7 +27,7 @@ import {
   useUpdateBookingStatusMutation,
   useGetPendingCountQuery,
 } from '../../store/api/bookingsApi';
-import { ClockIcon, PhoneIcon, MailIcon, CheckIcon, CloseIcon } from '../../components/icons';
+import { ClockIcon, MailIcon, CheckIcon, CloseIcon } from '../../components/icons';
 import { formatTime, BOOKING_STATUS_CONFIG, TOAST_DURATION } from '../../constants';
 import { formatBookingDate, formatPrice, getTodayString } from '../../utils/format';
 import type { Booking, BookingStatus } from '../../types';
@@ -453,15 +453,9 @@ function BookingCard({
         <Text fontWeight="500" color="gray.900" mb={1}>
           {booking.customerName}
         </Text>
-        <HStack spacing={4} fontSize="sm" color="gray.500" flexWrap="wrap">
-          <HStack spacing={1}>
-            <MailIcon size={14} />
-            <Text>{booking.customerEmail}</Text>
-          </HStack>
-          <HStack spacing={1}>
-            <PhoneIcon size={14} />
-            <Text>{booking.customerPhone}</Text>
-          </HStack>
+        <HStack spacing={1} fontSize="sm" color="gray.500">
+          <MailIcon size={14} />
+          <Text>{booking.customerEmail}</Text>
         </HStack>
       </Box>
 

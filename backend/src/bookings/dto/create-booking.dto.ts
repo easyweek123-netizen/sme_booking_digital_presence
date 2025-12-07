@@ -24,10 +24,6 @@ export class CreateBookingDto {
   @IsNotEmpty()
   customerEmail: string;
 
-  @IsString()
-  @IsNotEmpty()
-  customerPhone: string;
-
   @IsDateString()
   @IsNotEmpty()
   date: string; // YYYY-MM-DD format

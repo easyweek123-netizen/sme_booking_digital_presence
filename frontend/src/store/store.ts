@@ -1,4 +1,9 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import {
+  configureStore,
+  combineReducers,
+  createListenerMiddleware,
+  type UnknownAction,
+} from '@reduxjs/toolkit';
 import {
   persistStore,
   persistReducer,
@@ -14,18 +19,33 @@ import storage from 'redux-persist/lib/storage';
 import authReducer from './slices/authSlice';
 import onboardingReducer from './slices/onboardingSlice';
 import { baseApi } from './api/baseApi';
+import { RESET_STORE } from './actions';
 
-const rootReducer = combineReducers({
+// Create listener middleware (listeners registered in storeListeners.ts)
+export const listenerMiddleware = createListenerMiddleware();
+
+// Combine all reducers
+const appReducer = combineReducers({
   auth: authReducer,
   onboarding: onboardingReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 
+// Root reducer with reset capability
+type AppState = ReturnType<typeof appReducer>;
+
+const rootReducer = (state: AppState | undefined, action: UnknownAction): AppState => {
+  if (action.type === RESET_STORE) {
+    return appReducer(undefined, action);
+  }
+  return appReducer(state, action);
+};
+
 const persistConfig = {
   key: 'bookeasy',
   version: 1,
   storage,
-  whitelist: ['auth', 'onboarding'], // Only persist auth and onboarding, not API cache
+  whitelist: ['auth', 'onboarding'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -35,12 +55,14 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, RESET_STORE],
       },
-    }).concat(baseApi.middleware),
+    })
+      .prepend(listenerMiddleware.middleware)
+      .concat(baseApi.middleware),
 });
 
 export const persistor = persistStore(store);
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof appReducer>;
 export type AppDispatch = typeof store.dispatch;

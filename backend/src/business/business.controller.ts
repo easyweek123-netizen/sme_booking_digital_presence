@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto, UpdateBusinessDto } from './dto';
-import { JwtAuthGuard } from '../auth/guards';
+import { FirebaseAuthGuard } from '../auth/guards';
 import { Business } from './entities/business.entity';
-import type { RequestWithUser } from '../common';
+import type { RequestWithFirebaseUser } from '../common';
 
 @Controller('business')
 export class BusinessController {
@@ -26,13 +26,13 @@ export class BusinessController {
    * POST /api/business
    */
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Body() createBusinessDto: CreateBusinessDto,
   ): Promise<Business> {
-    return this.businessService.create(req.user.id, createBusinessDto);
+    return this.businessService.create(req.firebaseUser, createBusinessDto);
   }
 
   /**
@@ -40,9 +40,9 @@ export class BusinessController {
    * GET /api/business/me
    */
   @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async getMyBusiness(@Request() req: RequestWithUser): Promise<Business> {
-    return this.businessService.findByOwner(req.user.id);
+  @UseGuards(FirebaseAuthGuard)
+  async getMyBusiness(@Request() req: RequestWithFirebaseUser): Promise<Business> {
+    return this.businessService.findByOwner(req.firebaseUser);
   }
 
   /**
@@ -68,12 +68,12 @@ export class BusinessController {
    * PATCH /api/business/:id
    */
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   async update(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
-    return this.businessService.update(id, req.user.id, updateBusinessDto);
+    return this.businessService.update(id, req.firebaseUser, updateBusinessDto);
   }
 }

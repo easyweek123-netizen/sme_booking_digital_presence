@@ -1,85 +1,69 @@
-import { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Container,
   Heading,
   Text,
   VStack,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  Input,
   useToast,
-  Link,
-  Divider,
-  HStack,
 } from '@chakra-ui/react';
 import { Logo } from '../../components/ui/Logo';
-import { PrimaryButton } from '../../components/ui/PrimaryButton';
-import { useLoginMutation } from '../../store/api/authApi';
-import { useAppDispatch } from '../../store/hooks';
-import { setCredentials } from '../../store/slices/authSlice';
+import { GoogleButton } from '../../lib/auth';
+import { useAuth } from '../../contexts/AuthContext';
+import { type User } from '../../lib/firebase';
 import { ROUTES } from '../../config/routes';
 import { TOAST_DURATION } from '../../constants';
 
-interface FormErrors {
-  email?: string;
-  password?: string;
-}
-
 export function LoginPage() {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const location = useLocation();
   const toast = useToast();
-  const [login, { isLoading }] = useLoginMutation();
+  const { firebaseUser, isLoading } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<FormErrors>({});
+  // Get the intended destination (if redirected from protected route)
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || ROUTES.DASHBOARD.ROOT;
 
-  function validateForm(): boolean {
-    const newErrors: FormErrors = {};
-
-    if (!email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
+  // Redirect if already logged in
+  useEffect(() => {
+    if (firebaseUser && !isLoading) {
+      navigate(from, { replace: true });
     }
+  }, [firebaseUser, isLoading, navigate, from]);
 
-    if (!password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  function handleAuthSuccess(user: User) {
+    toast({
+      title: 'Welcome!',
+      description: `Signed in as ${user.email || user.displayName || 'User'}`,
+      status: 'success',
+      duration: TOAST_DURATION.MEDIUM,
+      isClosable: true,
+    });
+    navigate(from, { replace: true });
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function handleAuthError(error: Error) {
+    toast({
+      title: 'Authentication failed',
+      description: error.message || 'Something went wrong. Please try again.',
+      status: 'error',
+      duration: TOAST_DURATION.LONG,
+      isClosable: true,
+    });
+  }
 
-    if (!validateForm()) return;
-
-    try {
-      const result = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ user: result.user, token: result.token }));
-      toast({
-        title: 'Welcome back!',
-        status: 'success',
-        duration: TOAST_DURATION.MEDIUM,
-        isClosable: true,
-      });
-      navigate(ROUTES.DASHBOARD.ROOT);
-    } catch (error) {
-      const err = error as { data?: { message?: string } };
-      toast({
-        title: 'Login failed',
-        description: err.data?.message || 'Invalid credentials',
-        status: 'error',
-        duration: TOAST_DURATION.LONG,
-        isClosable: true,
-      });
-    }
+  // Show loading while checking auth state
+  if (isLoading) {
+    return (
+      <Box minH="100vh" bg="gray.50" py={20}>
+        <Container maxW="md">
+          <VStack spacing={8}>
+            <Logo size="lg" />
+            <Text color="gray.600">Loading...</Text>
+          </VStack>
+        </Container>
+      </Box>
+    );
   }
 
   return (
@@ -87,10 +71,8 @@ export function LoginPage() {
       <Container maxW="md">
         <VStack spacing={8}>
           <Logo size="lg" onClick={() => navigate(ROUTES.HOME)} />
-          
+
           <VStack
-            as="form"
-            onSubmit={handleSubmit}
             spacing={6}
             bg="white"
             p={8}
@@ -100,77 +82,20 @@ export function LoginPage() {
           >
             <VStack spacing={2} textAlign="center">
               <Heading size="lg" color="gray.900">
-                Welcome back
+                Welcome to BookEasy
               </Heading>
               <Text color="gray.600">
-                Sign in to manage your business
+                Sign in with Google to manage your business
               </Text>
             </VStack>
 
-            <FormControl isInvalid={!!errors.email}>
-              <FormLabel color="gray.700">Email</FormLabel>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                size="lg"
-                borderRadius="lg"
-                _focus={{
-                  borderColor: 'brand.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                }}
-              />
-              <FormErrorMessage>{errors.email}</FormErrorMessage>
-            </FormControl>
+            <GoogleButton
+              onSuccess={handleAuthSuccess}
+              onError={handleAuthError}
+            />
 
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel color="gray.700">Password</FormLabel>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                size="lg"
-                borderRadius="lg"
-                _focus={{
-                  borderColor: 'brand.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                }}
-              />
-              <FormErrorMessage>{errors.password}</FormErrorMessage>
-            </FormControl>
-
-            <PrimaryButton
-              type="submit"
-              isLoading={isLoading}
-              loadingText="Signing in..."
-              w="full"
-              size="lg"
-              showArrow={false}
-            >
-              Sign in
-            </PrimaryButton>
-
-            <HStack w="full" spacing={4}>
-              <Divider />
-              <Text color="gray.500" fontSize="sm" whiteSpace="nowrap">
-                or
-              </Text>
-              <Divider />
-            </HStack>
-
-            <Text color="gray.600" textAlign="center">
-              Don't have an account?{' '}
-              <Link
-                as={RouterLink}
-                to={ROUTES.SIGNUP}
-                color="brand.500"
-                fontWeight="600"
-                _hover={{ textDecoration: 'underline' }}
-              >
-                Create one
-              </Link>
+            <Text color="gray.500" fontSize="xs" textAlign="center" pt={2}>
+              By signing in, you agree to our Terms of Service and Privacy Policy.
             </Text>
           </VStack>
         </VStack>

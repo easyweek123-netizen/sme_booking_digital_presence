@@ -29,6 +29,10 @@ export class OwnerService {
     return this.ownerRepository.findOne({ where: { email } });
   }
 
+  async findByFirebaseUid(firebaseUid: string): Promise<Owner | null> {
+    return this.ownerRepository.findOne({ where: { firebaseUid } });
+  }
+
   async update(id: number, updateOwnerDto: UpdateOwnerDto): Promise<Owner | null> {
     await this.ownerRepository.update(id, updateOwnerDto);
     return this.findOne(id);

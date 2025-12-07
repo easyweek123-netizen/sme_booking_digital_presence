@@ -21,13 +21,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DateSelector } from './DateSelector';
 import { TimeSlotGrid } from './TimeSlotGrid';
-import { CustomerForm } from './CustomerForm';
+import { BookerVerification } from './BookerVerification';
 import { BookingSuccess } from './BookingSuccess';
 import { useGetAvailabilityQuery, useCreateBookingMutation } from '../../store/api/bookingsApi';
-import type { Service, BusinessWithServices, Booking, CustomerData } from '../../types';
+import type { Service, BusinessWithServices, Booking } from '../../types';
 import { formatTime, TOAST_DURATION } from '../../constants';
 import { formatDuration, formatPrice, formatDateDisplay, getTodayString } from '../../utils/format';
 import { generateBrandColorCss, isValidHexColor } from '../../utils/brandColor';
+import { type User } from '../../lib/firebase';
 
 const MotionBox = motion.create(Box);
 
@@ -38,7 +39,12 @@ interface BookingDrawerProps {
   business: BusinessWithServices;
 }
 
-type BookingStep = 'select' | 'form' | 'success';
+type BookingStep = 'select' | 'verify' | 'success';
+
+interface VerifiedCustomer {
+  firebaseUser: User;
+  name: string;
+}
 
 export function BookingDrawer({ isOpen, onClose, service, business }: BookingDrawerProps) {
   const toast = useToast();
@@ -58,6 +64,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [step, setStep] = useState<BookingStep>('select');
   const [createdBooking, setCreatedBooking] = useState<Booking | null>(null);
+  const [_verifiedCustomer, setVerifiedCustomer] = useState<VerifiedCustomer | null>(null);
 
   // API hooks
   const {
@@ -82,6 +89,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
       setSelectedTime(null);
       setStep('select');
       setCreatedBooking(null);
+      setVerifiedCustomer(null);
     }
   }, [isOpen]);
 
@@ -92,25 +100,30 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
-    setStep('form');
+    setStep('verify');
   };
 
   const handleBackToSelect = () => {
     setStep('select');
+    setVerifiedCustomer(null);
   };
 
-  const handleSubmit = async (customerData: CustomerData) => {
+  const handleVerified = async (firebaseUser: User, name: string) => {
+    setVerifiedCustomer({ firebaseUser, name });
+    
+    // Proceed to create booking
     if (!selectedTime) return;
 
     try {
+      // The Firebase token will be added automatically by baseApi
+      
       const booking = await createBooking({
         businessId: business.id,
         serviceId: service.id,
         date: selectedDate,
         startTime: selectedTime,
-        customerName: customerData.name,
-        customerEmail: customerData.email,
-        customerPhone: customerData.phone,
+        customerName: name,
+        customerEmail: firebaseUser.email || '',
       }).unwrap();
 
       setCreatedBooking(booking);
@@ -125,6 +138,16 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
         isClosable: true,
       });
     }
+  };
+
+  const handleVerificationError = (error: Error) => {
+    toast({
+      title: 'Verification Failed',
+      description: error.message || 'Could not verify your identity. Please try again.',
+      status: 'error',
+      duration: TOAST_DURATION.LONG,
+      isClosable: true,
+    });
   };
 
   return (
@@ -173,6 +196,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                     setStep('select');
                     setSelectedTime(null);
                     setCreatedBooking(null);
+                    setVerifiedCustomer(null);
                   }}
                 />
               </MotionBox>
@@ -184,7 +208,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                 exit={{ opacity: 0 }}
               >
                 <VStack spacing={0} align="stretch">
-                  {/* Date Selector */}
+                  {/* Date Selector - always visible */}
                   <Box p={4} bg="gray.50">
                     <DateSelector
                       selectedDate={selectedDate}
@@ -195,7 +219,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
 
                   <Divider />
 
-                  {/* Time Slots or Form */}
+                  {/* Content based on step */}
                   <Box p={4}>
                     {step === 'select' ? (
                       <>
@@ -216,7 +240,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                           />
                         )}
                       </>
-                    ) : (
+                    ) : step === 'verify' ? (
                       <MotionBox
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -247,12 +271,25 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                           </Button>
                         </Flex>
 
-                        <CustomerForm
-                          onSubmit={handleSubmit}
-                          isLoading={isCreating}
+                        {/* Verification Component */}
+                        <BookerVerification
+                          onVerified={handleVerified}
+                          onError={handleVerificationError}
+                          businessName={business.name}
                         />
+
+                        {isCreating && (
+                          <Center py={4}>
+                            <VStack spacing={2}>
+                              <Spinner size="md" color="brand.500" />
+                              <Text fontSize="sm" color="gray.500">
+                                Creating your booking...
+                              </Text>
+                            </VStack>
+                          </Center>
+                        )}
                       </MotionBox>
-                    )}
+                    ) : null}
                   </Box>
                 </VStack>
               </MotionBox>
@@ -263,4 +300,3 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
     </Drawer>
   );
 }
-

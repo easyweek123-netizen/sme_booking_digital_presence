@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,7 +8,9 @@ import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { AuthService } from '../auth/auth.service';
 import { verifyBusinessOwnership } from '../common';
+import type { FirebaseUser } from '../common';
 
 @Injectable()
 export class ServicesService {
@@ -18,19 +19,22 @@ export class ServicesService {
     private readonly serviceRepository: Repository<Service>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
+    private readonly authService: AuthService,
   ) {}
 
   /**
    * Create a new service for a business
    */
   async create(
-    ownerId: number,
+    firebaseUser: FirebaseUser,
     createServiceDto: CreateServiceDto,
   ): Promise<Service> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    
     await verifyBusinessOwnership(
       this.businessRepository,
       createServiceDto.businessId,
-      ownerId,
+      owner.id,
     );
 
     const service = this.serviceRepository.create({
@@ -84,9 +88,11 @@ export class ServicesService {
    */
   async update(
     id: number,
-    ownerId: number,
+    firebaseUser: FirebaseUser,
     updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -97,7 +103,7 @@ export class ServicesService {
     }
 
     // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
 
     // Update fields
     if (updateServiceDto.name !== undefined) {
@@ -125,7 +131,9 @@ export class ServicesService {
   /**
    * Soft delete a service by setting isActive = false
    */
-  async remove(id: number, ownerId: number): Promise<void> {
+  async remove(id: number, firebaseUser: FirebaseUser): Promise<void> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -136,7 +144,7 @@ export class ServicesService {
     }
 
     // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
 
     // Soft delete - mark as inactive
     service.isActive = false;

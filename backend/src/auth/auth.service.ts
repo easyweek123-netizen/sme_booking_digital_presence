@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { OwnerService } from '../owner/owner.service';
 import { Owner } from '../owner/entities/owner.entity';
 import type { AuthUser, FirebaseUser } from '../common/types';
@@ -20,11 +20,18 @@ export class AuthService {
     let owner = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
 
     if (!owner) {
+      // Validate email is present (required for owners)
+      if (!firebaseUser.email) {
+        throw new BadRequestException(
+          'Email is required for owner registration. Please sign in with an email-based method.',
+        );
+      }
+
       // Auto-create owner on first login
       owner = await this.ownerService.create({
         firebaseUid: firebaseUser.uid,
-        email: firebaseUser.email!,
-        name: firebaseUser.name || firebaseUser.email!.split('@')[0],
+        email: firebaseUser.email,
+        name: firebaseUser.name || firebaseUser.email.split('@')[0],
       });
     }
 

@@ -10,7 +10,7 @@ import {
 } from '../icons';
 import { ROUTES } from '../../config/routes';
 import { useAppDispatch } from '../../store/hooks';
-import { logout } from '../../store/slices/authSlice';
+import { resetStore } from '../../store/actions';
 import { useGetMyBusinessQuery } from '../../store/api/businessApi';
 import { useGetPendingCountQuery } from '../../store/api/bookingsApi';
 
@@ -50,7 +50,7 @@ export function Sidebar({ onClose }: SidebarProps) {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(resetStore());
     navigate(ROUTES.HOME);
     onClose?.();
   };
@@ -166,4 +166,3 @@ export function Sidebar({ onClose }: SidebarProps) {
     </Flex>
   );
 }
-

@@ -19,7 +19,7 @@ import { PrimaryButton } from '../ui/PrimaryButton';
 import { MenuIcon, CloseIcon, UserIcon } from '../icons';
 import { ROUTES } from '../../config/routes';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { logout } from '../../store/slices/authSlice';
+import { resetStore } from '../../store/actions';
 
 export function Header() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export function Header() {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(resetStore());
     onClose();
     navigate(ROUTES.HOME);
   };
@@ -252,4 +252,3 @@ export function Header() {
     </>
   );
 }
-

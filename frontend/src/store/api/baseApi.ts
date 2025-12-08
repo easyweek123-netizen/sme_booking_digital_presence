@@ -8,6 +8,7 @@ export const baseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
     prepareHeaders: (headers, { getState }) => {
+      // Get token from Redux store
       const token = (getState() as RootState).auth.token;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
@@ -16,7 +17,6 @@ export const baseApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Owner', 'Business', 'Service', 'Booking', 'Category'],
+  tagTypes: ['Owner', 'Business', 'Service', 'Booking', 'Category', 'Customer'],
   endpoints: () => ({}),
 });
-

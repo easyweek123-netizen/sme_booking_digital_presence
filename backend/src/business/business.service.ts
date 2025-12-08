@@ -9,7 +9,9 @@ import { Business } from './entities/business.entity';
 import { Service } from '../services/entities/service.entity';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { AuthService } from '../auth/auth.service';
 import { assertBusinessOwnership } from '../common';
+import type { FirebaseUser } from '../common';
 
 @Injectable()
 export class BusinessService {
@@ -17,6 +19,7 @@ export class BusinessService {
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
     private readonly dataSource: DataSource,
+    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -44,9 +47,12 @@ export class BusinessService {
    * Create a new business with services in a transaction
    */
   async create(
-    ownerId: number,
+    firebaseUser: FirebaseUser,
     createBusinessDto: CreateBusinessDto,
   ): Promise<Business> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    const ownerId = owner.id;
+
     // Check if owner already has a business
     const existingBusiness = await this.businessRepository.findOne({
       where: { ownerId },
@@ -95,7 +101,7 @@ export class BusinessService {
       await queryRunner.commitTransaction();
 
       // Return the business with services
-      return this.findByOwner(ownerId);
+      return this.findByOwnerId(ownerId);
     } catch (error: any) {
       await queryRunner.rollbackTransaction();
       // Handle duplicate slug error
@@ -117,9 +123,17 @@ export class BusinessService {
   }
 
   /**
-   * Find business by owner ID with services
+   * Find business by Firebase user
    */
-  async findByOwner(ownerId: number): Promise<Business> {
+  async findByOwner(firebaseUser: FirebaseUser): Promise<Business> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    return this.findByOwnerId(owner.id);
+  }
+
+  /**
+   * Find business by owner ID (internal use)
+   */
+  private async findByOwnerId(ownerId: number): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { ownerId },
       relations: ['services', 'businessType'],
@@ -169,13 +183,14 @@ export class BusinessService {
    */
   async update(
     id: number,
-    ownerId: number,
+    firebaseUser: FirebaseUser,
     updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
     const business = await this.findOne(id);
 
     // Verify ownership
-    assertBusinessOwnership(business, ownerId);
+    assertBusinessOwnership(business, owner.id);
 
     // Update fields
     if (updateBusinessDto.name !== undefined) {

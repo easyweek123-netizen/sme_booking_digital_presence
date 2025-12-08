@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
   Request,
   ParseIntPipe,
   HttpCode,
@@ -15,9 +16,10 @@ import {
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking.dto';
-import { JwtAuthGuard } from '../auth/guards';
+import { FirebaseAuthGuard } from '../auth/guards';
+import { CustomerResolverInterceptor } from '../customers/interceptors';
 import { Booking, BookingStatus } from './entities/booking.entity';
-import type { RequestWithUser } from '../common';
+import type { RequestWithFirebaseUser, RequestWithCustomer } from '../common';
 
 @Controller('bookings')
 export class BookingsController {
@@ -40,12 +42,16 @@ export class BookingsController {
   /**
    * Create a new booking
    * POST /api/bookings
-   * Public endpoint (no auth required - customers book without accounts)
+   * Requires Firebase authentication (customer must be signed in)
    */
   @Post()
+  @UseInterceptors(CustomerResolverInterceptor)
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createBookingDto: CreateBookingDto): Promise<Booking> {
-    return this.bookingsService.create(createBookingDto);
+  async create(
+    @Request() req: RequestWithCustomer,
+    @Body() createBookingDto: CreateBookingDto,
+  ): Promise<Booking> {
+    return this.bookingsService.create(createBookingDto, req.customerId);
   }
 
   /**
@@ -54,15 +60,15 @@ export class BookingsController {
    * Protected endpoint
    */
   @Get('business/:businessId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   async findByBusiness(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('businessId', ParseIntPipe) businessId: number,
     @Query('status') status?: BookingStatus,
     @Query('from') from?: string,
     @Query('to') to?: string,
   ): Promise<Booking[]> {
-    return this.bookingsService.findByBusiness(businessId, req.user.id, {
+    return this.bookingsService.findByBusiness(businessId, req.firebaseUser, {
       status,
       from,
       to,
@@ -75,12 +81,12 @@ export class BookingsController {
    * Protected endpoint
    */
   @Get('stats/:businessId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   async getStats(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('businessId', ParseIntPipe) businessId: number,
   ): Promise<{ total: number; today: number }> {
-    return this.bookingsService.getStats(businessId, req.user.id);
+    return this.bookingsService.getStats(businessId, req.firebaseUser);
   }
 
   /**
@@ -99,12 +105,12 @@ export class BookingsController {
    * Protected endpoint
    */
   @Get('pending-count/:businessId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   async getPendingCount(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('businessId', ParseIntPipe) businessId: number,
   ): Promise<{ count: number }> {
-    const count = await this.bookingsService.getPendingCount(businessId, req.user.id);
+    const count = await this.bookingsService.getPendingCount(businessId, req.firebaseUser);
     return { count };
   }
 
@@ -124,15 +130,15 @@ export class BookingsController {
    * Protected endpoint (owner only)
    */
   @Patch(':id/status')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(FirebaseAuthGuard)
   async updateStatus(
-    @Request() req: RequestWithUser,
+    @Request() req: RequestWithFirebaseUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBookingStatusDto: UpdateBookingStatusDto,
   ): Promise<Booking> {
     return this.bookingsService.updateStatus(
       id,
-      req.user.id,
+      req.firebaseUser,
       updateBookingStatusDto.status,
     );
   }

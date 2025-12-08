@@ -2,29 +2,33 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
+import { FirebaseModule } from './firebase/firebase.module';
 import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { BusinessModule } from './business/business.module';
 import { ServicesModule } from './services/services.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { BusinessCategoriesModule } from './business-categories/business-categories.module';
-import { databaseConfig, appConfig, jwtConfig } from './config';
+import { CustomersModule } from './customers/customers.module';
+import { databaseConfig, appConfig } from './config';
 
 @Module({
   imports: [
     // Load configuration first
     ConfigModule.forRoot({
       isGlobal: true, // Makes ConfigModule available everywhere
-      load: [databaseConfig, appConfig, jwtConfig],
+      load: [databaseConfig, appConfig],
       envFilePath: ['.env.local', '.env'], // Load .env.local first, then .env
     }),
     DatabaseModule,
+    FirebaseModule,
     AuthModule,
     OwnerModule,
     BusinessModule,
     ServicesModule,
     BookingsModule,
     BusinessCategoriesModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [],

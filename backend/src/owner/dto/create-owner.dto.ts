@@ -1,6 +1,10 @@
-import { IsEmail, IsString, IsOptional, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 
 export class CreateOwnerDto {
+  @IsString()
+  @IsNotEmpty()
+  firebaseUid: string;
+
   @IsEmail()
   email: string;
 
@@ -8,12 +12,4 @@ export class CreateOwnerDto {
   @MinLength(1)
   @MaxLength(100)
   name: string;
-
-  @IsString()
-  @IsOptional()
-  passwordHash?: string;
-
-  @IsString()
-  @IsOptional()
-  googleId?: string;
 }

@@ -9,8 +9,9 @@ import { Booking, BookingStatus } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
+import { AuthService } from '../auth/auth.service';
 import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
-import { WorkingHours } from '../common/types';
+import { WorkingHours, FirebaseUser } from '../common/types';
 import { generateBookingReference, verifyBusinessOwnership } from '../common';
 
 interface AvailabilityResult {
@@ -32,6 +33,7 @@ export class BookingsService {
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -160,7 +162,7 @@ export class BookingsService {
   /**
    * Create a new booking
    */
-  async create(createBookingDto: CreateBookingDto): Promise<Booking> {
+  async create(createBookingDto: CreateBookingDto, customerId: number): Promise<Booking> {
     const { businessId, serviceId, date, startTime } = createBookingDto;
 
     // 1. Verify business exists
@@ -197,9 +199,9 @@ export class BookingsService {
     const booking = this.bookingRepository.create({
       businessId,
       serviceId,
+      customerId,
       customerName: createBookingDto.customerName,
       customerEmail: createBookingDto.customerEmail,
-      customerPhone: createBookingDto.customerPhone,
       date: new Date(date),
       startTime,
       endTime,
@@ -248,8 +250,12 @@ export class BookingsService {
   /**
    * Get count of pending bookings for a business
    */
-  async getPendingCount(businessId: number, ownerId: number): Promise<number> {
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
+  async getPendingCount(
+    businessId: number,
+    firebaseUser: FirebaseUser,
+  ): Promise<number> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    await verifyBusinessOwnership(this.businessRepository, businessId, owner.id);
 
     return this.bookingRepository.count({
       where: {
@@ -264,10 +270,11 @@ export class BookingsService {
    */
   async findByBusiness(
     businessId: number,
-    ownerId: number,
+    firebaseUser: FirebaseUser,
     filters: BookingsFilter = {},
   ): Promise<Booking[]> {
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    await verifyBusinessOwnership(this.businessRepository, businessId, owner.id);
 
     // Build query
     const queryBuilder = this.bookingRepository
@@ -302,9 +309,11 @@ export class BookingsService {
    */
   async updateStatus(
     id: number,
-    ownerId: number,
+    firebaseUser: FirebaseUser,
     status: BookingStatus,
   ): Promise<Booking> {
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    
     const booking = await this.bookingRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -315,7 +324,7 @@ export class BookingsService {
     }
 
     // Verify ownership via loaded relation
-    await verifyBusinessOwnership(this.businessRepository, booking.businessId, ownerId);
+    await verifyBusinessOwnership(this.businessRepository, booking.businessId, owner.id);
 
     booking.status = status;
     await this.bookingRepository.save(booking);
@@ -328,9 +337,10 @@ export class BookingsService {
    */
   async getStats(
     businessId: number,
-    ownerId: number,
+    firebaseUser: FirebaseUser,
   ): Promise<{ total: number; today: number }> {
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
+    const owner = await this.authService.getOrCreateOwner(firebaseUser);
+    await verifyBusinessOwnership(this.businessRepository, businessId, owner.id);
 
     const today = new Date();
     const todayDate = new Date(this.getLocalDateString(today));

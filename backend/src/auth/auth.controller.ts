@@ -1,38 +1,20 @@
 import {
   Controller,
-  Post,
   Get,
-  Body,
   UseGuards,
   Request,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
-import { AuthService, AuthResponse } from './auth.service';
-import { RegisterDto, LoginDto } from './dto';
-import { JwtAuthGuard } from './guards';
-import type { RequestWithUser, AuthUser } from '../common';
+import { AuthService } from './auth.service';
+import { FirebaseAuthGuard } from './guards';
+import type { AuthUser, RequestWithFirebaseUser } from '../common';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  async register(@Body() registerDto: RegisterDto): Promise<AuthResponse> {
-    return this.authService.register(registerDto);
-  }
-
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto): Promise<AuthResponse> {
-    return this.authService.login(loginDto);
-  }
-
   @Get('me')
-  @UseGuards(JwtAuthGuard)
-  async getMe(@Request() req: RequestWithUser): Promise<AuthUser> {
-    return req.user;
+  @UseGuards(FirebaseAuthGuard)
+  async getMe(@Request() req: RequestWithFirebaseUser): Promise<AuthUser> {
+    return this.authService.getCurrentUser(req.firebaseUser);
   }
 }
-

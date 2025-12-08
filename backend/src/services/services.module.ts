@@ -4,9 +4,10 @@ import { ServicesService } from './services.service';
 import { ServicesController } from './services.controller';
 import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Service, Business])],
+  imports: [TypeOrmModule.forFeature([Service, Business]), AuthModule],
   controllers: [ServicesController],
   providers: [ServicesService],
   exports: [ServicesService],

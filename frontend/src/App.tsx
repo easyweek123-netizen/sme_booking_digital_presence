@@ -7,7 +7,6 @@ import { ProtectedRoute } from './components/auth';
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import('./pages/landing').then(m => ({ default: m.LandingPage })));
 const LoginPage = lazy(() => import('./pages/login').then(m => ({ default: m.LoginPage })));
-const SignupPage = lazy(() => import('./pages/signup').then(m => ({ default: m.SignupPage })));
 const OnboardingPage = lazy(() => import('./pages/onboarding').then(m => ({ default: m.OnboardingPage })));
 const DashboardPage = lazy(() => import('./pages/dashboard').then(m => ({ default: m.DashboardPage })));
 const BookingPage = lazy(() => import('./pages/booking').then(m => ({ default: m.BookingPage })));
@@ -28,7 +27,6 @@ function App() {
         {/* Public routes */}
         <Route path={ROUTES.HOME} element={<LandingPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-        <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
         <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
         <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
         

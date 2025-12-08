@@ -5,9 +5,15 @@ import { BookingsController } from './bookings.controller';
 import { Booking } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
+import { AuthModule } from '../auth/auth.module';
+import { CustomersModule } from '../customers/customers.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Booking, Business, Service])],
+  imports: [
+    TypeOrmModule.forFeature([Booking, Business, Service]),
+    AuthModule,
+    CustomersModule,
+  ],
   controllers: [BookingsController],
   providers: [BookingsService],
   exports: [BookingsService],

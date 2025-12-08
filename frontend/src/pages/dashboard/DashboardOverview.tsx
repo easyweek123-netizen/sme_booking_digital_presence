@@ -15,11 +15,10 @@ import {
   CalendarIcon,
   LayersIcon,
   UsersIcon,
-  CopyIcon,
 } from '../../components/icons';
+import { BookingLinkCard } from '../../components/QRCode';
 import { useGetMyBusinessQuery } from '../../store/api/businessApi';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
-import { useCopyBookingLink } from '../../hooks';
 import { ROUTES } from '../../config/routes';
 
 export function DashboardOverview() {
@@ -28,7 +27,6 @@ export function DashboardOverview() {
   const { data: stats } = useGetBookingStatsQuery(business?.id || 0, {
     skip: !business?.id,
   });
-  const { copyLink } = useCopyBookingLink(business?.slug);
 
   if (!business) return null;
 
@@ -37,60 +35,15 @@ export function DashboardOverview() {
   return (
     <VStack spacing={8} align="stretch">
       {/* Header */}
-      <Flex
-        justify="space-between"
-        align={{ base: 'flex-start', md: 'center' }}
-        direction={{ base: 'column', md: 'row' }}
-        gap={4}
-      >
-        <Box>
-          <Heading size="lg" color="gray.900" mb={1}>
-            Welcome back!
-          </Heading>
-          <Text color="gray.500">{business.name}</Text>
-        </Box>
+      <Box>
+        <Heading size="lg" color="gray.900" mb={1}>
+          Welcome back!
+        </Heading>
+        <Text color="gray.500">{business.name}</Text>
+      </Box>
 
-        {/* Public booking link */}
-        <Flex
-          bg="white"
-          border="1px"
-          borderColor="gray.200"
-          borderRadius="xl"
-          p={3}
-          align="center"
-          gap={3}
-        >
-          <Box flex={1} minW={0}>
-            <Text fontSize="xs" color="gray.500" mb={0.5}>
-              Your booking page
-            </Text>
-            <Text
-              as="a"
-              href={`/book/${business.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              fontSize="sm"
-              fontWeight="500"
-              color="brand.600"
-              _hover={{ color: 'brand.700', textDecoration: 'underline' }}
-              display="block"
-              isTruncated
-            >
-              /book/{business.slug}
-            </Text>
-          </Box>
-          <Button
-            size="sm"
-            variant="ghost"
-            colorScheme="brand"
-            onClick={copyLink}
-            leftIcon={<CopyIcon size={16} />}
-            flexShrink={0}
-          >
-            Copy
-          </Button>
-        </Flex>
-      </Flex>
+      {/* Booking Link Card with QR */}
+      <BookingLinkCard slug={business.slug} />
 
       {/* Stats Grid */}
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>

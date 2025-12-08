@@ -2,14 +2,17 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
+import { Owner } from '../owner/entities/owner.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { AuthService } from '../auth/auth.service';
+import { EmailService } from '../email/email.service';
 import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
 import { WorkingHours, FirebaseUser } from '../common/types';
 import { generateBookingReference, verifyBusinessOwnership } from '../common';
@@ -26,6 +29,8 @@ interface BookingsFilter {
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
+
   constructor(
     @InjectRepository(Booking)
     private readonly bookingRepository: Repository<Booking>,
@@ -34,6 +39,7 @@ export class BookingsService {
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
     private readonly authService: AuthService,
+    private readonly emailService: EmailService,
   ) {}
 
   /**
@@ -211,8 +217,22 @@ export class BookingsService {
 
     const savedBooking = await this.bookingRepository.save(booking);
 
-    // Return with service info
-    return this.findOne(savedBooking.id);
+    // Load booking with relations for email
+    const fullBooking = await this.findOne(savedBooking.id);
+
+    // Send new booking alert to owner (fire-and-forget)
+    const businessWithOwner = await this.businessRepository.findOne({
+      where: { id: businessId },
+      relations: ['owner'],
+    });
+
+    if (businessWithOwner?.owner) {
+      this.emailService
+        .sendNewBookingAlert(fullBooking, businessWithOwner, businessWithOwner.owner)
+        .catch((err) => this.logger.error('Failed to send new booking alert', err));
+    }
+
+    return fullBooking;
   }
 
   /**
@@ -326,10 +346,25 @@ export class BookingsService {
     // Verify ownership via loaded relation
     await verifyBusinessOwnership(this.businessRepository, booking.businessId, owner.id);
 
+    const previousStatus = booking.status;
     booking.status = status;
     await this.bookingRepository.save(booking);
 
-    return this.findOne(id);
+    const updatedBooking = await this.findOne(id);
+
+    // Send status change emails to customer (skip NO_SHOW)
+    if (previousStatus !== status && status !== BookingStatus.NO_SHOW) {
+      const business = await this.businessRepository.findOne({
+        where: { id: booking.businessId },
+      });
+
+      if (business) {
+        this.sendStatusChangeEmail(updatedBooking, business, status)
+          .catch((err) => this.logger.error(`Failed to send ${status} email`, err));
+      }
+    }
+
+    return updatedBooking;
   }
 
   /**
@@ -364,6 +399,30 @@ export class BookingsService {
   }
 
   // ==================== Helper Methods ====================
+
+  /**
+   * Send appropriate email based on status change
+   */
+  private async sendStatusChangeEmail(
+    booking: Booking,
+    business: Business,
+    status: BookingStatus,
+  ): Promise<void> {
+    switch (status) {
+      case BookingStatus.CONFIRMED:
+        await this.emailService.sendBookingConfirmed(booking, business);
+        break;
+      case BookingStatus.CANCELLED:
+        await this.emailService.sendBookingCancelled(booking, business);
+        break;
+      case BookingStatus.COMPLETED:
+        await this.emailService.sendBookingCompleted(booking, business);
+        break;
+      default:
+        // NO_SHOW and PENDING don't send emails
+        break;
+    }
+  }
 
   /**
    * Generate time slots between open and close times

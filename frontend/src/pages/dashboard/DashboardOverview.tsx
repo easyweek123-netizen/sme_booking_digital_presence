@@ -35,12 +35,12 @@ export function DashboardOverview() {
   return (
     <VStack spacing={8} align="stretch">
       {/* Header */}
-      <Box>
-        <Heading size="lg" color="gray.900" mb={1}>
-          Welcome back!
-        </Heading>
-        <Text color="gray.500">{business.name}</Text>
-      </Box>
+        <Box>
+          <Heading size="lg" color="gray.900" mb={1}>
+            Welcome back!
+          </Heading>
+          <Text color="gray.500">{business.name}</Text>
+        </Box>
 
       {/* Booking Link Card with QR */}
       <BookingLinkCard slug={business.slug} />

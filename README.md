@@ -16,8 +16,19 @@ A mobile-first booking platform for SMEs (beauty salons, barbers, wellness pract
 | Frontend | React + Vite + TypeScript + Chakra UI + Redux Toolkit |
 | Backend | NestJS + TypeScript + TypeORM |
 | Database | PostgreSQL (default) / MySQL |
-| Auth | JWT |
+| Auth | Firebase Authentication |
 | Hosting | Render (Free Tier) |
+
+## Firebase
+
+Authentication is handled by Firebase Auth with Google sign-in for both business owners and customers.
+
+| Resource | Link |
+|----------|------|
+| Console | [Firebase Console](https://console.firebase.google.com/u/3/project/bookeasy-dev-291cc/overview) |
+| Project ID | `bookeasy-dev-291cc` |
+
+**Enabled Providers:** Google (Email link and Phone SMS enabled but not yet implemented)
 
 ## Features
 
@@ -26,6 +37,7 @@ A mobile-first booking platform for SMEs (beauty salons, barbers, wellness pract
 - **Smart Scheduling** - Working hours and availability management
 - **Public Booking Page** - Customers can book appointments without login
 - **Dashboard** - Calendar view, bookings list, and business settings
+- **Email Notifications** - Automated alerts to owners and confirmations to customers
 
 ## Local Development
 
@@ -68,6 +80,8 @@ DB_TYPE=mysql npm run dev
 
 ### Environment Variables
 
+#### Backend
+
 | Variable | Description |
 |----------|-------------|
 | `DB_TYPE` | `postgres` (default) or `mysql` |
@@ -77,8 +91,21 @@ DB_TYPE=mysql npm run dev
 | `DB_PASSWORD` | Database password |
 | `DB_DATABASE` | Database name |
 | `DB_SSL` | `true` for production |
-| `JWT_SECRET` | Secret for JWT tokens |
 | `CORS_ORIGIN` | Frontend URL |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Path to Firebase service account JSON (local) |
+| `FIREBASE_SERVICE_ACCOUNT` | Firebase service account JSON string (production) |
+| `RESEND_API_KEY` | Resend API key for emails (optional, logs only if not set) |
+| `EMAIL_FROM` | Email sender address (default: `onboarding@resend.dev`) |
+
+#### Frontend
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend API URL |
+| `VITE_FIREBASE_API_KEY` | Firebase Web API key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Firebase auth domain |
+| `VITE_FIREBASE_PROJECT_ID` | Firebase project ID |
+| `VITE_FIREBASE_APP_ID` | Firebase app ID |
 
 ## Project Structure
 
@@ -129,10 +156,21 @@ The app is deployed on Render's free tier:
 ## Documentation
 
 See `/docs` folder for detailed documentation:
+
+### MVP Documentation (`/docs/mvp/`)
 - `PRD.md` - Product requirements
 - `Implementation_Plan.md` - Full implementation plan
-- `phase-1.plan.md` to `phase-6.plan.md` - Phase plans
-- `Phase1_Summary.md` to `Phase6_Summary.md` - Phase summaries
+- Phase plans and summaries
+
+### Launch Documentation (`/docs/launch/`)
+- `launch-plan.md` - Launch roadmap and phases
+- `phase1-auth-verification.md` - Firebase auth implementation details
+- `phase1-summary.md` - Phase 1 completion summary
+- `phase2-email-summary.md` - Email notifications implementation
+
+### Development Guides
+- `FRONTEND_GUIDE.md` - Frontend coding standards
+- `BACKEND_GUIDE.md` - Backend coding standards
 
 ## License
 

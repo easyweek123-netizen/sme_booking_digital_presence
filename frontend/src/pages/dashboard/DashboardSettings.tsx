@@ -22,8 +22,7 @@ import {
 } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
 import { BrandingFields } from '../../components/ui/BrandingFields';
-import { CopyIcon } from '../../components/icons';
-import { useCopyBookingLink } from '../../hooks';
+import { BookingLinkCard } from '../../components/QRCode';
 import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours } from '../../types';
 
@@ -31,7 +30,6 @@ export function DashboardSettings() {
   const toast = useToast();
   const { data: business, isLoading } = useGetMyBusinessQuery();
   const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
-  const { copyLink, bookingUrl } = useCopyBookingLink(business?.slug);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -144,37 +142,11 @@ export function DashboardSettings() {
       </Flex>
 
       {/* Booking Link */}
-      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={6}>
+      <Box>
         <Heading size="sm" color="gray.900" mb={4}>
           Your Booking Link
         </Heading>
-        <Flex
-          bg="gray.50"
-          borderRadius="lg"
-          p={4}
-          align="center"
-          justify="space-between"
-          gap={3}
-        >
-          <Box flex={1} minW={0}>
-            <Text fontSize="sm" color="gray.500" mb={1}>
-              Share this link with your customers
-            </Text>
-            <Text fontWeight="500" color="brand.600" isTruncated>
-              {bookingUrl}
-            </Text>
-          </Box>
-          <Button
-            leftIcon={<CopyIcon size={16} />}
-            colorScheme="brand"
-            variant="outline"
-            size="sm"
-            onClick={copyLink}
-            flexShrink={0}
-          >
-            Copy
-          </Button>
-        </Flex>
+        <BookingLinkCard slug={business.slug} />
       </Box>
 
       {/* Branding */}

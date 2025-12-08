@@ -53,6 +53,10 @@ export class CustomerResolverInterceptor implements NestInterceptor {
 
       return next.handle();
     } catch (error) {
+      console.error(
+        'Customer auth error:',
+        error instanceof Error ? error.message : error,
+      );
       throw new UnauthorizedException('Invalid authentication token');
     }
   }

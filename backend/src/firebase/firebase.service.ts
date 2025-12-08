@@ -60,14 +60,14 @@ export class FirebaseService implements OnModuleInit {
    * Verify a Firebase ID token and return the decoded token
    */
   async verifyToken(token: string): Promise<DecodedIdToken> {
-    return admin.auth().verifyIdToken(token);
+    return this.app.auth().verifyIdToken(token);
   }
 
   /**
    * Get user info from Firebase by UID
    */
   async getUser(uid: string): Promise<admin.auth.UserRecord> {
-    return admin.auth().getUser(uid);
+    return this.app.auth().getUser(uid);
   }
 
   /**
@@ -75,7 +75,7 @@ export class FirebaseService implements OnModuleInit {
    */
   async getUserByEmail(email: string): Promise<admin.auth.UserRecord | null> {
     try {
-      return await admin.auth().getUserByEmail(email);
+      return await this.app.auth().getUserByEmail(email);
     } catch {
       return null;
     }

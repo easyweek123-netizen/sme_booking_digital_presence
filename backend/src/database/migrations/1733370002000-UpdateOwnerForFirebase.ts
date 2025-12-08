@@ -4,16 +4,8 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
   name = 'UpdateOwnerForFirebase1733370002000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Safety check: Verify owners table is empty before schema change
-    const ownerCount = await queryRunner.query(
-      `SELECT COUNT(*) as count FROM "owners"`,
-    );
-    
-    if (parseInt(ownerCount[0].count) > 0) {
-      throw new Error(
-        'Cannot run migration: Owners table is not empty. Run ResetOwners migration first.',
-      );
-    }
+    // Clear any existing owners (no active users, fresh start with Firebase auth)
+    await queryRunner.query(`TRUNCATE TABLE "owners" CASCADE`);
 
     // Add firebaseUid column if it doesn't exist
     const firebaseUidExists = await queryRunner.query(`

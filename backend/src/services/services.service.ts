@@ -39,11 +39,14 @@ export class ServicesService {
 
     const service = this.serviceRepository.create({
       businessId: createServiceDto.businessId,
+      categoryId: createServiceDto.categoryId || null,
       name: createServiceDto.name,
       description: createServiceDto.description || null,
       durationMinutes: createServiceDto.durationMinutes,
       price: createServiceDto.price,
       availableDays: createServiceDto.availableDays || null,
+      imageUrl: createServiceDto.imageUrl || null,
+      displayOrder: createServiceDto.displayOrder ?? 0,
       isActive: true,
     });
 
@@ -64,7 +67,8 @@ export class ServicesService {
 
     return this.serviceRepository.find({
       where: { businessId, isActive: true },
-      order: { createdAt: 'ASC' },
+      relations: ['category'],
+      order: { displayOrder: 'ASC', createdAt: 'ASC' },
     });
   }
 
@@ -106,6 +110,9 @@ export class ServicesService {
     await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
 
     // Update fields
+    if (updateServiceDto.categoryId !== undefined) {
+      service.categoryId = updateServiceDto.categoryId;
+    }
     if (updateServiceDto.name !== undefined) {
       service.name = updateServiceDto.name;
     }
@@ -123,6 +130,12 @@ export class ServicesService {
     }
     if (updateServiceDto.isActive !== undefined) {
       service.isActive = updateServiceDto.isActive;
+    }
+    if (updateServiceDto.imageUrl !== undefined) {
+      service.imageUrl = updateServiceDto.imageUrl || null;
+    }
+    if (updateServiceDto.displayOrder !== undefined) {
+      service.displayOrder = updateServiceDto.displayOrder;
     }
 
     return this.serviceRepository.save(service);

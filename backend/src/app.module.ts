@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { BusinessModule } from './business/business.module';
 import { ServicesModule } from './services/services.module';
+import { ServiceCategoriesModule } from './service-categories/service-categories.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { BusinessCategoriesModule } from './business-categories/business-categories.module';
 import { CustomersModule } from './customers/customers.module';
@@ -26,6 +27,7 @@ import { databaseConfig, appConfig } from './config';
     OwnerModule,
     BusinessModule,
     ServicesModule,
+    ServiceCategoriesModule,
     BookingsModule,
     BusinessCategoriesModule,
     CustomersModule,

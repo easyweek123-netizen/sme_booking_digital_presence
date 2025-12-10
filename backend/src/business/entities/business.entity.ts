@@ -49,6 +49,12 @@ export class Business {
   @Column({ type: 'json', nullable: true })
   workingHours: WorkingHours | null;
 
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  coverImageUrl: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  aboutContent: string | null;
+
   @ManyToOne(() => Owner, (owner) => owner.businesses)
   @JoinColumn({ name: 'ownerId' })
   owner: Owner;

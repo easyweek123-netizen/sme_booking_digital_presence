@@ -136,7 +136,7 @@ export class BusinessService {
   private async findByOwnerId(ownerId: number): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { ownerId },
-      relations: ['services', 'businessType'],
+      relations: ['services', 'services.category', 'businessType'],
     });
 
     if (!business) {
@@ -152,7 +152,7 @@ export class BusinessService {
   async findOne(id: number): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { id },
-      relations: ['services', 'businessType'],
+      relations: ['services', 'services.category', 'businessType'],
     });
 
     if (!business) {
@@ -168,7 +168,7 @@ export class BusinessService {
   async findBySlug(slug: string): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { slug },
-      relations: ['services', 'businessType'],
+      relations: ['services', 'services.category', 'businessType'],
     });
 
     if (!business) {
@@ -222,6 +222,12 @@ export class BusinessService {
     }
     if (updateBusinessDto.workingHours !== undefined) {
       business.workingHours = updateBusinessDto.workingHours;
+    }
+    if (updateBusinessDto.coverImageUrl !== undefined) {
+      business.coverImageUrl = updateBusinessDto.coverImageUrl || null;
+    }
+    if (updateBusinessDto.aboutContent !== undefined) {
+      business.aboutContent = updateBusinessDto.aboutContent || null;
     }
 
     await this.businessRepository.save(business);

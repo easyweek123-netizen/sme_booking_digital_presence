@@ -6,6 +6,7 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
+  FormHelperText,
   Input,
   Select,
   Checkbox,
@@ -17,6 +18,9 @@ import {
   Flex,
   Wrap,
   WrapItem,
+  Textarea,
+  Image,
+  Collapse,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import {
@@ -25,17 +29,28 @@ import {
   DAY_SHORT_LABELS,
   type DayOfWeek,
 } from '../../constants';
+import { useGetServiceCategoriesQuery } from '../../store/api/servicesApi';
+import { ChevronDownIcon } from '../icons';
 import type { ServiceItem } from '../../types';
 import type { WorkingHours } from '../../types';
 
 const MotionBox = motion.create(Box);
 
+interface ExtendedServiceItem extends ServiceItem {
+  description?: string;
+  imageUrl?: string;
+  categoryId?: number | null;
+}
+
 interface ServiceFormProps {
-  initialValues?: ServiceItem | null;
+  initialValues?: ExtendedServiceItem | null;
+  businessId?: number; // For fetching categories
   workingHours: WorkingHours;
-  onSave: (service: Omit<ServiceItem, 'id'> & { id?: string }) => void;
+  onSave: (service: Omit<ExtendedServiceItem, 'id'> & { id?: string; categoryId?: number | null }) => void;
   onCancel: () => void;
   isEditing?: boolean;
+  showExtendedFields?: boolean; // Show description and image fields
+  extendedFieldsExpanded?: boolean; // Whether extended fields start expanded
 }
 
 interface FormErrors {
@@ -46,12 +61,18 @@ interface FormErrors {
 
 export function ServiceForm({
   initialValues,
+  businessId,
   workingHours,
   onSave,
   onCancel,
   isEditing = false,
+  showExtendedFields = false,
+  extendedFieldsExpanded = false,
 }: ServiceFormProps) {
   const [name, setName] = useState(initialValues?.name || '');
+  const [description, setDescription] = useState(initialValues?.description || '');
+  const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || '');
+  const [categoryId, setCategoryId] = useState<number | null>(initialValues?.categoryId ?? null);
   const [durationMinutes, setDurationMinutes] = useState(
     initialValues?.durationMinutes || 30
   );
@@ -63,6 +84,13 @@ export function ServiceForm({
     initialValues?.availableDays || []
   );
   const [errors, setErrors] = useState<FormErrors>({});
+  const [imageError, setImageError] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(extendedFieldsExpanded);
+
+  // Fetch categories if businessId is provided
+  const { data: categories = [] } = useGetServiceCategoriesQuery(businessId || 0, {
+    skip: !businessId,
+  });
 
   // Get open days from working hours
   const openDays = DAYS_OF_WEEK.filter((day) => workingHours[day]?.isOpen);
@@ -98,6 +126,9 @@ export function ServiceForm({
     onSave({
       id: initialValues?.id,
       name: name.trim(),
+      description: description.trim() || undefined,
+      imageUrl: imageUrl.trim() || undefined,
+      categoryId: categoryId || null,
       durationMinutes,
       price: parseFloat(price),
       availableDays: useAllDays ? null : selectedDays,
@@ -253,6 +284,127 @@ export function ServiceForm({
               </MotionBox>
             )}
           </Box>
+
+          {/* Extended Fields - Collapsible (More Options) */}
+          {showExtendedFields && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMoreOptions(!showMoreOptions)}
+                rightIcon={
+                  <Box
+                    transform={showMoreOptions ? 'rotate(180deg)' : 'rotate(0deg)'}
+                    transition="transform 0.2s"
+                  >
+                    <ChevronDownIcon size={16} />
+                  </Box>
+                }
+                color="gray.500"
+                fontWeight="500"
+                px={0}
+                _hover={{ bg: 'transparent', color: 'gray.700' }}
+              >
+                {showMoreOptions ? 'Less options' : 'More options'}
+              </Button>
+
+              <Collapse in={showMoreOptions}>
+                <VStack spacing={4} align="stretch">
+                  {/* Category Selection */}
+                  {categories.length > 0 && (
+                    <FormControl>
+                      <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                        Category
+                      </FormLabel>
+                      <Select
+                        value={categoryId || ''}
+                        onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+                        size="md"
+                        bg="white"
+                        borderRadius="lg"
+                        placeholder="Select a category (optional)"
+                        _focus={{
+                          borderColor: 'brand.500',
+                          boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                        }}
+                      >
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+
+                  {/* Description */}
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                      Description
+                    </FormLabel>
+                    <Textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Describe this service..."
+                      size="md"
+                      bg="white"
+                      borderRadius="lg"
+                      rows={2}
+                      maxLength={500}
+                      _focus={{
+                        borderColor: 'brand.500',
+                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                      }}
+                    />
+                    <FormHelperText fontSize="xs">
+                      {description.length}/500 characters
+                    </FormHelperText>
+                  </FormControl>
+
+                  {/* Image URL */}
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                      Image URL
+                    </FormLabel>
+                    <Input
+                      value={imageUrl}
+                      onChange={(e) => {
+                        setImageUrl(e.target.value);
+                        setImageError(false);
+                      }}
+                      placeholder="https://example.com/service-image.jpg"
+                      size="md"
+                      bg="white"
+                      borderRadius="lg"
+                      _focus={{
+                        borderColor: 'brand.500',
+                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                      }}
+                    />
+                    <FormHelperText fontSize="xs">
+                      Optional: Add an image for this service
+                    </FormHelperText>
+                    {imageUrl && !imageError && (
+                      <Box mt={2} borderRadius="lg" overflow="hidden" maxH="100px">
+                        <Image
+                          src={imageUrl}
+                          alt="Service preview"
+                          maxH="100px"
+                          objectFit="cover"
+                          onError={() => setImageError(true)}
+                        />
+                      </Box>
+                    )}
+                    {imageError && (
+                      <Text fontSize="xs" color="orange.500" mt={1}>
+                        Unable to load image preview
+                      </Text>
+                    )}
+                  </FormControl>
+                </VStack>
+              </Collapse>
+            </>
+          )}
 
           {/* Actions */}
           <Flex justify="flex-end" gap={2} pt={2}>

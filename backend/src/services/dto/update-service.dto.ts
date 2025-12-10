@@ -11,6 +11,10 @@ import {
 
 export class UpdateServiceDto {
   @IsOptional()
+  @IsNumber()
+  categoryId?: number | null;
+
+  @IsOptional()
   @IsString()
   @MaxLength(200)
   name?: string;
@@ -38,4 +42,14 @@ export class UpdateServiceDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  imageUrl?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  displayOrder?: number;
 }

@@ -3,3 +3,8 @@ export { TimeSlotGrid } from './TimeSlotGrid';
 export { BookingSuccess } from './BookingSuccess';
 export { DateSelector } from './DateSelector';
 export { BookerVerification } from './BookerVerification';
+export { ServiceCard } from './ServiceCard';
+export { ServicesTab } from './ServicesTab';
+export { AboutTab } from './AboutTab';
+export { BookingTabs } from './BookingTabs';
+export type { TabId } from './BookingTabs';

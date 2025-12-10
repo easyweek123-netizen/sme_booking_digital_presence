@@ -14,6 +14,11 @@ export class CreateServiceDto {
   @IsPositive()
   businessId: number;
 
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  categoryId?: number | null;
+
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
@@ -36,4 +41,14 @@ export class CreateServiceDto {
   @IsArray()
   @IsString({ each: true })
   availableDays?: string[] | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  imageUrl?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  displayOrder?: number;
 }

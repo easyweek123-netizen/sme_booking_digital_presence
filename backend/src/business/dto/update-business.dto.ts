@@ -59,4 +59,14 @@ export class UpdateBusinessDto {
   @ValidateNested()
   @Type(() => WorkingHoursDto)
   workingHours?: WorkingHoursDto;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  coverImageUrl?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  aboutContent?: string | null;
 }

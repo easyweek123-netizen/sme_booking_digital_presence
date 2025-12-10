@@ -35,6 +35,7 @@ import {
 } from '../../store/api/servicesApi';
 import { PlusIcon, EditIcon, TrashIcon, LayersIcon } from '../../components/icons';
 import { ServiceForm } from '../../components/onboarding/ServiceForm';
+import { CategoryManagement } from '../../components/Dashboard';
 import { formatDuration, formatPrice } from '../../utils/format';
 import { TOAST_DURATION } from '../../constants';
 import type { Service, ServiceItem } from '../../types';
@@ -69,7 +70,7 @@ export function DashboardServices() {
   };
 
   const handleSaveService = async (
-    serviceData: Omit<ServiceItem, 'id'> & { id?: string }
+    serviceData: Omit<ServiceItem, 'id'> & { id?: string; description?: string; imageUrl?: string; categoryId?: number | null }
   ) => {
     if (!business) return;
 
@@ -78,9 +79,12 @@ export function DashboardServices() {
         await updateService({
           id: editingService.id,
           name: serviceData.name,
+          description: serviceData.description,
           durationMinutes: serviceData.durationMinutes,
           price: serviceData.price,
           availableDays: serviceData.availableDays,
+          imageUrl: serviceData.imageUrl,
+          categoryId: serviceData.categoryId,
         }).unwrap();
         toast({
           title: 'Service updated',
@@ -91,9 +95,12 @@ export function DashboardServices() {
         await createService({
           businessId: business.id,
           name: serviceData.name,
+          description: serviceData.description,
           durationMinutes: serviceData.durationMinutes,
           price: serviceData.price,
           availableDays: serviceData.availableDays,
+          imageUrl: serviceData.imageUrl,
+          categoryId: serviceData.categoryId,
         }).unwrap();
         toast({
           title: 'Service created',
@@ -182,6 +189,9 @@ export function DashboardServices() {
         </Button>
       </Flex>
 
+      {/* Category Management */}
+      <CategoryManagement businessId={business.id} />
+
       {services.length === 0 ? (
         <Box
           py={12}
@@ -235,16 +245,22 @@ export function DashboardServices() {
                     ? {
                         id: String(editingService.id),
                         name: editingService.name,
+                        description: editingService.description || '',
                         durationMinutes: editingService.durationMinutes,
                         price: Number(editingService.price),
                         availableDays: editingService.availableDays,
+                        imageUrl: editingService.imageUrl || '',
+                        categoryId: editingService.categoryId,
                       }
                     : null
                 }
+                businessId={business.id}
                 workingHours={business.workingHours}
                 onSave={handleSaveService}
                 onCancel={closeModal}
                 isEditing={!!editingService}
+                showExtendedFields={true}
+                extendedFieldsExpanded={true}
               />
             )}
           </ModalBody>
@@ -301,63 +317,84 @@ function ServiceCard({ service, onEdit, onDelete, onToggleActive }: ServiceCardP
       borderRadius="xl"
       border="1px"
       borderColor="gray.100"
-      p={5}
+      overflow="hidden"
       opacity={service.isActive ? 1 : 0.6}
       _hover={{ borderColor: 'gray.200' }}
       transition="all 0.2s"
     >
-      <Flex justify="space-between" align="flex-start" mb={3}>
-        <Box flex={1}>
-          <HStack spacing={2} mb={1}>
-            <Text fontWeight="600" color="gray.900">
-              {service.name}
-            </Text>
-            {!service.isActive && (
-              <Badge colorScheme="gray" fontSize="xs">
-                Hidden
-              </Badge>
-            )}
-          </HStack>
-          <Text fontSize="sm" color="gray.500">
-            {formatDuration(service.durationMinutes)}
-          </Text>
-        </Box>
-        <Text fontWeight="600" color="brand.600" fontSize="lg">
-          {formatPrice(Number(service.price))}
-        </Text>
-      </Flex>
-
-      <Flex justify="space-between" align="center" pt={3} borderTop="1px" borderColor="gray.100">
-        <HStack spacing={2}>
-          <Text fontSize="sm" color="gray.500">
-            Visible
-          </Text>
-          <Switch
-            colorScheme="brand"
-            size="sm"
-            isChecked={service.isActive}
-            onChange={onToggleActive}
+      {/* Service Image */}
+      {service.imageUrl && (
+        <Box h="100px" overflow="hidden" borderBottom="1px" borderColor="gray.100">
+          <Box
+            h="100%"
+            bgImage={`url(${service.imageUrl})`}
+            bgSize="cover"
+            bgPosition="center"
           />
-        </HStack>
-        <HStack spacing={1}>
-          <Button
-            size="sm"
-            variant="ghost"
-            colorScheme="gray"
-            onClick={onEdit}
-          >
-            <EditIcon size={16} />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            colorScheme="red"
-            onClick={onDelete}
-          >
-            <TrashIcon size={16} />
-          </Button>
-        </HStack>
-      </Flex>
+        </Box>
+      )}
+
+      <Box p={5}>
+        <Flex justify="space-between" align="flex-start" mb={2}>
+          <Box flex={1}>
+            <HStack spacing={2} mb={1}>
+              <Text fontWeight="600" color="gray.900">
+                {service.name}
+              </Text>
+              {!service.isActive && (
+                <Badge colorScheme="gray" fontSize="xs">
+                  Hidden
+                </Badge>
+              )}
+            </HStack>
+            <Text fontSize="sm" color="gray.500">
+              {formatDuration(service.durationMinutes)}
+            </Text>
+          </Box>
+          <Text fontWeight="600" color="brand.600" fontSize="lg">
+            {formatPrice(Number(service.price))}
+          </Text>
+        </Flex>
+
+        {/* Description */}
+        {service.description && (
+          <Text fontSize="sm" color="gray.500" noOfLines={2} mb={2}>
+            {service.description}
+          </Text>
+        )}
+
+        <Flex justify="space-between" align="center" pt={3} borderTop="1px" borderColor="gray.100">
+          <HStack spacing={2}>
+            <Text fontSize="sm" color="gray.500">
+              Visible
+            </Text>
+            <Switch
+              colorScheme="brand"
+              size="sm"
+              isChecked={service.isActive}
+              onChange={onToggleActive}
+            />
+          </HStack>
+          <HStack spacing={1}>
+            <Button
+              size="sm"
+              variant="ghost"
+              colorScheme="gray"
+              onClick={onEdit}
+            >
+              <EditIcon size={16} />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              colorScheme="red"
+              onClick={onDelete}
+            >
+              <TrashIcon size={16} />
+            </Button>
+          </HStack>
+        </Flex>
+      </Box>
     </Box>
   );
 }

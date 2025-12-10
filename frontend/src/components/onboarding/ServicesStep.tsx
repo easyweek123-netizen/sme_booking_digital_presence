@@ -93,6 +93,8 @@ export function ServicesStep() {
                     onSave={handleUpdateService}
                     onCancel={handleCancel}
                     isEditing
+                    showExtendedFields={true}
+                    extendedFieldsExpanded={false}
                   />
                 ) : (
                   <ServiceCard
@@ -114,6 +116,8 @@ export function ServicesStep() {
               workingHours={workingHours}
               onSave={handleAddService}
               onCancel={handleCancel}
+              showExtendedFields={true}
+              extendedFieldsExpanded={false}
             />
           ) : !editingService && (
             <MotionBox

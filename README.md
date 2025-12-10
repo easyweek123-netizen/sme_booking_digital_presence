@@ -61,7 +61,7 @@ cp backend/.env.example backend/.env
 # Start PostgreSQL and run app
 docker compose up postgres -d
 npm run db:seed
-npm run dev
+npm run start:dev
 ```
 
 Access at: http://localhost:5173
@@ -71,11 +71,11 @@ Access at: http://localhost:5173
 ```bash
 # PostgreSQL (default)
 docker compose up postgres -d
-npm run dev
+npm run start:dev
 
 # MySQL
 docker compose up mysql -d
-DB_TYPE=mysql npm run dev
+DB_TYPE=mysql npm run start:dev
 ```
 
 ### Environment Variables

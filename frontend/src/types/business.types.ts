@@ -38,34 +38,63 @@ export interface ServiceDto {
   availableDays?: string[] | null;
 }
 
+export interface ServiceCategory {
+  id: number;
+  businessId: number;
+  name: string;
+  displayOrder: number;
+  createdAt: string;
+}
+
 export interface Service {
   id: number;
   businessId: number;
+  categoryId: number | null;
   name: string;
   description: string | null;
   durationMinutes: number;
   price: number;
   availableDays: string[] | null;
   isActive: boolean;
+  imageUrl: string | null;
+  displayOrder: number;
   createdAt: string;
+  category?: ServiceCategory | null;
 }
 
 export interface CreateServiceRequest {
   businessId: number;
+  categoryId?: number | null;
   name: string;
   description?: string;
   durationMinutes: number;
   price: number;
   availableDays?: string[] | null;
+  imageUrl?: string | null;
+  displayOrder?: number;
 }
 
 export interface UpdateServiceRequest {
+  categoryId?: number | null;
   name?: string;
   description?: string;
   durationMinutes?: number;
   price?: number;
   availableDays?: string[] | null;
   isActive?: boolean;
+  imageUrl?: string | null;
+  displayOrder?: number;
+}
+
+export interface CreateServiceCategoryRequest {
+  businessId: number;
+  name: string;
+  displayOrder?: number;
+}
+
+export interface UpdateServiceCategoryRequest {
+  name?: string;
+  displayOrder?: number;
 }
 
 export interface Business {
@@ -81,6 +110,8 @@ export interface Business {
   logoUrl: string | null;
   brandColor: string | null;
   workingHours: WorkingHours | null;
+  coverImageUrl: string | null;
+  aboutContent: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -112,6 +143,8 @@ export interface UpdateBusinessRequest {
   logoUrl?: string;
   brandColor?: string;
   workingHours?: WorkingHours;
+  coverImageUrl?: string | null;
+  aboutContent?: string | null;
 }
 
 // Onboarding types

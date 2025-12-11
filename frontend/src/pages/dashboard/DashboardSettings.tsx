@@ -144,22 +144,12 @@ export function DashboardSettings() {
 
   return (
     <VStack spacing={8} align="stretch">
-      <Flex justify="space-between" align="center">
-        <Box>
-          <Heading size="lg" color="gray.900" mb={1}>
-            Settings
-          </Heading>
-          <Text color="gray.500">Update your business profile</Text>
-        </Box>
-        <Button
-          colorScheme="brand"
-          onClick={handleSave}
-          isLoading={isUpdating}
-          isDisabled={!hasChanges}
-        >
-          Save Changes
-        </Button>
-      </Flex>
+      <Box>
+        <Heading size="lg" color="gray.900" mb={1}>
+          Settings
+        </Heading>
+        <Text color="gray.500">Update your business profile</Text>
+      </Box>
 
       {/* Booking Link */}
       <Box>

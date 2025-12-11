@@ -10,6 +10,7 @@ const LoginPage = lazy(() => import('./pages/login').then(m => ({ default: m.Log
 const OnboardingPage = lazy(() => import('./pages/onboarding').then(m => ({ default: m.OnboardingPage })));
 const DashboardPage = lazy(() => import('./pages/dashboard').then(m => ({ default: m.DashboardPage })));
 const BookingPage = lazy(() => import('./pages/booking').then(m => ({ default: m.BookingPage })));
+const PricingPage = lazy(() => import('./pages/pricing').then(m => ({ default: m.PricingPage })));
 
 // Loading fallback component
 function PageLoader() {
@@ -28,6 +29,7 @@ function App() {
         <Route path={ROUTES.HOME} element={<LandingPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
+        <Route path={ROUTES.PRICING} element={<PricingPage />} />
         <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
         
         {/* Protected routes */}

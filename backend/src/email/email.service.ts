@@ -9,6 +9,7 @@ import { newBookingAlertTemplate } from './templates/new-booking-alert';
 import { bookingConfirmedTemplate } from './templates/booking-confirmed';
 import { bookingCancelledTemplate } from './templates/booking-cancelled';
 import { bookingCompletedTemplate } from './templates/booking-completed';
+import { feedbackNotificationTemplate } from './templates/feedback-notification';
 
 interface EmailParams {
   to: string;
@@ -21,6 +22,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private readonly resend: Resend | null;
   private readonly fromEmail: string;
+  private readonly adminEmail: string;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
@@ -35,6 +37,7 @@ export class EmailService {
 
     // Use Resend's default for testing, or custom domain later
     this.fromEmail = this.configService.get<string>('EMAIL_FROM') || 'email@bookeasy.com';
+    this.adminEmail = this.configService.get<string>('ADMIN_EMAIL') || 'easyweek123@gmail.com';
   }
 
   /**
@@ -169,6 +172,40 @@ export class EmailService {
 
     await this.send({
       to: customerEmail,
+      subject,
+      html,
+    });
+  }
+
+  /**
+   * Send feedback notification to admin
+   */
+  async sendFeedbackNotification(
+    email: string,
+    message: string,
+    source: string,
+  ): Promise<void> {
+    const subject = `New Feedback from BookEasy - ${email}`;
+    
+    const timestamp = new Date().toLocaleString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    const html = feedbackNotificationTemplate({
+      email,
+      message,
+      source,
+      timestamp,
+    });
+
+    await this.send({
+      to: this.adminEmail,
       subject,
       html,
     });

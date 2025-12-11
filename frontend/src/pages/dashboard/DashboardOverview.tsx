@@ -15,6 +15,7 @@ import {
   CalendarIcon,
   LayersIcon,
   UsersIcon,
+  HeartIcon,
 } from '../../components/icons';
 import { BookingLinkCard } from '../../components/QRCode';
 import { useGetMyBusinessQuery } from '../../store/api/businessApi';
@@ -173,6 +174,51 @@ export function DashboardOverview() {
           </Text>
         </Box>
       </SimpleGrid>
+
+      {/* Feedback Card */}
+      <Box
+        bgGradient="linear(to-br, purple.50, indigo.50)"
+        borderRadius="2xl"
+        border="1px"
+        borderColor="purple.100"
+        p={6}
+        _hover={{ borderColor: 'purple.200', cursor: 'pointer', transform: 'translateY(-2px)' }}
+        transition="all 0.2s"
+        onClick={() => navigate(ROUTES.PRICING)}
+      >
+        <HStack spacing={4}>
+          <Box
+            w="48px"
+            h="48px"
+            borderRadius="xl"
+            bg="purple.100"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            color="purple.600"
+          >
+            <HeartIcon size={24} />
+          </Box>
+          <Box flex={1}>
+            <Heading size="sm" color="gray.900" mb={1}>
+              Help Us Improve
+            </Heading>
+            <Text fontSize="sm" color="gray.600">
+              Share your feedback and feature requests. We'd love to hear from you!
+            </Text>
+          </Box>
+          <Badge
+            colorScheme="purple"
+            px={3}
+            py={1}
+            borderRadius="full"
+            fontSize="xs"
+            fontWeight="600"
+          >
+            Feedback
+          </Badge>
+        </HStack>
+      </Box>
     </VStack>
   );
 }

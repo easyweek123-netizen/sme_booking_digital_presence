@@ -11,6 +11,7 @@ import { ServiceCategoriesModule } from './service-categories/service-categories
 import { BookingsModule } from './bookings/bookings.module';
 import { BusinessCategoriesModule } from './business-categories/business-categories.module';
 import { CustomersModule } from './customers/customers.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { databaseConfig, appConfig } from './config';
 
 @Module({
@@ -31,6 +32,7 @@ import { databaseConfig, appConfig } from './config';
     BookingsModule,
     BusinessCategoriesModule,
     CustomersModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [],

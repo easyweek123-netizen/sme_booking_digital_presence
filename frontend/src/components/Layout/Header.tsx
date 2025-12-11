@@ -12,11 +12,17 @@ import {
   DrawerOverlay,
   DrawerContent,
   useDisclosure,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  Avatar,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import { PrimaryButton } from '../ui/PrimaryButton';
-import { MenuIcon, CloseIcon, UserIcon } from '../icons';
+import { MenuIcon, CloseIcon, UserIcon, SettingsIcon, LogOutIcon, ChevronDownIcon } from '../icons';
 import { ROUTES } from '../../config/routes';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { resetStore } from '../../store/actions';
@@ -56,46 +62,105 @@ export function Header() {
             <Logo size="md" onClick={() => navigate(ROUTES.HOME)} />
 
             {/* Desktop Navigation */}
-            <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
-              {isAuthenticated ? (
-                <>
-                  <Text color="gray.600" fontSize="sm">
-                    Hi, {user?.name}
-                  </Text>
+            <HStack spacing={1} display={{ base: 'none', md: 'flex' }}>
+              {/* Navigation Links */}
+              <HStack spacing={1}>
+                <Button
+                  variant="ghost"
+                  color="gray.600"
+                  fontWeight="500"
+                  onClick={() => navigate(ROUTES.PRICING)}
+                  _hover={{ color: 'brand.500', bg: 'gray.50' }}
+                >
+                  Pricing
+                </Button>
+                {isAuthenticated && (
                   <Button
                     variant="ghost"
                     color="gray.600"
                     fontWeight="500"
                     onClick={() => navigate(ROUTES.DASHBOARD.ROOT)}
-                    _hover={{ color: 'brand.500' }}
+                    _hover={{ color: 'brand.500', bg: 'gray.50' }}
                   >
                     Dashboard
                   </Button>
-                  <Button
+                )}
+              </HStack>
+
+              {/* Separator */}
+              {isAuthenticated && (
+                <Box h="24px" w="1px" bg="gray.200" mx={2} />
+              )}
+
+              {/* Account Section */}
+              {isAuthenticated ? (
+                <Menu>
+                  <MenuButton
+                    as={Button}
                     variant="ghost"
-                    color="gray.600"
+                    color="gray.700"
                     fontWeight="500"
-                    onClick={handleLogout}
-                    _hover={{ color: 'red.500' }}
+                    rightIcon={<ChevronDownIcon size={16} />}
+                    _hover={{ bg: 'gray.50' }}
+                    _active={{ bg: 'gray.100' }}
+                    pl={2}
+                    pr={3}
                   >
-                    Log out
-                  </Button>
-                </>
+                    <HStack spacing={2}>
+                      <Avatar
+                        size="xs"
+                        name={user?.name}
+                        bg="brand.500"
+                        color="white"
+                        fontSize="xs"
+                      />
+                      <Text>{user?.name}</Text>
+                    </HStack>
+                  </MenuButton>
+                  <MenuList
+                    py={2}
+                    borderRadius="xl"
+                    boxShadow="0 10px 40px rgba(0,0,0,0.1)"
+                    border="1px"
+                    borderColor="gray.100"
+                  >
+                    <MenuItem
+                      icon={<SettingsIcon size={18} />}
+                      onClick={() => navigate(ROUTES.DASHBOARD.SETTINGS)}
+                      _hover={{ bg: 'gray.50' }}
+                      py={2}
+                      px={4}
+                    >
+                      Settings
+                    </MenuItem>
+                    <MenuDivider my={1} />
+                    <MenuItem
+                      icon={<LogOutIcon size={18} />}
+                      onClick={handleLogout}
+                      color="red.500"
+                      _hover={{ bg: 'red.50' }}
+                      py={2}
+                      px={4}
+                    >
+                      Log out
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
               ) : (
-                <>
+                <HStack spacing={2} ml={2}>
                   <Button
                     variant="ghost"
                     color="gray.600"
                     fontWeight="500"
                     onClick={() => navigate(ROUTES.LOGIN)}
-                    _hover={{ color: 'brand.500' }}
+                    _hover={{ color: 'brand.500', bg: 'gray.50' }}
                   >
                     Log in
                   </Button>
                   <PrimaryButton onClick={() => navigate(ROUTES.ONBOARDING)}>
                     Start now
                   </PrimaryButton>
-                </>
+                </HStack>
               )}
             </HStack>
 
@@ -153,12 +218,30 @@ export function Header() {
                 Menu
               </Text>
 
+              {/* Navigation Links - Grouped Together */}
+              <Box
+                as="button"
+                display="flex"
+                alignItems="center"
+                gap={3}
+                w="full"
+                py={3}
+                px={4}
+                borderRadius="xl"
+                bg="gray.50"
+                color="gray.700"
+                fontWeight="500"
+                fontSize="md"
+                transition="all 0.2s"
+                _hover={{ bg: 'gray.100', transform: 'translateX(4px)' }}
+                _active={{ bg: 'gray.200' }}
+                onClick={() => handleNavigate(ROUTES.PRICING)}
+              >
+                Pricing
+              </Box>
+
               {isAuthenticated ? (
                 <>
-                  <Text color="gray.600" fontSize="sm" px={4}>
-                    Logged in as {user?.name}
-                  </Text>
-                  
                   <Box
                     as="button"
                     display="flex"
@@ -183,7 +266,11 @@ export function Header() {
                     Dashboard
                   </Box>
 
-                  <Box h="1px" bg="gray.100" my={2} />
+                  <Box h="1px" bg="gray.100" my={3} />
+
+                  <Text color="gray.500" fontSize="sm" px={4}>
+                    {user?.name}
+                  </Text>
 
                   <Button
                     variant="ghost"
@@ -223,7 +310,7 @@ export function Header() {
                     Log in
                   </Box>
 
-                  <Box h="1px" bg="gray.100" my={2} />
+                  <Box h="1px" bg="gray.100" my={3} />
 
                   {/* CTA Button */}
                   <PrimaryButton

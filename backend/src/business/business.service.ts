@@ -101,7 +101,7 @@ export class BusinessService {
       await queryRunner.commitTransaction();
 
       // Return the business with services
-      return this.findByOwnerId(ownerId);
+      return this.findByOwnerIdOrFail(ownerId);
     } catch (error: any) {
       await queryRunner.rollbackTransaction();
       // Handle duplicate slug error
@@ -127,13 +127,13 @@ export class BusinessService {
    */
   async findByOwner(firebaseUser: FirebaseUser): Promise<Business> {
     const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    return this.findByOwnerId(owner.id);
+    return this.findByOwnerIdOrFail(owner.id);
   }
 
   /**
-   * Find business by owner ID (internal use)
+   * Find business by owner ID (internal use - throws if not found)
    */
-  private async findByOwnerId(ownerId: number): Promise<Business> {
+  private async findByOwnerIdOrFail(ownerId: number): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { ownerId },
       relations: ['services', 'services.category', 'businessType'],
@@ -144,6 +144,16 @@ export class BusinessService {
     }
 
     return business;
+  }
+
+  /**
+   * Find business by owner ID (returns null if not found)
+   */
+  async findByOwnerId(ownerId: number): Promise<Business | null> {
+    return this.businessRepository.findOne({
+      where: { ownerId },
+      relations: ['services', 'services.category', 'businessType'],
+    });
   }
 
   /**
@@ -243,5 +253,12 @@ export class BusinessService {
       where: { ownerId },
     });
     return !!business;
+  }
+
+  /**
+   * Delete a business by ID
+   */
+  async remove(id: number): Promise<void> {
+    await this.businessRepository.delete(id);
   }
 }

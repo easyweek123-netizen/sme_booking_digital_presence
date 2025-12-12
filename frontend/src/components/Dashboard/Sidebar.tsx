@@ -19,13 +19,14 @@ interface NavItem {
   icon: React.ReactNode;
   path: string;
   badgeKey?: 'pending';
+  tourId?: string;
 }
 
 const navItems: NavItem[] = [
   { label: 'Overview', icon: <HomeIcon size={20} />, path: ROUTES.DASHBOARD.ROOT },
-  { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings`, badgeKey: 'pending' },
-  { label: 'Services', icon: <LayersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/services` },
-  { label: 'Settings', icon: <SettingsIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/settings` },
+  { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings`, badgeKey: 'pending', tourId: 'tour-bookings-nav' },
+  { label: 'Services', icon: <LayersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/services`, tourId: 'tour-services-nav' },
+  { label: 'Settings', icon: <SettingsIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/settings`, tourId: 'tour-settings-nav' },
 ];
 
 interface SidebarProps {
@@ -102,6 +103,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           return (
             <Box
               key={item.path}
+              data-tour-id={item.tourId}
               as="button"
               display="flex"
               alignItems="center"

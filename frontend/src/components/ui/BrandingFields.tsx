@@ -11,7 +11,7 @@ import {
   IconButton,
   VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CloseIcon } from '../icons';
 import { DEFAULT_BRAND_COLOR } from '../../utils/brandColor';
 
@@ -29,14 +29,29 @@ export function BrandingFields({
   onBrandColorChange,
 }: BrandingFieldsProps) {
   const [logoError, setLogoError] = useState(false);
+  // Local state for color picker - prevents Redux dispatch on every drag
+  const [localColor, setLocalColor] = useState(brandColor || DEFAULT_BRAND_COLOR);
+
+  // Sync local state when prop changes externally (e.g., reset)
+  useEffect(() => {
+    setLocalColor(brandColor || DEFAULT_BRAND_COLOR);
+  }, [brandColor]);
 
   const handleLogoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onLogoUrlChange(e.target.value);
     setLogoError(false);
   };
 
+  // Update local state only (fast, no Redux dispatch)
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onBrandColorChange(e.target.value);
+    setLocalColor(e.target.value);
+  };
+
+  // Propagate to parent only when picker closes
+  const handleColorBlur = () => {
+    if (localColor !== (brandColor || DEFAULT_BRAND_COLOR)) {
+      onBrandColorChange(localColor === DEFAULT_BRAND_COLOR ? '' : localColor);
+    }
   };
 
   const handleClearLogo = () => {
@@ -45,10 +60,9 @@ export function BrandingFields({
   };
 
   const handleClearColor = () => {
+    setLocalColor(DEFAULT_BRAND_COLOR);
     onBrandColorChange('');
   };
-
-  const displayColor = brandColor || DEFAULT_BRAND_COLOR;
 
   return (
     <VStack spacing={4} align="stretch">
@@ -56,9 +70,6 @@ export function BrandingFields({
       <FormControl>
         <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
           Logo URL
-          <Text as="span" color="gray.400" fontWeight="400" ml={1}>
-            (optional)
-          </Text>
         </FormLabel>
         <HStack spacing={3}>
           <InputGroup size="lg" flex={1}>
@@ -130,9 +141,6 @@ export function BrandingFields({
       <FormControl>
         <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
           Brand Color
-          <Text as="span" color="gray.400" fontWeight="400" ml={1}>
-            (optional)
-          </Text>
         </FormLabel>
         <HStack spacing={3}>
           {/* Color Picker Button */}
@@ -141,7 +149,7 @@ export function BrandingFields({
             w="48px"
             h="48px"
             borderRadius="xl"
-            bg={displayColor}
+            bg={localColor}
             cursor="pointer"
             border="2px"
             borderColor={brandColor ? 'gray.300' : 'gray.200'}
@@ -154,8 +162,9 @@ export function BrandingFields({
           >
             <Input
               type="color"
-              value={displayColor}
+              value={localColor}
               onChange={handleColorChange}
+              onBlur={handleColorBlur}
               position="absolute"
               top={0}
               left={0}

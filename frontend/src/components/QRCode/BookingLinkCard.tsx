@@ -14,11 +14,10 @@ import {
   Flex,
   useDisclosure,
   useToast,
-  IconButton,
   Tooltip,
 } from '@chakra-ui/react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { CopyIcon, DownloadIcon, ExternalLinkIcon } from '../icons';
+import { CopyIcon, DownloadIcon } from '../icons';
 import { TOAST_DURATION } from '../../constants';
 
 interface BookingLinkCardProps {
@@ -120,14 +119,11 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
     }
   };
 
-  const openBookingPage = () => {
-    window.open(bookingUrl, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <>
       {/* Card with QR Prominence */}
       <Box
+        data-tour-id="tour-booking-card"
         bg="white"
         border="1px"
         borderColor="gray.200"
@@ -171,11 +167,16 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
               Your booking page
             </Text>
             <Text
+              as="a"
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               fontSize="sm"
               fontWeight="600"
               color="brand.600"
-              mb={3}
               wordBreak="break-all"
+              _hover={{ textDecoration: 'underline', color: 'brand.700' }}
+              cursor="pointer"
             >
               {displayUrl}
             </Text>
@@ -200,16 +201,6 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
               >
                 Download QR
               </Button>
-              <Tooltip label="Open booking page" placement="top" hasArrow>
-                <IconButton
-                  aria-label="Open booking page"
-                  icon={<ExternalLinkIcon size={14} />}
-                  size="sm"
-                  variant="ghost"
-                  colorScheme="gray"
-                  onClick={openBookingPage}
-                />
-              </Tooltip>
             </HStack>
           </Box>
         </Flex>

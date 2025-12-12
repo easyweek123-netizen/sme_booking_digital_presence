@@ -70,7 +70,7 @@ export function ServicesStep() {
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <VStack spacing={6} align="stretch">
+      <VStack spacing={5} align="stretch">
         {/* Header */}
         <Box textAlign="center" mb={2}>
           <Heading size="lg" color="gray.900" mb={2}>

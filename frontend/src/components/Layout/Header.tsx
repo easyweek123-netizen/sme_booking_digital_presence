@@ -18,8 +18,9 @@ import {
   MenuItem,
   MenuDivider,
   Avatar,
+  Flex,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import { PrimaryButton } from '../ui/PrimaryButton';
 import { MenuIcon, CloseIcon, UserIcon, SettingsIcon, LogOutIcon, ChevronDownIcon } from '../icons';
@@ -27,11 +28,45 @@ import { ROUTES } from '../../config/routes';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { resetStore } from '../../store/actions';
 
+// Navigation links for landing page
+const navLinks = [
+  { label: 'How It Works', href: '#how-it-works', isPage: false },
+  { label: 'FAQ', href: '#faq', isPage: false },
+  { label: 'Pricing', href: ROUTES.PRICING, isPage: true },
+];
+
 export function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+  const isLandingPage = location.pathname === '/';
+
+  const handleNavClick = (href: string, isPage: boolean) => {
+    onClose();
+    if (isPage) {
+      navigate(href);
+    } else {
+      // Anchor link - scroll to section
+      if (isLandingPage) {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        // Navigate to home first, then scroll
+        navigate('/');
+        setTimeout(() => {
+          const element = document.querySelector(href);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    }
+  };
 
   const handleNavigate = (route: string) => {
     onClose();
@@ -58,41 +93,42 @@ export function Header() {
         bgColor="rgba(255,255,255,0.9)"
       >
         <Container maxW="container.xl" py={4}>
-          <HStack justify="space-between">
+          <Flex justify="space-between" align="center">
+            {/* Logo - Left */}
             <Logo size="md" onClick={() => navigate(ROUTES.HOME)} />
 
-            {/* Desktop Navigation */}
-            <HStack spacing={1} display={{ base: 'none', md: 'flex' }}>
-              {/* Navigation Links */}
-              <HStack spacing={1}>
-                <Button
-                  variant="ghost"
-                  color="gray.600"
-                  fontWeight="500"
-                  onClick={() => navigate(ROUTES.PRICING)}
-                  _hover={{ color: 'brand.500', bg: 'gray.50' }}
-                >
-                  Pricing
-                </Button>
-                {isAuthenticated && (
+            {/* Center Navigation - Desktop */}
+            <HStack
+              spacing={1}
+              display={{ base: 'none', md: 'flex' }}
+              position="absolute"
+              left="50%"
+              transform="translateX(-50%)"
+            >
+              {navLinks.map((link, index) => (
+                <HStack key={link.label} spacing={1}>
+                  {index > 0 && (
+                    <Text color="gray.300" fontSize="sm" px={1}>
+                      •
+                    </Text>
+                  )}
                   <Button
                     variant="ghost"
                     color="gray.600"
                     fontWeight="500"
-                    onClick={() => navigate(ROUTES.DASHBOARD.ROOT)}
-                    _hover={{ color: 'brand.500', bg: 'gray.50' }}
+                    fontSize="md"
+                    onClick={() => handleNavClick(link.href, link.isPage)}
+                    _hover={{ color: 'brand.500', bg: 'transparent' }}
+                    px={3}
                   >
-                    Dashboard
+                    {link.label}
                   </Button>
-                )}
-              </HStack>
+                </HStack>
+              ))}
+            </HStack>
 
-              {/* Separator */}
-              {isAuthenticated && (
-                <Box h="24px" w="1px" bg="gray.200" mx={2} />
-              )}
-
-              {/* Account Section */}
+            {/* Right Section - Desktop */}
+            <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
               {isAuthenticated ? (
                 <Menu>
                   <MenuButton
@@ -125,6 +161,15 @@ export function Header() {
                     borderColor="gray.100"
                   >
                     <MenuItem
+                      icon={<UserIcon size={18} />}
+                      onClick={() => navigate(ROUTES.DASHBOARD.ROOT)}
+                      _hover={{ bg: 'gray.50' }}
+                      py={2}
+                      px={4}
+                    >
+                      Dashboard
+                    </MenuItem>
+                    <MenuItem
                       icon={<SettingsIcon size={18} />}
                       onClick={() => navigate(ROUTES.DASHBOARD.SETTINGS)}
                       _hover={{ bg: 'gray.50' }}
@@ -147,20 +192,20 @@ export function Header() {
                   </MenuList>
                 </Menu>
               ) : (
-                <HStack spacing={2} ml={2}>
+                <>
                   <Button
                     variant="ghost"
                     color="gray.600"
                     fontWeight="500"
                     onClick={() => navigate(ROUTES.LOGIN)}
-                    _hover={{ color: 'brand.500', bg: 'gray.50' }}
+                    _hover={{ color: 'brand.500', bg: 'transparent' }}
                   >
                     Log in
                   </Button>
                   <PrimaryButton onClick={() => navigate(ROUTES.ONBOARDING)}>
-                    Start now
+                    Get Started
                   </PrimaryButton>
-                </HStack>
+                </>
               )}
             </HStack>
 
@@ -178,7 +223,7 @@ export function Header() {
               _active={{ bg: 'brand.100' }}
               transition="all 0.2s"
             />
-          </HStack>
+          </Flex>
         </Container>
       </Box>
 
@@ -218,27 +263,32 @@ export function Header() {
                 Menu
               </Text>
 
-              {/* Navigation Links - Grouped Together */}
-              <Box
-                as="button"
-                display="flex"
-                alignItems="center"
-                gap={3}
-                w="full"
-                py={3}
-                px={4}
-                borderRadius="xl"
-                bg="gray.50"
-                color="gray.700"
-                fontWeight="500"
-                fontSize="md"
-                transition="all 0.2s"
-                _hover={{ bg: 'gray.100', transform: 'translateX(4px)' }}
-                _active={{ bg: 'gray.200' }}
-                onClick={() => handleNavigate(ROUTES.PRICING)}
-              >
-                Pricing
-              </Box>
+              {/* Navigation Links */}
+              {navLinks.map((link) => (
+                <Box
+                  key={link.label}
+                  as="button"
+                  display="flex"
+                  alignItems="center"
+                  gap={3}
+                  w="full"
+                  py={3}
+                  px={4}
+                  borderRadius="xl"
+                  bg="gray.50"
+                  color="gray.700"
+                  fontWeight="500"
+                  fontSize="md"
+                  transition="all 0.2s"
+                  _hover={{ bg: 'gray.100', transform: 'translateX(4px)' }}
+                  _active={{ bg: 'gray.200' }}
+                  onClick={() => handleNavClick(link.href, link.isPage)}
+                >
+                  {link.label}
+                </Box>
+              ))}
+
+              <Box h="1px" bg="gray.100" my={3} />
 
               {isAuthenticated ? (
                 <>
@@ -321,7 +371,7 @@ export function Header() {
                     boxShadow="0 4px 14px rgba(46, 182, 125, 0.3)"
                     w="full"
                   >
-                    Start now
+                    Get Started
                   </PrimaryButton>
                 </>
               )}

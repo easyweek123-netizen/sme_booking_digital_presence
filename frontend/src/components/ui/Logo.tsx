@@ -60,9 +60,6 @@ export function Logo({
       spacing={sizeStyles.spacing}
       cursor={isClickable ? 'pointer' : 'default'}
       onClick={onClick}
-      _hover={isClickable ? { transform: 'scale(1.02)' } : undefined}
-      _active={isClickable ? { transform: 'scale(0.98)' } : undefined}
-      transition="transform 0.15s ease"
       role={isClickable ? 'group' : undefined}
     >
       <Box
@@ -73,9 +70,11 @@ export function Logo({
         display="flex"
         alignItems="center"
         justifyContent="center"
-        boxShadow={size === 'lg' ? '0 2px 8px rgba(46, 182, 125, 0.3)' : undefined}
-        transition="box-shadow 0.15s ease"
-        _groupHover={isClickable ? { boxShadow: '0 2px 12px rgba(46, 182, 125, 0.4)' } : undefined}
+        boxShadow={size === 'lg' ? '0 2px 8px color-mix(in srgb, var(--chakra-colors-brand-500) 30%, transparent)' : undefined}
+        transition="box-shadow 0.2s ease"
+        _groupHover={isClickable ? { 
+          boxShadow: '0 4px 12px color-mix(in srgb, var(--chakra-colors-brand-500) 40%, transparent)' 
+        } : undefined}
       >
         <Text color="white" fontWeight="bold" fontSize={sizeStyles.fontSize}>
           B

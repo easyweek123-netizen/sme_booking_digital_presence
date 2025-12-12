@@ -65,112 +65,128 @@ export function BusinessCategories() {
   return (
     <Box bg="gray.50" py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }}>
       <Container maxW="container.xl">
-        <HStack
-          justify="space-between"
-          align="start"
-          mb={{ base: 8, md: 12 }}
-          flexDir={{ base: 'column', lg: 'row' }}
-          gap={6}
-        >
-          {/* Section Header */}
-          <VStack align={{ base: 'center', lg: 'start' }} spacing={3} maxW="400px">
-            <Heading
-              as="h2"
-              fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
-              fontWeight="700"
-              color="gray.900"
-              lineHeight="1.2"
-              textAlign={{ base: 'center', lg: 'left' }}
+        <VStack spacing={{ base: 10, md: 14 }}>
+          {/* Section Header - Centered */}
+          <VStack spacing={4} textAlign="center" maxW="600px">
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
             >
-              Quick solutions for your bussiness
-            </Heading>
-            <Text
-              color="gray.500"
-              fontSize={{ base: 'md', md: 'lg' }}
-              textAlign={{ base: 'center', lg: 'left' }}
+              <Heading
+                as="h2"
+                fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
+                fontWeight="700"
+                color="gray.900"
+              >
+                Quick Solutions for Your Business
+              </Heading>
+            </MotionBox>
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
             >
-              Select your business area to receive a tailored option for your
-              industry.
-            </Text>
+              <Text color="gray.500" fontSize={{ base: 'md', md: 'lg' }}>
+                Select your business area to receive a tailored option for your industry
+              </Text>
+            </MotionBox>
+          </VStack>
 
-            {/* Navigation Arrows - Desktop */}
-            <HStack spacing={2} display={{ base: 'none', lg: 'flex' }} pt={4}>
+          {/* Categories Carousel */}
+          <Box w="full" position="relative">
+            {/* Navigation Arrows */}
+            <HStack
+              position="absolute"
+              top="50%"
+              left={0}
+              right={0}
+              transform="translateY(-50%)"
+              justify="space-between"
+              px={{ base: 0, md: 2 }}
+              zIndex={2}
+              pointerEvents="none"
+              display={{ base: 'none', md: 'flex' }}
+            >
               <IconButton
                 aria-label="Previous categories"
                 icon={<ChevronLeftIcon />}
                 onClick={() => scroll('left')}
-                variant="outline"
+                variant="solid"
                 borderRadius="full"
                 size="lg"
-                borderColor="gray.200"
+                bg="white"
                 color="gray.600"
-                _hover={{ bg: 'gray.100', borderColor: 'gray.300' }}
+                boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+                _hover={{ bg: 'gray.50' }}
                 isDisabled={activeIndex === 0}
+                pointerEvents="auto"
+                opacity={activeIndex === 0 ? 0.5 : 1}
               />
               <IconButton
                 aria-label="Next categories"
                 icon={<ChevronRightIcon />}
                 onClick={() => scroll('right')}
-                variant="outline"
+                variant="solid"
                 borderRadius="full"
                 size="lg"
-                borderColor="gray.200"
+                bg="white"
                 color="gray.600"
-                _hover={{ bg: 'gray.100', borderColor: 'gray.300' }}
+                boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+                _hover={{ bg: 'gray.50' }}
                 isDisabled={activeIndex >= (categories?.length || 1) - 1}
+                pointerEvents="auto"
+                opacity={activeIndex >= (categories?.length || 1) - 1 ? 0.5 : 1}
               />
             </HStack>
-          </VStack>
 
-          {/* Categories Carousel */}
-          <Box
-            flex="1"
-            maxW={{ base: '100%', lg: 'calc(100% - 450px)' }}
-            overflow="hidden"
-          >
-            <AnimatePresence mode="wait">
-              {isLoading ? (
-                <HStack spacing={5} overflow="hidden">
-                  {[1, 2, 3].map((i) => (
-                    <Skeleton
-                      key={i}
-                      minW={CARD_WIDTH.category.md}
-                      h="280px"
-                      borderRadius="2xl"
-                      startColor="gray.100"
-                      endColor="gray.200"
-                    />
-                  ))}
-                </HStack>
-              ) : (
-                <MotionBox
-                  ref={scrollContainerRef}
-                  display="flex"
-                  gap={5}
-                  overflowX="auto"
-                  pb={4}
-                  px={1}
-                  onScroll={handleScroll}
-                  sx={{
-                    scrollSnapType: 'x mandatory',
-                    scrollbarWidth: 'none',
-                    '&::-webkit-scrollbar': { display: 'none' },
-                    '& > *': { scrollSnapAlign: 'start' },
-                  }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  {categories?.map((category) => (
-                    <CategoryCard
-                      key={category.id}
-                      category={category}
-                      onTypeClick={handleTypeClick}
-                    />
-                  ))}
-                </MotionBox>
-              )}
-            </AnimatePresence>
+            {/* Carousel Container */}
+            <Box overflow="hidden" px={{ base: 0, md: 12 }}>
+              <AnimatePresence mode="wait">
+                {isLoading ? (
+                  <HStack spacing={5} overflow="hidden" justify="center">
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton
+                        key={i}
+                        minW={CARD_WIDTH.category.md}
+                        h="280px"
+                        borderRadius="2xl"
+                        startColor="gray.100"
+                        endColor="gray.200"
+                      />
+                    ))}
+                  </HStack>
+                ) : (
+                  <MotionBox
+                    ref={scrollContainerRef}
+                    display="flex"
+                    gap={5}
+                    overflowX="auto"
+                    pb={4}
+                    px={1}
+                    onScroll={handleScroll}
+                    sx={{
+                      scrollSnapType: 'x mandatory',
+                      scrollbarWidth: 'none',
+                      '&::-webkit-scrollbar': { display: 'none' },
+                      '& > *': { scrollSnapAlign: 'start' },
+                    }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    {categories?.map((category) => (
+                      <CategoryCard
+                        key={category.id}
+                        category={category}
+                        onTypeClick={handleTypeClick}
+                      />
+                    ))}
+                  </MotionBox>
+                )}
+              </AnimatePresence>
+            </Box>
 
             {/* Pagination Dots */}
             {categories && categories.length > 1 && (
@@ -199,7 +215,7 @@ export function BusinessCategories() {
               </HStack>
             )}
           </Box>
-        </HStack>
+        </VStack>
       </Container>
     </Box>
   );

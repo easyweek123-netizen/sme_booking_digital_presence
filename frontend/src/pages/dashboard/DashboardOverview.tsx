@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -9,7 +10,7 @@ import {
   HStack,
   Badge,
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { StatsCard } from '../../components/Dashboard';
 import {
   CalendarIcon,
@@ -21,13 +22,30 @@ import { BookingLinkCard } from '../../components/QRCode';
 import { useGetMyBusinessQuery } from '../../store/api/businessApi';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
 import { ROUTES } from '../../config/routes';
+import { useTour } from '../../contexts/TourContext';
 
 export function DashboardOverview() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { startTour, hasCompletedTour } = useTour();
+  
   const { data: business } = useGetMyBusinessQuery();
   const { data: stats } = useGetBookingStatsQuery(business?.id || 0, {
     skip: !business?.id,
   });
+
+  // Check if user just completed onboarding and should see the tour
+  const justOnboarded = location.state?.fromOnboarding === true;
+
+  useEffect(() => {
+    if (justOnboarded && business && !hasCompletedTour) {
+      // Small delay to let the page render first
+      const timer = setTimeout(() => {
+        startTour(business.slug);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [justOnboarded, business, hasCompletedTour, startTour]);
 
   if (!business) return null;
 
@@ -35,7 +53,7 @@ export function DashboardOverview() {
 
   return (
     <VStack spacing={8} align="stretch">
-      {/* Header */}
+        {/* Header */}
         <Box>
           <Heading size="lg" color="gray.900" mb={1}>
             Welcome back!

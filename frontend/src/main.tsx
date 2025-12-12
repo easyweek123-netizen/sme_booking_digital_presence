@@ -10,6 +10,8 @@ import './store/storeListeners'; // Register store side-effect listeners
 import { theme } from './theme';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
+import { TourProvider } from './contexts/TourContext';
+import { TourOverlay, TourTooltip, TourIntro } from './components/Tour';
 import App from './App';
 
 import './index.css';
@@ -29,7 +31,12 @@ createRoot(document.getElementById('root')!).render(
           <ChakraProvider theme={theme}>
             <BrowserRouter>
               <AuthProvider>
-                <App />
+                <TourProvider>
+                  <App />
+                  <TourIntro />
+                  <TourOverlay />
+                  <TourTooltip />
+                </TourProvider>
               </AuthProvider>
             </BrowserRouter>
           </ChakraProvider>

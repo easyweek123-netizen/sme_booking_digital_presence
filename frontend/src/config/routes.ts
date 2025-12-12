@@ -3,6 +3,8 @@ export const ROUTES = {
   LOGIN: '/login',
   ONBOARDING: '/onboarding',
   PRICING: '/pricing',
+  PRIVACY: '/privacy',
+  TERMS: '/terms',
   DASHBOARD: {
     ROOT: '/dashboard',
     BOOKINGS: '/dashboard/bookings',

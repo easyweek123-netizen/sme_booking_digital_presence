@@ -7,6 +7,9 @@ import {
   Grid,
   GridItem,
   useBreakpointValue,
+  useDisclosure,
+  Collapse,
+  Button,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WorkingHours, DaySchedule } from '../../types';
@@ -17,6 +20,7 @@ import {
   generateTimeOptions,
   type DayOfWeek,
 } from '../../constants';
+import { ClockIcon, ChevronRightIcon } from '../icons';
 
 const MotionBox = motion.create(Box);
 
@@ -26,6 +30,7 @@ interface WorkingHoursEditorProps {
 }
 
 export function WorkingHoursEditor({ value, onChange }: WorkingHoursEditorProps) {
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
   const isMobile = useBreakpointValue({ base: true, md: false });
   const timeOptions = generateTimeOptions();
 
@@ -59,11 +64,37 @@ export function WorkingHoursEditor({ value, onChange }: WorkingHoursEditorProps)
 
   return (
     <Box w="full">
-      <Grid
-        templateColumns={{ base: '1fr', md: 'repeat(1, 1fr)' }}
-        gap={2}
+      {/* Toggle Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        leftIcon={<ClockIcon size={16} />}
+        rightIcon={
+          <Box
+            transform={isOpen ? 'rotate(90deg)' : 'rotate(0deg)'}
+            transition="transform 0.2s"
+          >
+            <ChevronRightIcon size={16} />
+          </Box>
+        }
+        onClick={onToggle}
+        color="gray.600"
+        px={0}
+        _hover={{ bg: 'transparent', color: 'gray.900' }}
+        fontWeight="500"
+        fontSize="sm"
       >
-        {DAYS_OF_WEEK.map((day) => {
+        Working Hours
+      </Button>
+
+      {/* Collapsible Content */}
+      <Collapse in={isOpen}>
+        <Grid
+          templateColumns={{ base: '1fr', md: 'repeat(1, 1fr)' }}
+          gap={2}
+          mt={3}
+        >
+          {DAYS_OF_WEEK.map((day) => {
           const schedule = getDaySchedule(day);
           const label = isMobile ? DAY_SHORT_LABELS[day] : DAY_LABELS[day];
 
@@ -166,7 +197,8 @@ export function WorkingHoursEditor({ value, onChange }: WorkingHoursEditorProps)
             </GridItem>
           );
         })}
-      </Grid>
+        </Grid>
+      </Collapse>
     </Box>
   );
 }

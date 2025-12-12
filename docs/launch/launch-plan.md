@@ -1,5 +1,7 @@
 # BookEasy: Launch Plan
 
+**Last Updated:** December 12, 2024
+
 ## Vision
 
 Launch a **professional booking platform** that helps SMEs create beautiful booking pages and start accepting appointments.
@@ -73,48 +75,70 @@ FREE VERSION                          PREMIUM (Coming Soon)
 
 ---
 
-## Remaining Phases
-
-### Phase 5: UI Polish
+### Phase 5: UI Polish ✅
 
 **Goal:** Make landing page catchy and professional, clearly communicate value.
 
-| Task | Description |
-|------|-------------|
-| Hero Rewrite | Bold headline, clear value prop |
-| Features Section | Visual feature cards with icons |
-| How It Works | 3-step visual guide |
-| Social Proof | Trust indicators |
-| CTA Optimization | Action-oriented wording |
+| Task | Status | Implementation |
+|------|--------|----------------|
+| Hero Rewrite | ✅ Done | `HeroCarousel.tsx` - Animated color carousel with 4 slides |
+| How It Works | ✅ Done | `HowItWorks.tsx` - 4-step visual guide |
+| FAQ Section | ✅ Done | `FAQ.tsx` - Collapsible accordion |
+| CTA Optimization | ✅ Done | `CTASection.tsx` - Updated copy |
+| Trust Badges | ✅ Done | In HeroCarousel - "No credit card", "Free forever", "2 min setup" |
+| Tour System | ✅ Done | `TourContext.tsx` - Welcome tour for new users |
+| Legal Pages | ✅ Done | Terms of Service, Privacy Policy |
 
 **Detailed Plan:** [phase5-ui-polish.md](./phase5-ui-polish.md)
 
 ---
 
-### Phase 6: Analytics & Launch
+## Current Phase
 
-**Goal:** Add tracking and deploy to production with custom domain.
+### Phase 6: Production & AI Integration 🔄
 
-| Task | Description |
-|------|-------------|
-| Google Analytics | GA4 setup with event tracking |
-| Custom Domain | Deploy to professional domain |
-| Real User Testing | VisionSoulArt persona test |
-| Marketing | Share with target audience |
+**Goal:** Prepare for production launch and add AI-powered onboarding.
+
+#### Priority 1: Production Planning & Features
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Optional Services | ✅ Done | Services form open by default, skip allowed |
+| Live/Not Live Toggle | ⏳ Next | Allow owners to hide booking page until ready |
+| Production Plan | ⏳ Pending | Environment setup, deployment strategy |
+| Pre-Launch Testing | ⏳ Pending | Full flow verification |
+| Custom Domain | ⏳ Pending | Deploy to professional domain |
+
+#### Priority 2: AI Integration
+
+| Task | Status | Notes |
+|------|--------|-------|
+| AI Service Generator | ⏳ Pending | Generate services based on business type |
+| AI Description Writer | ⏳ Pending | Auto-generate business descriptions |
+| Smart Defaults | ⏳ Pending | Pre-fill based on business type |
+
+#### Priority 3: Analytics (Last)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Google Analytics | ⏳ Future | GA4 setup with event tracking |
+| Real User Testing | ⏳ Pending | VisionSoulArt persona test |
 
 **Detailed Plan:** [phase7-launch.md](./phase7-launch.md)
 
 ---
 
-### Phase 7: AI Onboarding (Future)
+## Future Phase
+
+### Phase 7: AI Onboarding 📋
 
 **Goal:** Reduce onboarding time using AI. To be implemented after launch.
 
-| Feature | Description |
-|---------|-------------|
-| AI Service Generator | Generate services based on business type |
-| AI Description Writer | Auto-generate business descriptions |
-| Smart Defaults | Pre-fill working hours, pricing |
+| Feature | Status | Description |
+|---------|--------|-------------|
+| AI Service Generator | 📋 Planned | Generate services based on business type |
+| AI Description Writer | 📋 Planned | Auto-generate business descriptions |
+| Smart Defaults | 📋 Planned | Pre-fill working hours, pricing |
 
 **Detailed Plan:** [phase6-ai-onboarding.md](./phase6-ai-onboarding.md)
 
@@ -128,10 +152,55 @@ FREE VERSION                          PREMIUM (Coming Soon)
 | 2. Email Notifications | ✅ Done | - |
 | 3. QR Code | ✅ Done | - |
 | 4. Booking Customization | ✅ Done | - |
-| 5. UI Polish | 🔄 Next | 2-3 |
-| 6. Analytics & Launch | ⏳ Pending | 1-2 |
+| 5. UI Polish | ✅ Done | - |
+| 6. Analytics & Launch | 🔄 Current | 1-2 |
 | 7. AI Onboarding | 📋 Future | TBD |
-| **Total to Launch** | | **~3-5 days** |
+| **Total to Launch** | | **~1-2 days** |
+
+---
+
+## Production Checklist
+
+### Pre-Launch Verification
+
+| Category | Check | Status |
+|----------|-------|--------|
+| **Auth Flow** | Google OAuth signup works | ⏳ |
+| **Auth Flow** | Google OAuth login works | ⏳ |
+| **Auth Flow** | Logout clears session | ⏳ |
+| **Onboarding** | Profile step saves data | ⏳ |
+| **Onboarding** | Services step works (optional) | ⏳ |
+| **Onboarding** | Business created on completion | ⏳ |
+| **Onboarding** | Redirect to dashboard | ⏳ |
+| **Dashboard** | Overview loads correctly | ⏳ |
+| **Dashboard** | QR code displays and downloads | ⏳ |
+| **Dashboard** | Booking link copies | ⏳ |
+| **Dashboard** | Services CRUD works | ⏳ |
+| **Dashboard** | Settings update works | ⏳ |
+| **Booking Page** | Public page loads | ⏳ |
+| **Booking Page** | Service selection works | ⏳ |
+| **Booking Page** | Date/time selection works | ⏳ |
+| **Booking Page** | Customer verification works | ⏳ |
+| **Booking Page** | Booking confirmation shows | ⏳ |
+| **Emails** | New booking alert sent | ⏳ |
+| **Emails** | Booking confirmation sent | ⏳ |
+| **Mobile** | Landing page responsive | ⏳ |
+| **Mobile** | Onboarding works on mobile | ⏳ |
+| **Mobile** | Dashboard works on mobile | ⏳ |
+| **Mobile** | Booking page works on mobile | ⏳ |
+| **Console** | No errors in browser console | ⏳ |
+| **Tour** | Welcome tour triggers for new users | ⏳ |
+
+### Environment Setup
+
+| Item | Status |
+|------|--------|
+| Production Firebase project | ⏳ |
+| Production database | ⏳ |
+| Production Resend API key | ⏳ |
+| Custom domain DNS | ⏳ |
+| SSL certificate | ⏳ |
+| Environment variables | ⏳ |
 
 ---
 
@@ -154,3 +223,66 @@ FREE VERSION                          PREMIUM (Coming Soon)
 | Onboarding completion | Users can complete setup |
 | Mobile usability | Fully functional |
 | Real user test | VisionSoulArt can use the app |
+
+---
+
+## AI Integration Planning (Phase 7)
+
+### Overview
+
+Use OpenAI to reduce onboarding friction by auto-generating services and descriptions.
+
+### Technical Approach
+
+```
+User selects business type → API call to OpenAI → Generate services → User reviews/edits
+```
+
+### API Endpoints
+
+| Endpoint | Input | Output |
+|----------|-------|--------|
+| `POST /api/ai/generate-services` | Business type, name | Array of 3-5 services |
+| `POST /api/ai/generate-description` | Business type, name | 2-sentence description |
+
+### Service Generation Prompt
+
+```
+Generate 4 services for a {businessType} called "{businessName}".
+Each service should include:
+- name: Professional service name
+- durationMinutes: Typical duration (30, 60, 90, or 120)
+- price: Reasonable market price in EUR
+- description: 1-2 sentence description
+
+Format: JSON array
+```
+
+### Implementation Steps
+
+1. Add OpenAI SDK to backend
+2. Create `/api/ai/` module
+3. Add loading state in onboarding
+4. Add "Generate with AI" button
+5. Allow user to edit/accept suggestions
+6. Add fallback if AI fails
+
+### Cost Estimate
+
+- GPT-4o-mini: ~$0.15/1M input, ~$0.60/1M output
+- Per generation: ~$0.001 (negligible)
+
+### Files to Create
+
+```
+backend/src/ai/
+├── ai.module.ts
+├── ai.controller.ts
+├── ai.service.ts
+└── dto/
+    ├── generate-services.dto.ts
+    └── generate-description.dto.ts
+
+frontend/src/components/onboarding/
+└── AIGenerateButton.tsx
+```

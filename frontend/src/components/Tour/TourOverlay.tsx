@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, useToken } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { AnimatePresence } from 'framer-motion';
 import { useTour } from '../../contexts/TourContext';
 import { MotionBox } from '../ui/MotionBox';
@@ -15,7 +15,6 @@ interface TargetRect {
 export function TourOverlay() {
   const { isActive, targetElement } = useTour();
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
-  const [brandColor] = useToken('colors', ['brand.500']);
 
   // Update target rectangle when element changes or window resizes
   useEffect(() => {

@@ -77,27 +77,29 @@ export function OnboardingPage() {
       completed.push(1);
     }
     
-    // Step 2 is complete if at least one service is added
-    if (services.length > 0) {
+    // Step 2 is complete if user has visited it (services are optional)
+    // Mark as complete if they have profile (meaning they've passed step 1)
+    if (businessProfile?.name?.trim()) {
       completed.push(2);
     }
     
     return completed;
-  }, [businessProfile, services]);
+  }, [businessProfile]);
 
   // Check if current step is valid to proceed
+  // Services are optional - users can skip and add later
   const canProceed = useMemo(() => {
     switch (currentStep) {
       case 1:
         return !!businessProfile?.name?.trim();
       case 2:
-        return services.length > 0;
+        return true; // Services are optional
       case 3:
         return false; // Last step for logged out users, no next
       default:
         return false;
     }
-  }, [currentStep, businessProfile, services]);
+  }, [currentStep, businessProfile]);
 
   const canGoBack = currentStep > 1;
   const isLoading = isCreatingBusiness || isProcessing;
@@ -217,7 +219,10 @@ export function OnboardingPage() {
   // Button text logic
   const getButtonText = () => {
     if (currentStep === 2) {
-      return isAuthenticated ? 'Create My Page' : 'Continue to Account';
+      if (isAuthenticated) {
+        return services.length > 0 ? 'Create My Page' : 'Skip & Create Page';
+      }
+      return services.length > 0 ? 'Continue to Account' : 'Skip & Continue';
     }
     return 'Next';
   };

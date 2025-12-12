@@ -28,7 +28,8 @@ export function ServicesStep() {
   const dispatch = useAppDispatch();
   const { services, businessProfile } = useAppSelector((state) => state.onboarding);
   
-  const [showForm, setShowForm] = useState(false);
+  // Show form by default if no services yet (open by default behavior)
+  const [showForm, setShowForm] = useState(services.length === 0);
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
 
   const workingHours = businessProfile?.workingHours || defaultWorkingHours;
@@ -77,7 +78,7 @@ export function ServicesStep() {
             Your Services
           </Heading>
           <Text color="gray.600">
-            Add the services you offer to your customers
+            Add services you offer, or skip for now and add them later
           </Text>
         </Box>
 
@@ -146,12 +147,12 @@ export function ServicesStep() {
           )}
         </AnimatePresence>
 
-        {/* Minimum services warning */}
-        {services.length === 0 && (
+        {/* Optional services hint */}
+        {services.length === 0 && !showForm && (
           <Alert status="info" borderRadius="lg" bg="blue.50">
             <AlertIcon color="blue.500" />
             <Text fontSize="sm" color="blue.700">
-              Add at least one service to continue
+              You can add services now or skip and add them later from your dashboard
             </Text>
           </Alert>
         )}

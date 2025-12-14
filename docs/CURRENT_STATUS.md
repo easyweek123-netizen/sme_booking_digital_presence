@@ -1,6 +1,6 @@
 # BookEasy - Current Status
 
-**Last Updated:** December 12, 2024
+**Last Updated:** December 13, 2024 (Phase 1.1 In Progress + UI Refinements)
 
 ---
 
@@ -8,15 +8,15 @@
 
 | Item | Status |
 |------|--------|
-| Current Phase | 5 (UI Polish) - Complete |
-| Next Phase | Phase 6: Production & AI Integration |
+| Current Phase | AI-First Foundation (Phase 1) |
+| Previous Phase | Launch Prep - Complete (archived) |
 | Blockers | None |
 
 ---
 
-## Completed Features
+## Completed Features (Launch Phase - Archived)
 
-### Core Platform (Phases 1-4)
+### Core Platform (Phases 1-5)
 - [x] Google OAuth via Firebase Authentication
 - [x] Customer verification for bookings
 - [x] Booking reference codes for status checking
@@ -46,48 +46,40 @@
 
 ---
 
-## In Progress
+## Current Phase: AI-First Foundation
 
-- [x] Documentation updates (this file)
-- [x] Make services optional in onboarding
+See [AI_PRD.md](./AI_PRD.md) for full strategy.
 
----
+### Phase 1 Tasks
 
-## Next Up (Priority Order)
+| Task | Status | Plan |
+|------|--------|------|
+| Simplify onboarding to 1 step | **In Progress** | [Plan](./ai-first/phase1-1-simplified-onboarding-plan.md) &#124; [Change Request](./ai-first/phase1-1-change-request.md) |
+| Add `/chat` as primary route | Pending | |
+| Build Cursor-like chat layout | Pending | |
+| Implement chat history (session) | Pending | |
+| Add Chat to menu as first item | Pending | |
+| Implement core bot capabilities | Pending | |
+| Add category-based AI personalization | Pending | |
 
-### 1. Production Planning & Features
-- [ ] **Revise production plan** - Deployment strategy, environment setup
-- [ ] **Live/Not Live toggle** - Allow owners to hide their booking page until ready
-- [ ] **Brainstorming session** - Feature prioritization and roadmap
+### Phase 2: Calendar Integration
+- [ ] Google Calendar 2-way sync
+- [ ] Calendar view in dashboard
 
-### 2. AI Integration
-- [ ] **AI Service Generator** - Generate services based on business type
-- [ ] **AI Description Writer** - Auto-generate business descriptions
-- [ ] **Smart Defaults** - Pre-fill working hours, pricing based on business type
-
-### 3. Analytics (Last Priority)
-- [ ] **Google Analytics (GA4)** - Add tracking for key events
-- [ ] **Event tracking** - Signups, onboarding completion, bookings
-
----
-
-## Known Issues / Tech Debt
-
-| Issue | Priority | Notes |
-|-------|----------|-------|
-| Minimal test coverage | Medium | Only 1 unit test exists |
-| BusinessCategories commented out | Low | In landing page |
+### Phase 3: User Testing
+- [ ] Present to 2 real users
+- [ ] Collect feedback
 
 ---
 
-## Key Files Reference
+## Codebase State
 
 ### Frontend Structure
 ```
 frontend/src/
 ├── pages/
 │   ├── landing/index.tsx        # Landing page
-│   ├── onboarding/index.tsx     # Onboarding wizard
+│   ├── onboarding/index.tsx     # Onboarding wizard (3-step, to simplify)
 │   ├── dashboard/               # Dashboard pages
 │   ├── booking/index.tsx        # Public booking page
 │   └── legal/                   # Terms, Privacy
@@ -108,6 +100,7 @@ frontend/src/
 backend/src/
 ├── auth/                        # Firebase auth integration
 ├── business/                    # Business CRUD
+├── business-categories/         # Business categorization
 ├── services/                    # Service management
 ├── service-categories/          # Service grouping
 ├── bookings/                    # Booking management
@@ -117,6 +110,15 @@ backend/src/
 └── admin/                       # Admin endpoints
 ```
 
+### Database Entities
+- Owner (Firebase UID linked)
+- Business (with brand color, working hours, cover image)
+- BusinessCategory / BusinessType
+- Service / ServiceCategory
+- Booking (with status tracking)
+- Customer (verified via Google)
+- Feedback
+
 ---
 
 ## Third-Party Services
@@ -125,15 +127,16 @@ backend/src/
 |---------|---------|--------|
 | Firebase | Authentication | Configured |
 | Resend | Transactional emails | Configured |
-| Google Analytics | Usage tracking | Pending |
-| OpenAI | AI onboarding | Future |
+| OpenAI | AI chat (upcoming) | Pending |
 
 ---
 
-## Session Notes
+## Key Files Reference
 
-_Use this section for temporary notes during a work session. Clear at end of day._
-
-```
-[No active notes]
-```
+| Purpose | File |
+|---------|------|
+| Strategy | `docs/AI_PRD.md` |
+| Original PRD | `docs/PRD.md` |
+| Frontend Guide | `docs/FRONTEND_GUIDE.md` |
+| Backend Guide | `docs/BACKEND_GUIDE.md` |
+| Archived Launch Docs | `docs/archive/launch/` |

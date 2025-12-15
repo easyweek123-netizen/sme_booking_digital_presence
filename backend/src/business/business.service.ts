@@ -79,13 +79,13 @@ export class BusinessService {
       business.city = createBusinessDto.city || null;
       business.logoUrl = createBusinessDto.logoUrl || null;
       business.brandColor = createBusinessDto.brandColor || null;
-      business.workingHours = createBusinessDto.workingHours;
+      business.workingHours = createBusinessDto.workingHours || null;
       business.businessTypeId = null; // Category is optional, can be set later
 
       const savedBusiness = await queryRunner.manager.save(business);
 
-      // Create all services
-      const services = createBusinessDto.services.map((serviceDto) => {
+      // Create all services (if provided)
+      const services = (createBusinessDto.services || []).map((serviceDto) => {
         const service = new Service();
         service.businessId = savedBusiness.id;
         service.name = serviceDto.name;

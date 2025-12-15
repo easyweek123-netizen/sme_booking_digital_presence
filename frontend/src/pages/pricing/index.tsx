@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Header, Footer } from '../../components/Layout';
+import { Footer } from '../../components/Layout';
 import { PricingCard, FeedbackForm } from '../../components/Pricing';
 import { ROUTES } from '../../config/routes';
 import { useAppSelector } from '../../store/hooks';

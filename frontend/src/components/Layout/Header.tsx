@@ -43,7 +43,6 @@ export function Header() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   const isLandingPage = location.pathname === '/';
-  const isOnboardingPage = location.pathname === ROUTES.ONBOARDING;
 
   const handleNavClick = (href: string, isPage: boolean) => {
     onClose();

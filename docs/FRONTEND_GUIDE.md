@@ -11,12 +11,13 @@ This guide defines the coding standards and patterns for the BookEasy frontend. 
 3. [Styling with Chakra UI](#styling-with-chakra-ui)
 4. [Icons](#icons)
 5. [Reusable UI Components](#reusable-ui-components)
-6. [Constants](#constants)
-7. [State Management](#state-management)
-8. [TypeScript Guidelines](#typescript-guidelines)
-9. [Naming Conventions](#naming-conventions)
-10. [DRY Principles](#dry-principles)
-11. [Accessibility](#accessibility)
+6. [Chat Components](#chat-components)
+7. [Constants](#constants)
+8. [State Management](#state-management)
+9. [TypeScript Guidelines](#typescript-guidelines)
+10. [Naming Conventions](#naming-conventions)
+11. [DRY Principles](#dry-principles)
+12. [Accessibility](#accessibility)
 
 ---
 
@@ -27,8 +28,10 @@ frontend/src/
 ├── components/           # Reusable components
 │   ├── icons/           # SVG icons as React components
 │   ├── ui/              # Base UI components (Logo, PrimaryButton)
-│   ├── Layout/          # Layout components (Header, Footer)
+│   ├── chat/            # Reusable chat components
+│   ├── Layout/          # Layout components (Header, Footer, SplitLayout)
 │   ├── Landing/         # Landing page sections
+│   ├── ConversationalOnboarding/  # Onboarding chat flow
 │   └── BusinessCategories/
 ├── pages/               # Route pages (lazy loaded)
 │   ├── landing/
@@ -53,6 +56,7 @@ frontend/src/
 |------|----------|---------|
 | Page components | `pages/{page-name}/index.tsx` | `pages/landing/index.tsx` |
 | Reusable UI | `components/ui/` | `components/ui/Logo.tsx` |
+| Chat components | `components/chat/` | `components/chat/ChatMessage.tsx` |
 | Layout components | `components/Layout/` | `components/Layout/Header.tsx` |
 | Feature components | `components/{Feature}/` | `components/BusinessCategories/` |
 | Icons | `components/icons/index.tsx` | Single file, all icons |
@@ -284,6 +288,90 @@ export const CalendarIcon = ({ size = 24 }: { size?: number }) => (
 
 ---
 
+## Chat Components
+
+Reusable chat components for conversational interfaces. Used in onboarding and AI chat.
+
+### Available Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `ChatMessage` | `chat/ChatMessage.tsx` | Message bubble with typing animation |
+| `ChatInput` | `chat/ChatInput.tsx` | Text input with submit button |
+| `Suggestions` | `chat/Suggestions.tsx` | Clickable option buttons |
+| `AllMessages` | `chat/AllMessages.tsx` | Container for message list |
+
+### Message Types
+
+```tsx
+// types/chat.types.ts
+interface Message {
+  role: 'bot' | 'user';
+  content: string;
+  suggestions?: Suggestion[];
+}
+
+interface Suggestion {
+  label: string;
+  value: string;
+  icon?: string;
+  variant?: 'default' | 'skip';
+}
+```
+
+### ChatMessage Usage
+
+```tsx
+import { ChatMessage } from '../chat';
+
+// Bot message (left-aligned, gray background, typing animation)
+<ChatMessage message={{ role: 'bot', content: 'Hello!' }} />
+
+// User message (right-aligned, brand color)
+<ChatMessage message={{ role: 'user', content: 'Hi there' }} />
+
+// With suggestions
+<ChatMessage
+  message={{
+    role: 'bot',
+    content: 'Choose a category:',
+    suggestions: [
+      { label: 'Beauty', value: 'Beauty', icon: '💇' },
+      { label: 'Skip', value: '', variant: 'skip' },
+    ],
+  }}
+  onSuggestionSelect={(value) => console.log(value)}
+/>
+```
+
+### ChatInput Usage
+
+```tsx
+import { ChatInput } from '../chat';
+
+<ChatInput
+  placeholder="Type your message..."
+  onSubmit={(value) => handleSubmit(value)}
+  disabled={isLoading}
+/>
+```
+
+### Layout Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `SplitLayout` | `Layout/SplitLayout.tsx` | 45%/55% split (left hidden on mobile) |
+| `PublicLayout` | `Layout/PublicLayout.tsx` | Header wrapper for public routes |
+
+```tsx
+// SplitLayout - for onboarding/chat with side panel
+<SplitLayout leftPanel={<StepIndicator />}>
+  <ChatArea />
+</SplitLayout>
+```
+
+---
+
 ## Constants
 
 ### Layout Constants
@@ -469,6 +557,10 @@ export function BusinessCategories() { ... }  // Folder name
 | Logo | `components/ui/Logo.tsx` |
 | CTA Buttons | `components/ui/PrimaryButton.tsx` |
 | Icons | `components/icons/index.tsx` |
+| Chat Messages | `components/chat/ChatMessage.tsx` |
+| Chat Input | `components/chat/ChatInput.tsx` |
+| Chat Suggestions | `components/chat/Suggestions.tsx` |
+| Split Layout | `components/Layout/SplitLayout.tsx` |
 | Section padding | `constants/layout.ts` |
 | Container widths | `constants/layout.ts` |
 | API calls | `store/api/*.ts` |

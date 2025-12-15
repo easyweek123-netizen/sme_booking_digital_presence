@@ -1,6 +1,6 @@
 # BookEasy - Current Status
 
-**Last Updated:** December 13, 2024 (Phase 1.1 In Progress + UI Refinements)
+**Last Updated:** December 15, 2024
 
 ---
 
@@ -9,40 +9,9 @@
 | Item | Status |
 |------|--------|
 | Current Phase | AI-First Foundation (Phase 1) |
-| Previous Phase | Launch Prep - Complete (archived) |
+| Completed | Phase 1.1 - Conversational Onboarding |
+| Next Up | Phase 1.2 - AI Chat Interface |
 | Blockers | None |
-
----
-
-## Completed Features (Launch Phase - Archived)
-
-### Core Platform (Phases 1-5)
-- [x] Google OAuth via Firebase Authentication
-- [x] Customer verification for bookings
-- [x] Booking reference codes for status checking
-- [x] Email notifications (Resend integration)
-- [x] QR code generation and download
-- [x] Booking page customization (cover image, categories, About tab)
-- [x] Service categories with grouping
-- [x] Brand color theming
-- [x] Desktop/mobile responsive layouts
-
-### UI Polish (Phase 5)
-- [x] HeroCarousel with animated color transitions
-- [x] HowItWorks 4-step visual guide
-- [x] FAQ accordion section
-- [x] Updated CTA section
-- [x] Trust badges (No credit card, Free forever, 2 min setup)
-- [x] Tour system for new user onboarding
-- [x] Legal pages (Terms of Service, Privacy Policy)
-
-### Launch Prep (Phase 6)
-- [x] Services optional in onboarding (form open by default, skip allowed)
-
-### Infrastructure
-- [x] Admin module (backend)
-- [x] Feedback collection system
-- [x] Protected routes and auth guards
 
 ---
 
@@ -50,23 +19,44 @@
 
 See [AI_PRD.md](./AI_PRD.md) for full strategy.
 
-### Phase 1 Tasks
+### Phase 1.1 - Conversational Onboarding ✅ Complete
 
-| Task | Status | Plan |
-|------|--------|------|
-| Simplify onboarding to 1 step | **In Progress** | [Plan](./ai-first/phase1-1-simplified-onboarding-plan.md) &#124; [Change Request](./ai-first/phase1-1-change-request.md) |
-| Add `/chat` as primary route | Pending | |
-| Build Cursor-like chat layout | Pending | |
-| Implement chat history (session) | Pending | |
-| Add Chat to menu as first item | Pending | |
-| Implement core bot capabilities | Pending | |
-| Add category-based AI personalization | Pending | |
+Replaced 3-step wizard with conversational chat-style onboarding.
 
-### Phase 2: Calendar Integration
+**What was built:**
+- Reusable chat components (`components/chat/`)
+- Conversational onboarding flow (`components/ConversationalOnboarding/`)
+- Split layout with step indicators
+- 3-step flow: Business Name → Category → Google Login
+
+**New Components:**
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `ChatMessage` | `components/chat/` | Message bubble with typing animation |
+| `ChatInput` | `components/chat/` | Text input with submit |
+| `Suggestions` | `components/chat/` | Category buttons |
+| `AllMessages` | `components/chat/` | Message container |
+| `SplitLayout` | `components/Layout/` | 45%/55% split layout |
+| `PublicLayout` | `components/Layout/` | Header wrapper for public routes |
+| `OnboardingSteps` | `components/ConversationalOnboarding/` | Step indicators (dark panel) |
+
+### Phase 1.2 - AI Chat Interface (Pending)
+
+| Task | Status |
+|------|--------|
+| Add `/chat` as primary route | Pending |
+| Build Cursor-like chat layout | Pending |
+| Implement chat history (session) | Pending |
+| Add Chat to menu as first item | Pending |
+| Implement core bot capabilities | Pending |
+| Add category-based AI personalization | Pending |
+| OpenAI integration | Pending |
+
+### Phase 2: Calendar Integration (Future)
 - [ ] Google Calendar 2-way sync
 - [ ] Calendar view in dashboard
 
-### Phase 3: User Testing
+### Phase 3: User Testing (Future)
 - [ ] Present to 2 real users
 - [ ] Collect feedback
 
@@ -78,36 +68,53 @@ See [AI_PRD.md](./AI_PRD.md) for full strategy.
 ```
 frontend/src/
 ├── pages/
-│   ├── landing/index.tsx        # Landing page
-│   ├── onboarding/index.tsx     # Onboarding wizard (3-step, to simplify)
-│   ├── dashboard/               # Dashboard pages
-│   ├── booking/index.tsx        # Public booking page
-│   └── legal/                   # Terms, Privacy
+│   ├── landing/index.tsx           # Landing page
+│   ├── onboarding/index.tsx        # Conversational onboarding (NEW)
+│   ├── dashboard/                  # Dashboard pages
+│   ├── booking/index.tsx           # Public booking page
+│   └── legal/                      # Terms, Privacy
 ├── components/
-│   ├── Landing/                 # Hero, HowItWorks, FAQ, CTA
-│   ├── Tour/                    # Welcome tour system
-│   ├── Booking/                 # Booking page components
-│   ├── Dashboard/               # Dashboard layout, sidebar
-│   └── onboarding/              # Wizard step components
+│   ├── chat/                       # Reusable chat components (NEW)
+│   │   ├── ChatMessage.tsx         # Message bubble
+│   │   ├── ChatInput.tsx           # Text input
+│   │   ├── Suggestions.tsx         # Category buttons
+│   │   └── AllMessages.tsx         # Message container
+│   ├── ConversationalOnboarding/   # Onboarding flow (NEW)
+│   │   ├── ConversationalOnboarding.tsx
+│   │   ├── OnboardingSteps.tsx
+│   │   ├── useOnboardingFlow.ts
+│   │   └── onboardingReducer.ts
+│   ├── Layout/
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── SplitLayout.tsx         # (NEW)
+│   │   └── PublicLayout.tsx        # (NEW)
+│   ├── Landing/                    # Hero, HowItWorks, FAQ, CTA
+│   ├── Tour/                       # Welcome tour system
+│   ├── Booking/                    # Booking page components
+│   ├── Dashboard/                  # Dashboard layout, sidebar
+│   └── onboarding/                 # (Legacy - wizard step components)
+├── types/
+│   └── chat.types.ts               # Chat message types (NEW)
 ├── contexts/
-│   ├── AuthContext.tsx          # Firebase auth state
-│   └── TourContext.tsx          # Tour state management
-└── store/api/                   # RTK Query endpoints
+│   ├── AuthContext.tsx             # Firebase auth state
+│   └── TourContext.tsx             # Tour state management
+└── store/api/                      # RTK Query endpoints
 ```
 
 ### Backend Structure
 ```
 backend/src/
-├── auth/                        # Firebase auth integration
-├── business/                    # Business CRUD
-├── business-categories/         # Business categorization
-├── services/                    # Service management
-├── service-categories/          # Service grouping
-├── bookings/                    # Booking management
-├── customers/                   # Verified customers
-├── email/                       # Resend email service
-├── feedback/                    # User feedback
-└── admin/                       # Admin endpoints
+├── auth/                           # Firebase auth integration
+├── business/                       # Business CRUD
+├── business-categories/            # Business categorization
+├── services/                       # Service management
+├── service-categories/             # Service grouping
+├── bookings/                       # Booking management
+├── customers/                      # Verified customers
+├── email/                          # Resend email service
+├── feedback/                       # User feedback
+└── admin/                          # Admin endpoints
 ```
 
 ### Database Entities
@@ -121,13 +128,42 @@ backend/src/
 
 ---
 
+## Completed Features (Launch Phase - Archived)
+
+### Core Platform
+- [x] Google OAuth via Firebase Authentication
+- [x] Customer verification for bookings
+- [x] Booking reference codes for status checking
+- [x] Email notifications (Resend integration)
+- [x] QR code generation and download
+- [x] Booking page customization (cover image, categories, About tab)
+- [x] Service categories with grouping
+- [x] Brand color theming
+- [x] Desktop/mobile responsive layouts
+
+### UI Polish
+- [x] HeroCarousel with animated color transitions
+- [x] HowItWorks 4-step visual guide
+- [x] FAQ accordion section
+- [x] Updated CTA section
+- [x] Trust badges (No credit card, Free forever, 2 min setup)
+- [x] Tour system for new user onboarding
+- [x] Legal pages (Terms of Service, Privacy Policy)
+
+### Infrastructure
+- [x] Admin module (backend)
+- [x] Feedback collection system
+- [x] Protected routes and auth guards
+
+---
+
 ## Third-Party Services
 
 | Service | Purpose | Status |
 |---------|---------|--------|
 | Firebase | Authentication | Configured |
 | Resend | Transactional emails | Configured |
-| OpenAI | AI chat (upcoming) | Pending |
+| OpenAI | AI chat (Phase 1.2) | Pending |
 
 ---
 
@@ -139,4 +175,5 @@ backend/src/
 | Original PRD | `docs/PRD.md` |
 | Frontend Guide | `docs/FRONTEND_GUIDE.md` |
 | Backend Guide | `docs/BACKEND_GUIDE.md` |
+| Phase 1.1 Plan | `docs/ai-first/phase1-1-simplified-onboarding-plan.md` |
 | Archived Launch Docs | `docs/archive/launch/` |

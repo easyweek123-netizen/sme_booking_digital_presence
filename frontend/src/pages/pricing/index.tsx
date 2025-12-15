@@ -63,8 +63,6 @@ export function PricingPage() {
 
   return (
     <Box minH="100vh" bg="white">
-      <Header />
-
       {/* Hero Section */}
       <Box
         py={{ base: 16, md: 24 }}

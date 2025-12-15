@@ -2,6 +2,7 @@ import { Box, VStack, Text, Flex, Divider, Badge } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import {
+  MessageSquareIcon,
   HomeIcon,
   CalendarIcon,
   LayersIcon,
@@ -23,6 +24,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
+  { label: 'Chat', icon: <MessageSquareIcon size={20} />, path: ROUTES.DASHBOARD.CHAT },
   { label: 'Overview', icon: <HomeIcon size={20} />, path: ROUTES.DASHBOARD.ROOT },
   { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings`, badgeKey: 'pending', tourId: 'tour-bookings-nav' },
   { label: 'Services', icon: <LayersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/services`, tourId: 'tour-services-nav' },

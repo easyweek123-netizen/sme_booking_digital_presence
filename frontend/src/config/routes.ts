@@ -7,6 +7,7 @@ export const ROUTES = {
   TERMS: '/terms',
   DASHBOARD: {
     ROOT: '/dashboard',
+    CHAT: '/dashboard/chat',
     BOOKINGS: '/dashboard/bookings',
     SERVICES: '/dashboard/services',
     SETTINGS: '/dashboard/settings',

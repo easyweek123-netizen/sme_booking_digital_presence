@@ -25,7 +25,7 @@ export function OnboardingPage() {
   // Redirect if user already has a business
   useEffect(() => {
     if (isAuthenticated && existingBusiness && !isLoading) {
-      navigate(ROUTES.DASHBOARD.ROOT);
+      navigate(ROUTES.DASHBOARD.CHAT);
     }
   }, [isAuthenticated, existingBusiness, isLoading, navigate]);
 
@@ -37,7 +37,7 @@ export function OnboardingPage() {
         name: data.businessName,
       }).unwrap();
 
-      navigate(ROUTES.DASHBOARD.ROOT, { state: { fromOnboarding: true } });
+      navigate(ROUTES.DASHBOARD.CHAT, { state: { fromOnboarding: true } });
     } catch {
       toast({
         title: 'Failed to create business',

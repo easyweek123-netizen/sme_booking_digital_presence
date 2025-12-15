@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, businessName }: DashboardLayoutProps) {
   return (
     <Flex minH="100vh" bg="gray.50">
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - Fixed */}
       <Box
         display={{ base: 'none', lg: 'block' }}
         w="240px"
@@ -25,7 +25,8 @@ export function DashboardLayout({ children, businessName }: DashboardLayoutProps
       </Box>
 
       {/* Main content area */}
-      <Box
+      <Flex
+        direction="column"
         flex={1}
         ml={{ base: 0, lg: '240px' }}
         minH="100vh"
@@ -33,11 +34,11 @@ export function DashboardLayout({ children, businessName }: DashboardLayoutProps
         {/* Mobile Navigation */}
         <MobileNav businessName={businessName} />
 
-        {/* Page content */}
-        <Box p={{ base: 4, md: 6, lg: 8 }}>
+        {/* Page content - fills remaining space */}
+        <Box flex={1} display="flex" flexDirection="column" p={{ base: 4, md: 6, lg: 8 }}>
           {children}
         </Box>
-      </Box>
+      </Flex>
     </Flex>
   );
 }

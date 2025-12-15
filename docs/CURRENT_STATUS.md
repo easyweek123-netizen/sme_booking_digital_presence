@@ -9,8 +9,8 @@
 | Item | Status |
 |------|--------|
 | Current Phase | AI-First Foundation (Phase 1) |
-| Completed | Phase 1.1 - Conversational Onboarding |
-| Next Up | Phase 1.2 - AI Chat Interface |
+| Completed | Phase 1.1 - Conversational Onboarding, Phase 1.2 - Chat Route |
+| Next Up | AI Integration (OpenAI) |
 | Blockers | None |
 
 ---
@@ -40,17 +40,23 @@ Replaced 3-step wizard with conversational chat-style onboarding.
 | `PublicLayout` | `components/Layout/` | Header wrapper for public routes |
 | `OnboardingSteps` | `components/ConversationalOnboarding/` | Step indicators (dark panel) |
 
-### Phase 1.2 - AI Chat Interface (Pending)
+### Phase 1.2 - Chat Route ✅ Complete
 
 | Task | Status |
 |------|--------|
-| Add `/chat` as primary route | Pending |
-| Build Cursor-like chat layout | Pending |
-| Implement chat history (session) | Pending |
-| Add Chat to menu as first item | Pending |
+| Add `/dashboard/chat` as chat route | ✅ Done |
+| Add Chat to sidebar menu (first item) | ✅ Done |
+| Basic chat UI with placeholder responses | ✅ Done |
+| Redirect after onboarding to `/dashboard/chat` | ✅ Done |
+
+### Phase 1.3 - AI Integration (Pending)
+
+| Task | Status |
+|------|--------|
+| OpenAI integration | Pending |
 | Implement core bot capabilities | Pending |
 | Add category-based AI personalization | Pending |
-| OpenAI integration | Pending |
+| Chat history (session) | Pending |
 
 ### Phase 2: Calendar Integration (Future)
 - [ ] Google Calendar 2-way sync
@@ -69,8 +75,14 @@ Replaced 3-step wizard with conversational chat-style onboarding.
 frontend/src/
 ├── pages/
 │   ├── landing/index.tsx           # Landing page
-│   ├── onboarding/index.tsx        # Conversational onboarding (NEW)
-│   ├── dashboard/                  # Dashboard pages
+│   ├── onboarding/index.tsx        # Conversational onboarding
+│   ├── dashboard/
+│   │   ├── index.tsx               # Dashboard router
+│   │   ├── DashboardChat.tsx       # AI Chat interface (NEW)
+│   │   ├── DashboardOverview.tsx
+│   │   ├── DashboardBookings.tsx
+│   │   ├── DashboardServices.tsx
+│   │   └── DashboardSettings.tsx
 │   ├── booking/index.tsx           # Public booking page
 │   └── legal/                      # Terms, Privacy
 ├── components/

@@ -7,7 +7,7 @@ interface SplitLayoutProps {
 
 export function SplitLayout({ leftPanel, children }: SplitLayoutProps) {
   return (
-    <Flex h="calc(100vh - 73px)" overflow="hidden">
+    <Flex flex={1} h="full" overflow="hidden">
       {/* Left panel - hidden on mobile */}
       <Flex
         display={{ base: 'none', md: 'flex' }}

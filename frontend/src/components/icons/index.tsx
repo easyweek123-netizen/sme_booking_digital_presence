@@ -638,6 +638,20 @@ export const MessageSquareIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
+// Sparkle/AI icon
+export const SparkleIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <path d="M12 2L13.09 8.26L19 9L13.09 9.74L12 16L10.91 9.74L5 9L10.91 8.26L12 2Z" />
+    <path d="M5 16L5.54 18.54L8 19L5.54 19.46L5 22L4.46 19.46L2 19L4.46 18.54L5 16Z" opacity="0.7" />
+    <path d="M19 14L19.4 16.2L21.5 16.5L19.4 16.8L19 19L18.6 16.8L16.5 16.5L18.6 16.2L19 14Z" opacity="0.7" />
+  </svg>
+);
+
 // Google logo icon (colored)
 export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24">

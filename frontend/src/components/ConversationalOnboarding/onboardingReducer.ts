@@ -47,24 +47,27 @@ export interface OnboardingState {
   stepIndex: number;
   messages: Message[];
   data: BusinessData;
+  isTyping: boolean;
 }
 
 export type OnboardingAction =
   | { type: 'SUBMIT'; value: string }
-  | { type: 'SKIP' };
+  | { type: 'SKIP' }
+  | { type: 'START_TYPING' }
+  | { type: 'FINISH_TYPING'; message: Message };
 
 // Initial state
 export const initialState: OnboardingState = {
   stepIndex: 0,
   messages: [{ role: 'bot', content: STEPS[0].message }],
   data: { businessName: '', category: null },
+  isTyping: false,
 };
 
 // Reducer
 export function onboardingReducer(state: OnboardingState, action: OnboardingAction): OnboardingState {
   const currentStep = STEPS[state.stepIndex];
   const nextStepIndex = state.stepIndex + 1;
-  const nextStep = STEPS[nextStepIndex];
 
   switch (action.type) {
     case 'SUBMIT': {
@@ -74,34 +77,34 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
         ...(currentStep.id === 'category' && { category: action.value }),
       };
 
-      const newMessages: Message[] = [
-        ...state.messages,
-        { role: 'user', content: action.value },
-      ];
-
-      if (nextStep) {
-        newMessages.push({
-          role: 'bot',
-          content: nextStep.message.replace('{businessName}', newData.businessName),
-          suggestions: nextStep.suggestions,
-        });
-      }
-
-      return { stepIndex: nextStepIndex, messages: newMessages, data: newData };
+      // Add user message and start typing
+      return {
+        ...state,
+        messages: [...state.messages, { role: 'user', content: action.value }],
+        data: newData,
+        isTyping: true,
+      };
     }
 
     case 'SKIP': {
-      const newMessages: Message[] = [...state.messages];
+      // Start typing without adding user message
+      return {
+        ...state,
+        isTyping: true,
+      };
+    }
 
-      if (nextStep) {
-        newMessages.push({
-          role: 'bot',
-          content: nextStep.message.replace('{businessName}', state.data.businessName),
-          suggestions: nextStep.suggestions,
-        });
-      }
+    case 'START_TYPING': {
+      return { ...state, isTyping: true };
+    }
 
-      return { stepIndex: nextStepIndex, messages: newMessages, data: state.data };
+    case 'FINISH_TYPING': {
+      return {
+        ...state,
+        stepIndex: nextStepIndex,
+        messages: [...state.messages, action.message],
+        isTyping: false,
+      };
     }
 
     default:

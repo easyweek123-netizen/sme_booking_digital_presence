@@ -37,6 +37,9 @@ export {
   useGetBookingQuery,
 } from './bookingsApi';
 
+// Chat
+export { useInitChatQuery, useSendMessageMutation } from './chatApi';
+
 // Re-export all types from central types folder
 export type {
   User,

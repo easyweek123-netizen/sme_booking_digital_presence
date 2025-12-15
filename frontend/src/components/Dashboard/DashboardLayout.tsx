@@ -35,7 +35,7 @@ export function DashboardLayout({ children, businessName }: DashboardLayoutProps
         <MobileNav businessName={businessName} />
 
         {/* Page content - fills remaining space */}
-        <Box flex={1} display="flex" flexDirection="column" p={{ base: 4, md: 6, lg: 8 }}>
+        <Box flex={1} position="relative" p={{ base: 4, md: 6, lg: 8 }}>
           {children}
         </Box>
       </Flex>

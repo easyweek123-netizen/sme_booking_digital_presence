@@ -1,6 +1,6 @@
-import { Flex, Box } from '@chakra-ui/react';
+import { Flex, Box, VStack } from '@chakra-ui/react';
 import { SplitLayout } from '../Layout';
-import { AllMessages, ChatInput } from '../chat';
+import { AllMessages, ChatInput, TypingIndicator } from '../chat';
 import { OnboardingSteps } from './OnboardingSteps';
 import { GoogleButton } from '../../lib/auth';
 import { useOnboardingFlow } from './useOnboardingFlow';
@@ -24,6 +24,7 @@ export function ConversationalOnboarding({
     data,
     currentStep,
     isAuthStep,
+    isTyping,
     placeholder,
     handleSubmit,
     handleSuggestionSelect,
@@ -48,10 +49,13 @@ export function ConversationalOnboarding({
       >
         {/* Messages - grows and aligns content to bottom */}
         <Flex flex={3} direction="column" justify="flex-end" overflow="hidden">
-          <AllMessages
-            messages={messages}
-            onSuggestionSelect={handleSuggestionSelect}
-          />
+          <VStack spacing={4} align="stretch" w="full">
+            <AllMessages
+              messages={messages}
+              onSuggestionSelect={handleSuggestionSelect}
+            />
+            {isTyping && <TypingIndicator />}
+          </VStack>
         </Flex>
 
         {/* Input area - stays at bottom */}

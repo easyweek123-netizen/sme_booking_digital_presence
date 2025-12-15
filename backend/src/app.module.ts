@@ -13,6 +13,7 @@ import { BusinessCategoriesModule } from './business-categories/business-categor
 import { CustomersModule } from './customers/customers.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { AdminModule } from './admin/admin.module';
+import { ChatModule } from './chat/chat.module';
 import { databaseConfig, appConfig } from './config';
 
 @Module({
@@ -35,6 +36,7 @@ import { databaseConfig, appConfig } from './config';
     CustomersModule,
     FeedbackModule,
     AdminModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [],

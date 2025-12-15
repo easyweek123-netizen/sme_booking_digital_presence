@@ -5,4 +5,5 @@ export * from './utils/ownership';
 export * from './utils/calendar';
 export * from './interceptors/owner-resolver.interceptor';
 export * from './decorators/owner.decorator';
+export * from './interfaces/tool.interface';
 

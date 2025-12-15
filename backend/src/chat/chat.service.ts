@@ -1,20 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BusinessService } from '../business/business.service';
-import { ChatResponseDto } from './dto/chat.dto';
+import { ToolRegistry } from './tool.registry';
+import {
+  ChatResponseDto,
+  ChatAction,
+  ServiceFormData,
+  ServiceListItem,
+} from './dto/chat.dto';
 import type { Business } from '../business/entities/business.entity';
 import type { Service } from '../services/entities/service.entity';
 
-interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
-
-// Pick only fields AI needs from Business entity
+// Pick only fields AI needs
 type AIBusinessFields = Pick<Business, 'name' | 'description'>;
-
-// Pick only fields AI needs from Service entity
 type AIServiceFields = Pick<Service, 'name' | 'price' | 'durationMinutes'>;
 
 interface BusinessContext {
@@ -27,13 +27,14 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   private client: OpenAI;
   private model: string;
-  private conversationHistory: Map<number, ChatMessage[]> = new Map();
+  private conversationHistory: Map<number, ChatCompletionMessageParam[]> =
+    new Map();
 
   constructor(
     private configService: ConfigService,
     private businessService: BusinessService,
+    private toolRegistry: ToolRegistry,
   ) {
-    // All AI config from environment
     this.client = new OpenAI({
       apiKey: this.configService.get('AI_API_KEY'),
       baseURL: this.configService.get('AI_BASE_URL'),
@@ -79,36 +80,174 @@ export class ChatService {
     history.push({ role: 'user', content: message });
 
     try {
-      // Call AI (works with both Groq and OpenAI)
+      // Call AI with tools
       const response = await this.client.chat.completions.create({
         model: this.model,
         messages: history,
+        tools: this.toolRegistry.getToolDefinitions(),
       });
 
-      const assistantMessage =
-        response.choices[0].message.content || "I'm here to help!";
+      const choice = response.choices[0];
 
-      // Add assistant message to history
-      history.push({ role: 'assistant', content: assistantMessage });
-
-      // Keep history manageable (last 20 messages + system)
-      if (history.length > 21) {
-        const system = history[0];
-        history = [system, ...history.slice(-20)];
-        this.conversationHistory.set(ownerId, history);
+      // Check if AI wants to call a tool
+      if (
+        choice.finish_reason === 'tool_calls' &&
+        choice.message.tool_calls?.length
+      ) {
+        // Cast to simpler type for processing
+        const toolCalls = choice.message.tool_calls as Array<{
+          id: string;
+          type: string;
+          function: { name: string; arguments: string };
+        }>;
+        return this.handleToolCalls(ownerId, toolCalls, history);
       }
 
-      return {
-        role: 'bot',
-        content: assistantMessage,
-      };
+      // Normal text response
+      const content = choice.message.content || "I'm here to help!";
+      history.push({ role: 'assistant', content });
+      this.trimHistory(ownerId, history);
+
+      return { role: 'bot', content };
     } catch (error) {
       this.logger.error('AI API error:', error);
       return {
         role: 'bot',
-        content:
-          'Sorry, I encountered an error. Please try again in a moment.',
+        content: 'Sorry, I encountered an error. Please try again in a moment.',
       };
+    }
+  }
+
+  /**
+   * Handle tool calls from AI
+   */
+  private async handleToolCalls(
+    ownerId: number,
+    toolCalls: Array<{
+      id: string;
+      type: string;
+      function: { name: string; arguments: string };
+    }>,
+    history: ChatCompletionMessageParam[],
+  ): Promise<ChatResponseDto> {
+    // Add assistant message with tool calls to history
+    history.push({
+      role: 'assistant',
+      content: null,
+      tool_calls: toolCalls.map((tc) => ({
+        id: tc.id,
+        type: 'function' as const,
+        function: tc.function,
+      })),
+    });
+
+    let action: ChatAction | undefined;
+
+    // Process each tool call
+    for (const toolCall of toolCalls) {
+      let args: Record<string, unknown>;
+      try {
+        args = JSON.parse(toolCall.function.arguments);
+      } catch {
+        this.logger.warn(`Invalid tool arguments: ${toolCall.function.arguments}`);
+        continue;
+      }
+
+      // Process via registry
+      const result = await this.toolRegistry.process(
+        toolCall.function.name,
+        args,
+        ownerId,
+      );
+
+      // Add tool result to history
+      history.push({
+        role: 'tool',
+        tool_call_id: toolCall.id,
+        content: JSON.stringify(result),
+      });
+
+      // Build action for frontend based on tool result
+      if (result.success && toolCall.function.name === 'manage_service') {
+        action = this.buildServiceAction(result.data);
+      }
+    }
+
+    // Call AI again for final response
+    try {
+      const finalResponse = await this.client.chat.completions.create({
+        model: this.model,
+        messages: history,
+      });
+
+      const content =
+        finalResponse.choices[0].message.content || 'Here you go!';
+      history.push({ role: 'assistant', content });
+      this.trimHistory(ownerId, history);
+
+      return { role: 'bot', content, action };
+    } catch (error) {
+      this.logger.error('AI API error (final response):', error);
+      return {
+        role: 'bot',
+        content: 'I prepared that for you, but had an issue generating my response.',
+        action,
+      };
+    }
+  }
+
+  /**
+   * Build ChatAction from tool result data
+   */
+  private buildServiceAction(
+    data: Record<string, unknown> | undefined,
+  ): ChatAction | undefined {
+    if (!data) return undefined;
+
+    const operation = data.operation as string;
+
+    // Handle get operation - return services list
+    if (operation === 'get' && data.services) {
+      return {
+        type: 'services_list',
+        services: data.services as ServiceListItem[],
+      };
+    }
+
+    // Handle get single service
+    if (operation === 'get' && data.service) {
+      const service = data.service as ServiceListItem;
+      return {
+        type: 'services_list',
+        services: [service],
+      };
+    }
+
+    // Handle create/update/delete - return form
+    if (['create', 'update', 'delete'].includes(operation)) {
+      return {
+        type: 'service_form',
+        operation: operation as 'create' | 'update' | 'delete',
+        businessId: data.businessId as number | undefined,
+        serviceId: data.serviceId as number | undefined,
+        service: data.service as ServiceFormData,
+      };
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Trim history to keep it manageable
+   */
+  private trimHistory(
+    ownerId: number,
+    history: ChatCompletionMessageParam[],
+  ): void {
+    if (history.length > 30) {
+      const system = history[0];
+      const trimmed = [system, ...history.slice(-29)];
+      this.conversationHistory.set(ownerId, trimmed);
     }
   }
 
@@ -116,13 +255,9 @@ export class ChatService {
     const business = await this.businessService.findByOwnerId(ownerId);
 
     if (!business) {
-      return {
-        business: null,
-        services: [],
-      };
+      return { business: null, services: [] };
     }
 
-    // Pick only the fields AI needs
     return {
       business: {
         name: business.name,
@@ -158,11 +293,19 @@ YOUR ROLE:
 - Guide them to add services, update their profile, and manage bookings
 - Be concise, friendly, and helpful
 
-IMPORTANT:
-- You cannot directly make changes to their account yet
-- For now, guide them to use the dashboard menu for actions
-- If they want to add a service, tell them to click "Services" in the menu
+AVAILABLE TOOLS:
+- manage_service: Create, update, delete, or list services
 
-Keep responses short and actionable.`;
+WHEN TO USE TOOLS:
+- When user has no services, help them add
+- User wants to add a service → use manage_service with operation "create"
+- User wants to see their services → use manage_service with operation "get"
+- User wants to update a service → use manage_service with operation "update"
+- User wants to delete a service → use manage_service with operation "delete"
+
+IMPORTANT:
+- When creating a service, extract name, price, and duration from the user's message
+- If information is missing, ask for it before calling the tool
+- Keep responses short and actionable`;
   }
 }

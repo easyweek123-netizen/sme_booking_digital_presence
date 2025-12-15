@@ -40,8 +40,8 @@ const colorConfig = {
     tagline: 'gray.400',
   },
   dark: {
-    text: 'gray.400',
-    tagline: 'gray.500',
+    text: 'white',
+    tagline: 'gray.400',
   },
 };
 

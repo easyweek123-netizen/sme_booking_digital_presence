@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { Spinner, Center } from '@chakra-ui/react';
 import { ROUTES } from './config/routes';
 import { ProtectedRoute } from './components/auth';
+import { PublicLayout } from './components/Layout';
 
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import('./pages/landing').then(m => ({ default: m.LandingPage })));
@@ -27,16 +28,18 @@ function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        {/* Public routes */}
-        <Route path={ROUTES.HOME} element={<LandingPage />} />
-        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-        <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
-        <Route path={ROUTES.PRICING} element={<PricingPage />} />
-        <Route path={ROUTES.PRIVACY} element={<PrivacyPolicy />} />
-        <Route path={ROUTES.TERMS} element={<TermsOfService />} />
-        <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
+        {/* Public routes with consistent header */}
+        <Route element={<PublicLayout />}>
+          <Route path={ROUTES.HOME} element={<LandingPage />} />
+          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+          <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
+          <Route path={ROUTES.PRICING} element={<PricingPage />} />
+          <Route path={ROUTES.PRIVACY} element={<PrivacyPolicy />} />
+          <Route path={ROUTES.TERMS} element={<TermsOfService />} />
+          <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
+        </Route>
         
-        {/* Protected routes */}
+        {/* Protected routes - Dashboard has its own layout */}
         <Route
           path={`${ROUTES.DASHBOARD.ROOT}/*`}
           element={

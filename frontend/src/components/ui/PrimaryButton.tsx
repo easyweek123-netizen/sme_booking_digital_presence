@@ -16,11 +16,12 @@ export function PrimaryButton({
   ...props
 }: PrimaryButtonProps) {
   const isLight = variant === 'light';
+  const { color } = props;
 
   return (
     <Button
       bg={isLight ? 'white' : 'brand.500'}
-      color={isLight ? 'gray.900' : 'white'}
+      color={color ? color : isLight ? 'gray.900' : 'white'}
       fontWeight="600"
       px={props.size === 'lg' ? 8 : 6}
       _hover={{

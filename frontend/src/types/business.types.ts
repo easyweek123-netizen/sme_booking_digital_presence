@@ -128,8 +128,8 @@ export interface CreateBusinessRequest {
   city?: string;
   logoUrl?: string;
   brandColor?: string;
-  workingHours: WorkingHours;
-  services: ServiceDto[];
+  workingHours?: WorkingHours;
+  services?: ServiceDto[];
 }
 
 export interface UpdateBusinessRequest {

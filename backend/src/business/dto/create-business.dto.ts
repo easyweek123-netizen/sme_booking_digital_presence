@@ -117,13 +117,15 @@ export class CreateBusinessDto {
   @Matches(/^#[0-9A-Fa-f]{6}$/, { message: 'Brand color must be a valid hex color (e.g., #FF5733)' })
   brandColor?: string;
 
+  @IsOptional()
   @IsObject()
   @ValidateNested()
   @Type(() => WorkingHoursDto)
-  workingHours: WorkingHoursDto;
+  workingHours?: WorkingHoursDto;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ServiceDto)
-  services: ServiceDto[];
+  services?: ServiceDto[];
 }

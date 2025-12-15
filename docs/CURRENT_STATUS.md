@@ -8,228 +8,183 @@
 
 | Item | Status |
 |------|--------|
-| Current Phase | AI-First Foundation (Phase 2 In Progress) |
-| Completed | Phase 1 (Onboarding, Chat Route, AI Integration) |
-| Next Up | Phase 2.2 - Prompt Engineering, More Tools, UI Polish |
+| Current Phase | GTM Preparation |
+| Target Niche | Solo Wellness & Therapy Practitioners |
+| Next Up | Phase 1 - Client Notes System |
 | Blockers | None |
 
 ---
 
-## Current Phase: AI-First Foundation
+## Related Documents
 
-See [AI_PRD.md](./AI_PRD.md) for full strategy.
-
-### Phase 1.1 - Conversational Onboarding ✅ Complete
-
-Replaced 3-step wizard with conversational chat-style onboarding.
-
-**What was built:**
-- Reusable chat components (`components/chat/`)
-- Conversational onboarding flow (`components/ConversationalOnboarding/`)
-- Split layout with step indicators
-- 3-step flow: Business Name → Category → Google Login
-
-### Phase 1.2 - Chat Route ✅ Complete
-
-| Task | Status |
-|------|--------|
-| Add `/dashboard/chat` as chat route | ✅ Done |
-| Add AI Chat to sidebar menu (first item) | ✅ Done |
-| Professional chat UI with polish | ✅ Done |
-| Redirect after onboarding to `/dashboard/chat` | ✅ Done |
-| Sticky input, scrolling messages | ✅ Done |
-| Empty state with helper text | ✅ Done |
-| "New chat" button | ✅ Done |
-
-### Phase 1.3 - AI Integration ✅ Complete
-
-| Task | Status |
-|------|--------|
-| Backend ChatModule (controller, service) | ✅ Done |
-| Groq/OpenAI SDK integration | ✅ Done |
-| Environment-based AI config (API key, base URL, model) | ✅ Done |
-| System prompt with business context | ✅ Done |
-| Conversation history (per user, last 30 messages) | ✅ Done |
-| Owner resolution interceptor + @OwnerId decorator | ✅ Done |
-| Frontend chatApi (RTK Query) | ✅ Done |
-| Chat state persistence (Redux) | ✅ Done |
-| Typing indicator (proper design) | ✅ Done |
-| Chat UI aesthetics polish | ✅ Done |
+| Document | Purpose |
+|----------|---------|
+| [AI_PRD.md](./AI_PRD.md) | Core AI-first strategy |
+| [AI_PRD_MOTIVATION.md](./AI_PRD_MOTIVATION.md) | Business strategy, market research, GTM plan |
+| [AI_GTM_TECHNICAL.md](./AI_GTM_TECHNICAL.md) | Technical implementation plan |
 
 ---
 
-### Phase 2: Function Calling & Chat Experience 🔄 In Progress
+## What's Built (Complete)
 
-#### 2.1 Foundation ✅ Complete
+### Foundation ✅
 
-| Task | Status |
-|------|--------|
-| ToolHandler interface & ToolResult type | ✅ Done |
-| ToolRegistry for routing tool calls | ✅ Done |
-| `manage_service` tool (get/create/update/delete) | ✅ Done |
-| ServiceToolHandler in services module | ✅ Done |
-| ServiceFormCard component for chat actions | ✅ Done |
-| ChatAction discriminated union types | ✅ Done |
-| ServiceCard extraction for reuse | ✅ Done |
-| OpenAI 2-call pattern implementation | ✅ Done |
+| Feature | Status |
+|---------|--------|
+| Landing page | ✅ Done |
+| Conversational onboarding | ✅ Done |
+| Dashboard layout with sidebar | ✅ Done |
+| Service management (CRUD) | ✅ Done |
+| Public booking page | ✅ Done |
+| Booking management | ✅ Done |
+| Email notifications | ✅ Done |
+| QR code generation | ✅ Done |
 
-#### 2.2 Prompt Engineering 🔄 In Progress
+### AI Chat System ✅
 
-| Task | Status |
-|------|--------|
-| Improve system prompt to guide user setup | In Progress |
-| Prompt to suggest service creation for new users | Pending |
-| Contextual responses based on business state | Pending |
-
-#### 2.3 More Function Calling (Pending)
-
-| Task | Status |
-|------|--------|
-| `manage_profile` tool (update business info) | Pending |
-| `manage_booking` tool (view/cancel bookings) | Pending |
-| `get_analytics` tool (stats, insights) | Pending |
-
-#### 2.4 Chat UI Polish (Pending)
-
-| Task | Status |
-|------|--------|
-| Improve ServiceFormCard styling | Pending |
-| Improve ServiceCard in chat display | Pending |
-| Better loading/error states | Pending |
-
-#### 2.5 First-Time User Tour (Pending)
-
-| Task | Status |
-|------|--------|
-| Detect first-time chat user | Pending |
-| AI-guided tour suggestions | Pending |
-| Onboarding prompts in chat | Pending |
-
-**Architecture:**
-```
-ChatService → ToolRegistry → ServiceToolHandler
-                          → (future handlers)
-```
-
-### Phase 3: Calendar Integration (Future)
-- [ ] Google Calendar 2-way sync
-- [ ] Calendar view in dashboard
-
-### Phase 4: User Testing (Future)
-- [ ] Present to 2 real users
-- [ ] Collect feedback
+| Feature | Status |
+|---------|--------|
+| Chat UI with persistence | ✅ Done |
+| Groq/OpenAI integration | ✅ Done |
+| System prompt with context | ✅ Done |
+| Conversation history | ✅ Done |
+| `manage_service` tool | ✅ Done |
+| ServiceFormCard component | ✅ Done |
+| Typing indicator | ✅ Done |
 
 ---
 
-## Codebase State
+## GTM Roadmap
 
-### Frontend Structure
+See [AI_GTM_TECHNICAL.md](./AI_GTM_TECHNICAL.md) for full technical details.
+
+### Phase 1: Client Notes (Week 1) 🔄 Next
+
+| Task | Status |
+|------|--------|
+| Add `notes` field to Customer entity | Pending |
+| Create SessionNote entity | Pending |
+| Customer endpoints (search, notes, history) | Pending |
+| Session notes endpoints | Pending |
+| DashboardClients page | Pending |
+| Client profile drawer with notes | Pending |
+
+### Phase 2: Calendar System (Week 2-3)
+
+| Task | Status |
+|------|--------|
+| Calendar view endpoints | Pending |
+| DashboardCalendar page (week/month) | Pending |
+| Google Calendar OAuth integration | Pending |
+| 2-way sync (BookEasy ↔ Google) | Pending |
+| Settings page calendar section | Pending |
+
+### Phase 3: AI Tools for All Models (Week 3-4)
+
+| Tool | Operations | Status |
+|------|------------|--------|
+| `manage_service` | get, create, update, delete | ✅ Done |
+| `manage_clients` | list, search, get, add_note | Pending |
+| `get_calendar` | today, tomorrow, week, date | Pending |
+| `manage_bookings` | list, get, cancel | Pending |
+| `manage_profile` | get, update | Pending |
+
+| Chat UI Card | Status |
+|--------------|--------|
+| ServiceFormCard | ✅ Done |
+| ServiceCard (list) | ✅ Done |
+| CalendarCard | Pending |
+| ClientCard | Pending |
+| ClientListCard | Pending |
+| BookingCard | Pending |
+| BookingListCard | Pending |
+| BusinessProfileCard | Pending |
+
+### Phase 4: Polish & Demo (Week 4-5)
+
+| Task | Status |
+|------|--------|
+| Test email reminders | Pending |
+| Landing page update (niche messaging) | Pending |
+| Mobile responsive check | Pending |
+| Empty states with CTAs | Pending |
+| Demo video (30-40 sec) | Pending |
+| Deploy to production | Pending |
+
+---
+
+## Timeline to GTM
+
+| Week | Focus | Deliverable |
+|------|-------|-------------|
+| 1 | Client Notes | Full client management with notes |
+| 2-3 | Calendar | Calendar view + Google sync |
+| 3-4 | AI Tools | All tool handlers + chat cards |
+| 4-5 | Polish + Demo | Landing page, video, production deploy |
+
+**Target:** 5-6 weeks to GTM-ready MVP
+
+---
+
+## Definition of Done (GTM Ready)
+
+- [ ] Client list with search works
+- [ ] Client notes save/load correctly
+- [ ] Session notes per booking work
+- [ ] Calendar view works (week/month)
+- [ ] Google Calendar syncs both ways
+- [ ] AI can query calendar ("Show my schedule")
+- [ ] AI can query clients ("Find Maria")
+- [ ] AI can add notes ("Add note for Maria")
+- [ ] AI can manage bookings ("Show my bookings")
+- [ ] AI can update profile ("Update my description")
+- [ ] Landing page updated with niche messaging
+- [ ] Demo video recorded
+- [ ] Deployed to production (Render)
+- [ ] Ready to share with practitioners
+
+---
+
+## Codebase Structure
+
+### Frontend
 ```
 frontend/src/
 ├── pages/
-│   ├── landing/index.tsx           # Landing page
-│   ├── onboarding/index.tsx        # Conversational onboarding
+│   ├── landing/              # Landing page
+│   ├── onboarding/           # Conversational onboarding
 │   ├── dashboard/
-│   │   ├── index.tsx               # Dashboard router
-│   │   ├── DashboardChat.tsx       # AI Chat interface
-│   │   ├── DashboardOverview.tsx
+│   │   ├── DashboardChat.tsx     # AI Chat interface
 │   │   ├── DashboardBookings.tsx
 │   │   ├── DashboardServices.tsx
-│   │   └── DashboardSettings.tsx
-│   ├── booking/index.tsx           # Public booking page
-│   └── legal/                      # Terms, Privacy
+│   │   ├── DashboardSettings.tsx
+│   │   ├── DashboardClients.tsx  # 🔜 To build
+│   │   └── DashboardCalendar.tsx # 🔜 To build
+│   └── booking/              # Public booking page
 ├── components/
-│   ├── chat/                       # Reusable chat components
-│   │   ├── ChatMessage.tsx         # Message bubble (renders actions)
-│   │   ├── ChatInput.tsx           # Text input
-│   │   ├── Suggestions.tsx         # Category buttons
-│   │   ├── AllMessages.tsx         # Message container
-│   │   ├── TypingIndicator.tsx     # Typing dots animation
-│   │   └── ServiceFormCard.tsx     # Service create/update/delete form
-│   ├── ConversationalOnboarding/   # Onboarding flow
-│   ├── Layout/
-│   │   ├── Header.tsx
-│   │   ├── Footer.tsx
-│   │   ├── SplitLayout.tsx
-│   │   └── PublicLayout.tsx
-│   ├── Dashboard/
-│   │   ├── DashboardLayout.tsx     # Dashboard layout
-│   │   ├── Sidebar.tsx             # Navigation sidebar
-│   │   └── ServiceCard.tsx         # Reusable service display card
-│   └── icons/                      # SVG icons (SparkleIcon, etc.)
-├── types/
-│   ├── chat.types.ts               # Chat message, ChatAction types
-│   └── business.types.ts           # Service, Business types
-├── store/
-│   ├── api/chatApi.ts              # RTK Query for chat
-│   └── slices/chatSlice.ts         # Chat state persistence
-└── contexts/
-    ├── AuthContext.tsx             # Firebase auth state
-    └── TourContext.tsx             # Tour state management
+│   ├── chat/                 # Chat components
+│   ├── Dashboard/            # Dashboard components
+│   └── icons/                # SVG icons
+├── store/                    # Redux + RTK Query
+└── types/                    # TypeScript types
 ```
 
-### Backend Structure
+### Backend
 ```
 backend/src/
-├── chat/                           # AI Chat module
-│   ├── chat.controller.ts          # /chat/init, /chat endpoints
-│   ├── chat.service.ts             # OpenAI/Groq integration + function calling
-│   ├── chat.module.ts              # Module definition
-│   ├── tool.registry.ts            # Routes tool calls to handlers
-│   └── dto/chat.dto.ts             # Request/response DTOs, ChatAction
-├── common/
-│   ├── interfaces/
-│   │   └── tool.interface.ts       # ToolHandler, ToolResult, ToolDefinition
-│   ├── interceptors/
-│   │   └── owner-resolver.interceptor.ts  # Resolves ownerId
-│   └── decorators/
-│       └── owner.decorator.ts      # @OwnerId() decorator
+├── chat/                     # AI Chat module
+│   ├── chat.service.ts       # AI integration
+│   ├── tool.registry.ts      # Tool routing
+│   └── prompts/              # Prompt templates
 ├── services/
-│   ├── services.service.ts         # Service CRUD
-│   └── service.tool-handler.ts     # manage_service tool handler
-├── auth/                           # Firebase auth integration
-├── business/                       # Business CRUD
-├── bookings/                       # Booking management
-├── customers/                      # Verified customers
-├── email/                          # Resend email service
-└── admin/                          # Admin endpoints
+│   ├── services.service.ts
+│   └── service.tool-handler.ts
+├── customers/                # 🔜 Add tool handler
+├── bookings/                 # 🔜 Add tool handler + notes
+├── business/                 # 🔜 Add tool handler
+├── calendar/                 # 🔜 New module
+└── common/                   # Shared utilities
 ```
-
-### AI Configuration (Environment Variables)
-```
-AI_API_KEY=         # Groq or OpenAI API key
-AI_BASE_URL=        # https://api.groq.com/openai/v1 or OpenAI URL
-AI_MODEL=           # llama-3.3-70b-versatile (default)
-```
-
-### Function Calling Architecture
-
-```
-User Message → ChatService
-                   ↓
-              OpenAI API (with tools)
-                   ↓
-              tool_calls detected?
-                   ↓ yes
-              ToolRegistry.process()
-                   ↓
-              ServiceToolHandler.handle()
-                   ↓
-              ToolResult (data for FE)
-                   ↓
-              ChatService → buildServiceAction()
-                   ↓
-              ChatResponseDto with ChatAction
-                   ↓
-              Frontend renders ServiceFormCard/ServiceCard
-```
-
-**Adding new tools:**
-1. Create `{domain}.tool-handler.ts` in domain module
-2. Implement `ToolHandler` interface
-3. Register in `ToolRegistry`
-4. Add action type to `ChatAction` union
-5. Handle in `ChatMessage.tsx` renderAction()
 
 ---
 
@@ -237,23 +192,38 @@ User Message → ChatService
 
 | Service | Purpose | Status |
 |---------|---------|--------|
-| Firebase | Authentication | Configured |
-| Resend | Transactional emails | Configured |
-| Groq/OpenAI | AI chat | Configured |
+| Firebase | Authentication | ✅ Configured |
+| Resend | Transactional emails | ✅ Configured |
+| Groq/OpenAI | AI chat | ✅ Configured |
+| Google Calendar | Calendar sync | 🔜 To configure |
 
 ---
 
-## Key Files Reference
+## Environment Variables
 
-| Purpose | File |
-|---------|------|
-| Strategy | `docs/AI_PRD.md` |
-| Original PRD | `docs/PRD.md` |
-| Frontend Guide | `docs/FRONTEND_GUIDE.md` |
-| Backend Guide | `docs/BACKEND_GUIDE.md` |
-| Phase 1.1 Plan | `docs/ai-first/phase1-1-simplified-onboarding-plan.md` |
-| Tool Interface | `backend/src/common/interfaces/tool.interface.ts` |
-| Tool Registry | `backend/src/chat/tool.registry.ts` |
-| Service Tool Handler | `backend/src/services/service.tool-handler.ts` |
-| Chat Types (FE) | `frontend/src/types/chat.types.ts` |
-| Chat DTOs (BE) | `backend/src/chat/dto/chat.dto.ts` |
+### Current
+```bash
+# Firebase
+FIREBASE_PROJECT_ID=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_PRIVATE_KEY=
+
+# Database
+DATABASE_URL=
+
+# Email
+RESEND_API_KEY=
+
+# AI
+AI_API_KEY=
+AI_BASE_URL=
+AI_MODEL=
+```
+
+### New (Coming)
+```bash
+# Google Calendar
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+```

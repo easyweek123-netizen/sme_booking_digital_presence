@@ -1,21 +1,33 @@
 # BookEasy Strategy: AI-First
 
+> **Related Documents:**
+> - [AI_PRD_MOTIVATION.md](./AI_PRD_MOTIVATION.md) - Business strategy, market research, GTM plan
+> - [AI_GTM_TECHNICAL.md](./AI_GTM_TECHNICAL.md) - Technical implementation plan
+> - [CURRENT_STATUS.md](./CURRENT_STATUS.md) - Current development status
+
 ## Vision
 
 Like Cursor made AI the way developers interact with code, **BookEasy makes AI the way SMEs interact with their business.**
 
 The AI chatbot with business context IS the product.
 
+**Tagline:** "Your practice, simplified."
+
 ---
 
 ## Target Users
 
-Solo practitioners who charge per session:
-- Therapists
-- Music teachers
-- Art instructors
-- Tutors
-- Personal trainers
+**Primary (P1):** Solo Wellness & Therapy Practitioners
+- Massage therapists, physiotherapists
+- Craniosacral, reiki, energy healers
+- Wellness coaches, nutritionists
+- Yoga/Pilates instructors (1:1)
+
+**Secondary (P2):** Music Teachers
+
+**Geographic Focus:** Austria → DACH → Western Europe
+
+See [AI_PRD_MOTIVATION.md](./AI_PRD_MOTIVATION.md) for market research and revenue projections.
 
 ---
 

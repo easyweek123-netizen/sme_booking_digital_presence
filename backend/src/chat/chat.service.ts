@@ -10,6 +10,13 @@ import {
   ServiceFormData,
   ServiceListItem,
 } from './dto/chat.dto';
+import {
+  welcomeNewUser,
+  welcomeReturningUser,
+  systemPrompt,
+  setupGuidanceNewUser,
+  setupGuidanceNoDescription,
+} from './prompts';
 import type { Business } from '../business/entities/business.entity';
 import type { Service } from '../services/entities/service.entity';
 
@@ -45,21 +52,20 @@ export class ChatService {
 
   async initChat(ownerId: number): Promise<ChatResponseDto> {
     const context = await this.buildContext(ownerId);
-    const systemPrompt = this.buildSystemPrompt(context);
+    const prompt = this.buildSystemPrompt(context);
 
     // Initialize conversation
     this.conversationHistory.set(ownerId, [
-      { role: 'system', content: systemPrompt },
+      { role: 'system', content: prompt },
     ]);
 
     // Generate welcome message
     const businessName = context.business?.name || 'Your Business';
     const servicesCount = context.services.length;
-
     const welcomeContent =
       servicesCount === 0
-        ? `Hey! I'm your ${businessName} assistant. Let's get you set up! Would you like to add your first service?`
-        : `Hey! I'm your ${businessName} assistant. You have ${servicesCount} service${servicesCount > 1 ? 's' : ''}. How can I help?`;
+        ? welcomeNewUser(businessName)
+        : welcomeReturningUser(businessName, servicesCount);
 
     return {
       role: 'bot',
@@ -274,38 +280,24 @@ export class ChatService {
 
   private buildSystemPrompt(context: BusinessContext): string {
     const businessName = context.business?.name || 'Your Business';
-    const description = context.business?.description || 'Not set';
+    const description = context.business?.description || 'Not set yet';
     const servicesCount = context.services.length;
-    const servicesList =
-      context.services.map((s) => `${s.name} - $${s.price}`).join(', ') ||
-      'None yet';
+    const servicesList = context.services
+      .map((s) => `${s.name} - $${s.price}`)
+      .join(', ');
+    const servicesInfo =
+      servicesCount === 0
+        ? 'None yet - help them add one!'
+        : `${servicesCount} (${servicesList})`;
 
-    return `You are the AI assistant for "${businessName}" on BookEasy, a booking platform for small businesses.
+    // Determine setup guidance based on state
+    let guidance = '';
+    if (servicesCount === 0) {
+      guidance = setupGuidanceNewUser();
+    } else if (!context.business?.description) {
+      guidance = setupGuidanceNoDescription(servicesCount);
+    }
 
-BUSINESS INFO:
-- Name: ${businessName}
-- Description: ${description}
-- Services: ${servicesCount} (${servicesList})
-
-YOUR ROLE:
-- Help the business owner set up their booking page
-- Answer questions about how BookEasy works
-- Guide them to add services, update their profile, and manage bookings
-- Be concise, friendly, and helpful
-
-AVAILABLE TOOLS:
-- manage_service: Create, update, delete, or list services
-
-WHEN TO USE TOOLS:
-- When user has no services, help them add
-- User wants to add a service → use manage_service with operation "create"
-- User wants to see their services → use manage_service with operation "get"
-- User wants to update a service → use manage_service with operation "update"
-- User wants to delete a service → use manage_service with operation "delete"
-
-IMPORTANT:
-- When creating a service, extract name, price, and duration from the user's message
-- If information is missing, ask for it before calling the tool
-- Keep responses short and actionable`;
+    return systemPrompt(businessName, description, servicesInfo, guidance);
   }
 }

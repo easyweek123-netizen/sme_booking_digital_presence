@@ -8,9 +8,9 @@
 
 | Item | Status |
 |------|--------|
-| Current Phase | AI-First Foundation (Phase 2 Complete) |
-| Completed | Phase 1 (Onboarding, Chat Route, AI Integration), Phase 2 (Function Calling) |
-| Next Up | Phase 3 - Calendar Integration |
+| Current Phase | AI-First Foundation (Phase 2 In Progress) |
+| Completed | Phase 1 (Onboarding, Chat Route, AI Integration) |
+| Next Up | Phase 2.2 - Prompt Engineering, More Tools, UI Polish |
 | Blockers | None |
 
 ---
@@ -58,7 +58,9 @@ Replaced 3-step wizard with conversational chat-style onboarding.
 
 ---
 
-### Phase 2: Function Calling ✅ Complete
+### Phase 2: Function Calling & Chat Experience 🔄 In Progress
+
+#### 2.1 Foundation ✅ Complete
 
 | Task | Status |
 |------|--------|
@@ -70,6 +72,38 @@ Replaced 3-step wizard with conversational chat-style onboarding.
 | ChatAction discriminated union types | ✅ Done |
 | ServiceCard extraction for reuse | ✅ Done |
 | OpenAI 2-call pattern implementation | ✅ Done |
+
+#### 2.2 Prompt Engineering 🔄 In Progress
+
+| Task | Status |
+|------|--------|
+| Improve system prompt to guide user setup | In Progress |
+| Prompt to suggest service creation for new users | Pending |
+| Contextual responses based on business state | Pending |
+
+#### 2.3 More Function Calling (Pending)
+
+| Task | Status |
+|------|--------|
+| `manage_profile` tool (update business info) | Pending |
+| `manage_booking` tool (view/cancel bookings) | Pending |
+| `get_analytics` tool (stats, insights) | Pending |
+
+#### 2.4 Chat UI Polish (Pending)
+
+| Task | Status |
+|------|--------|
+| Improve ServiceFormCard styling | Pending |
+| Improve ServiceCard in chat display | Pending |
+| Better loading/error states | Pending |
+
+#### 2.5 First-Time User Tour (Pending)
+
+| Task | Status |
+|------|--------|
+| Detect first-time chat user | Pending |
+| AI-guided tour suggestions | Pending |
+| Onboarding prompts in chat | Pending |
 
 **Architecture:**
 ```

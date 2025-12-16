@@ -6,34 +6,28 @@ export interface Step {
   message: string;
   placeholder?: string;
   suggestions?: Suggestion[];
-  inputType: 'text' | 'auth';
 }
 
 const CATEGORY_SUGGESTIONS: Suggestion[] = [
-  { label: 'Beauty', value: 'Beauty', icon: '💇' },
-  { label: 'Health', value: 'Health', icon: '💪' },
-  { label: 'Wellness', value: 'Wellness', icon: '🧘' },
+  { label: 'Bodywork', value: 'Bodywork', icon: '💆' },
+  { label: 'Holistic Healing', value: 'Holistic Healing', icon: '✨' },
+  { label: 'Coaching', value: 'Coaching', icon: '🌱' },
+  { label: 'Movement & Yoga', value: 'Movement & Yoga', icon: '🧘' },
   { label: 'Skip', value: '', variant: 'skip' },
 ];
 
+// Data collection steps (same for all users)
 export const STEPS: Step[] = [
   {
     id: 'name',
-    message: "Hi! What's your business called?",
-    placeholder: 'e.g Nike',
-    inputType: 'text',
+    message: "Hi! What's your practice called?",
+    placeholder: 'e.g Mindful Studio',
   },
   {
     id: 'category',
-    message: 'What would you like to tell us about {businessName}?',
-    placeholder: 'e.g Hair salon, Music lessons...',
+    message: 'What type of practice is {businessName}?',
+    placeholder: 'e.g Massage therapy, Life coaching...',
     suggestions: CATEGORY_SUGGESTIONS,
-    inputType: 'text',
-  },
-  {
-    id: 'auth',
-    message: "Perfect! Let's get started.",
-    inputType: 'auth',
   },
 ];
 
@@ -53,7 +47,6 @@ export interface OnboardingState {
 export type OnboardingAction =
   | { type: 'SUBMIT'; value: string }
   | { type: 'SKIP' }
-  | { type: 'START_TYPING' }
   | { type: 'FINISH_TYPING'; message: Message };
 
 // Initial state
@@ -68,6 +61,7 @@ export const initialState: OnboardingState = {
 export function onboardingReducer(state: OnboardingState, action: OnboardingAction): OnboardingState {
   const currentStep = STEPS[state.stepIndex];
   const nextStepIndex = state.stepIndex + 1;
+  const isLastStep = nextStepIndex >= STEPS.length;
 
   switch (action.type) {
     case 'SUBMIT': {
@@ -77,25 +71,23 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
         ...(currentStep.id === 'category' && { category: action.value }),
       };
 
-      // Add user message and start typing
+      // Add user message; advance step and skip typing if last step
       return {
         ...state,
+        stepIndex: isLastStep ? nextStepIndex : state.stepIndex,
         messages: [...state.messages, { role: 'user', content: action.value }],
         data: newData,
-        isTyping: true,
+        isTyping: !isLastStep,
       };
     }
 
     case 'SKIP': {
-      // Start typing without adding user message
+      // Advance step and skip typing if last step
       return {
         ...state,
-        isTyping: true,
+        stepIndex: isLastStep ? nextStepIndex : state.stepIndex,
+        isTyping: !isLastStep,
       };
-    }
-
-    case 'START_TYPING': {
-      return { ...state, isTyping: true };
     }
 
     case 'FINISH_TYPING': {

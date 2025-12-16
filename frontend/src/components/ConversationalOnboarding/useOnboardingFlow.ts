@@ -1,61 +1,56 @@
-import { useReducer, useCallback, useEffect, useRef } from 'react';
-import {
-  onboardingReducer,
-  initialState,
-  STEPS,
-} from './onboardingReducer';
+import { useReducer, useCallback, useEffect } from 'react';
+import { onboardingReducer, initialState, STEPS } from './onboardingReducer';
 
-const TYPING_DELAY = 700; // ms
+const TYPING_DELAY = 700;
 
 export function useOnboardingFlow() {
-  const [state, dispatch] = useReducer(onboardingReducer, initialState);
-  const pendingNextStep = useRef<boolean>(false);
+  const [{ stepIndex, messages, data, isTyping }, dispatch] = useReducer(onboardingReducer, initialState);
 
-  const currentStep = STEPS[state.stepIndex];
-  const nextStep = STEPS[state.stepIndex + 1];
+  const currentStep = STEPS[stepIndex];
+  const nextStep = STEPS[stepIndex + 1];
+  
+  // Onboarding is complete when stepIndex exceeds available steps
+  const onboardingComplete = stepIndex >= STEPS.length;
 
-  // Handle typing animation delay
+  // Handle typing animation delay - only runs when there's a next step to show
   useEffect(() => {
-    if (state.isTyping && nextStep) {
-      pendingNextStep.current = true;
-      
+    if (isTyping && nextStep) {
       const timer = setTimeout(() => {
         dispatch({
           type: 'FINISH_TYPING',
           message: {
             role: 'bot',
-            content: nextStep.message.replace('{businessName}', state.data.businessName),
+            content: nextStep.message.replace('{businessName}', data.businessName),
             suggestions: nextStep.suggestions,
           },
         });
-        pendingNextStep.current = false;
       }, TYPING_DELAY);
 
       return () => clearTimeout(timer);
     }
-  }, [state.isTyping, state.data.businessName, nextStep]);
+  }, [isTyping, data.businessName, nextStep]);
 
   const handleSubmit = useCallback((value: string) => {
     const trimmed = value.trim();
-    if (!trimmed || state.isTyping) return;
+    if (!trimmed || isTyping) return;
     dispatch({ type: 'SUBMIT', value: trimmed });
-  }, [state.isTyping]);
+  }, [isTyping]);
 
   const handleSuggestionSelect = useCallback((value: string) => {
-    if (state.isTyping) return;
+    if (isTyping) return;
     if (value === '') {
       dispatch({ type: 'SKIP' });
     } else {
       dispatch({ type: 'SUBMIT', value });
     }
-  }, [state.isTyping]);
+  }, [isTyping]);
 
   return {
-    messages: state.messages,
-    data: state.data,
+    messages,
+    data,
     currentStep,
-    isAuthStep: currentStep?.inputType === 'auth',
-    isTyping: state.isTyping,
+    onboardingComplete,
+    isTyping,
     placeholder: currentStep?.placeholder,
     handleSubmit,
     handleSuggestionSelect,

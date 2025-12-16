@@ -1,75 +1,69 @@
-import { Flex, Box, VStack } from '@chakra-ui/react';
+import { Flex, Box, VStack, HStack, Spinner, Text } from '@chakra-ui/react';
 import { SplitLayout } from '../Layout';
 import { AllMessages, ChatInput, TypingIndicator } from '../chat';
 import { OnboardingSteps } from './OnboardingSteps';
 import { GoogleButton } from '../../lib/auth';
-import { useOnboardingFlow } from './useOnboardingFlow';
-
-export interface OnboardingData {
-  businessName: string;
-  category: string | null;
-}
+import type { Message } from '../../types/chat.types';
+import type { Step } from './onboardingReducer';
 
 interface ConversationalOnboardingProps {
-  onAuth: (data: OnboardingData) => void;
-  isAuthLoading?: boolean;
+  // State from hook
+  messages: Message[];
+  currentStep: Step | undefined;
+  onboardingComplete: boolean;
+  isTyping: boolean;
+  placeholder?: string;
+  // Handlers
+  onSubmit: (value: string) => void;
+  onSuggestionSelect: (value: string) => void;
+  onCreateBusiness: () => void;
+  // Auth state
+  isAuthenticated: boolean;
+  isCreating: boolean;
 }
 
 export function ConversationalOnboarding({
-  onAuth,
-  isAuthLoading = false,
+  messages,
+  currentStep,
+  onboardingComplete,
+  isTyping,
+  placeholder,
+  onSubmit,
+  onSuggestionSelect,
+  onCreateBusiness,
+  isAuthenticated,
+  isCreating,
 }: ConversationalOnboardingProps) {
-  const {
-    messages,
-    data,
-    currentStep,
-    isAuthStep,
-    isTyping,
-    placeholder,
-    handleSubmit,
-    handleSuggestionSelect,
-  } = useOnboardingFlow();
-
-  const stepIndex = currentStep
-    ? ['name', 'category', 'auth'].indexOf(currentStep.id)
-    : 0;
-
-  const handleAuthClick = () => {
-    onAuth(data);
-  };
+  // Step indicator: 0=name, 1=category, 2=complete/auth
+  const stepIndex = currentStep ? (currentStep.id === 'name' ? 0 : 1) : 2;
 
   return (
     <SplitLayout leftPanel={<OnboardingSteps currentStep={stepIndex} />}>
-      <Flex
-        direction="column"
-        w="full"
-        maxW="lg"
-        h="full"
-        py={8}
-      >
-        {/* Messages - grows and aligns content to bottom */}
+      <Flex direction="column" w="full" maxW="lg" h="full" py={8}>
+        {/* Messages */}
         <Flex flex={3} direction="column" justify="flex-end" overflow="hidden">
           <VStack spacing={4} align="stretch" w="full">
             <AllMessages
               messages={messages}
-              onSuggestionSelect={handleSuggestionSelect}
+              onSuggestionSelect={onSuggestionSelect}
             />
             {isTyping && <TypingIndicator />}
           </VStack>
         </Flex>
 
-        {/* Input area - stays at bottom */}
+        {/* Input area */}
         <Box mt={6} flexShrink={0} flex={2}>
-          {isAuthStep ? (
-            <GoogleButton
-              onSuccess={handleAuthClick}
-              isDisabled={isAuthLoading}
-            />
+          {onboardingComplete ? (
+            isAuthenticated ? (
+              <HStack justify="center" spacing={3} py={4}>
+                <Spinner size="sm" color="brand.500" />
+                <Text color="gray.500">Creating your practice...</Text>
+              </HStack>
+            ) : (
+              <GoogleButton onSuccess={onCreateBusiness} isDisabled={isCreating} />
+            )
           ) : (
-            <ChatInput
-              placeholder={placeholder}
-              onSubmit={handleSubmit}
-            />
+            <ChatInput placeholder={placeholder} onSubmit={onSubmit} />
           )}
         </Box>
       </Flex>

@@ -2,9 +2,9 @@ import { Box, VStack, HStack, Text, Circle } from '@chakra-ui/react';
 import { CheckIcon } from '../icons';
 
 const STEPS = [
-  { title: 'Add business name', description: 'Give your page a name' },
-  { title: 'Select category', description: 'Help us personalize' },
-  { title: 'Login & share', description: 'Go live instantly' },
+  { title: 'Name your practice', description: 'Give your page a name' },
+  { title: 'Select type', description: 'Help us personalize' },
+  { title: 'Login & go live', description: 'Start taking bookings' },
 ];
 
 // Sizing constants (Chakra spacing units: 1 unit = 4px)

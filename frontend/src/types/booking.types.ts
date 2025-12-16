@@ -10,6 +10,7 @@ export interface Booking {
   reference: string;
   businessId: number;
   serviceId: number;
+  customerId: number;
   customerName: string;
   customerEmail: string;
   date: string;

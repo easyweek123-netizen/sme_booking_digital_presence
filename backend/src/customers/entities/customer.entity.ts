@@ -5,6 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { Booking } from '../../bookings/entities/booking.entity';
 
 @Entity('customers')
@@ -13,6 +14,7 @@ export class Customer {
   id: number;
 
   @Column({ type: 'varchar', length: 128, unique: true })
+  @Exclude()
   firebaseUid: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

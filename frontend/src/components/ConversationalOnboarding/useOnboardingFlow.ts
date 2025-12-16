@@ -1,5 +1,17 @@
-import { useReducer, useCallback, useEffect } from 'react';
-import { onboardingReducer, initialState, STEPS } from './onboardingReducer';
+import { useReducer, useCallback, useEffect, useMemo } from 'react';
+import { onboardingReducer, initialState, STEPS, type HoursPreference } from './onboardingReducer';
+import {
+  defaultWorkingHours,
+  morningWorkingHours,
+  eveningWorkingHours,
+} from '../../store/slices/onboardingSlice';
+import type { WorkingHours } from '../../types';
+
+const HOURS_PRESETS: Record<HoursPreference, WorkingHours> = {
+  morning: morningWorkingHours,
+  standard: defaultWorkingHours,
+  evening: eveningWorkingHours,
+};
 
 const TYPING_DELAY = 700;
 
@@ -45,6 +57,12 @@ export function useOnboardingFlow() {
     }
   }, [isTyping]);
 
+  // Compute working hours based on preference, defaulting to standard (9-5)
+  const workingHours = useMemo(() => {
+    const preference = data.hoursPreference;
+    return preference ? HOURS_PRESETS[preference] : defaultWorkingHours;
+  }, [data.hoursPreference]);
+
   return {
     messages,
     data,
@@ -54,5 +72,6 @@ export function useOnboardingFlow() {
     placeholder: currentStep?.placeholder,
     handleSubmit,
     handleSuggestionSelect,
+    workingHours,
   };
 }

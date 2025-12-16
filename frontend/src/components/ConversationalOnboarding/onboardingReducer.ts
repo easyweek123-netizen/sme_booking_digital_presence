@@ -8,11 +8,10 @@ export interface Step {
   suggestions?: Suggestion[];
 }
 
-const CATEGORY_SUGGESTIONS: Suggestion[] = [
-  { label: 'Bodywork', value: 'Bodywork', icon: '💆' },
-  { label: 'Holistic Healing', value: 'Holistic Healing', icon: '✨' },
-  { label: 'Coaching', value: 'Coaching', icon: '🌱' },
-  { label: 'Movement & Yoga', value: 'Movement & Yoga', icon: '🧘' },
+const HOURS_SUGGESTIONS: Suggestion[] = [
+  { label: 'Mornings (8am-2pm)', value: 'morning', icon: '☀️' },
+  { label: 'Standard (9am-5pm)', value: 'standard', icon: '🏢' },
+  { label: 'Evenings (2pm-8pm)', value: 'evening', icon: '🌙' },
   { label: 'Skip', value: '', variant: 'skip' },
 ];
 
@@ -24,17 +23,18 @@ export const STEPS: Step[] = [
     placeholder: 'e.g Mindful Studio',
   },
   {
-    id: 'category',
-    message: 'What type of practice is {businessName}?',
-    placeholder: 'e.g Massage therapy, Life coaching...',
-    suggestions: CATEGORY_SUGGESTIONS,
+    id: 'hours',
+    message: 'What hours work best for {businessName}?',
+    suggestions: HOURS_SUGGESTIONS,
   },
 ];
 
 // State types
+export type HoursPreference = 'morning' | 'standard' | 'evening';
+
 export interface BusinessData {
   businessName: string;
-  category: string | null;
+  hoursPreference: HoursPreference | null;
 }
 
 export interface OnboardingState {
@@ -53,7 +53,7 @@ export type OnboardingAction =
 export const initialState: OnboardingState = {
   stepIndex: 0,
   messages: [{ role: 'bot', content: STEPS[0].message }],
-  data: { businessName: '', category: null },
+  data: { businessName: '', hoursPreference: null },
   isTyping: false,
 };
 
@@ -65,10 +65,16 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
 
   switch (action.type) {
     case 'SUBMIT': {
+      // Map value to valid hours preference, or null for custom/unknown input
+      const validPreferences: HoursPreference[] = ['morning', 'standard', 'evening'];
+      const hoursValue = validPreferences.includes(action.value as HoursPreference)
+        ? (action.value as HoursPreference)
+        : null; // Custom text → null → defaults to standard
+
       const newData = {
         ...state.data,
         ...(currentStep.id === 'name' && { businessName: action.value }),
-        ...(currentStep.id === 'category' && { category: action.value }),
+        ...(currentStep.id === 'hours' && { hoursPreference: hoursValue }),
       };
 
       // Add user message; advance step and skip typing if last step

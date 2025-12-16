@@ -3,7 +3,7 @@ import { CheckIcon } from '../icons';
 
 const STEPS = [
   { title: 'Name your practice', description: 'Give your page a name' },
-  { title: 'Select type', description: 'Help us personalize' },
+  { title: 'Set your hours', description: 'When are you available?' },
   { title: 'Login & go live', description: 'Start taking bookings' },
 ];
 

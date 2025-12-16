@@ -36,6 +36,14 @@ export type {
   BookingStats,
 } from './booking.types';
 
+// Note types
+export type {
+  Note,
+  Customer,
+  CreateNoteRequest,
+  UpdateNoteRequest,
+} from './note.types';
+
 // API types
 export type { ApiError, RtkQueryError } from './api.types';
 export { isRtkQueryError, getErrorMessage } from './api.types';

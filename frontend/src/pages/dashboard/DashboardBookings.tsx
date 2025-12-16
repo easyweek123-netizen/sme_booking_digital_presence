@@ -27,9 +27,11 @@ import {
   useUpdateBookingStatusMutation,
   useGetPendingCountQuery,
 } from '../../store/api/bookingsApi';
-import { ClockIcon, MailIcon, CheckIcon, CloseIcon } from '../../components/icons';
+import { ClockIcon, MailIcon, CheckIcon, CloseIcon, NoteIcon } from '../../components/icons';
+import { BookingDetailDrawer } from '../../components/BookingDetailDrawer';
 import { formatTime, BOOKING_STATUS_CONFIG, TOAST_DURATION } from '../../constants';
 import { formatBookingDate, formatPrice, getTodayString } from '../../utils/format';
+import { useGetNotesQuery } from '../../store/api';
 import type { Booking, BookingStatus } from '../../types';
 
 const MotionBox = motion.create(Box);
@@ -177,7 +179,8 @@ interface BookingsListProps {
 function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
   const toast = useToast();
   const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
+  const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [actionType, setActionType] = useState<'accept' | 'decline' | 'cancel' | 'complete' | 'no_show'>('cancel');
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -186,7 +189,12 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
   const handleAction = (booking: Booking, action: typeof actionType) => {
     setSelectedBooking(booking);
     setActionType(action);
-    onOpen();
+    onAlertOpen();
+  };
+
+  const handleViewDetails = (booking: Booking) => {
+    setSelectedBooking(booking);
+    onDrawerOpen();
   };
 
   const handleQuickAccept = async (booking: Booking) => {
@@ -245,7 +253,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         status: actionType === 'decline' || actionType === 'cancel' ? 'info' : 'success',
         duration: TOAST_DURATION.MEDIUM,
       });
-      onClose();
+      onAlertClose();
     } catch {
       toast({
         title: 'Action failed',
@@ -306,7 +314,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.2, delay: index * 0.05 }}
             >
-              <BookingCard
+              <DashboardBookingCard
                 booking={booking}
                 type={type}
                 onAccept={() => handleQuickAccept(booking)}
@@ -314,6 +322,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
                 onCancel={() => handleAction(booking, 'cancel')}
                 onComplete={() => handleAction(booking, 'complete')}
                 onNoShow={() => handleAction(booking, 'no_show')}
+                onViewDetails={() => handleViewDetails(booking)}
                 isLoading={loadingBookingId === booking.id || (isUpdating && selectedBooking?.id === booking.id)}
               />
             </MotionBox>
@@ -323,9 +332,9 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
 
       {/* Confirmation Dialog */}
       <AlertDialog
-        isOpen={isOpen}
+        isOpen={isAlertOpen}
         leastDestructiveRef={cancelRef}
-        onClose={onClose}
+        onClose={onAlertClose}
       >
         <AlertDialogOverlay>
           <AlertDialogContent>
@@ -344,7 +353,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
             </AlertDialogBody>
 
             <AlertDialogFooter gap={3}>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button ref={cancelRef} onClick={onAlertClose}>
                 No
               </Button>
               <Button
@@ -361,11 +370,20 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+
+      {/* Booking Detail Drawer */}
+      {selectedBooking && (
+        <BookingDetailDrawer
+          booking={selectedBooking}
+          isOpen={isDrawerOpen}
+          onClose={onDrawerClose}
+        />
+      )}
     </>
   );
 }
 
-interface BookingCardProps {
+interface DashboardBookingCardProps {
   booking: Booking;
   type: FilterKey;
   onAccept: () => void;
@@ -373,10 +391,11 @@ interface BookingCardProps {
   onCancel: () => void;
   onComplete: () => void;
   onNoShow: () => void;
+  onViewDetails: () => void;
   isLoading: boolean;
 }
 
-function BookingCard({
+function DashboardBookingCard({
   booking,
   type,
   onAccept,
@@ -384,10 +403,15 @@ function BookingCard({
   onCancel,
   onComplete,
   onNoShow,
+  onViewDetails,
   isLoading,
-}: BookingCardProps) {
+}: DashboardBookingCardProps) {
   const statusConfig = BOOKING_STATUS_CONFIG[booking.status];
   const isRequest = type === 'requests';
+
+  // Fetch notes count for badge
+  const { data: notes = [] } = useGetNotesQuery({ bookingId: booking.id });
+  const notesCount = notes.length;
 
   return (
     <Box
@@ -478,12 +502,24 @@ function BookingCard({
         </Flex>
       )}
 
-      {/* Reference code */}
-      {booking.reference && (
-        <Text fontSize="xs" color="gray.400" mb={3}>
-          Ref: {booking.reference}
-        </Text>
-      )}
+      {/* Reference code and notes */}
+      <Flex justify="space-between" align="center" mb={3}>
+        {booking.reference && (
+          <Text fontSize="xs" color="gray.400">
+            Ref: {booking.reference}
+          </Text>
+        )}
+        <Button
+          size="xs"
+          variant="ghost"
+          leftIcon={<NoteIcon size={12} />}
+          color={notesCount > 0 ? 'blue.500' : 'gray.400'}
+          onClick={onViewDetails}
+          _hover={{ bg: 'blue.50', color: 'blue.600' }}
+        >
+          {notesCount > 0 ? `${notesCount} note${notesCount !== 1 ? 's' : ''}` : 'Notes'}
+        </Button>
+      </Flex>
 
       {/* Action buttons */}
       {type === 'requests' && (

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from './entities/customer.entity';
@@ -78,5 +78,42 @@ export class CustomersService {
 
   async remove(id: number): Promise<void> {
     await this.customerRepository.delete(id);
+  }
+
+  /**
+   * Find all customers for a business owner (customers who have booked with any of owner's businesses)
+   */
+  async findAllForOwner(ownerId: number): Promise<Customer[]> {
+    const customers = await this.customerRepository
+      .createQueryBuilder('customer')
+      .leftJoinAndSelect('customer.bookings', 'booking')
+      .leftJoinAndSelect('booking.business', 'business')
+      .where('business.ownerId = :ownerId', { ownerId })
+      .orderBy('customer.name', 'ASC')
+      .getMany();
+
+    return customers;
+  }
+
+  /**
+   * Find one customer with bookings for an owner
+   */
+  async findOneForOwner(id: number, ownerId: number): Promise<Customer> {
+    const customer = await this.customerRepository
+      .createQueryBuilder('customer')
+      .leftJoinAndSelect('customer.bookings', 'booking')
+      .leftJoinAndSelect('booking.service', 'service')
+      .leftJoinAndSelect('booking.business', 'business')
+      .where('customer.id = :id', { id })
+      .andWhere('business.ownerId = :ownerId', { ownerId })
+      .orderBy('booking.date', 'DESC')
+      .addOrderBy('booking.startTime', 'DESC')
+      .getOne();
+
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    return customer;
   }
 }

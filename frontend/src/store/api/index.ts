@@ -40,6 +40,21 @@ export {
 // Chat
 export { useInitChatQuery, useSendMessageMutation } from './chatApi';
 
+// Notes
+export {
+  useGetNotesQuery,
+  useGetNoteQuery,
+  useCreateNoteMutation,
+  useUpdateNoteMutation,
+  useDeleteNoteMutation,
+} from './notesApi';
+
+// Customers
+export {
+  useGetCustomersQuery,
+  useGetCustomerQuery,
+} from './customersApi';
+
 // Re-export all types from central types folder
 export type {
   User,
@@ -60,4 +75,8 @@ export type {
   CreateBookingRequest,
   AvailabilityResponse,
   BookingStats,
+  Note,
+  Customer,
+  CreateNoteRequest,
+  UpdateNoteRequest,
 } from '../../types';

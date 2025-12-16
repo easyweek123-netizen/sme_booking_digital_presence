@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { DashboardOverview } from './DashboardOverview';
 import { DashboardChat } from './DashboardChat';
 import { DashboardBookings } from './DashboardBookings';
+import { DashboardClients } from './DashboardClients';
 import { DashboardServices } from './DashboardServices';
 import { DashboardSettings } from './DashboardSettings';
 
@@ -84,6 +85,7 @@ export function DashboardPage() {
         <Route index element={<DashboardOverview />} />
         <Route path="chat" element={<DashboardChat />} />
         <Route path="bookings" element={<DashboardBookings />} />
+        <Route path="clients" element={<DashboardClients />} />
         <Route path="services" element={<DashboardServices />} />
         <Route path="settings" element={<DashboardSettings />} />
         <Route path="*" element={<Navigate to={ROUTES.DASHBOARD.ROOT} replace />} />

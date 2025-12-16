@@ -17,7 +17,9 @@ import { ROUTES } from '../../config/routes';
 // Get current page title based on route
 function getPageTitle(pathname: string): string {
   if (pathname === ROUTES.DASHBOARD.ROOT) return 'Overview';
+  if (pathname.includes('/chat')) return 'AI Chat';
   if (pathname.includes('/bookings')) return 'Bookings';
+  if (pathname.includes('/clients')) return 'Clients';
   if (pathname.includes('/services')) return 'Services';
   if (pathname.includes('/settings')) return 'Settings';
   return 'Dashboard';

@@ -10,7 +10,7 @@ import { Service } from '../services/entities/service.entity';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { AuthService } from '../auth/auth.service';
-import { assertBusinessOwnership } from '../common';
+import { assertBusinessOwnership, DEFAULT_WORKING_HOURS } from '../common';
 import type { FirebaseUser } from '../common';
 
 @Injectable()
@@ -79,7 +79,7 @@ export class BusinessService {
       business.city = createBusinessDto.city || null;
       business.logoUrl = createBusinessDto.logoUrl || null;
       business.brandColor = createBusinessDto.brandColor || null;
-      business.workingHours = createBusinessDto.workingHours || null;
+      business.workingHours = createBusinessDto.workingHours || DEFAULT_WORKING_HOURS;
       business.businessTypeId = null; // Category is optional, can be set later
 
       const savedBusiness = await queryRunner.manager.save(business);

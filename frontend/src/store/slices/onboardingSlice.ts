@@ -32,6 +32,40 @@ export const defaultWorkingHours: WorkingHours = {
   sunday: { ...closedDaySchedule },
 };
 
+// Morning working hours: Mon-Fri 8:00-14:00
+const morningDaySchedule: DaySchedule = {
+  isOpen: true,
+  openTime: '08:00',
+  closeTime: '14:00',
+};
+
+export const morningWorkingHours: WorkingHours = {
+  monday: { ...morningDaySchedule },
+  tuesday: { ...morningDaySchedule },
+  wednesday: { ...morningDaySchedule },
+  thursday: { ...morningDaySchedule },
+  friday: { ...morningDaySchedule },
+  saturday: { ...closedDaySchedule },
+  sunday: { ...closedDaySchedule },
+};
+
+// Evening working hours: Mon-Fri 14:00-20:00
+const eveningDaySchedule: DaySchedule = {
+  isOpen: true,
+  openTime: '14:00',
+  closeTime: '20:00',
+};
+
+export const eveningWorkingHours: WorkingHours = {
+  monday: { ...eveningDaySchedule },
+  tuesday: { ...eveningDaySchedule },
+  wednesday: { ...eveningDaySchedule },
+  thursday: { ...eveningDaySchedule },
+  friday: { ...eveningDaySchedule },
+  saturday: { ...closedDaySchedule },
+  sunday: { ...closedDaySchedule },
+};
+
 interface OnboardingState {
   currentStep: number; // 1, 2, or 3
   businessProfile: BusinessProfile | null;

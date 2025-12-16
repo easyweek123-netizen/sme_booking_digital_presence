@@ -22,6 +22,7 @@ export function OnboardingPage() {
     placeholder,
     handleSubmit,
     handleSuggestionSelect,
+    workingHours,
   } = useOnboardingFlow();
 
   // Business API
@@ -43,7 +44,7 @@ export function OnboardingPage() {
     if (!data.businessName || isCreating || isSuccess) return;
     
     try {
-      await createBusiness({ name: data.businessName }).unwrap();
+      await createBusiness({ name: data.businessName, workingHours }).unwrap();
       navigate(ROUTES.DASHBOARD.CHAT, { state: { fromOnboarding: true } });
     } catch {
       toast({

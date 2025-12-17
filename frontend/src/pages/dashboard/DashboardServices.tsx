@@ -31,10 +31,10 @@ import {
   useDeleteServiceMutation,
 } from '../../store/api/servicesApi';
 import { PlusIcon, LayersIcon } from '../../components/icons';
-import { ServiceForm } from '../../components/onboarding/ServiceForm';
+import { ServiceForm, type ServiceFormData } from '../../components/onboarding/ServiceForm';
 import { CategoryManagement, ServiceCard } from '../../components/Dashboard';
 import { TOAST_DURATION } from '../../constants';
-import type { Service, ServiceItem } from '../../types';
+import type { Service } from '../../types';
 
 export function DashboardServices() {
   const toast = useToast();
@@ -65,9 +65,7 @@ export function DashboardServices() {
     openDelete();
   };
 
-  const handleSaveService = async (
-    serviceData: Omit<ServiceItem, 'id'> & { id?: string; description?: string; imageUrl?: string; categoryId?: number | null }
-  ) => {
+  const handleSaveService = async (serviceData: ServiceFormData) => {
     if (!business) return;
 
     try {
@@ -252,11 +250,9 @@ export function DashboardServices() {
                 }
                 businessId={business.id}
                 workingHours={business.workingHours}
-                onSave={handleSaveService}
+                onSubmit={handleSaveService}
                 onCancel={closeModal}
-                isEditing={!!editingService}
-                showExtendedFields={true}
-                extendedFieldsExpanded={true}
+                moreOptionsExpanded
               />
             )}
           </ModalBody>

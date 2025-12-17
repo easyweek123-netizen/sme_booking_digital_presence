@@ -8,6 +8,7 @@ export const ROUTES = {
   DASHBOARD: {
     ROOT: '/dashboard',
     CHAT: '/dashboard/chat',
+    CANVAS: '/dashboard/canvas',
     BOOKINGS: '/dashboard/bookings',
     SERVICES: '/dashboard/services',
     SETTINGS: '/dashboard/settings',

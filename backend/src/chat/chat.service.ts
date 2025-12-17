@@ -7,6 +7,7 @@ import { ToolRegistry } from './tool.registry';
 import {
   ChatResponseDto,
   ChatAction,
+  PreviewContext,
   ServiceFormData,
   ServiceListItem,
 } from './dto/chat.dto';
@@ -148,6 +149,7 @@ export class ChatService {
     });
 
     let action: ChatAction | undefined;
+    let previewContext: PreviewContext | undefined;
 
     // Process each tool call
     for (const toolCall of toolCalls) {
@@ -173,9 +175,11 @@ export class ChatService {
         content: JSON.stringify(result),
       });
 
-      // Build action for frontend based on tool result
+      // Build action/previewContext for frontend based on tool result
       if (result.success && toolCall.function.name === 'manage_service') {
-        action = this.buildServiceAction(result.data);
+        const serviceResult = this.buildServiceAction(result.data);
+        if (serviceResult.action) action = serviceResult.action;
+        if (serviceResult.previewContext) previewContext = serviceResult.previewContext;
       }
     }
 
@@ -191,56 +195,80 @@ export class ChatService {
       history.push({ role: 'assistant', content });
       this.trimHistory(ownerId, history);
 
-      return { role: 'bot', content, action };
+      return { role: 'bot', content, action, previewContext };
     } catch (error) {
       this.logger.error('AI API error (final response):', error);
       return {
         role: 'bot',
         content: 'I prepared that for you, but had an issue generating my response.',
         action,
+        previewContext,
       };
     }
   }
 
   /**
-   * Build ChatAction from tool result data
+   * Build ChatAction and/or PreviewContext from tool result data
    */
   private buildServiceAction(
     data: Record<string, unknown> | undefined,
-  ): ChatAction | undefined {
-    if (!data) return undefined;
+  ): { action?: ChatAction; previewContext?: PreviewContext } {
+    if (!data) return {};
 
     const operation = data.operation as string;
 
-    // Handle get operation - return services list
+    // GET ALL → Switch preview to services (no action needed)
     if (operation === 'get' && data.services) {
-      return {
-        type: 'services_list',
-        services: data.services as ServiceListItem[],
-      };
+      return { previewContext: 'services' };
     }
 
-    // Handle get single service
+    // GET SINGLE → Show service card in Actions tab
     if (operation === 'get' && data.service) {
       const service = data.service as ServiceListItem;
       return {
-        type: 'services_list',
-        services: [service],
+        action: {
+          type: 'service:get',
+          id: service.id,
+          service,
+        },
       };
     }
 
-    // Handle create/update/delete - return form
-    if (['create', 'update', 'delete'].includes(operation)) {
+    // CREATE → Show form
+    if (operation === 'create') {
       return {
-        type: 'service_form',
-        operation: operation as 'create' | 'update' | 'delete',
-        businessId: data.businessId as number | undefined,
-        serviceId: data.serviceId as number | undefined,
-        service: data.service as ServiceFormData,
+        action: {
+          type: 'service:create',
+          businessId: data.businessId as number | undefined,
+          service: data.service as ServiceFormData,
+        },
       };
     }
 
-    return undefined;
+    // UPDATE → Show form
+    if (operation === 'update') {
+      return {
+        action: {
+          type: 'service:update',
+          id: data.serviceId as number,
+          service: data.service as ServiceFormData,
+        },
+      };
+    }
+
+    // DELETE → Show confirmation
+    if (operation === 'delete') {
+      const service = data.service as { id: number; name: string };
+      return {
+        action: {
+          type: 'service:delete',
+          id: service.id,
+          name: service.name,
+        },
+      };
+    }
+
+    return {};
   }
 
   /**

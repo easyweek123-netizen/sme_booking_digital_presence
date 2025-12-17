@@ -21,13 +21,33 @@ import { Logo } from '../../components/ui/Logo';
 import { BookingDrawer, BookingTabs, ServicesTab, AboutTab } from '../../components/Booking';
 import { BusinessInfoPanel } from './components';
 import type { TabId } from '../../components/Booking';
-import type { Service } from '../../types';
+import type { Service, BusinessWithServices } from '../../types';
 import { generateBrandColorCss, isValidHexColor } from '../../utils/brandColor';
 
-export function BookingPage() {
+interface BookingPageProps {
+  /** Optional business data - if provided, skips slug lookup */
+  business?: BusinessWithServices | null;
+  /** Preview mode - disables booking drawer and footer */
+  isPreview?: boolean;
+  /** Override desktop/mobile layout - if provided, uses this instead of viewport detection */
+  isDesktop?: boolean;
+}
+
+export function BookingPage({ 
+  business: businessProp, 
+  isPreview = false,
+  isDesktop: isDesktopProp,
+}: BookingPageProps) {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { data: business, isLoading, error } = useGetBusinessBySlugQuery(slug || '');
+  
+  // Skip slug query if business prop is provided
+  const { data: fetchedBusiness, isLoading, error } = useGetBusinessBySlugQuery(slug || '', {
+    skip: !!businessProp,
+  });
+  
+  // Use prop if provided, otherwise use fetched data
+  const business = businessProp ?? fetchedBusiness;
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('services');
   const [coverError, setCoverError] = useState(false);
@@ -37,8 +57,9 @@ export function BookingPage() {
     onClose: closeDrawer,
   } = useDisclosure();
 
-  // Responsive layout
-  const isDesktop = useBreakpointValue({ base: false, md: true });
+  // Responsive layout - use prop if provided, otherwise detect from viewport
+  const viewportIsDesktop = useBreakpointValue({ base: false, md: true });
+  const isDesktop = isDesktopProp ?? viewportIsDesktop;
 
   // Generate brand color CSS variables if custom color is set
   const brandColorStyles = useMemo(() => {
@@ -49,6 +70,8 @@ export function BookingPage() {
   }, [business?.brandColor]);
 
   const handleBookService = (service: Service) => {
+    // Disable booking in preview mode
+    if (isPreview) return;
     setSelectedService(service);
     openDrawer();
   };
@@ -58,11 +81,11 @@ export function BookingPage() {
     setSelectedService(null);
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (skip if using prop)
+  if (isLoading && !businessProp) {
     return (
-      <Box minH="100vh" bg="gray.50">
-        <Center h="100vh">
+      <Box minH={isPreview ? "200px" : "100vh"} bg="gray.50">
+        <Center h={isPreview ? "200px" : "100vh"}>
           <VStack spacing={4}>
             <Spinner size="xl" color="brand.500" thickness="4px" />
             <Text color="gray.500">Loading...</Text>
@@ -73,12 +96,12 @@ export function BookingPage() {
   }
 
   // Error state
-  if (error || !business) {
+  if ((error && !businessProp) || !business) {
     return (
-      <Box minH="100vh" bg="gray.50" py={20}>
+      <Box minH={isPreview ? "200px" : "100vh"} bg="gray.50" py={isPreview ? 4 : 20}>
         <Container maxW="lg">
           <Alert
-            status="error"
+            status={isPreview ? "info" : "error"}
             variant="subtle"
             flexDirection="column"
             alignItems="center"
@@ -89,10 +112,13 @@ export function BookingPage() {
           >
             <AlertIcon boxSize="40px" mr={0} mb={4} />
             <Heading size="md" mb={2}>
-              Business Not Found
+              {isPreview ? "No Preview Available" : "Business Not Found"}
             </Heading>
             <Text color="gray.600">
-              The booking page you're looking for doesn't exist or has been removed.
+              {isPreview 
+                ? "Complete your business setup to see a preview."
+                : "The booking page you're looking for doesn't exist or has been removed."
+              }
             </Text>
           </Alert>
         </Container>
@@ -128,13 +154,15 @@ export function BookingPage() {
   );
 
   return (
-    <Box minH="100vh" bg="gray.50" style={brandColorStyles}>
-      {/* Header */}
-      <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
-        <Container maxW="6xl">
-          <Logo size="sm" onClick={() => navigate(ROUTES.HOME)} />
-        </Container>
-      </Box>
+    <Box minH={isPreview ? "auto" : "100vh"} bg="gray.50" style={brandColorStyles}>
+      {/* Header - hide in preview mode */}
+      {!isPreview && (
+        <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
+          <Container maxW="6xl">
+            <Logo size="sm" onClick={() => navigate(ROUTES.HOME)} />
+          </Container>
+        </Box>
+      )}
 
       {/* Desktop Layout */}
       {isDesktop ? (
@@ -264,30 +292,34 @@ export function BookingPage() {
         </>
       )}
 
-      {/* Sticky Footer */}
-      <Box
-        position="fixed"
-        bottom={0}
-        left={0}
-        right={0}
-        py={3}
-        textAlign="center"
-        bg="white"
-        borderTop="1px"
-        borderColor="gray.100"
-        zIndex={5}
-        boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
-      >
-        <Text fontSize="sm" color="gray.400">
-          Powered by <Text as="span" fontWeight="600" color="gray.500">BookEasy</Text>
-        </Text>
-      </Box>
-      
-      {/* Spacer for sticky footer */}
-      <Box h="60px" />
+      {/* Sticky Footer - hide in preview mode */}
+      {!isPreview && (
+        <>
+          <Box
+            position="fixed"
+            bottom={0}
+            left={0}
+            right={0}
+            py={3}
+            textAlign="center"
+            bg="white"
+            borderTop="1px"
+            borderColor="gray.100"
+            zIndex={5}
+            boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Powered by <Text as="span" fontWeight="600" color="gray.500">BookEasy</Text>
+            </Text>
+          </Box>
+          
+          {/* Spacer for sticky footer */}
+          <Box h="60px" />
+        </>
+      )}
 
-      {/* Booking Drawer */}
-      {selectedService && business && (
+      {/* Booking Drawer - hide in preview mode */}
+      {!isPreview && selectedService && business && (
         <BookingDrawer
           isOpen={isDrawerOpen}
           onClose={handleDrawerClose}

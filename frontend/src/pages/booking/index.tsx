@@ -157,11 +157,11 @@ export function BookingPage({
     <Box minH={isPreview ? "auto" : "100vh"} bg="gray.50" style={brandColorStyles}>
       {/* Header - hide in preview mode */}
       {!isPreview && (
-        <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
-          <Container maxW="6xl">
-            <Logo size="sm" onClick={() => navigate(ROUTES.HOME)} />
-          </Container>
-        </Box>
+      <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
+        <Container maxW="6xl">
+          <Logo size="sm" onClick={() => navigate(ROUTES.HOME)} />
+        </Container>
+      </Box>
       )}
 
       {/* Desktop Layout */}
@@ -295,26 +295,26 @@ export function BookingPage({
       {/* Sticky Footer - hide in preview mode */}
       {!isPreview && (
         <>
-          <Box
-            position="fixed"
-            bottom={0}
-            left={0}
-            right={0}
-            py={3}
-            textAlign="center"
-            bg="white"
-            borderTop="1px"
-            borderColor="gray.100"
-            zIndex={5}
-            boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
-          >
-            <Text fontSize="sm" color="gray.400">
-              Powered by <Text as="span" fontWeight="600" color="gray.500">BookEasy</Text>
-            </Text>
-          </Box>
-          
-          {/* Spacer for sticky footer */}
-          <Box h="60px" />
+      <Box
+        position="fixed"
+        bottom={0}
+        left={0}
+        right={0}
+        py={3}
+        textAlign="center"
+        bg="white"
+        borderTop="1px"
+        borderColor="gray.100"
+        zIndex={5}
+        boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
+      >
+        <Text fontSize="sm" color="gray.400">
+          Powered by <Text as="span" fontWeight="600" color="gray.500">BookEasy</Text>
+        </Text>
+      </Box>
+      
+      {/* Spacer for sticky footer */}
+      <Box h="60px" />
         </>
       )}
 

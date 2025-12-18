@@ -221,20 +221,20 @@ export function Sidebar({ onClose }: SidebarProps) {
               ) : (
                 // Expanded: Icon + label + badge
                 <>
-                  <Flex align="center" gap={3}>
-                    <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
+              <Flex align="center" gap={3}>
+                <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
                     <Text whiteSpace="nowrap">{item.label}</Text>
-                  </Flex>
-                  {badgeCount > 0 && (
-                    <Badge
-                      colorScheme="red"
-                      borderRadius="full"
-                      fontSize="xs"
-                      minW="20px"
-                      textAlign="center"
-                    >
-                      {badgeCount}
-                    </Badge>
+              </Flex>
+              {badgeCount > 0 && (
+                <Badge
+                  colorScheme="red"
+                  borderRadius="full"
+                  fontSize="xs"
+                  minW="20px"
+                  textAlign="center"
+                >
+                  {badgeCount}
+                </Badge>
                   )}
                 </>
               )}
@@ -277,26 +277,26 @@ export function Sidebar({ onClose }: SidebarProps) {
           px={3}
           py={2}
         >
-          <Box
-            as="button"
-            display="flex"
-            alignItems="center"
+        <Box
+          as="button"
+          display="flex"
+          alignItems="center"
             justifyContent={isCollapsed ? 'center' : 'flex-start'}
-            gap={3}
-            w="full"
-            py={3}
-            px={3}
-            borderRadius="xl"
-            color="gray.500"
-            fontWeight="500"
-            fontSize="sm"
-            transition="all 0.2s"
-            _hover={{ bg: 'red.50', color: 'red.500' }}
-            onClick={handleLogout}
-          >
-            <LogOutIcon size={20} />
+          gap={3}
+          w="full"
+          py={3}
+          px={3}
+          borderRadius="xl"
+          color="gray.500"
+          fontWeight="500"
+          fontSize="sm"
+          transition="all 0.2s"
+          _hover={{ bg: 'red.50', color: 'red.500' }}
+          onClick={handleLogout}
+        >
+          <LogOutIcon size={20} />
             {!isCollapsed && <Text whiteSpace="nowrap">Log out</Text>}
-          </Box>
+        </Box>
         </Tooltip>
       </Box>
     </Flex>

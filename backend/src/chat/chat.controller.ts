@@ -2,7 +2,7 @@ import { Controller, Post, Get, Body, UseGuards, UseInterceptors } from '@nestjs
 import { FirebaseAuthGuard } from '../auth/guards/firebase-auth.guard';
 import { OwnerResolverInterceptor, OwnerId } from '../common';
 import { ChatService } from './chat.service';
-import { SendMessageDto, ChatResponseDto } from './dto/chat.dto';
+import { SendMessageDto, ActionResultDto, ChatResponseDto } from './dto/chat.dto';
 
 @Controller('chat')
 @UseGuards(FirebaseAuthGuard)
@@ -21,5 +21,18 @@ export class ChatController {
     @Body() dto: SendMessageDto,
   ): Promise<ChatResponseDto> {
     return this.chatService.sendMessage(ownerId, dto.message);
+  }
+
+  /**
+   * Handle action result from frontend
+   * Called after user confirms/cancels a proposal
+   * Returns AI follow-up response
+   */
+  @Post('action-result')
+  async handleActionResult(
+    @OwnerId() ownerId: number,
+    @Body() dto: ActionResultDto,
+  ): Promise<ChatResponseDto> {
+    return this.chatService.processActionResult(ownerId, dto);
   }
 }

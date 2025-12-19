@@ -3,7 +3,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -87,6 +87,44 @@ export class ServicesService {
     return service;
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Entity Resolution Methods (for AI tool handlers)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Find a service by name within a business (case-insensitive)
+   * Used by AI tool handlers for entity resolution
+   */
+  async findByNameAndBusiness(
+    name: string,
+    businessId: number,
+  ): Promise<Service | null> {
+    return this.serviceRepository.findOne({
+      where: {
+        name: ILike(name),
+        businessId,
+      },
+      relations: ['category'],
+    });
+  }
+
+  /**
+   * Find a service by ID within a business (ownership check)
+   * Used by AI tool handlers to verify service belongs to business
+   */
+  async findByIdAndBusiness(
+    id: number,
+    businessId: number,
+  ): Promise<Service | null> {
+    return this.serviceRepository.findOne({
+      where: {
+        id,
+        businessId,
+      },
+      relations: ['category'],
+    });
+  }
+
   /**
    * Update a service
    */
@@ -163,4 +201,5 @@ export class ServicesService {
     service.isActive = false;
     await this.serviceRepository.save(service);
   }
+
 }

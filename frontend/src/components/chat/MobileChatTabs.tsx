@@ -17,7 +17,7 @@ import { MessageSquareIcon, SparkleIcon } from '../icons';
  * Shows bottom tabs to switch between Chat and AI Actions (Canvas).
  */
 export function MobileChatTabs() {
-  const { actions } = useAppSelector((state) => state.canvas);
+  const { proposals } = useAppSelector((state) => state.canvas);
 
   return (
     <Flex direction="column" h="full" position="absolute" inset={0}>
@@ -61,9 +61,9 @@ export function MobileChatTabs() {
             <Flex align="center" gap={2}>
               <SparkleIcon size={18} />
               AI Actions
-              {actions.length > 0 && (
+              {proposals.length > 0 && (
                 <Badge colorScheme="brand" borderRadius="full" fontSize="xs">
-                  {actions.length}
+                  {proposals.length}
                 </Badge>
               )}
             </Flex>

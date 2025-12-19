@@ -19,11 +19,11 @@ import type { PreviewContext } from '../../types/chat.types';
 /**
  * Canvas panel with Preview and Actions tabs.
  * Preview shows content based on previewContext (booking page, services, etc.).
- * Actions shows AI-triggered action components.
+ * Actions shows AI-triggered proposal components.
  */
 export function CanvasPanel() {
   const dispatch = useAppDispatch();
-  const { activeTab, actions, previewContext } = useAppSelector((state) => state.canvas);
+  const { activeTab, proposals, previewContext } = useAppSelector((state) => state.canvas);
   const { data: business } = useGetMyBusinessQuery();
 
   /**
@@ -99,7 +99,7 @@ export function CanvasPanel() {
             position="relative"
           >
             Actions
-            {actions.length > 0 && (
+            {proposals.length > 0 && (
               <Badge
                 colorScheme="brand"
                 borderRadius="full"
@@ -111,7 +111,7 @@ export function CanvasPanel() {
                 alignItems="center"
                 justifyContent="center"
               >
-                {actions.length}
+                {proposals.length}
               </Badge>
             )}
           </Button>
@@ -126,7 +126,7 @@ export function CanvasPanel() {
           </CanvasPreview>
         ) : (
           <Box h="full" p={4}>
-            <ActionsRenderer actions={actions} />
+            <ActionsRenderer proposals={proposals} />
           </Box>
         )}
       </Box>

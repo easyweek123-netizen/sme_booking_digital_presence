@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Compiled JS files (should only be in dist/)
+*.js
+*.js.map
+*.d.ts
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Logs
+*.log
+

@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ToolHandler, ToolResult, ToolDefinition } from '../common';
-import { ServiceToolHandler } from '../services/service.tool-handler';
+import { ToolHandler, ToolResult, ToolDefinition, ToolContext } from '../common';
+import {
+  ListServicesHandler,
+  CreateServiceHandler,
+  UpdateServiceHandler,
+  DeleteServiceHandler,
+} from '../services/handlers';
 
 /**
  * Registry for AI tool handlers
@@ -10,8 +15,17 @@ import { ServiceToolHandler } from '../services/service.tool-handler';
 export class ToolRegistry {
   private handlers: Map<string, ToolHandler> = new Map();
 
-  constructor(private serviceToolHandler: ServiceToolHandler) {
-    this.register(serviceToolHandler);
+  constructor(
+    listServicesHandler: ListServicesHandler,
+    createServiceHandler: CreateServiceHandler,
+    updateServiceHandler: UpdateServiceHandler,
+    deleteServiceHandler: DeleteServiceHandler,
+  ) {
+    // Register all service handlers
+    this.register(listServicesHandler);
+    this.register(createServiceHandler);
+    this.register(updateServiceHandler);
+    this.register(deleteServiceHandler);
   }
 
   /**
@@ -32,12 +46,12 @@ export class ToolRegistry {
   }
 
   /**
-   * Process a tool call
+   * Process a tool call with pre-resolved context
    */
   async process(
     toolName: string,
     args: Record<string, unknown>,
-    ownerId: number,
+    context: ToolContext,
   ): Promise<ToolResult> {
     const handler = this.handlers.get(toolName);
 
@@ -48,7 +62,7 @@ export class ToolRegistry {
       };
     }
 
-    return handler.handle(args, ownerId);
+    return handler.handle(args, context);
   }
 
   /**

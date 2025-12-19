@@ -1,16 +1,19 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ChatAction, PreviewContext } from '../../types/chat.types';
+import type { ChatAction, PreviewContext } from '@shared';
+
+// Alias for clarity - proposals are ChatActions with proposalId
+type ActionProposal = ChatAction;
 
 interface CanvasState {
   activeTab: 'preview' | 'actions';
   previewContext: PreviewContext;
-  actions: ChatAction[];
+  proposals: ActionProposal[];
 }
 
 const initialState: CanvasState = {
   activeTab: 'preview',
   previewContext: 'booking_page',
-  actions: [],
+  proposals: [],
 };
 
 const canvasSlice = createSlice({
@@ -20,24 +23,54 @@ const canvasSlice = createSlice({
     setActiveTab: (state, action: PayloadAction<'preview' | 'actions'>) => {
       state.activeTab = action.payload;
     },
+    
     setPreviewContext: (state, action: PayloadAction<PreviewContext>) => {
       state.previewContext = action.payload;
       state.activeTab = 'preview'; // Auto-switch to preview tab
     },
-    setActions: (state, action: PayloadAction<ChatAction[]>) => {
-      state.actions = action.payload;
-      // Auto-switch to actions tab when actions are set
+    
+    /** Replace all proposals with new ones */
+    setProposals: (state, action: PayloadAction<ActionProposal[]>) => {
+      state.proposals = action.payload;
+      // Auto-switch to actions tab when proposals are set
       if (action.payload.length > 0) {
         state.activeTab = 'actions';
       }
     },
-    clearActions: (state) => {
-      state.actions = [];
+    
+    /** Add new proposals to the queue */
+    addProposals: (state, action: PayloadAction<ActionProposal[]>) => {
+      state.proposals.push(...action.payload);
+      // Auto-switch to actions tab when proposals are added
+      if (action.payload.length > 0) {
+        state.activeTab = 'actions';
+      }
+    },
+    
+    /** Remove a specific proposal by index */
+    removeProposal: (state, action: PayloadAction<number>) => {
+      state.proposals.splice(action.payload, 1);
+      // Switch to preview if no more proposals
+      if (state.proposals.length === 0) {
+        state.activeTab = 'preview';
+      }
+    },
+    
+    /** Clear all proposals */
+    clearProposals: (state) => {
+      state.proposals = [];
       state.activeTab = 'preview';
     },
   },
 });
 
-export const { setActiveTab, setPreviewContext, setActions, clearActions } = canvasSlice.actions;
-export default canvasSlice.reducer;
+export const { 
+  setActiveTab, 
+  setPreviewContext, 
+  setProposals, 
+  addProposals,
+  removeProposal,
+  clearProposals 
+} = canvasSlice.actions;
 
+export default canvasSlice.reducer;

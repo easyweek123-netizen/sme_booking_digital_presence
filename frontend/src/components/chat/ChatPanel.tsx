@@ -3,7 +3,7 @@ import { Box, Flex, VStack, Text, HStack } from '@chakra-ui/react';
 import { useInitChatQuery, useSendMessageMutation, useGetMyBusinessQuery } from '../../store/api';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { addMessage, setInitialized, clearChat } from '../../store/slices/chatSlice';
-import { setActions, setPreviewContext, clearActions } from '../../store/slices/canvasSlice';
+import { setProposals, setPreviewContext, clearProposals } from '../../store/slices/canvasSlice';
 import { AllMessages } from './AllMessages';
 import { ChatInput } from './ChatInput';
 import { TypingIndicator } from './TypingIndicator';
@@ -12,7 +12,7 @@ import type { Message } from '../../types/chat.types';
 
 /**
  * Chat panel for CanvasChat layout.
- * Dispatches actions to canvas slice when AI returns an action.
+ * Dispatches proposals to canvas slice when AI returns action proposals.
  */
 export function ChatPanel() {
   const dispatch = useAppDispatch();
@@ -32,9 +32,9 @@ export function ChatPanel() {
       dispatch(addMessage(initData));
       dispatch(setInitialized(true));
       
-      // If init message has action, dispatch to canvas
-      if (initData.action) {
-        dispatch(setActions([initData.action]));
+      // If init message has proposals, dispatch to canvas
+      if (initData.proposals && initData.proposals.length > 0) {
+        dispatch(setProposals(initData.proposals));
       }
     }
   }, [initData, initialized, dispatch]);
@@ -57,9 +57,9 @@ export function ChatPanel() {
         dispatch(setPreviewContext(response.previewContext));
       }
       
-      // Handle action - show in actions tab
-      if (response.action) {
-        dispatch(setActions([response.action]));
+      // Handle proposals - show in actions tab
+      if (response.proposals && response.proposals.length > 0) {
+        dispatch(setProposals(response.proposals));
       }
     } catch {
       dispatch(addMessage({
@@ -75,7 +75,7 @@ export function ChatPanel() {
 
   const handleClearChat = () => {
     dispatch(clearChat());
-    dispatch(clearActions());
+    dispatch(clearProposals());
     refetch();
   };
 

@@ -6,7 +6,12 @@ import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { AuthModule } from '../auth/auth.module';
 import { BusinessModule } from '../business/business.module';
-import { ServiceToolHandler } from './service.tool-handler';
+import {
+  ListServicesHandler,
+  CreateServiceHandler,
+  UpdateServiceHandler,
+  DeleteServiceHandler,
+} from './handlers';
 
 @Module({
   imports: [
@@ -15,7 +20,19 @@ import { ServiceToolHandler } from './service.tool-handler';
     BusinessModule,
   ],
   controllers: [ServicesController],
-  providers: [ServicesService, ServiceToolHandler],
-  exports: [ServicesService, ServiceToolHandler],
+  providers: [
+    ServicesService,
+    ListServicesHandler,
+    CreateServiceHandler,
+    UpdateServiceHandler,
+    DeleteServiceHandler,
+  ],
+  exports: [
+    ServicesService,
+    ListServicesHandler,
+    CreateServiceHandler,
+    UpdateServiceHandler,
+    DeleteServiceHandler,
+  ],
 })
 export class ServicesModule {}

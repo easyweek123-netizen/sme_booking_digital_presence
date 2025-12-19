@@ -4,13 +4,9 @@ import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BusinessService } from '../business/business.service';
 import { ToolRegistry } from './tool.registry';
-import {
-  ChatResponseDto,
-  ChatAction,
-  PreviewContext,
-  ServiceFormData,
-  ServiceListItem,
-} from './dto/chat.dto';
+import { ChatResponseDto } from './dto/chat.dto';
+import type { ChatAction, PreviewContext } from '@bookeasy/shared';
+import type { ToolContext } from '../common';
 import {
   welcomeNewUser,
   welcomeReturningUser,
@@ -22,7 +18,7 @@ import type { Business } from '../business/entities/business.entity';
 import type { Service } from '../services/entities/service.entity';
 
 // Pick only fields AI needs
-type AIBusinessFields = Pick<Business, 'name' | 'description'>;
+type AIBusinessFields = Pick<Business, 'name' | 'description' | 'id'>;
 type AIServiceFields = Pick<Service, 'name' | 'price' | 'durationMinutes'>;
 
 interface BusinessContext {
@@ -30,6 +26,13 @@ interface BusinessContext {
   services: AIServiceFields[];
 }
 
+/**
+ * Chat Service
+ * 
+ * Orchestrates AI conversations and tool calls.
+ * This is a "dumb router" - it doesn't interpret tool-specific logic.
+ * Tool handlers are responsible for building their own actions.
+ */
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
@@ -75,13 +78,20 @@ export class ChatService {
   }
 
   async sendMessage(ownerId: number, message: string): Promise<ChatResponseDto> {
-    // Get or initialize conversation
+    // Get or initialize conversation and business context
+    const businessContext = await this.buildContext(ownerId);
+    
     let history = this.conversationHistory.get(ownerId);
     if (!history) {
-      const context = await this.buildContext(ownerId);
-      history = [{ role: 'system', content: this.buildSystemPrompt(context) }];
+      history = [{ role: 'system', content: this.buildSystemPrompt(businessContext) }];
       this.conversationHistory.set(ownerId, history);
     }
+
+    // Build tool context (pre-resolved for handlers)
+    const toolContext: ToolContext = {
+      ownerId,
+      businessId: businessContext.business?.id ?? 0,
+    };
 
     // Add user message
     history.push({ role: 'user', content: message });
@@ -107,7 +117,7 @@ export class ChatService {
           type: string;
           function: { name: string; arguments: string };
         }>;
-        return this.handleToolCalls(ownerId, toolCalls, history);
+        return this.handleToolCalls(ownerId, toolCalls, history, toolContext);
       }
 
       // Normal text response
@@ -127,6 +137,9 @@ export class ChatService {
 
   /**
    * Handle tool calls from AI
+   * 
+   * This is a "dumb router" - it processes tool calls and passes through
+   * whatever proposals the tool handlers return. No tool-specific logic here.
    */
   private async handleToolCalls(
     ownerId: number,
@@ -136,6 +149,7 @@ export class ChatService {
       function: { name: string; arguments: string };
     }>,
     history: ChatCompletionMessageParam[],
+    toolContext: ToolContext,
   ): Promise<ChatResponseDto> {
     // Add assistant message with tool calls to history
     history.push({
@@ -148,7 +162,8 @@ export class ChatService {
       })),
     });
 
-    let action: ChatAction | undefined;
+    // Collect proposals and previewContext from all tool results
+    const allProposals: ChatAction[] = [];
     let previewContext: PreviewContext | undefined;
 
     // Process each tool call
@@ -161,25 +176,29 @@ export class ChatService {
         continue;
       }
 
-      // Process via registry
+      // Process via registry - tool handlers return their own proposals
       const result = await this.toolRegistry.process(
         toolCall.function.name,
         args,
-        ownerId,
+        toolContext,
       );
 
-      // Add tool result to history
+      // Add tool result to history (for AI context)
+      // Pass full result so AI has access to structured data (e.g., service IDs)
       history.push({
         role: 'tool',
         tool_call_id: toolCall.id,
         content: JSON.stringify(result),
       });
 
-      // Build action/previewContext for frontend based on tool result
-      if (result.success && toolCall.function.name === 'manage_service') {
-        const serviceResult = this.buildServiceAction(result.data);
-        if (serviceResult.action) action = serviceResult.action;
-        if (serviceResult.previewContext) previewContext = serviceResult.previewContext;
+      // Pass through proposals from tool handler (no interpretation!)
+      if (result.success) {
+        if (result.proposals) {
+          allProposals.push(...result.proposals);
+        }
+        if (result.previewContext) {
+          previewContext = result.previewContext;
+        }
       }
     }
 
@@ -195,80 +214,71 @@ export class ChatService {
       history.push({ role: 'assistant', content });
       this.trimHistory(ownerId, history);
 
-      return { role: 'bot', content, action, previewContext };
+      return {
+        role: 'bot',
+        content,
+        proposals: allProposals.length > 0 ? allProposals : undefined,
+        previewContext,
+      };
     } catch (error) {
       this.logger.error('AI API error (final response):', error);
       return {
         role: 'bot',
         content: 'I prepared that for you, but had an issue generating my response.',
-        action,
+        proposals: allProposals.length > 0 ? allProposals : undefined,
         previewContext,
       };
     }
   }
 
   /**
-   * Build ChatAction and/or PreviewContext from tool result data
+   * Process action result from frontend
+   * Called after user confirms/cancels a proposal
+   * Appends to history and generates AI follow-up
    */
-  private buildServiceAction(
-    data: Record<string, unknown> | undefined,
-  ): { action?: ChatAction; previewContext?: PreviewContext } {
-    if (!data) return {};
-
-    const operation = data.operation as string;
-
-    // GET ALL → Switch preview to services (no action needed)
-    if (operation === 'get' && data.services) {
-      return { previewContext: 'services' };
+  async processActionResult(
+    ownerId: number,
+    result: { proposalId: string; status: string; result?: Record<string, unknown> },
+  ): Promise<ChatResponseDto> {
+    let history = this.conversationHistory.get(ownerId);
+    
+    if (!history) {
+      // If no history, initialize with system prompt
+      const context = await this.buildContext(ownerId);
+      history = [{ role: 'system', content: this.buildSystemPrompt(context) }];
+      this.conversationHistory.set(ownerId, history);
     }
 
-    // GET SINGLE → Show service card in Actions tab
-    if (operation === 'get' && data.service) {
-      const service = data.service as ServiceListItem;
+    // Append action result as a user message (for AI context)
+    const statusMessage = result.status === 'confirmed'
+      ? `[Action confirmed: ${result.proposalId}]`
+      : `[Action cancelled: ${result.proposalId}]`;
+    
+    history.push({ role: 'user', content: statusMessage });
+
+    try {
+      // Get AI follow-up response
+      const response = await this.client.chat.completions.create({
+        model: this.model,
+        messages: history,
+      });
+
+      const content = response.choices[0].message.content || 
+        (result.status === 'confirmed' ? 'Done! What else can I help with?' : 'No problem! What else can I help with?');
+      
+      history.push({ role: 'assistant', content });
+      this.trimHistory(ownerId, history);
+
+      return { role: 'bot', content };
+    } catch (error) {
+      this.logger.error('AI API error (action result):', error);
       return {
-        action: {
-          type: 'service:get',
-          id: service.id,
-          service,
-        },
+        role: 'bot',
+        content: result.status === 'confirmed' 
+          ? "There was problem processing your request. Sorry, Try Again."
+          : "No problem! Let me know if you need anything else.",
       };
     }
-
-    // CREATE → Show form
-    if (operation === 'create') {
-      return {
-        action: {
-          type: 'service:create',
-          businessId: data.businessId as number | undefined,
-          service: data.service as ServiceFormData,
-        },
-      };
-    }
-
-    // UPDATE → Show form
-    if (operation === 'update') {
-      return {
-        action: {
-          type: 'service:update',
-          id: data.serviceId as number,
-          service: data.service as ServiceFormData,
-        },
-      };
-    }
-
-    // DELETE → Show confirmation
-    if (operation === 'delete') {
-      const service = data.service as { id: number; name: string };
-      return {
-        action: {
-          type: 'service:delete',
-          id: service.id,
-          name: service.name,
-        },
-      };
-    }
-
-    return {};
   }
 
   /**
@@ -294,6 +304,7 @@ export class ChatService {
 
     return {
       business: {
+        id: business.id,
         name: business.name,
         description: business.description,
       },

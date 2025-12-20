@@ -56,7 +56,8 @@ CONVERSATION STYLE:
 TOOLS AVAILABLE:
 
 services_list
-  - Lists all services with names, prices, and durations
+  - Lists all services with IDs, names, prices, and durations
+  - The response includes service IDs - use these for update/delete operations
   - Call when user asks "Show my services" or "What services do I have?"
 
 services_create
@@ -65,16 +66,26 @@ services_create
   - Example: User says "Add massage for $50, 60 min" → call with name="Massage", price=50, durationMinutes=60
 
 services_update
-  - Updates an existing service by name
-  - Pass the service name and any fields to update
-  - Example: User says "Update Haircut to $35" → call with name="Haircut", price=35
-  - I'll find the right service - just use the name!
+  - Updates an existing service
+  - PREFERRED: Use id parameter (from services_list result)
+  - FALLBACK: Use name parameter if ID not available
+  - Pass any fields to update: newName, price, durationMinutes, description
+  - Example: After services_list shows Haircut has id=5, call with id=5, price=35
 
 services_delete
-  - Deletes a service by name
-  - Example: User says "Delete the massage service" → call with name="Massage"
+  - Deletes a service
+  - PREFERRED: Use id parameter (from services_list result)  
+  - FALLBACK: Use name parameter if ID not available
+  - Example: After services_list shows Massage has id=7, call with id=7
 
-IMPORTANT: Just use the service name - I'll resolve it to the correct service. No need to look up IDs!
+IMPORTANT CONTEXT RULES:
+1. When services_list returns, remember the IDs from the data field
+2. Use IDs for subsequent update/delete operations (more reliable)
+3. NEVER mention IDs to the user - speak naturally using service names
+4. Example: User says "update the haircut price to $40"
+   - You know from services_list that Haircut has id=5
+   - Call services_update with id=5, price=40
+   - Tell user: "I'll update your Haircut service to $40"
 
 RULES:
 1. Answer any question - you're a general AI assistant too
@@ -83,4 +94,5 @@ RULES:
 4. Extract name, price, duration from natural language when possible
 5. If info is missing for tools, ask specifically
 6. Keep responses conversational but concise
-7. Be proactive about their business success`;
+7. Be proactive about their business success
+8. Use IDs internally but never expose them to users`;

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BusinessService } from '../business/business.service';
-import { ToolRegistry } from './tool.registry';
+import { ToolRegistry } from '../common/tools';
 import { ChatResponseDto } from './dto/chat.dto';
 import type { ChatAction, PreviewContext } from '@bookeasy/shared';
 import type { ToolContext } from '../common';
@@ -30,8 +30,7 @@ interface BusinessContext {
  * Chat Service
  * 
  * Orchestrates AI conversations and tool calls.
- * This is a "dumb router" - it doesn't interpret tool-specific logic.
- * Tool handlers are responsible for building their own actions.
+ * Uses ToolRegistry for explicitly registered tool handlers.
  */
 @Injectable()
 export class ChatService {
@@ -97,7 +96,7 @@ export class ChatService {
     history.push({ role: 'user', content: message });
 
     try {
-      // Call AI with tools
+      // Call AI with registered tools
       const response = await this.client.chat.completions.create({
         model: this.model,
         messages: history,
@@ -111,7 +110,6 @@ export class ChatService {
         choice.finish_reason === 'tool_calls' &&
         choice.message.tool_calls?.length
       ) {
-        // Cast to simpler type for processing
         const toolCalls = choice.message.tool_calls as Array<{
           id: string;
           type: string;
@@ -137,9 +135,6 @@ export class ChatService {
 
   /**
    * Handle tool calls from AI
-   * 
-   * This is a "dumb router" - it processes tool calls and passes through
-   * whatever proposals the tool handlers return. No tool-specific logic here.
    */
   private async handleToolCalls(
     ownerId: number,
@@ -166,7 +161,7 @@ export class ChatService {
     const allProposals: ChatAction[] = [];
     let previewContext: PreviewContext | undefined;
 
-    // Process each tool call
+    // Process each tool call via discovery service
     for (const toolCall of toolCalls) {
       let args: Record<string, unknown>;
       try {
@@ -176,22 +171,20 @@ export class ChatService {
         continue;
       }
 
-      // Process via registry - tool handlers return their own proposals
       const result = await this.toolRegistry.process(
         toolCall.function.name,
         args,
         toolContext,
       );
 
-      // Add tool result to history (for AI context)
-      // Pass full result so AI has access to structured data (e.g., service IDs)
+      // Add tool result to history
       history.push({
         role: 'tool',
         tool_call_id: toolCall.id,
         content: JSON.stringify(result),
       });
 
-      // Pass through proposals from tool handler (no interpretation!)
+      // Collect proposals from tool handler
       if (result.success) {
         if (result.proposals) {
           allProposals.push(...result.proposals);
@@ -233,8 +226,6 @@ export class ChatService {
 
   /**
    * Process action result from frontend
-   * Called after user confirms/cancels a proposal
-   * Appends to history and generates AI follow-up
    */
   async processActionResult(
     ownerId: number,
@@ -243,13 +234,11 @@ export class ChatService {
     let history = this.conversationHistory.get(ownerId);
     
     if (!history) {
-      // If no history, initialize with system prompt
       const context = await this.buildContext(ownerId);
       history = [{ role: 'system', content: this.buildSystemPrompt(context) }];
       this.conversationHistory.set(ownerId, history);
     }
 
-    // Append action result as a user message (for AI context)
     const statusMessage = result.status === 'confirmed'
       ? `[Action confirmed: ${result.proposalId}]`
       : `[Action cancelled: ${result.proposalId}]`;
@@ -257,7 +246,6 @@ export class ChatService {
     history.push({ role: 'user', content: statusMessage });
 
     try {
-      // Get AI follow-up response
       const response = await this.client.chat.completions.create({
         model: this.model,
         messages: history,
@@ -281,9 +269,6 @@ export class ChatService {
     }
   }
 
-  /**
-   * Trim history to keep it manageable
-   */
   private trimHistory(
     ownerId: number,
     history: ChatCompletionMessageParam[],
@@ -329,7 +314,6 @@ export class ChatService {
         ? 'None yet - help them add one!'
         : `${servicesCount} (${servicesList})`;
 
-    // Determine setup guidance based on state
     let guidance = '';
     if (servicesCount === 0) {
       guidance = setupGuidanceNewUser();

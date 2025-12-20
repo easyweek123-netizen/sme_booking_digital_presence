@@ -32,34 +32,17 @@ export interface ToolContext {
 }
 
 /**
- * Interface for AI tool handlers
- * Each domain module can implement this to handle specific tools
+ * Interface for AI tool handlers (legacy - use BaseToolHandler instead)
  * 
- * Tool handlers are self-contained:
- * - Define their own tool definition (for AI API)
- * - Handle execution with pre-resolved context
- * - Return proposals for frontend rendering
- * 
- * Fine-grained tools pattern:
- * - One handler per operation (e.g., 'services_list', 'services_create')
- * - Entity resolution by name (backend resolves to ID)
- * - Proposals include proposalId for confirmation tracking
+ * @deprecated Use BaseToolHandler abstract class with @ToolHandler decorator
  */
-export interface ToolHandler {
+export interface IToolHandler {
   /** The name of the tool (e.g., 'services_create') */
   readonly toolName: string;
 
   /** Get the tool definition for OpenAI API */
   getDefinition(): ToolDefinition;
 
-  /** 
-   * Handle the tool call and return a result.
-   * The result includes:
-   * - success: whether the operation succeeded
-   * - message: text for AI to use in response
-   * - proposals: action proposals for frontend to render
-   * - previewContext: which preview to show
-   */
+  /** Handle the tool call and return a result */
   handle(args: Record<string, unknown>, context: ToolContext): Promise<ToolResult>;
 }
-

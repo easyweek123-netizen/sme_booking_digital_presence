@@ -11,7 +11,6 @@ export type {
   ExecutionMode,
   ActionType,
   ExtractAction,
-  ActionProposal,
   ActionResult,
   ActionResultStatus,
 } from '@shared';

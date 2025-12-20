@@ -47,9 +47,16 @@ const canvasSlice = createSlice({
       }
     },
     
-    /** Remove a specific proposal by index */
-    removeProposal: (state, action: PayloadAction<number>) => {
-      state.proposals.splice(action.payload, 1);
+    /** Remove a specific proposal by proposalId or index */
+    removeProposal: (state, action: PayloadAction<string | number>) => {
+      const payload = action.payload;
+      if (typeof payload === 'string') {
+        // Remove by proposalId
+        state.proposals = state.proposals.filter(p => p.proposalId !== payload);
+      } else {
+        // Remove by index (legacy)
+        state.proposals.splice(payload, 1);
+      }
       // Switch to preview if no more proposals
       if (state.proposals.length === 0) {
         state.activeTab = 'preview';

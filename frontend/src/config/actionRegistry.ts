@@ -1,14 +1,6 @@
 import type { ComponentType } from 'react';
-import type { ActionType } from '@shared';
 import type { BusinessWithServices } from '../types';
-import type { ActionMutations } from '../hooks/useActionMutations';
-import type { ServiceFormData } from '../components/onboarding/ServiceForm';
-
-// ─── Component Imports ───
-// Direct imports - no more null! placeholders
-import { ServiceForm } from '../components/onboarding/ServiceForm';
-import { ServiceCard } from '../components/Dashboard/ServiceCard';
-import { DeleteConfirmation } from '../components/canvas/DeleteConfirmation';
+import { useServiceActions } from './actions';
 
 // ─── Types ───
 
@@ -20,118 +12,66 @@ export interface ActionContext {
 }
 
 /**
- * Configuration for each action type
+ * Configuration for each action type.
+ * Each entity defines its own actions in a separate file.
  */
 export interface ActionConfig {
   /** Component to render for this action */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: ComponentType<any>;
-  
+
   /** Title shown in the canvas container */
   title: string;
-  
+
   /** Build props for the component from action data */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProps: (action: any, ctx: ActionContext) => Record<string, unknown>;
-  
-  /** Returns a callable mutation function. Only for actions that modify data. */
+
+  /** Execute the mutation. Undefined for display-only actions. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getMutation?: (mutations: ActionMutations, action: any) => (data: unknown) => Promise<unknown>;
+  execute?: (action: any, formData?: any) => Promise<unknown>;
 }
 
-// ─── Registry ───
+// ─── Composed Registry Hook ───
 
 /**
- * Action Registry
- * 
- * Maps action types to their components, props builders, and mutations.
- * This is the single source of truth for how actions are rendered.
- * 
- * To add a new action:
- * 1. Add schema in @shared/schemas/actions/
- * 2. Add config here with component, title, getProps, and optionally getMutation
+ * Composed action registry - each entity adds its own actions.
+ *
+ * To add a new entity:
+ * 1. Create config/actions/[entity].actions.ts with use[Entity]Actions hook
+ * 2. Import and spread here
+ *
+ * No changes needed to useProposalExecution.ts!
  */
-export const actionRegistry: Record<ActionType, ActionConfig> = {
-  'service:create': {
-    component: ServiceForm,
-    title: 'New Service',
-    getProps: (action, ctx) => ({
-      initialValues: action.service
-        ? {
-            name: action.service.name || '',
-            price: action.service.price || 0,
-            durationMinutes: action.service.durationMinutes || 30,
-            description: action.service.description,
-          }
-        : null,
-      businessId: action.businessId ?? ctx.business?.id,
-      workingHours: ctx.business?.workingHours,
-      moreOptionsExpanded: true,
-    }),
-    getMutation: (mutations, action) => async (data) => {
-      const formData = data as ServiceFormData;
-      const businessId = action.businessId;
-      if (!businessId) throw new Error('Business ID required');
-      return mutations.createService({
-        businessId,
-        name: formData.name,
-        price: formData.price,
-        durationMinutes: formData.durationMinutes,
-        description: formData.description,
-      });
-    },
-  },
+export function useActionRegistry(): Record<string, ActionConfig> {
+  const serviceActions = useServiceActions();
+  // Future: const bookingActions = useBookingActions();
+  // Future: const customerActions = useCustomerActions();
 
-  'service:update': {
-    component: ServiceForm,
-    title: 'Edit Service',
-    getProps: (action, ctx) => ({
-      initialValues: {
-        id: String(action.resolvedId),
-        name: action.service.name || '',
-        price: action.service.price || 0,
-        durationMinutes: action.service.durationMinutes || 30,
-        description: action.service.description,
-      },
-      businessId: ctx.business?.id,
-      workingHours: ctx.business?.workingHours,
-      moreOptionsExpanded: true,
-    }),
-    getMutation: (mutations, action) => async (data) => {
-      const formData = data as ServiceFormData;
-      return mutations.updateService({
-        id: action.resolvedId,
-        name: formData.name,
-        price: formData.price,
-        durationMinutes: formData.durationMinutes,
-        description: formData.description,
-      });
-    },
-  },
+  return {
+    ...serviceActions,
+    // ...bookingActions,
+    // ...customerActions,
+  };
+}
 
-  'service:delete': {
-    component: DeleteConfirmation,
-    title: 'Delete Service',
-    getProps: (action) => ({
-      entityType: 'service',
-      id: action.resolvedId,
-      name: action.name,
-    }),
-    getMutation: (mutations, action) => async () => {
-      return mutations.deleteService(action.resolvedId);
-    },
-  },
+// ─── Static Registry (for non-hook contexts) ───
 
-  'service:get': {
-    component: ServiceCard,
-    title: 'Service Details',
-    getProps: (action) => ({
-      service: action.service,
-      showActions: false,
-    }),
-    // No getMutation - display only
-  },
-};
+// Keep a static version for components that can't use hooks (e.g., ActionsRenderer needs it for type lookup)
+// This is populated lazily by the hook on first render
+let _staticRegistry: Record<string, ActionConfig> | null = null;
 
-// Type for the registry
-export type ActionRegistry = typeof actionRegistry;
+/**
+ * Get static registry (for use outside of React components).
+ * Only available after useActionRegistry has been called at least once.
+ */
+export function getStaticRegistry(): Record<string, ActionConfig> | null {
+  return _staticRegistry;
+}
+
+/**
+ * Internal: update static registry (called by useActionRegistry)
+ */
+export function _setStaticRegistry(registry: Record<string, ActionConfig>) {
+  _staticRegistry = registry;
+}

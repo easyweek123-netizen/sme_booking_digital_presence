@@ -5,12 +5,5 @@
  * Single source of truth for AI tool actions and chat types.
  */
 
-// Schemas (for runtime validation)
-export * from './schemas';
-
-// Types (for compile-time safety)
-export * from './types';
-
-
-
-
+// All exports from the tools module
+export * from './tools';

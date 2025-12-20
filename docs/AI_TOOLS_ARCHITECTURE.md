@@ -1,7 +1,7 @@
 # AI Tools Architecture Refactor Plan
 
 > **Created:** December 2024  
-> **Status:** Planning  
+> **Status:** ✅ Implemented  
 > **Related:** [AI_PRD.md](./AI_PRD.md), [CURRENT_STATUS.md](./CURRENT_STATUS.md)
 
 ---
@@ -246,14 +246,14 @@ export function useProposalExecution() {
 
 ---
 
-## Implementation Todos
+## Implementation Status
 
-- [ ] Create shared/src/tools/ with service.tools.ts, helpers.ts, and index.ts
-- [ ] Create @ToolHandler decorator and tool-discovery.service.ts
-- [ ] Create BaseToolHandler with validation, error handling, and logging
-- [ ] Migrate 4 service handlers to use decorator and base class
-- [ ] Update system prompt for ID-based context passing
-- [ ] Create useProposalExecution hook for unified execute/cancel
-- [ ] Simplify actionRegistry to UI config only, update ActionsRenderer
-- [ ] Remove old files and verify 3-step process works end-to-end
+- [x] Create shared/src/tools/ with service.tools.ts, helpers.ts, and index.ts
+- [x] Create @ToolHandler decorator and tool-discovery.service.ts
+- [x] Create BaseToolHandler with validation, error handling, and logging
+- [x] Migrate 4 service handlers to use decorator and base class
+- [x] Update system prompt for ID-based context passing
+- [x] Create useProposalExecution hook for unified execute/cancel
+- [x] Simplify actionRegistry to UI config only, update ActionsRenderer
+- [x] Remove old files and verify 3-step process works end-to-end
 

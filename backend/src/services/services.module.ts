@@ -7,11 +7,11 @@ import { Business } from '../business/entities/business.entity';
 import { AuthModule } from '../auth/auth.module';
 import { BusinessModule } from '../business/business.module';
 import {
-  ListServicesHandler,
-  CreateServiceHandler,
-  UpdateServiceHandler,
-  DeleteServiceHandler,
-} from './handlers';
+  CreateServiceTool,
+  ListServicesTool,
+  UpdateServiceTool,
+  DeleteServiceTool,
+} from './tools';
 
 @Module({
   imports: [
@@ -22,17 +22,12 @@ import {
   controllers: [ServicesController],
   providers: [
     ServicesService,
-    ListServicesHandler,
-    CreateServiceHandler,
-    UpdateServiceHandler,
-    DeleteServiceHandler,
+    // Tool handlers - auto-discovered by ToolsModule
+    CreateServiceTool,
+    ListServicesTool,
+    UpdateServiceTool,
+    DeleteServiceTool,
   ],
-  exports: [
-    ServicesService,
-    ListServicesHandler,
-    CreateServiceHandler,
-    UpdateServiceHandler,
-    DeleteServiceHandler,
-  ],
+  exports: [ServicesService],
 })
 export class ServicesModule {}

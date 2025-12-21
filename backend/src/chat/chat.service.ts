@@ -298,6 +298,7 @@ export class ChatService {
           name: s.name,
           price: s.price,
           durationMinutes: s.durationMinutes,
+          imageUrl: s.imageUrl
         })) || [],
     };
   }

@@ -1,4 +1,5 @@
-import type { ComponentType } from 'react';
+import type { ElementType } from 'react';
+import type { ChatAction } from '@shared';
 import type { BusinessWithServices } from '../types';
 import { useServiceActions } from './actions';
 
@@ -14,22 +15,26 @@ export interface ActionContext {
 /**
  * Configuration for each action type.
  * Each entity defines its own actions in a separate file.
+ *
+ * Note: We use ElementType for component which allows any valid React component.
+ * Props are built via getProps and type safety is enforced via type guards.
  */
 export interface ActionConfig {
-  /** Component to render for this action */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: ComponentType<any>;
+  /**
+   * Component to render for this action.
+   * Receives props from getProps() + onSubmit + onCancel at runtime.
+   * Use ElementType to allow any React component without strict prop matching.
+   */
+  component: ElementType;
 
   /** Title shown in the canvas container */
   title: string;
 
   /** Build props for the component from action data */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getProps: (action: any, ctx: ActionContext) => Record<string, unknown>;
+  getProps: (action: ChatAction, ctx: ActionContext) => Record<string, unknown>;
 
   /** Execute the mutation. Undefined for display-only actions. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  execute?: (action: any, formData?: any) => Promise<unknown>;
+  execute?: (action: ChatAction, formData: Record<string, unknown>) => Promise<void>;
 }
 
 // ─── Composed Registry Hook ───
@@ -55,23 +60,3 @@ export function useActionRegistry(): Record<string, ActionConfig> {
   };
 }
 
-// ─── Static Registry (for non-hook contexts) ───
-
-// Keep a static version for components that can't use hooks (e.g., ActionsRenderer needs it for type lookup)
-// This is populated lazily by the hook on first render
-let _staticRegistry: Record<string, ActionConfig> | null = null;
-
-/**
- * Get static registry (for use outside of React components).
- * Only available after useActionRegistry has been called at least once.
- */
-export function getStaticRegistry(): Record<string, ActionConfig> | null {
-  return _staticRegistry;
-}
-
-/**
- * Internal: update static registry (called by useActionRegistry)
- */
-export function _setStaticRegistry(registry: Record<string, ActionConfig>) {
-  _staticRegistry = registry;
-}

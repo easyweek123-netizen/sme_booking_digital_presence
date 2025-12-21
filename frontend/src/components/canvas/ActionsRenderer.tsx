@@ -1,9 +1,10 @@
 import { Text, Center, VStack, Box, Badge, HStack } from '@chakra-ui/react';
 import { useAppDispatch } from '../../store/hooks';
-import { setActiveTab, clearProposals } from '../../store/slices/canvasSlice';
+import { setActiveTab, clearProposals, removeProposal } from '../../store/slices/canvasSlice';
 import { useGetMyBusinessQuery } from '../../store/api';
 import { useProposalExecution } from '../../hooks';
 import { CanvasActionsContainer } from './CanvasActionsContainer';
+import { ActionErrorBoundary } from './ActionErrorBoundary';
 import type { ChatAction } from '@shared';
 
 // ─── Props ───
@@ -39,7 +40,7 @@ function ProposalCard({ proposal, index, total }: ProposalCardProps) {
   });
 
   // Handlers using unified execution hook
-  const handleSubmit = async (formData: unknown) => {
+  const handleSubmit = async (formData: Record<string, unknown>) => {
     await execute(proposal, formData);
   };
 
@@ -95,6 +96,10 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
   // Render first proposal (queue-style)
   const currentProposal = proposals[0];
 
+  const handleDismissError = () => {
+    dispatch(removeProposal(currentProposal.proposalId));
+  };
+
   return (
     <VStack spacing={4} align="stretch" h="full">
       {proposals.length > 1 && (
@@ -115,7 +120,13 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
         </HStack>
       )}
 
-      <ProposalCard proposal={currentProposal} index={0} total={proposals.length} />
+      <ActionErrorBoundary
+        key={currentProposal.proposalId}
+        proposalId={currentProposal.proposalId}
+        onDismiss={handleDismissError}
+      >
+        <ProposalCard proposal={currentProposal} index={0} total={proposals.length} />
+      </ActionErrorBoundary>
     </VStack>
   );
 }

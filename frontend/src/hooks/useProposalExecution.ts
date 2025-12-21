@@ -21,13 +21,13 @@ export function useProposalExecution() {
   /**
    * Execute a proposal with the given form data
    */
-  const execute = async (proposal: ChatAction, formData?: unknown) => {
+  const execute = async (proposal: ChatAction, formData?: Record<string, unknown>) => {
     try {
       // Get config from registry
       const config = registry[proposal.type];
 
       // Execute mutation if defined
-      if (config?.execute) {
+      if (config?.execute && formData) {
         await config.execute(proposal, formData);
       }
 

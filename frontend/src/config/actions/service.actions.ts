@@ -6,171 +6,115 @@ import {
 import { ServiceForm } from '../../components/onboarding/ServiceForm';
 import { ServiceCard } from '../../components/Dashboard/ServiceCard';
 import { DeleteConfirmation } from '../../components/canvas/DeleteConfirmation';
-import type { ActionConfig, ActionContext } from '../actionRegistry';
+import { defineHandler, type RuntimeActionHandler } from './types';
 import type {
-  ChatAction,
   ServiceCreateAction,
   ServiceUpdateAction,
   ServiceDeleteAction,
   ServiceGetAction,
+  ServiceInput,
 } from '@shared';
 
-// ─── Type Guards ───
-
-function isServiceCreateAction(action: ChatAction): action is ServiceCreateAction {
-  return action.type === 'service:create';
-}
-
-function isServiceUpdateAction(action: ChatAction): action is ServiceUpdateAction {
-  return action.type === 'service:update';
-}
-
-function isServiceDeleteAction(action: ChatAction): action is ServiceDeleteAction {
-  return action.type === 'service:delete';
-}
-
-function isServiceGetAction(action: ChatAction): action is ServiceGetAction {
-  return action.type === 'service:get';
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Service Actions
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Validate service form data from component submission
+ * Service entity action handlers.
+ * Uses defineHandler for type-safe action and formData typing.
+ *
+ * Each handler maps an action type to:
+ * - component: The React component to render
+ * - title: Header title for the canvas container
+ * - getProps: Derives component props from action data
+ * - execute: Mutation to run when user confirms (optional for display-only)
  */
-function validateServiceFormData(data: Record<string, unknown>): {
-  name: string;
-  price: number;
-  durationMinutes: number;
-  description?: string;
-  imageUrl?: string | null;
-} {
-  if (
-    typeof data.name !== 'string' ||
-    typeof data.price !== 'number' ||
-    typeof data.durationMinutes !== 'number'
-  ) {
-    throw new Error('Invalid form data');
-  }
-  return {
-    name: data.name,
-    price: data.price,
-    durationMinutes: data.durationMinutes,
-    description: typeof data.description === 'string' ? data.description : undefined,
-    imageUrl: typeof data.imageUrl === 'string' ? data.imageUrl : null,
-  };
-}
-
-// ─── Service Actions ───
-
-/**
- * Service entity actions - self-contained with mutations.
- * Each entity defines its own action hook.
- */
-export function useServiceActions(): Record<string, ActionConfig> {
+export function useServiceActions(): Record<string, RuntimeActionHandler> {
   const [createService] = useCreateServiceMutation();
   const [updateService] = useUpdateServiceMutation();
   const [deleteService] = useDeleteServiceMutation();
 
   return {
-    'service:create': {
+    'service:create': defineHandler<ServiceCreateAction, ServiceInput>({
       component: ServiceForm,
       title: 'New Service',
-      getProps: (action: ChatAction, ctx: ActionContext) => {
-        if (!isServiceCreateAction(action)) return {};
-        return {
-          initialValues: action.service
-            ? {
-                name: action.service.name || '',
-                price: action.service.price || 0,
-                durationMinutes: action.service.durationMinutes || 30,
-                description: action.service.description,
-                imageUrl: action.service.imageUrl,
-              }
-            : null,
-          businessId: action.businessId ?? ctx.business?.id,
-          workingHours: ctx.business?.workingHours,
-          moreOptionsExpanded: true,
-        };
-      },
-      execute: async (action: ChatAction, formData: Record<string, unknown>) => {
-        if (!isServiceCreateAction(action)) return;
+      getProps: (action, ctx) => ({
+        initialValues: action.service
+          ? {
+              name: action.service.name || '',
+              price: action.service.price || 0,
+              durationMinutes: action.service.durationMinutes || 30,
+              description: action.service.description,
+              imageUrl: action.service.imageUrl,
+            }
+          : null,
+        businessId: action.businessId ?? ctx.business?.id,
+        workingHours: ctx.business?.workingHours,
+        moreOptionsExpanded: true,
+      }),
+      execute: async (action, formData) => {
         const businessId = action.businessId;
         if (!businessId) throw new Error('Business ID required');
-
-        const data = validateServiceFormData(formData);
         await createService({
           businessId,
-          name: data.name,
-          price: data.price,
-          durationMinutes: data.durationMinutes,
-          description: data.description,
-          imageUrl: data.imageUrl,
+          name: formData.name,
+          price: formData.price,
+          durationMinutes: formData.durationMinutes,
+          description: formData.description,
+          imageUrl: formData.imageUrl,
         }).unwrap();
       },
-    },
+    }),
 
-    'service:update': {
+    'service:update': defineHandler<ServiceUpdateAction, ServiceInput>({
       component: ServiceForm,
       title: 'Edit Service',
-      getProps: (action: ChatAction, ctx: ActionContext) => {
-        if (!isServiceUpdateAction(action)) return {};
-        return {
-          initialValues: {
-            id: String(action.resolvedId),
-            name: action.service.name || '',
-            price: action.service.price || 0,
-            durationMinutes: action.service.durationMinutes || 30,
-            description: action.service.description,
-            imageUrl: action.service.imageUrl,
-          },
-          businessId: ctx.business?.id,
-          workingHours: ctx.business?.workingHours,
-          moreOptionsExpanded: true,
-        };
-      },
-      execute: async (action: ChatAction, formData: Record<string, unknown>) => {
-        if (!isServiceUpdateAction(action)) return;
-
-        const data = validateServiceFormData(formData);
+      getProps: (action, ctx) => ({
+        initialValues: {
+          id: String(action.resolvedId),
+          name: action.service.name || '',
+          price: action.service.price || 0,
+          durationMinutes: action.service.durationMinutes || 30,
+          description: action.service.description,
+          imageUrl: action.service.imageUrl,
+        },
+        businessId: ctx.business?.id,
+        workingHours: ctx.business?.workingHours,
+        moreOptionsExpanded: true,
+      }),
+      execute: async (action, formData) => {
         await updateService({
           id: action.resolvedId,
-          name: data.name,
-          price: data.price,
-          durationMinutes: data.durationMinutes,
-          description: data.description,
-          imageUrl: data.imageUrl,
+          name: formData.name,
+          price: formData.price,
+          durationMinutes: formData.durationMinutes,
+          description: formData.description,
+          imageUrl: formData.imageUrl,
         }).unwrap();
       },
-    },
+    }),
 
-    'service:delete': {
+    'service:delete': defineHandler<ServiceDeleteAction, { confirmed: boolean }>({
       component: DeleteConfirmation,
       title: 'Delete Service',
-      getProps: (action: ChatAction) => {
-        if (!isServiceDeleteAction(action)) return {};
-        return {
-          entityType: 'service',
-          id: action.resolvedId,
-          name: action.name,
-        };
-      },
-      execute: async (action: ChatAction) => {
-        if (!isServiceDeleteAction(action)) return;
+      getProps: (action) => ({
+        entityType: 'service',
+        id: action.resolvedId,
+        name: action.name,
+      }),
+      execute: async (action) => {
         await deleteService(action.resolvedId).unwrap();
       },
-    },
+    }),
 
-    'service:get': {
+    'service:get': defineHandler<ServiceGetAction, void>({
       component: ServiceCard,
       title: 'Service Details',
-      getProps: (action: ChatAction) => {
-        if (!isServiceGetAction(action)) return {};
-        return {
-          service: action.service,
-          showActions: false,
-        };
-      },
+      getProps: (action) => ({
+        service: action.service,
+        showActions: false,
+      }),
       // No execute - display only
-    },
+    }),
   };
 }
-

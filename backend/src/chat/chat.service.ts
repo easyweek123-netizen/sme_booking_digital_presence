@@ -19,7 +19,7 @@ import type { Service } from '../services/entities/service.entity';
 
 // Pick only fields AI needs
 type AIBusinessFields = Pick<Business, 'name' | 'description' | 'id'>;
-type AIServiceFields = Pick<Service, 'name' | 'price' | 'durationMinutes'>;
+type AIServiceFields = Pick<Service, 'id' | 'name' | 'price' | 'durationMinutes' | 'imageUrl'>;
 
 interface BusinessContext {
   business: AIBusinessFields | null;
@@ -295,6 +295,7 @@ export class ChatService {
       },
       services:
         business.services?.map((s) => ({
+          id: s.id,
           name: s.name,
           price: s.price,
           durationMinutes: s.durationMinutes,
@@ -308,7 +309,7 @@ export class ChatService {
     const description = context.business?.description || 'Not set yet';
     const servicesCount = context.services.length;
     const servicesList = context.services
-      .map((s) => `${s.name} - $${s.price}`)
+      .map((s) => `${s.name} - $${s.price} - ${s.id}`)
       .join(', ');
     const servicesInfo =
       servicesCount === 0

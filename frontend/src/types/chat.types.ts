@@ -2,7 +2,7 @@
 export type {
   ChatAction,
   PreviewContext,
-  ServiceFormData,
+  ServiceInput,
   ServiceListItem,
   ServiceCreateAction,
   ServiceUpdateAction,

@@ -92,11 +92,14 @@ export abstract class BaseToolHandler<TArgs = unknown> {
    * This is the main entry point called by ToolRegistry.
    */
   async handle(args: Record<string, unknown>, ctx: ToolContext): Promise<ToolResult> {
+    // Normalize null/undefined args to empty object (LLMs often send null for no-arg tools)
+    const normalizedArgs = args ?? {};
+
     // Validate arguments with Zod
-    const parsed = this.schema.safeParse(args);
+    const parsed = this.schema.safeParse(normalizedArgs);
     if (!parsed.success) {
       this.logger.warn(`Validation failed for ${this.toolName}`, {
-        args,
+        args: normalizedArgs,
         error: parsed.error.issues,
       });
       return ToolResultHelpers.validationError(parsed.error);
@@ -109,7 +112,7 @@ export abstract class BaseToolHandler<TArgs = unknown> {
       return result;
     } catch (error) {
       this.logger.error(`${this.toolName} execution failed`, {
-        args,
+        args: normalizedArgs,
         error: error instanceof Error ? error.message : error,
       });
       return ToolResultHelpers.error('Something went wrong. Please try again.');

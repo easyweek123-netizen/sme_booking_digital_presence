@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { ToolHandler, BaseToolHandler } from '../../common/tools';
-import { createProposal, ToolResultHelpers } from '@bookeasy/shared';
-import type { ToolResult } from '@bookeasy/shared';
+import { createProposal, ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
 
@@ -33,7 +32,8 @@ type DeleteServiceArgs = z.infer<typeof DeleteServiceArgsSchema>;
  */
 @ToolHandler({
   name: 'services_delete',
-  description: 'Delete a service. Use the service ID from services_list, or the service name. Requires confirmation.',
+  description:
+    'Delete a service. Use the service ID from services_list, or the service name. Requires confirmation.',
 })
 @Injectable()
 export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
@@ -49,9 +49,15 @@ export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
     // Resolve service: prefer ID, fallback to name
     let service;
     if (id !== undefined) {
-      service = await this.servicesService.findByIdAndBusiness(id, ctx.businessId);
+      service = await this.servicesService.findByIdAndBusiness(
+        id,
+        ctx.businessId,
+      );
     } else if (name) {
-      service = await this.servicesService.findByNameAndBusiness(name, ctx.businessId);
+      service = await this.servicesService.findByNameAndBusiness(
+        name,
+        ctx.businessId,
+      );
     }
 
     if (!service) {
@@ -70,4 +76,3 @@ export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
     );
   }
 }
-

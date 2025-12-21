@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { ToolHandler, BaseToolHandler } from '../../common/tools';
-import { ToolResultHelpers } from '@bookeasy/shared';
-import type { ToolResult } from '@bookeasy/shared';
+import { ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
 
@@ -19,7 +18,8 @@ type ListServicesArgs = z.infer<typeof ListServicesArgsSchema>;
  */
 @ToolHandler({
   name: 'services_list',
-  description: 'Get all services for the business. Returns a list with names, prices, durations, and IDs.',
+  description:
+    'Get all services for the business. Returns a list with names, prices, durations, and IDs.',
 })
 @Injectable()
 export class ListServicesTool extends BaseToolHandler<ListServicesArgs> {
@@ -59,4 +59,3 @@ export class ListServicesTool extends BaseToolHandler<ListServicesArgs> {
     );
   }
 }
-

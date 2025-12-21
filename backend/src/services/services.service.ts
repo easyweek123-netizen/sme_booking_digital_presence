@@ -180,11 +180,12 @@ export class ServicesService {
   }
 
   /**
-   * Soft delete a service by setting isActive = false
+   * Delete a service from the database.
+   * Use toggle isActive for hiding/showing without deleting.
    */
   async remove(id: number, firebaseUser: FirebaseUser): Promise<void> {
     const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
+
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -197,9 +198,8 @@ export class ServicesService {
     // Verify ownership
     await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
 
-    // Soft delete - mark as inactive
-    service.isActive = false;
-    await this.serviceRepository.save(service);
+    // Hard delete - remove from database
+    await this.serviceRepository.remove(service);
   }
 
 }

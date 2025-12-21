@@ -1,17 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { ToolHandler, BaseToolHandler } from '../../common/tools';
-import { createProposal, ToolResultHelpers } from '@bookeasy/shared';
-import type { ToolResult } from '@bookeasy/shared';
+import {
+  ServiceInputSchema,
+  createProposal,
+  ToolResultHelpers,
+  type ToolResult,
+} from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
 
 /**
  * Schema for services_update tool arguments.
  * Supports both ID (preferred) and name (fallback) lookup.
+ * Update fields are derived from ServiceInputSchema but made optional.
  */
 const UpdateServiceArgsSchema = z
   .object({
+    // Lookup fields
     id: z
       .number()
       .optional()
@@ -20,30 +26,16 @@ const UpdateServiceArgsSchema = z
       .string()
       .optional()
       .describe('Service name (fallback if ID not available)'),
+    // Update fields - partial ServiceInputSchema with newName for renaming
     newName: z
       .string()
       .min(1)
       .optional()
       .describe('New name for the service'),
-    price: z
-      .number()
-      .nonnegative()
-      .optional()
-      .describe('New price in dollars'),
-    durationMinutes: z
-      .number()
-      .int()
-      .positive()
-      .optional()
-      .describe('New duration in minutes'),
-    description: z
-      .string()
-      .optional()
-      .describe('New description'),
-    imageUrl: z
-      .string()
-      .optional()
-      .describe('New image URL for the service'),
+    price: ServiceInputSchema.shape.price.optional(),
+    durationMinutes: ServiceInputSchema.shape.durationMinutes.optional(),
+    description: ServiceInputSchema.shape.description,
+    imageUrl: ServiceInputSchema.shape.imageUrl,
   })
   .refine((data) => data.id !== undefined || data.name !== undefined, {
     message: 'Either id or name is required',
@@ -57,7 +49,8 @@ type UpdateServiceArgs = z.infer<typeof UpdateServiceArgsSchema>;
  */
 @ToolHandler({
   name: 'services_update',
-  description: 'Update an existing service. Use the service ID from services_list, or the service name.',
+  description:
+    'Update an existing service. Use the service ID from services_list, or the service name.',
 })
 @Injectable()
 export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
@@ -68,14 +61,25 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
   }
 
   async execute(args: UpdateServiceArgs, ctx: ToolContext): Promise<ToolResult> {
-    const { id, name, newName, price, durationMinutes, description, imageUrl } = args;
+    const { id, name, newName, price, durationMinutes, description, imageUrl } =
+      args;
 
     // Resolve service: prefer ID, fallback to name
     let service;
+    console.log('Update tool executed');
+    console.log('id', id);
+    console.log('name', name);
+    console.log('ctx.businessId', ctx.businessId);
     if (id !== undefined) {
-      service = await this.servicesService.findByIdAndBusiness(id, ctx.businessId);
+      service = await this.servicesService.findByIdAndBusiness(
+        id,
+        ctx.businessId,
+      );
     } else if (name) {
-      service = await this.servicesService.findByNameAndBusiness(name, ctx.businessId);
+      service = await this.servicesService.findByNameAndBusiness(
+        name,
+        ctx.businessId,
+      );
     }
 
     if (!service) {
@@ -101,8 +105,12 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
     // Build change summary
     const changes: string[] = [];
     if (newName && newName !== service.name) changes.push(`name → "${newName}"`);
-    if (price !== undefined && price !== Number(service.price)) changes.push(`price → $${price}`);
-    if (durationMinutes !== undefined && durationMinutes !== service.durationMinutes) {
+    if (price !== undefined && price !== Number(service.price))
+      changes.push(`price → $${price}`);
+    if (
+      durationMinutes !== undefined &&
+      durationMinutes !== service.durationMinutes
+    ) {
       changes.push(`duration → ${durationMinutes} min`);
     }
     if (description !== undefined && description !== service.description) {
@@ -112,7 +120,8 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
       changes.push('image updated');
     }
 
-    const changesSummary = changes.length > 0 ? changes.join(', ') : 'no changes detected';
+    const changesSummary =
+      changes.length > 0 ? changes.join(', ') : 'no changes detected';
 
     return ToolResultHelpers.withProposal(
       proposal,
@@ -120,4 +129,3 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
     );
   }
 }
-

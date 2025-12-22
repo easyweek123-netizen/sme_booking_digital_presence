@@ -71,7 +71,7 @@ export class ServicesController {
   }
 
   /**
-   * Soft delete a service (sets isActive = false)
+   * Delete a service from the database
    * DELETE /api/services/:id
    */
   @Delete(':id')

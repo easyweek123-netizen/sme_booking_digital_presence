@@ -1,4 +1,8 @@
-import { IsString } from 'class-validator';
+import { IsString, IsUUID, IsEnum, IsOptional, IsObject } from 'class-validator';
+import type { ChatAction, PreviewContext, ActionResultStatus } from '@bookeasy/shared';
+
+// Re-export types from shared for convenience
+export type { ChatAction, PreviewContext, ActionResult, ActionResultStatus } from '@bookeasy/shared';
 
 export class SendMessageDto {
   @IsString()
@@ -6,48 +10,36 @@ export class SendMessageDto {
 }
 
 /**
- * Service data for form display
- */
-export interface ServiceFormData {
-  name?: string;
-  price?: number;
-  durationMinutes?: number;
-  description?: string;
-}
-
-/**
- * Service item for list display
- */
-export interface ServiceListItem {
-  id: number;
-  name: string;
-  price: number;
-  durationMinutes: number;
-  description?: string;
-}
-
-/**
- * Discriminated union for chat actions
- * Frontend renders appropriate component based on type
- */
-export type ChatAction =
-  | {
-      type: 'service_form';
-      operation: 'create' | 'update' | 'delete';
-      businessId?: number;
-      serviceId?: number;
-      service: ServiceFormData;
-    }
-  | {
-      type: 'services_list';
-      services: ServiceListItem[];
-    };
-
-/**
  * Chat response from API
+ * 
+ * Response includes:
+ * - content: The AI's text response
+ * - proposals: Array of action proposals for frontend to render (optional)
+ * - previewContext: Which preview to show in canvas (optional)
  */
 export class ChatResponseDto {
   role: 'bot';
   content: string;
-  action?: ChatAction;
+  
+  /** Action proposals for frontend to render in canvas */
+  proposals?: ChatAction[];
+  
+  /** Switch preview tab to specific context */
+  previewContext?: PreviewContext;
+}
+
+/**
+ * DTO for action result from frontend
+ * Sent after user confirms/cancels a proposal
+ */
+export class ActionResultDto {
+  @IsUUID()
+  proposalId: string;
+
+  @IsEnum(['confirmed', 'cancelled', 'modified'] as const)
+  status: ActionResultStatus;
+
+  @IsOptional()
+  @IsObject()
+  result?: Record<string, unknown>;
 }

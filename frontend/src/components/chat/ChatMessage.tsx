@@ -1,9 +1,6 @@
-import { useState } from 'react';
-import { Box, Text, VStack, Flex } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Suggestions } from './Suggestions';
-import { ServiceFormCard } from './ServiceFormCard';
-import { ServiceCard } from '../Dashboard';
 import type { Message } from '../../types/chat.types';
 
 const MotionBox = motion.create(Box);
@@ -15,43 +12,6 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
   const isBot = message.role === 'bot';
-  const [actionCompleted, setActionCompleted] = useState(false);
-
-  const handleActionComplete = () => {
-    setActionCompleted(true);
-  };
-
-  // Render action component based on type
-  const renderAction = () => {
-    if (!message.action || actionCompleted) return null;
-
-    switch (message.action.type) {
-      case 'service_form':
-        return (
-          <ServiceFormCard
-            operation={message.action.operation}
-            businessId={message.action.businessId}
-            serviceId={message.action.serviceId}
-            initialData={message.action.service}
-            onComplete={handleActionComplete}
-          />
-        );
-      case 'services_list':
-        return (
-          <VStack align="stretch" mt={3} spacing={3} w="full">
-            {message.action.services.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                showActions={false}
-              />
-            ))}
-          </VStack>
-        );
-      default:
-        return null;
-    }
-  };
 
   return (
     <MotionBox
@@ -88,9 +48,7 @@ export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
           />
         )}
       </Box>
-      <Flex align="center" justify="center">
-        {renderAction()}
-      </Flex>
+      {/* Actions now rendered in Canvas panel instead of inline chat */}
       
     </MotionBox>
   );

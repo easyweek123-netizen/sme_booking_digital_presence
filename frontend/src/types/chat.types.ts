@@ -1,3 +1,23 @@
+// Re-export all types from shared package
+export type {
+  ChatAction,
+  PreviewContext,
+  ServiceInput,
+  ServiceListItem,
+  ServiceCreateAction,
+  ServiceUpdateAction,
+  ServiceDeleteAction,
+  ServiceGetAction,
+  ExecutionMode,
+  ActionType,
+  ExtractAction,
+  ActionResult,
+  ActionResultStatus,
+} from '@shared';
+
+/**
+ * Suggestion shown in chat
+ */
 export interface Suggestion {
   label: string;
   value: string;
@@ -6,46 +26,26 @@ export interface Suggestion {
 }
 
 /**
- * Service data for form display
+ * Chat message structure (frontend-specific)
+ * 
+ * Note: `proposals` contains action proposals from AI for canvas rendering.
  */
-export interface ServiceFormData {
-  name?: string;
-  price?: number;
-  durationMinutes?: number;
-  description?: string;
-}
-
-/**
- * Service item for list display
- */
-export interface ServiceListItem {
-  id: number;
-  name: string;
-  price: number;
-  durationMinutes: number;
-  description?: string;
-}
-
-/**
- * Discriminated union for chat actions
- * Frontend renders appropriate component based on type
- */
-export type ChatAction =
-  | {
-      type: 'service_form';
-      operation: 'create' | 'update' | 'delete';
-      businessId?: number;
-      serviceId?: number;
-      service: ServiceFormData;
-    }
-  | {
-      type: 'services_list';
-      services: ServiceListItem[];
-    };
-
 export interface Message {
   role: 'bot' | 'user';
   content: string;
   suggestions?: Suggestion[];
-  action?: ChatAction;
+  
+  /** Action proposals returned by AI for canvas rendering */
+  proposals?: import('@shared').ChatAction[];
+  
+  previewContext?: import('@shared').PreviewContext;
+}
+
+/**
+ * Request to send action result to backend
+ */
+export interface ActionResultRequest {
+  proposalId: string;
+  status: 'confirmed' | 'cancelled' | 'modified';
+  result?: Record<string, unknown>;
 }

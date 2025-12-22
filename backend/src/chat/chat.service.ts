@@ -3,13 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BusinessService } from '../business/business.service';
-import { ToolRegistry } from './tool.registry';
-import {
-  ChatResponseDto,
-  ChatAction,
-  ServiceFormData,
-  ServiceListItem,
-} from './dto/chat.dto';
+import { ToolRegistry } from '../common/tools';
+import { ChatResponseDto } from './dto/chat.dto';
+import type { ChatAction, PreviewContext } from '@bookeasy/shared';
+import type { ToolContext } from '../common';
 import {
   welcomeNewUser,
   welcomeReturningUser,
@@ -21,14 +18,20 @@ import type { Business } from '../business/entities/business.entity';
 import type { Service } from '../services/entities/service.entity';
 
 // Pick only fields AI needs
-type AIBusinessFields = Pick<Business, 'name' | 'description'>;
-type AIServiceFields = Pick<Service, 'name' | 'price' | 'durationMinutes'>;
+type AIBusinessFields = Pick<Business, 'name' | 'description' | 'id'>;
+type AIServiceFields = Pick<Service, 'id' | 'name' | 'price' | 'durationMinutes' | 'imageUrl'>;
 
 interface BusinessContext {
   business: AIBusinessFields | null;
   services: AIServiceFields[];
 }
 
+/**
+ * Chat Service
+ * 
+ * Orchestrates AI conversations and tool calls.
+ * Uses ToolRegistry for explicitly registered tool handlers.
+ */
 @Injectable()
 export class ChatService {
   private readonly logger = new Logger(ChatService.name);
@@ -74,19 +77,26 @@ export class ChatService {
   }
 
   async sendMessage(ownerId: number, message: string): Promise<ChatResponseDto> {
-    // Get or initialize conversation
+    // Get or initialize conversation and business context
+    const businessContext = await this.buildContext(ownerId);
+    
     let history = this.conversationHistory.get(ownerId);
     if (!history) {
-      const context = await this.buildContext(ownerId);
-      history = [{ role: 'system', content: this.buildSystemPrompt(context) }];
+      history = [{ role: 'system', content: this.buildSystemPrompt(businessContext) }];
       this.conversationHistory.set(ownerId, history);
     }
+
+    // Build tool context (pre-resolved for handlers)
+    const toolContext: ToolContext = {
+      ownerId,
+      businessId: businessContext.business?.id ?? 0,
+    };
 
     // Add user message
     history.push({ role: 'user', content: message });
 
     try {
-      // Call AI with tools
+      // Call AI with registered tools
       const response = await this.client.chat.completions.create({
         model: this.model,
         messages: history,
@@ -100,13 +110,12 @@ export class ChatService {
         choice.finish_reason === 'tool_calls' &&
         choice.message.tool_calls?.length
       ) {
-        // Cast to simpler type for processing
         const toolCalls = choice.message.tool_calls as Array<{
           id: string;
           type: string;
           function: { name: string; arguments: string };
         }>;
-        return this.handleToolCalls(ownerId, toolCalls, history);
+        return this.handleToolCalls(ownerId, toolCalls, history, toolContext);
       }
 
       // Normal text response
@@ -135,6 +144,7 @@ export class ChatService {
       function: { name: string; arguments: string };
     }>,
     history: ChatCompletionMessageParam[],
+    toolContext: ToolContext,
   ): Promise<ChatResponseDto> {
     // Add assistant message with tool calls to history
     history.push({
@@ -147,9 +157,11 @@ export class ChatService {
       })),
     });
 
-    let action: ChatAction | undefined;
+    // Collect proposals and previewContext from all tool results
+    const allProposals: ChatAction[] = [];
+    let previewContext: PreviewContext | undefined;
 
-    // Process each tool call
+    // Process each tool call via discovery service
     for (const toolCall of toolCalls) {
       let args: Record<string, unknown>;
       try {
@@ -159,11 +171,10 @@ export class ChatService {
         continue;
       }
 
-      // Process via registry
       const result = await this.toolRegistry.process(
         toolCall.function.name,
         args,
-        ownerId,
+        toolContext,
       );
 
       // Add tool result to history
@@ -173,9 +184,14 @@ export class ChatService {
         content: JSON.stringify(result),
       });
 
-      // Build action for frontend based on tool result
-      if (result.success && toolCall.function.name === 'manage_service') {
-        action = this.buildServiceAction(result.data);
+      // Collect proposals from tool handler
+      if (result.success) {
+        if (result.proposals) {
+          allProposals.push(...result.proposals);
+        }
+        if (result.previewContext) {
+          previewContext = result.previewContext;
+        }
       }
     }
 
@@ -191,61 +207,68 @@ export class ChatService {
       history.push({ role: 'assistant', content });
       this.trimHistory(ownerId, history);
 
-      return { role: 'bot', content, action };
+      return {
+        role: 'bot',
+        content,
+        proposals: allProposals.length > 0 ? allProposals : undefined,
+        previewContext,
+      };
     } catch (error) {
       this.logger.error('AI API error (final response):', error);
       return {
         role: 'bot',
         content: 'I prepared that for you, but had an issue generating my response.',
-        action,
+        proposals: allProposals.length > 0 ? allProposals : undefined,
+        previewContext,
       };
     }
   }
 
   /**
-   * Build ChatAction from tool result data
+   * Process action result from frontend
    */
-  private buildServiceAction(
-    data: Record<string, unknown> | undefined,
-  ): ChatAction | undefined {
-    if (!data) return undefined;
-
-    const operation = data.operation as string;
-
-    // Handle get operation - return services list
-    if (operation === 'get' && data.services) {
-      return {
-        type: 'services_list',
-        services: data.services as ServiceListItem[],
-      };
+  async processActionResult(
+    ownerId: number,
+    result: { proposalId: string; status: string; result?: Record<string, unknown> },
+  ): Promise<ChatResponseDto> {
+    let history = this.conversationHistory.get(ownerId);
+    
+    if (!history) {
+      const context = await this.buildContext(ownerId);
+      history = [{ role: 'system', content: this.buildSystemPrompt(context) }];
+      this.conversationHistory.set(ownerId, history);
     }
 
-    // Handle get single service
-    if (operation === 'get' && data.service) {
-      const service = data.service as ServiceListItem;
+    const statusMessage = result.status === 'confirmed'
+      ? `[Action confirmed: ${result.proposalId}]`
+      : `[Action cancelled: ${result.proposalId}]`;
+    
+    history.push({ role: 'user', content: statusMessage });
+
+    try {
+      const response = await this.client.chat.completions.create({
+        model: this.model,
+        messages: history,
+      });
+
+      const content = response.choices[0].message.content || 
+        (result.status === 'confirmed' ? 'Done! What else can I help with?' : 'No problem! What else can I help with?');
+      
+      history.push({ role: 'assistant', content });
+      this.trimHistory(ownerId, history);
+
+      return { role: 'bot', content };
+    } catch (error) {
+      this.logger.error('AI API error (action result):', error);
       return {
-        type: 'services_list',
-        services: [service],
+        role: 'bot',
+        content: result.status === 'confirmed' 
+          ? "There was problem processing your request. Sorry, Try Again."
+          : "No problem! Let me know if you need anything else.",
       };
     }
-
-    // Handle create/update/delete - return form
-    if (['create', 'update', 'delete'].includes(operation)) {
-      return {
-        type: 'service_form',
-        operation: operation as 'create' | 'update' | 'delete',
-        businessId: data.businessId as number | undefined,
-        serviceId: data.serviceId as number | undefined,
-        service: data.service as ServiceFormData,
-      };
-    }
-
-    return undefined;
   }
 
-  /**
-   * Trim history to keep it manageable
-   */
   private trimHistory(
     ownerId: number,
     history: ChatCompletionMessageParam[],
@@ -266,14 +289,17 @@ export class ChatService {
 
     return {
       business: {
+        id: business.id,
         name: business.name,
         description: business.description,
       },
       services:
         business.services?.map((s) => ({
+          id: s.id,
           name: s.name,
           price: s.price,
           durationMinutes: s.durationMinutes,
+          imageUrl: s.imageUrl
         })) || [],
     };
   }
@@ -283,14 +309,13 @@ export class ChatService {
     const description = context.business?.description || 'Not set yet';
     const servicesCount = context.services.length;
     const servicesList = context.services
-      .map((s) => `${s.name} - $${s.price}`)
+      .map((s) => `${s.name} - $${s.price} - ${s.id}`)
       .join(', ');
     const servicesInfo =
       servicesCount === 0
         ? 'None yet - help them add one!'
         : `${servicesCount} (${servicesList})`;
 
-    // Determine setup guidance based on state
     let guidance = '';
     if (servicesCount === 0) {
       guidance = setupGuidanceNewUser();

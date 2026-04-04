@@ -1,5 +1,5 @@
 import { IsString, IsUUID, IsEnum, IsOptional, IsObject } from 'class-validator';
-import type { ChatAction, PreviewContext, ActionResultStatus } from '@bookeasy/shared';
+import type { ChatAction, PreviewContext, ActionResultStatus, Suggestion } from '@bookeasy/shared';
 
 // Re-export types from shared for convenience
 export type { ChatAction, PreviewContext, ActionResult, ActionResultStatus } from '@bookeasy/shared';
@@ -26,6 +26,9 @@ export class ChatResponseDto {
   
   /** Switch preview tab to specific context */
   previewContext?: PreviewContext;
+
+  /** Contextual suggestions for the user */
+  suggestions?: Suggestion[];
 }
 
 /**

@@ -8,22 +8,16 @@ import { ChatResponseDto } from './dto/chat.dto';
 import type { ChatAction, PreviewContext } from '@bookeasy/shared';
 import type { ToolContext } from '../common';
 import {
-  welcomeNewUser,
-  welcomeReturningUser,
   systemPrompt,
-  setupGuidanceNewUser,
-  setupGuidanceNoDescription,
+  buildWelcome,
+  buildSuggestions,
 } from './prompts';
+import type { BusinessIdentity } from './prompts';
 import type { Business } from '../business/entities/business.entity';
-import type { Service } from '../services/entities/service.entity';
-
-// Pick only fields AI needs
-type AIBusinessFields = Pick<Business, 'name' | 'description' | 'id'>;
-type AIServiceFields = Pick<Service, 'id' | 'name' | 'price' | 'durationMinutes' | 'imageUrl'>;
 
 interface BusinessContext {
-  business: AIBusinessFields | null;
-  services: AIServiceFields[];
+  business: Pick<Business, 'id' | 'name' | 'description'> | null;
+  businessType: string | null;
 }
 
 /**
@@ -57,22 +51,16 @@ export class ChatService {
     const context = await this.buildContext(ownerId);
     const prompt = this.buildSystemPrompt(context);
 
-    // Initialize conversation
     this.conversationHistory.set(ownerId, [
       { role: 'system', content: prompt },
     ]);
 
-    // Generate welcome message
-    const businessName = context.business?.name || 'Your Business';
-    const servicesCount = context.services.length;
-    const welcomeContent =
-      servicesCount === 0
-        ? welcomeNewUser(businessName)
-        : welcomeReturningUser(businessName, servicesCount);
+    const identity = this.toIdentity(context);
 
     return {
       role: 'bot',
-      content: welcomeContent,
+      content: buildWelcome(identity.businessName),
+      suggestions: buildSuggestions(identity),
     };
   }
 
@@ -284,7 +272,7 @@ export class ChatService {
     const business = await this.businessService.findByOwnerId(ownerId);
 
     if (!business) {
-      return { business: null, services: [] };
+      return { business: null, businessType: null };
     }
 
     return {
@@ -293,36 +281,19 @@ export class ChatService {
         name: business.name,
         description: business.description,
       },
-      services:
-        business.services?.map((s) => ({
-          id: s.id,
-          name: s.name,
-          price: s.price,
-          durationMinutes: s.durationMinutes,
-          imageUrl: s.imageUrl
-        })) || [],
+      businessType: business.businessType?.name ?? null,
+    };
+  }
+
+  private toIdentity(ctx: BusinessContext): BusinessIdentity {
+    return {
+      businessName: ctx.business?.name || 'Your Business',
+      businessType: ctx.businessType,
+      description: ctx.business?.description ?? null,
     };
   }
 
   private buildSystemPrompt(context: BusinessContext): string {
-    const businessName = context.business?.name || 'Your Business';
-    const description = context.business?.description || 'Not set yet';
-    const servicesCount = context.services.length;
-    const servicesList = context.services
-      .map((s) => `${s.name} - $${s.price} - ${s.id}`)
-      .join(', ');
-    const servicesInfo =
-      servicesCount === 0
-        ? 'None yet - help them add one!'
-        : `${servicesCount} (${servicesList})`;
-
-    let guidance = '';
-    if (servicesCount === 0) {
-      guidance = setupGuidanceNewUser();
-    } else if (!context.business?.description) {
-      guidance = setupGuidanceNoDescription(servicesCount);
-    }
-
-    return systemPrompt(businessName, description, servicesInfo, guidance);
+    return systemPrompt(this.toIdentity(context));
   }
 }

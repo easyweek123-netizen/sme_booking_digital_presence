@@ -1,5 +1,5 @@
 import { Wrap, WrapItem, Button, Text } from '@chakra-ui/react';
-import type { Suggestion } from '../../types/chat.types';
+import type { Suggestion } from '@shared';
 
 interface SuggestionsProps {
   suggestions: Suggestion[];

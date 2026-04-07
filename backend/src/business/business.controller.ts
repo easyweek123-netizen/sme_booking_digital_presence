@@ -6,7 +6,7 @@ import {
   Body,
   Param,
   UseGuards,
-  Request,
+  UseInterceptors,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -14,8 +14,8 @@ import {
 import { BusinessService } from './business.service';
 import { CreateBusinessDto, UpdateBusinessDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
+import { OwnerResolverInterceptor, OwnerId } from '../common';
 import { Business } from './entities/business.entity';
-import type { RequestWithFirebaseUser } from '../common';
 
 @Controller('business')
 export class BusinessController {
@@ -27,12 +27,13 @@ export class BusinessController {
    */
   @Post()
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Body() createBusinessDto: CreateBusinessDto,
   ): Promise<Business> {
-    return this.businessService.create(req.firebaseUser, createBusinessDto);
+    return this.businessService.create(ownerId, createBusinessDto);
   }
 
   /**
@@ -41,8 +42,9 @@ export class BusinessController {
    */
   @Get('me')
   @UseGuards(FirebaseAuthGuard)
-  async getMyBusiness(@Request() req: RequestWithFirebaseUser): Promise<Business> {
-    return this.businessService.findByOwner(req.firebaseUser);
+  @UseInterceptors(OwnerResolverInterceptor)
+  async getMyBusiness(@OwnerId() ownerId: number): Promise<Business> {
+    return this.businessService.findByOwner(ownerId);
   }
 
   /**
@@ -69,11 +71,12 @@ export class BusinessController {
    */
   @Patch(':id')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async update(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
-    return this.businessService.update(id, req.firebaseUser, updateBusinessDto);
+    return this.businessService.update(id, ownerId, updateBusinessDto);
   }
 }

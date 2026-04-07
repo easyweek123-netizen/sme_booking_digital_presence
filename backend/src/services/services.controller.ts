@@ -7,7 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
-  Request,
+  UseInterceptors,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -15,8 +15,8 @@ import {
 import { ServicesService } from './services.service';
 import { CreateServiceDto, UpdateServiceDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
+import { OwnerResolverInterceptor, OwnerId } from '../common';
 import { Service } from './entities/service.entity';
-import type { RequestWithFirebaseUser } from '../common';
 
 @Controller('services')
 export class ServicesController {
@@ -28,12 +28,13 @@ export class ServicesController {
    */
   @Post()
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Body() createServiceDto: CreateServiceDto,
   ): Promise<Service> {
-    return this.servicesService.create(req.firebaseUser, createServiceDto);
+    return this.servicesService.create(ownerId, createServiceDto);
   }
 
   /**
@@ -62,12 +63,13 @@ export class ServicesController {
    */
   @Patch(':id')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async update(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    return this.servicesService.update(id, req.firebaseUser, updateServiceDto);
+    return this.servicesService.update(id, ownerId, updateServiceDto);
   }
 
   /**
@@ -76,11 +78,12 @@ export class ServicesController {
    */
   @Delete(':id')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {
-    return this.servicesService.remove(id, req.firebaseUser);
+    return this.servicesService.remove(id, ownerId);
   }
 }

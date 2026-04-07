@@ -9,12 +9,10 @@ import { Repository, Not } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
-import { Owner } from '../owner/entities/owner.entity';
 import { CreateBookingDto } from './dto/create-booking.dto';
-import { AuthService } from '../auth/auth.service';
 import { EmailService } from '../email/email.service';
 import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
-import { WorkingHours, FirebaseUser } from '../common/types';
+import { WorkingHours } from '../common/types';
 import { generateBookingReference, verifyBusinessOwnership } from '../common';
 
 interface AvailabilityResult {
@@ -38,7 +36,6 @@ export class BookingsService {
     private readonly businessRepository: Repository<Business>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
-    private readonly authService: AuthService,
     private readonly emailService: EmailService,
   ) {}
 
@@ -272,10 +269,9 @@ export class BookingsService {
    */
   async getPendingCount(
     businessId: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
   ): Promise<number> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    await verifyBusinessOwnership(this.businessRepository, businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     return this.bookingRepository.count({
       where: {
@@ -290,11 +286,10 @@ export class BookingsService {
    */
   async findByBusiness(
     businessId: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     filters: BookingsFilter = {},
   ): Promise<Booking[]> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    await verifyBusinessOwnership(this.businessRepository, businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     // Build query
     const queryBuilder = this.bookingRepository
@@ -329,11 +324,9 @@ export class BookingsService {
    */
   async updateStatus(
     id: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     status: BookingStatus,
   ): Promise<Booking> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     const booking = await this.bookingRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -343,8 +336,7 @@ export class BookingsService {
       throw new NotFoundException('Booking not found');
     }
 
-    // Verify ownership via loaded relation
-    await verifyBusinessOwnership(this.businessRepository, booking.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, booking.businessId, ownerId);
 
     const previousStatus = booking.status;
     booking.status = status;
@@ -372,10 +364,9 @@ export class BookingsService {
    */
   async getStats(
     businessId: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
   ): Promise<{ total: number; today: number }> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    await verifyBusinessOwnership(this.businessRepository, businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     const today = new Date();
     const todayDate = new Date(this.getLocalDateString(today));

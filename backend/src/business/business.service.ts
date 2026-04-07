@@ -9,9 +9,7 @@ import { Business } from './entities/business.entity';
 import { Service } from '../services/entities/service.entity';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
-import { AuthService } from '../auth/auth.service';
 import { assertBusinessOwnership, DEFAULT_WORKING_HOURS } from '../common';
-import type { FirebaseUser } from '../common';
 
 @Injectable()
 export class BusinessService {
@@ -19,7 +17,6 @@ export class BusinessService {
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
     private readonly dataSource: DataSource,
-    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -47,11 +44,9 @@ export class BusinessService {
    * Create a new business with services in a transaction
    */
   async create(
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     createBusinessDto: CreateBusinessDto,
   ): Promise<Business> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    const ownerId = owner.id;
 
     // Check if owner already has a business
     const existingBusiness = await this.businessRepository.findOne({
@@ -125,9 +120,8 @@ export class BusinessService {
   /**
    * Find business by Firebase user
    */
-  async findByOwner(firebaseUser: FirebaseUser): Promise<Business> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    return this.findByOwnerIdOrFail(owner.id);
+  async findByOwner(ownerId: number): Promise<Business> {
+    return this.findByOwnerIdOrFail(ownerId);
   }
 
   /**
@@ -193,14 +187,12 @@ export class BusinessService {
    */
   async update(
     id: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
     const business = await this.findOne(id);
 
-    // Verify ownership
-    assertBusinessOwnership(business, owner.id);
+    assertBusinessOwnership(business, ownerId);
 
     // Update fields
     if (updateBusinessDto.name !== undefined) {

@@ -7,7 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
-  Request,
+  UseInterceptors,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -15,8 +15,8 @@ import {
 import { ServiceCategoriesService } from './service-categories.service';
 import { CreateServiceCategoryDto, UpdateServiceCategoryDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
+import { OwnerResolverInterceptor, OwnerId } from '../common';
 import { ServiceCategory } from './entities/service-category.entity';
-import type { RequestWithFirebaseUser } from '../common';
 
 @Controller('service-categories')
 export class ServiceCategoriesController {
@@ -28,12 +28,13 @@ export class ServiceCategoriesController {
    */
   @Post()
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Body() createCategoryDto: CreateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    return this.serviceCategoriesService.create(req.firebaseUser, createCategoryDto);
+    return this.serviceCategoriesService.create(ownerId, createCategoryDto);
   }
 
   /**
@@ -62,12 +63,13 @@ export class ServiceCategoriesController {
    */
   @Patch(':id')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async update(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    return this.serviceCategoriesService.update(id, req.firebaseUser, updateCategoryDto);
+    return this.serviceCategoriesService.update(id, ownerId, updateCategoryDto);
   }
 
   /**
@@ -76,12 +78,13 @@ export class ServiceCategoriesController {
    */
   @Delete(':id')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {
-    return this.serviceCategoriesService.remove(id, req.firebaseUser);
+    return this.serviceCategoriesService.remove(id, ownerId);
   }
 }
 

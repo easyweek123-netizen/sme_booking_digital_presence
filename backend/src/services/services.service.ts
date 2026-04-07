@@ -8,9 +8,7 @@ import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { AuthService } from '../auth/auth.service';
 import { verifyBusinessOwnership } from '../common';
-import type { FirebaseUser } from '../common';
 
 @Injectable()
 export class ServicesService {
@@ -19,22 +17,19 @@ export class ServicesService {
     private readonly serviceRepository: Repository<Service>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-    private readonly authService: AuthService,
   ) {}
 
   /**
    * Create a new service for a business
    */
   async create(
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     createServiceDto: CreateServiceDto,
   ): Promise<Service> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     await verifyBusinessOwnership(
       this.businessRepository,
       createServiceDto.businessId,
-      owner.id,
+      ownerId,
     );
 
     const service = this.serviceRepository.create({
@@ -130,11 +125,9 @@ export class ServicesService {
    */
   async update(
     id: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -144,8 +137,7 @@ export class ServicesService {
       throw new NotFoundException('Service not found');
     }
 
-    // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
     // Update fields
     if (updateServiceDto.categoryId !== undefined) {
@@ -183,9 +175,7 @@ export class ServicesService {
    * Delete a service from the database.
    * Use toggle isActive for hiding/showing without deleting.
    */
-  async remove(id: number, firebaseUser: FirebaseUser): Promise<void> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-
+  async remove(id: number, ownerId: number): Promise<void> {
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -195,8 +185,7 @@ export class ServicesService {
       throw new NotFoundException('Service not found');
     }
 
-    // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
     // Hard delete - remove from database
     await this.serviceRepository.remove(service);

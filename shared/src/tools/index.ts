@@ -5,12 +5,14 @@ import { z } from 'zod';
 // ─────────────────────────────────────────────────────────────────────────────
 
 export * from './service.tools';
+export * from './booking.tools';
 import {
   ServiceCreateActionSchema,
   ServiceUpdateActionSchema,
   ServiceDeleteActionSchema,
   ServiceGetActionSchema,
 } from './service.tools';
+import { BookingStatusUpdateActionSchema } from './booking.tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat Action Union
@@ -21,12 +23,11 @@ import {
  * Add new action schemas here as you create them.
  */
 export const ChatActionSchema = z.discriminatedUnion('type', [
-  // Service actions
   ServiceCreateActionSchema,
   ServiceUpdateActionSchema,
   ServiceDeleteActionSchema,
   ServiceGetActionSchema,
-  // Future: BookingActionSchema, CustomerActionSchema, etc.
+  BookingStatusUpdateActionSchema,
 ]);
 
 /** Union type of all chat actions */

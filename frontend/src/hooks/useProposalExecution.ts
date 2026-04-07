@@ -50,6 +50,7 @@ export function useProposalExecution() {
         status: 'error',
         duration: 3000,
       });
+      throw error;
     }
   };
 

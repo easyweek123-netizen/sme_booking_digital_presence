@@ -1,6 +1,7 @@
 import { Box, HStack, VStack, Text, Button } from '@chakra-ui/react';
 import { useRef, useEffect } from 'react';
 import type { WorkingHours } from '../../types';
+import { toLocalYmd } from '../../utils/format';
 
 interface DateSelectorProps {
   selectedDate: string;
@@ -147,7 +148,7 @@ function generateDates(count: number): DateInfo[] {
     date.setDate(today.getDate() + i);
 
     dates.push({
-      dateStr: date.toISOString().split('T')[0],
+      dateStr: toLocalYmd(date),
       dayShort: date.toLocaleDateString('en-US', { weekday: 'short' }),
       day: date.getDate(),
       month: date.toLocaleDateString('en-US', { month: 'short' }),

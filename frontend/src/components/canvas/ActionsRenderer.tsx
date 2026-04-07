@@ -39,7 +39,6 @@ function ProposalCard({ proposal, index, total }: ProposalCardProps) {
     business: business ?? undefined,
   });
 
-  // Handlers using unified execution hook
   const handleSubmit = async (formData: Record<string, unknown>) => {
     await execute(proposal, formData);
   };

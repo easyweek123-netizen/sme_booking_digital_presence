@@ -68,6 +68,7 @@ export abstract class BaseToolHandler<TArgs = unknown> {
         type: 'object';
         properties: Record<string, unknown>;
         required?: string[];
+        additionalProperties: false;
       };
     };
   } {

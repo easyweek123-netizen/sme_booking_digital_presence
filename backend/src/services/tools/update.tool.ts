@@ -66,10 +66,6 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
 
     // Resolve service: prefer ID, fallback to name
     let service;
-    console.log('Update tool executed');
-    console.log('id', id);
-    console.log('name', name);
-    console.log('ctx.businessId', ctx.businessId);
     if (id !== undefined) {
       service = await this.servicesService.findByIdAndBusiness(
         id,

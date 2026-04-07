@@ -4,19 +4,21 @@ import { ChatService } from './chat.service';
 import { BusinessModule } from '../business/business.module';
 import { AuthModule } from '../auth/auth.module';
 import { ServicesModule } from '../services/services.module';
+import { BookingsModule } from '../bookings/bookings.module';
 import { ToolsModule } from '../common/tools';
 
 /**
  * Chat Module
  *
- * Tool handlers are auto-discovered from entity modules (ServicesModule, etc.)
+ * Tool handlers are auto-discovered from entity modules (ServicesModule, BookingsModule, etc.)
  * No need to import them here - just import ToolsModule.
  */
 @Module({
   imports: [
     BusinessModule,
     AuthModule,
-    ServicesModule, // Tool handlers defined here are auto-discovered
+    ServicesModule,
+    BookingsModule,
     ToolsModule, // Auto-discovers all @ToolHandler decorated classes
   ],
   controllers: [ChatController],

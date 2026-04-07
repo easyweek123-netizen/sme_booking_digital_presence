@@ -51,4 +51,6 @@ export interface AvailabilityResponse {
 export interface BookingStats {
   total: number;
   today: number;
+  pending: number;
+  byStatus: Record<BookingStatus, number>;
 }

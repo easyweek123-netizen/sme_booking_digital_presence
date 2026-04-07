@@ -14,6 +14,7 @@ import { EmailService } from '../email/email.service';
 import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
 import { WorkingHours } from '../common/types';
 import { generateBookingReference, verifyBusinessOwnership } from '../common';
+import { formatLocalYmd } from '../common/time/local-date';
 
 interface AvailabilityResult {
   slots: string[];
@@ -23,6 +24,14 @@ interface BookingsFilter {
   status?: BookingStatus;
   from?: string;
   to?: string;
+}
+
+/** Aggregated booking counts for dashboard and AI tools */
+export interface BusinessBookingStats {
+  total: number;
+  today: number;
+  pending: number;
+  byStatus: Record<BookingStatus, number>;
 }
 
 @Injectable()
@@ -265,6 +274,38 @@ export class BookingsService {
   }
 
   /**
+   * Find a booking for the authenticated owner of a business.
+   * Verifies business ownership first, then loads by id (preferred) or reference within that business.
+   */
+  async findBookingForOwner(
+    businessId: number,
+    ownerId: number,
+    lookup: { id?: number; reference?: string },
+  ): Promise<Booking | null> {
+    const hasId = lookup.id !== undefined;
+    const hasRef =
+      lookup.reference !== undefined && lookup.reference.trim().length > 0;
+    if (!hasId && !hasRef) return null;
+
+    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
+
+    if (hasId) {
+      return this.bookingRepository.findOne({
+        where: { id: lookup.id!, businessId },
+        relations: ['service'],
+      });
+    }
+
+    return this.bookingRepository.findOne({
+      where: {
+        reference: lookup.reference!.toUpperCase(),
+        businessId,
+      },
+      relations: ['service'],
+    });
+  }
+
+  /**
    * Get count of pending bookings for a business
    */
   async getPendingCount(
@@ -360,23 +401,41 @@ export class BookingsService {
   }
 
   /**
-   * Get booking stats for a business
+   * Get booking stats for a business (two light aggregates: GROUP BY status + today count).
    */
   async getStats(
     businessId: number,
     ownerId: number,
-  ): Promise<{ total: number; today: number }> {
+  ): Promise<BusinessBookingStats> {
     await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     const today = new Date();
     const todayDate = new Date(this.getLocalDateString(today));
 
-    const total = await this.bookingRepository.count({
-      where: {
-        businessId,
-        status: Not(BookingStatus.CANCELLED),
-      },
-    });
+    const statusRows = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .select('booking.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .where('booking.businessId = :businessId', { businessId })
+      .groupBy('booking.status')
+      .getRawMany<{ status: string; count: string }>();
+
+    const byStatus = {} as Record<BookingStatus, number>;
+    for (const s of Object.values(BookingStatus)) {
+      byStatus[s] = 0;
+    }
+    for (const row of statusRows) {
+      const status = row.status as BookingStatus;
+      if (status in byStatus) {
+        byStatus[status] = Number(row.count);
+      }
+    }
+
+    const total = Object.entries(byStatus)
+      .filter(([key]) => key !== BookingStatus.CANCELLED)
+      .reduce((sum, [, n]) => sum + n, 0);
+
+    const pending = byStatus[BookingStatus.PENDING];
 
     const todayCount = await this.bookingRepository.count({
       where: {
@@ -386,7 +445,12 @@ export class BookingsService {
       },
     });
 
-    return { total, today: todayCount };
+    return {
+      total,
+      today: todayCount,
+      pending,
+      byStatus,
+    };
   }
 
   // ==================== Helper Methods ====================
@@ -464,13 +528,8 @@ export class BookingsService {
     return this.minutesToTime(totalMinutes);
   }
 
-  /**
-   * Get local date string in YYYY-MM-DD format (timezone-safe)
-   */
+  /** Local calendar day YYYY-MM-DD (aligned with server_clock). */
   private getLocalDateString(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return formatLocalYmd(date);
   }
 }

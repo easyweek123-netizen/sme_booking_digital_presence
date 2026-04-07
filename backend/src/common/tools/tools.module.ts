@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { ToolRegistry } from './tool-registry';
 import { ToolDiscoveryService } from './tool-discovery.service';
+import { ServerClockTool } from './server-clock.tool';
 
 /**
  * Injection token for tool handlers array (kept for backward compatibility)
@@ -27,7 +28,7 @@ export const TOOL_HANDLERS = Symbol('TOOL_HANDLERS');
 @Global()
 @Module({
   imports: [DiscoveryModule],
-  providers: [ToolRegistry, ToolDiscoveryService],
+  providers: [ToolRegistry, ToolDiscoveryService, ServerClockTool],
   exports: [ToolRegistry],
 })
 export class ToolsModule {}

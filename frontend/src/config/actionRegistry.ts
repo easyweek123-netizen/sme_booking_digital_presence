@@ -1,4 +1,8 @@
-import { useServiceActions, type RuntimeActionHandler } from './actions';
+import {
+  useServiceActions,
+  useBookingActions,
+  type RuntimeActionHandler,
+} from './actions';
 
 // Re-export types for convenience
 export type { ActionContext, RuntimeActionHandler } from './actions';
@@ -18,12 +22,10 @@ export type { ActionContext, RuntimeActionHandler } from './actions';
  */
 export function useActionRegistry(): Record<string, RuntimeActionHandler> {
   const serviceActions = useServiceActions();
-  // Future: const bookingActions = useBookingActions();
-  // Future: const customerActions = useCustomerActions();
+  const bookingActions = useBookingActions();
 
   return {
     ...serviceActions,
-    // ...bookingActions,
-    // ...customerActions,
+    ...bookingActions,
   };
 }

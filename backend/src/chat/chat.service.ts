@@ -5,7 +5,7 @@ import type { ChatCompletionMessageParam } from 'openai/resources/chat/completio
 import { BusinessService } from '../business/business.service';
 import { ToolRegistry } from '../common/tools';
 import { ChatResponseDto } from './dto/chat.dto';
-import type { ChatAction, PreviewContext } from '@bookeasy/shared';
+import { ToolResultHelpers, type ChatAction, type PreviewContext, type ToolResult } from '@bookeasy/shared';
 import type { ToolContext } from '../common';
 import {
   systemPrompt,
@@ -28,6 +28,7 @@ interface BusinessContext {
  */
 @Injectable()
 export class ChatService {
+  private static readonly MAX_TOOL_ROUNDS = 10;
   private readonly logger = new Logger(ChatService.name);
   private client: OpenAI;
   private model: string;
@@ -122,7 +123,10 @@ export class ChatService {
   }
 
   /**
-   * Handle tool calls from AI
+   * Process tool calls iteratively until the model returns a text response.
+   * Uses a local messages array so intermediate tool-call artifacts never
+   * pollute the persistent conversation history. Only the final assistant
+   * text response is pushed to history.
    */
   private async handleToolCalls(
     ownerId: number,
@@ -134,82 +138,97 @@ export class ChatService {
     history: ChatCompletionMessageParam[],
     toolContext: ToolContext,
   ): Promise<ChatResponseDto> {
-    // Add assistant message with tool calls to history
-    history.push({
-      role: 'assistant',
-      content: null,
-      tool_calls: toolCalls.map((tc) => ({
-        id: tc.id,
-        type: 'function' as const,
-        function: tc.function,
-      })),
-    });
-
-    // Collect proposals and previewContext from all tool results
     const allProposals: ChatAction[] = [];
     let previewContext: PreviewContext | undefined;
+    let currentToolCalls = toolCalls;
 
-    // Process each tool call via discovery service
-    for (const toolCall of toolCalls) {
-      let args: Record<string, unknown>;
+    const messages: ChatCompletionMessageParam[] = [...history];
+
+    for (let round = 0; round < ChatService.MAX_TOOL_ROUNDS; round++) {
+      messages.push({
+        role: 'assistant',
+        content: null,
+        tool_calls: currentToolCalls.map((tc) => ({
+          id: tc.id,
+          type: 'function' as const,
+          function: tc.function,
+        })),
+      });
+
+      for (const toolCall of currentToolCalls) {
+        const result = await this.processToolCall(toolCall, toolContext);
+        messages.push({
+          role: 'tool',
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(result),
+        });
+        if (result.success) {
+          if (result.proposals) allProposals.push(...result.proposals);
+          if (result.previewContext) previewContext = result.previewContext;
+        }
+      }
+
       try {
-        args = JSON.parse(toolCall.function.arguments);
-      } catch {
-        this.logger.warn(`Invalid tool arguments: ${toolCall.function.arguments}`);
-        continue;
-      }
+        const next = await this.client.chat.completions.create({
+          model: this.model,
+          messages,
+          tools: this.toolRegistry.getToolDefinitions(),
+        });
 
-      const result = await this.toolRegistry.process(
-        toolCall.function.name,
-        args,
-        toolContext,
-      );
-
-      // Add tool result to history
-      history.push({
-        role: 'tool',
-        tool_call_id: toolCall.id,
-        content: JSON.stringify(result),
-      });
-
-      // Collect proposals from tool handler
-      if (result.success) {
-        if (result.proposals) {
-          allProposals.push(...result.proposals);
+        const choice = next.choices[0];
+        if (choice.finish_reason === 'tool_calls' && choice.message.tool_calls?.length) {
+          currentToolCalls = choice.message.tool_calls as typeof currentToolCalls;
+          continue;
         }
-        if (result.previewContext) {
-          previewContext = result.previewContext;
-        }
+
+        const content = choice.message.content || 'Here you go!';
+        history.push({ role: 'assistant', content });
+        this.trimHistory(ownerId, history);
+
+        return {
+          role: 'bot',
+          content,
+          proposals: allProposals.length > 0 ? allProposals : undefined,
+          previewContext,
+        };
+      } catch (error) {
+        this.logger.error('AI API error (tool chain):', error);
+        return {
+          role: 'bot',
+          content: 'I prepared that for you, but had an issue generating my response.',
+          proposals: allProposals.length > 0 ? allProposals : undefined,
+          previewContext,
+        };
       }
     }
 
-    // Call AI again for final response
+    this.logger.warn(`Tool loop hit ${ChatService.MAX_TOOL_ROUNDS} rounds`);
+    this.trimHistory(ownerId, history);
+    return {
+      role: 'bot',
+      content: 'I gathered the information but hit a processing limit. Here is what I have so far.',
+      proposals: allProposals.length > 0 ? allProposals : undefined,
+      previewContext,
+    };
+  }
+
+  private async processToolCall(
+    toolCall: { function: { name: string; arguments: string } },
+    toolContext: ToolContext,
+  ): Promise<ToolResult> {
+    let args: Record<string, unknown>;
     try {
-      const finalResponse = await this.client.chat.completions.create({
-        model: this.model,
-        messages: history,
-      });
-
-      const content =
-        finalResponse.choices[0].message.content || 'Here you go!';
-      history.push({ role: 'assistant', content });
-      this.trimHistory(ownerId, history);
-
-      return {
-        role: 'bot',
-        content,
-        proposals: allProposals.length > 0 ? allProposals : undefined,
-        previewContext,
-      };
-    } catch (error) {
-      this.logger.error('AI API error (final response):', error);
-      return {
-        role: 'bot',
-        content: 'I prepared that for you, but had an issue generating my response.',
-        proposals: allProposals.length > 0 ? allProposals : undefined,
-        previewContext,
-      };
+      args = JSON.parse(toolCall.function.arguments);
+    } catch {
+      this.logger.warn(
+        `Malformed tool arguments for ${toolCall.function.name}: ${toolCall.function.arguments}`,
+      );
+      return ToolResultHelpers.error(
+        `Invalid JSON in arguments for "${toolCall.function.name}". Please retry with valid JSON.`,
+      );
     }
+
+    return this.toolRegistry.process(toolCall.function.name, args, toolContext);
   }
 
   /**

@@ -8,6 +8,7 @@ export interface OpenAIParameters {
   type: 'object';
   properties: Record<string, unknown>;
   required?: string[];
+  additionalProperties: false;
 }
 
 /**
@@ -26,5 +27,6 @@ export function zodToOpenAISchema<T extends ZodRawShape>(
     type: 'object',
     properties: (jsonSchema.properties as Record<string, unknown>) ?? {},
     required: jsonSchema.required as string[] | undefined,
+    additionalProperties: false,
   };
 }

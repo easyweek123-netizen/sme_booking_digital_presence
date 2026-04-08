@@ -1,9 +1,30 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Text, Link } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import { Suggestions } from './Suggestions';
 import type { Message } from '../../types/chat.types';
 
 const MotionBox = motion.create(Box);
+
+const markdownComponents: Components = {
+  p: (props) => (
+    <Text fontSize="sm" lineHeight="tall" mb={1} _last={{ mb: 0 }} {...props} />
+  ),
+  strong: (props) => <Text as="span" fontWeight="600" {...props} />,
+  em: (props) => <Text as="span" fontStyle="italic" {...props} />,
+  h3: (props) => (
+    <Text fontSize="sm" fontWeight="700" mt={2} mb={1} {...props} />
+  ),
+  h4: (props) => (
+    <Text fontSize="sm" fontWeight="600" mt={2} mb={1} {...props} />
+  ),
+  ul: (props) => <Box as="ul" pl={4} mb={1} fontSize="sm" {...props} />,
+  ol: (props) => <Box as="ol" pl={4} mb={1} fontSize="sm" {...props} />,
+  li: (props) => <Text as="li" fontSize="sm" lineHeight="tall" {...props} />,
+  a: (props) => (
+    <Link color="brand.500" textDecoration="underline" isExternal {...props} />
+  ),
+};
 
 interface ChatMessageProps {
   message: Message;
@@ -38,9 +59,15 @@ export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
             : undefined
         }
       >
-        <Text fontSize="sm" lineHeight="tall" whiteSpace="pre-wrap">
-          {message.content}
-        </Text>
+        {isBot ? (
+          <ReactMarkdown components={markdownComponents}>
+            {message.content}
+          </ReactMarkdown>
+        ) : (
+          <Text fontSize="sm" lineHeight="tall" whiteSpace="pre-wrap">
+            {message.content}
+          </Text>
+        )}
         {message.suggestions && onSuggestionSelect && (
           <Suggestions
             suggestions={message.suggestions}
@@ -48,8 +75,6 @@ export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
           />
         )}
       </Box>
-      {/* Actions now rendered in Canvas panel instead of inline chat */}
-      
     </MotionBox>
   );
 }

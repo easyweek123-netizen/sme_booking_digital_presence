@@ -10,6 +10,7 @@ import {
   InputRightElement,
   IconButton,
   VStack,
+  FormHelperText,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { CloseIcon } from '../icons';
@@ -20,6 +21,8 @@ interface BrandingFieldsProps {
   brandColor: string;
   onLogoUrlChange: (url: string) => void;
   onBrandColorChange: (color: string) => void;
+  coverImageUrl?: string;
+  onCoverImageUrlChange?: (url: string) => void;
 }
 
 export function BrandingFields({
@@ -27,6 +30,8 @@ export function BrandingFields({
   brandColor,
   onLogoUrlChange,
   onBrandColorChange,
+  coverImageUrl,
+  onCoverImageUrlChange,
 }: BrandingFieldsProps) {
   const [logoError, setLogoError] = useState(false);
   // Local state for color picker - prevents Redux dispatch on every drag
@@ -210,6 +215,41 @@ export function BrandingFields({
           </InputGroup>
         </HStack>
       </FormControl>
+
+      {onCoverImageUrlChange && (
+        <FormControl>
+          <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+            Cover Image URL
+          </FormLabel>
+          <Input
+            placeholder="https://example.com/cover-image.jpg"
+            value={coverImageUrl ?? ''}
+            onChange={(e) => onCoverImageUrlChange(e.target.value)}
+            borderRadius="lg"
+            size="lg"
+            _focus={{
+              borderColor: 'brand.500',
+              boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+            }}
+          />
+          <FormHelperText>
+            Add a cover image for your booking page header. Leave empty to use a
+            gradient based on your brand color.
+          </FormHelperText>
+          {coverImageUrl && (
+            <Box
+              mt={3}
+              h="120px"
+              borderRadius="lg"
+              overflow="hidden"
+              bg="gray.100"
+              bgImage={`url(${coverImageUrl})`}
+              bgSize="cover"
+              bgPosition="center"
+            />
+          )}
+        </FormControl>
+      )}
     </VStack>
   );
 }

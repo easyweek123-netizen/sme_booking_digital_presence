@@ -1,6 +1,7 @@
 import {
   useServiceActions,
   useBookingActions,
+  useBusinessActions,
   type RuntimeActionHandler,
 } from './actions';
 
@@ -23,9 +24,11 @@ export type { ActionContext, RuntimeActionHandler } from './actions';
 export function useActionRegistry(): Record<string, RuntimeActionHandler> {
   const serviceActions = useServiceActions();
   const bookingActions = useBookingActions();
+  const businessActions = useBusinessActions();
 
   return {
     ...serviceActions,
     ...bookingActions,
+    ...businessActions,
   };
 }

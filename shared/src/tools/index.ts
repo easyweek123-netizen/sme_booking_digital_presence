@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 export * from './service.tools';
 export * from './booking.tools';
+export * from './business.tools';
 import {
   ServiceCreateActionSchema,
   ServiceUpdateActionSchema,
@@ -13,6 +14,7 @@ import {
   ServiceGetActionSchema,
 } from './service.tools';
 import { BookingStatusUpdateActionSchema } from './booking.tools';
+import { BusinessUpdateActionSchema } from './business.tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat Action Union
@@ -28,6 +30,7 @@ export const ChatActionSchema = z.discriminatedUnion('type', [
   ServiceDeleteActionSchema,
   ServiceGetActionSchema,
   BookingStatusUpdateActionSchema,
+  BusinessUpdateActionSchema,
 ]);
 
 /** Union type of all chat actions */
@@ -51,6 +54,7 @@ export const PreviewContextSchema = z.enum([
   'services',
   'bookings',
   'clients',
+  'business_profile',
 ]);
 export type PreviewContext = z.infer<typeof PreviewContextSchema>;
 

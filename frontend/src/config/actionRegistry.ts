@@ -2,6 +2,7 @@ import {
   useServiceActions,
   useBookingActions,
   useBusinessActions,
+  useNoteActions,
   type RuntimeActionHandler,
 } from './actions';
 
@@ -25,10 +26,12 @@ export function useActionRegistry(): Record<string, RuntimeActionHandler> {
   const serviceActions = useServiceActions();
   const bookingActions = useBookingActions();
   const businessActions = useBusinessActions();
+  const noteActions = useNoteActions();
 
   return {
     ...serviceActions,
     ...bookingActions,
     ...businessActions,
+    ...noteActions,
   };
 }

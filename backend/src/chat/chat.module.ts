@@ -5,6 +5,8 @@ import { BusinessModule } from '../business/business.module';
 import { AuthModule } from '../auth/auth.module';
 import { ServicesModule } from '../services/services.module';
 import { BookingsModule } from '../bookings/bookings.module';
+import { CustomersModule } from '../customers/customers.module';
+import { NotesModule } from '../notes/notes.module';
 import { ToolsModule } from '../common/tools';
 
 /**
@@ -19,6 +21,8 @@ import { ToolsModule } from '../common/tools';
     AuthModule,
     ServicesModule,
     BookingsModule,
+    CustomersModule,
+    NotesModule,
     ToolsModule, // Auto-discovers all @ToolHandler decorated classes
   ],
   controllers: [ChatController],

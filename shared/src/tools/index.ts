@@ -7,6 +7,8 @@ import { z } from 'zod';
 export * from './service.tools';
 export * from './booking.tools';
 export * from './business.tools';
+export * from './customer.tools';
+export * from './note.tools';
 import {
   ServiceCreateActionSchema,
   ServiceUpdateActionSchema,
@@ -15,6 +17,11 @@ import {
 } from './service.tools';
 import { BookingStatusUpdateActionSchema } from './booking.tools';
 import { BusinessUpdateActionSchema } from './business.tools';
+import {
+  NoteCreateActionSchema,
+  NoteUpdateActionSchema,
+  NoteDeleteActionSchema,
+} from './note.tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat Action Union
@@ -31,6 +38,9 @@ export const ChatActionSchema = z.discriminatedUnion('type', [
   ServiceGetActionSchema,
   BookingStatusUpdateActionSchema,
   BusinessUpdateActionSchema,
+  NoteCreateActionSchema,
+  NoteUpdateActionSchema,
+  NoteDeleteActionSchema,
 ]);
 
 /** Union type of all chat actions */

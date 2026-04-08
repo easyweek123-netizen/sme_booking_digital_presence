@@ -4,4 +4,5 @@ export { CanvasActionsContainer } from './CanvasActionsContainer';
 export { ActionsRenderer } from './ActionsRenderer';
 export { ActionErrorBoundary } from './ActionErrorBoundary';
 export { DeleteConfirmation } from './DeleteConfirmation';
+export { NoteProposal } from './NoteProposal';
 

@@ -12,7 +12,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlusIcon } from '../icons';
 import { ServiceCard } from './ServiceCard';
-import { ServiceForm } from './ServiceForm';
+import { ServiceForm, type ServiceFormData } from './ServiceForm';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   addService,
@@ -34,18 +34,28 @@ export function ServicesStep() {
 
   const workingHours = businessProfile?.workingHours || defaultWorkingHours;
 
-  const handleAddService = (service: Omit<ServiceItem, 'id'>) => {
+  const handleAddService = (data: ServiceFormData) => {
     const newService: ServiceItem = {
-      ...service,
       id: `temp-${Date.now()}`,
+      name: data.name,
+      price: data.price,
+      durationMinutes: data.durationMinutes,
+      availableDays: data.availableDays ?? null,
     };
     dispatch(addService(newService));
     setShowForm(false);
   };
 
-  const handleUpdateService = (service: Omit<ServiceItem, 'id'> & { id?: string }) => {
-    if (service.id) {
-      dispatch(updateService({ id: service.id, service }));
+  const handleUpdateService = (data: ServiceFormData) => {
+    if (data.id) {
+      const service: ServiceItem = {
+        id: data.id,
+        name: data.name,
+        price: data.price,
+        durationMinutes: data.durationMinutes,
+        availableDays: data.availableDays ?? null,
+      };
+      dispatch(updateService({ id: data.id, service }));
     }
     setEditingService(null);
   };
@@ -91,11 +101,8 @@ export function ServicesStep() {
                   <ServiceForm
                     initialValues={service}
                     workingHours={workingHours}
-                    onSave={handleUpdateService}
+                    onSubmit={handleUpdateService}
                     onCancel={handleCancel}
-                    isEditing
-                    showExtendedFields={true}
-                    extendedFieldsExpanded={false}
                   />
                 ) : (
                   <ServiceCard
@@ -115,10 +122,8 @@ export function ServicesStep() {
           {showForm ? (
             <ServiceForm
               workingHours={workingHours}
-              onSave={handleAddService}
+              onSubmit={handleAddService}
               onCancel={handleCancel}
-              showExtendedFields={true}
-              extendedFieldsExpanded={false}
             />
           ) : !editingService && (
             <MotionBox

@@ -3,32 +3,21 @@ import {
   VStack,
   Heading,
   Text,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
   Button,
-  SimpleGrid,
   useToast,
   Spinner,
   Center,
   Flex,
-  Divider,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  FormHelperText,
 } from '@chakra-ui/react';
-import { useState, useEffect, useMemo } from 'react';
-import DOMPurify from 'dompurify';
+import { useState, useEffect } from 'react';
 import {
   useGetMyBusinessQuery,
   useUpdateBusinessMutation,
 } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
 import { BrandingFields } from '../../components/ui/BrandingFields';
+import { BusinessProfileFields } from '../../components/Dashboard/BusinessProfileFields';
+import { AboutContentFields } from '../../components/Dashboard/AboutContentFields';
 import { BookingLinkCard } from '../../components/QRCode';
 import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours } from '../../types';
@@ -73,23 +62,6 @@ export function DashboardSettings() {
       setWorkingHours(business.workingHours);
     }
   }, [business]);
-
-  // Sanitize HTML for preview
-  const sanitizedAboutContent = useMemo(() => {
-    if (!formData.aboutContent) return '';
-    return DOMPurify.sanitize(formData.aboutContent, {
-      ALLOWED_TAGS: ['h2', 'h3', 'h4', 'p', 'br', 'strong', 'b', 'em', 'i', 'ul', 'ol', 'li', 'blockquote', 'a'],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
-    });
-  }, [formData.aboutContent]);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setHasChanges(true);
-  };
 
   const handleWorkingHoursChange = (hours: WorkingHours) => {
     setWorkingHours(hours);
@@ -172,40 +144,12 @@ export function DashboardSettings() {
           brandColor={formData.brandColor}
           onLogoUrlChange={handleLogoUrlChange}
           onBrandColorChange={handleBrandColorChange}
+          coverImageUrl={formData.coverImageUrl}
+          onCoverImageUrlChange={(url) => {
+            setFormData((prev) => ({ ...prev, coverImageUrl: url }));
+            setHasChanges(true);
+          }}
         />
-
-        <Divider my={6} />
-
-        {/* Cover Image */}
-        <FormControl>
-          <FormLabel fontSize="sm" fontWeight="500">
-            Cover Image URL
-          </FormLabel>
-          <Input
-            name="coverImageUrl"
-            type="url"
-            value={formData.coverImageUrl}
-            onChange={handleInputChange}
-            placeholder="https://example.com/cover-image.jpg"
-          />
-          <FormHelperText>
-            Add a cover image for your booking page header. Leave empty to use a gradient based on your brand color.
-          </FormHelperText>
-        </FormControl>
-
-        {/* Cover Image Preview */}
-        {formData.coverImageUrl && (
-          <Box
-            mt={4}
-            h="120px"
-            borderRadius="lg"
-            overflow="hidden"
-            bg="gray.100"
-            bgImage={`url(${formData.coverImageUrl})`}
-            bgSize="cover"
-            bgPosition="center"
-          />
-        )}
       </Box>
 
       {/* About Section */}
@@ -214,82 +158,17 @@ export function DashboardSettings() {
           About Section
         </Heading>
         <Text fontSize="sm" color="gray.500" mb={4}>
-          Tell your story. This appears in the "About" tab on your booking page.
+          Tell your story. This appears in the &ldquo;About&rdquo; tab on your booking page.
         </Text>
-
-        <Tabs variant="enclosed" size="sm">
-          <TabList>
-            <Tab>Edit</Tab>
-            <Tab>Preview</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel px={0}>
-              <FormControl>
-                <Textarea
-                  name="aboutContent"
-                  value={formData.aboutContent}
-                  onChange={handleInputChange}
-                  placeholder={`<h2>Welcome to ${formData.name || 'Your Business'}</h2>
-
-<p>Write your story here...</p>
-
-<h3>What We Offer</h3>
-<ul>
-  <li>Service 1</li>
-  <li>Service 2</li>
-</ul>
-
-<blockquote>
-  "Customer testimonial here"
-</blockquote>`}
-                  rows={12}
-                  fontFamily="mono"
-                  fontSize="sm"
-                />
-                <FormHelperText>
-                  Supports HTML: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;blockquote&gt;, &lt;a&gt;
-                </FormHelperText>
-              </FormControl>
-            </TabPanel>
-            <TabPanel px={0}>
-              <Box
-                p={4}
-                border="1px"
-                borderColor="gray.200"
-                borderRadius="lg"
-                minH="200px"
-                sx={{
-                  '& h2': { fontSize: 'xl', fontWeight: '700', color: 'gray.900', mb: 3, mt: 4, _first: { mt: 0 } },
-                  '& h3': { fontSize: 'lg', fontWeight: '600', color: 'gray.800', mb: 2, mt: 4 },
-                  '& h4': { fontSize: 'md', fontWeight: '600', color: 'gray.700', mb: 2, mt: 3 },
-                  '& p': { fontSize: 'md', color: 'gray.600', lineHeight: '1.7', mb: 3, _last: { mb: 0 } },
-                  '& ul, & ol': { pl: 5, mb: 3, color: 'gray.600' },
-                  '& li': { mb: 1, lineHeight: '1.6' },
-                  '& blockquote': { 
-                    borderLeftWidth: '3px', 
-                    borderLeftColor: formData.brandColor || 'brand.500', 
-                    pl: 4, py: 2, my: 4, 
-                    bg: 'gray.50', 
-                    borderRadius: 'md', 
-                    fontStyle: 'italic', 
-                    color: 'gray.600' 
-                  },
-                  '& a': { color: formData.brandColor || 'brand.600', textDecoration: 'underline' },
-                  '& strong, & b': { fontWeight: '600', color: 'gray.800' },
-                  '& em, & i': { fontStyle: 'italic' },
-                }}
-              >
-                {sanitizedAboutContent ? (
-                  <Box dangerouslySetInnerHTML={{ __html: sanitizedAboutContent }} />
-                ) : (
-                  <Text color="gray.400" fontStyle="italic">
-                    Enter content in the Edit tab to see a preview...
-                  </Text>
-                )}
-              </Box>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        <AboutContentFields
+          value={formData.aboutContent}
+          onChange={(val) => {
+            setFormData((prev) => ({ ...prev, aboutContent: val }));
+            setHasChanges(true);
+          }}
+          brandColor={formData.brandColor}
+          businessName={formData.name}
+        />
       </Box>
 
       {/* Business Profile */}
@@ -297,101 +176,13 @@ export function DashboardSettings() {
         <Heading size="sm" color="gray.900" mb={4}>
           Business Profile
         </Heading>
-
-        <VStack spacing={4} align="stretch">
-          <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
-              Business Name
-            </FormLabel>
-            <Input
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Your business name"
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
-              Description
-            </FormLabel>
-            <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Tell customers about your business"
-              rows={3}
-            />
-          </FormControl>
-
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500">
-                Phone
-              </FormLabel>
-              <Input
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="(555) 123-4567"
-              />
-            </FormControl>
-
-            <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500">
-                City
-              </FormLabel>
-              <Input
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                placeholder="New York"
-              />
-            </FormControl>
-          </SimpleGrid>
-
-          <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
-              Address
-            </FormLabel>
-            <Input
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              placeholder="123 Main St"
-            />
-          </FormControl>
-
-          <Divider />
-
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500">
-                Website
-              </FormLabel>
-              <Input
-                name="website"
-                type="url"
-                value={formData.website}
-                onChange={handleInputChange}
-                placeholder="https://example.com"
-              />
-            </FormControl>
-
-            <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500">
-                Instagram
-              </FormLabel>
-              <Input
-                name="instagram"
-                value={formData.instagram}
-                onChange={handleInputChange}
-                placeholder="@yourbusiness"
-              />
-            </FormControl>
-          </SimpleGrid>
-        </VStack>
+        <BusinessProfileFields
+          values={formData}
+          onChange={(name, value) => {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+            setHasChanges(true);
+          }}
+        />
       </Box>
 
       {/* Working Hours */}

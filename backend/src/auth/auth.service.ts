@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { OwnerService } from '../owner/owner.service';
 import { Owner } from '../owner/entities/owner.entity';
 import type { AuthUser, FirebaseUser } from '../common/types';
@@ -12,22 +12,31 @@ export class AuthService {
   constructor(private readonly ownerService: OwnerService) {}
 
   /**
-   * Get or create an Owner from Firebase user data
-   * Called by services for owner resolution
+   * Pure lookup -- throws if owner is not registered.
+   * Used by interceptors and services for auth resolution.
    */
-  async getOrCreateOwner(firebaseUser: FirebaseUser): Promise<Owner> {
-    // Try to find existing owner
+  async getOwner(firebaseUser: FirebaseUser): Promise<Owner> {
+    const owner = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
+    if (!owner) {
+      throw new UnauthorizedException('Owner not registered');
+    }
+    return owner;
+  }
+
+  /**
+   * Find-or-create an Owner from Firebase user data.
+   * Only used by getCurrentUser (GET /auth/me) -- the single registration entry point.
+   */
+  async registerOwner(firebaseUser: FirebaseUser): Promise<Owner> {
     let owner = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
 
     if (!owner) {
-      // Validate email is present (required for owners)
       if (!firebaseUser.email) {
         throw new BadRequestException(
           'Email is required for owner registration. Please sign in with an email-based method.',
         );
       }
 
-      // Auto-create owner on first login
       owner = await this.ownerService.create({
         firebaseUid: firebaseUser.uid,
         email: firebaseUser.email,
@@ -39,10 +48,10 @@ export class AuthService {
   }
 
   /**
-   * Get current user info from Firebase user
+   * Get current user info from Firebase user (registers if first sign-in)
    */
   async getCurrentUser(firebaseUser: FirebaseUser): Promise<AuthUser> {
-    const owner = await this.getOrCreateOwner(firebaseUser);
+    const owner = await this.registerOwner(firebaseUser);
     return this.toAuthUser(owner);
   }
 

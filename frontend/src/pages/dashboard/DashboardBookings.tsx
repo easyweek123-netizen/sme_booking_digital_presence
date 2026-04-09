@@ -1,7 +1,6 @@
 import {
   Box,
   VStack,
-  HStack,
   Heading,
   Text,
   Spinner,
@@ -9,14 +8,7 @@ import {
   Badge,
   Button,
   ButtonGroup,
-  Flex,
   useToast,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,16 +19,18 @@ import {
   useUpdateBookingStatusMutation,
   useGetPendingCountQuery,
 } from '../../store/api/bookingsApi';
-import { ClockIcon, MailIcon, CheckIcon, CloseIcon, NoteIcon } from '../../components/icons';
 import { BookingDetailDrawer } from '../../components/BookingDetailDrawer';
-import { formatTime, BOOKING_STATUS_CONFIG, TOAST_DURATION } from '../../constants';
-import { formatBookingDate, formatPrice, getTodayString } from '../../utils/format';
-import { useGetNotesQuery } from '../../store/api';
+import { DashboardBookingCard } from '../../components/Dashboard/DashboardBookingCard';
+import {
+  BookingStatusConfirmDialog,
+  type BookingStatusDialogAction,
+} from '../../components/Dashboard/BookingStatusConfirmDialog';
+import { TOAST_DURATION } from '../../constants';
+import { getTodayString } from '../../utils/format';
 import type { Booking, BookingStatus } from '../../types';
 
 const MotionBox = motion.create(Box);
 
-// Filter options for segmented control
 const FILTER_OPTIONS = [
   { key: 'requests', label: 'Requests', status: 'PENDING' as const },
   { key: 'upcoming', label: 'Upcoming', status: 'CONFIRMED' as const },
@@ -44,47 +38,42 @@ const FILTER_OPTIONS = [
   { key: 'cancelled', label: 'Cancelled', status: 'CANCELLED' as const },
 ] as const;
 
-type FilterKey = typeof FILTER_OPTIONS[number]['key'];
+type FilterKey = (typeof FILTER_OPTIONS)[number]['key'];
 
 export function DashboardBookings() {
   const { data: business } = useGetMyBusinessQuery();
   const [activeFilter, setActiveFilter] = useState<FilterKey>('requests');
 
-  // Get pending count for badge
   const { data: pendingData } = useGetPendingCountQuery(business?.id || 0, {
     skip: !business?.id,
   });
   const pendingCount = pendingData?.count || 0;
 
-  // Get today's date for filtering
   const today = getTodayString();
 
-  // Get current filter config
-  const currentFilter = FILTER_OPTIONS.find(f => f.key === activeFilter)!;
+  const currentFilter = FILTER_OPTIONS.find((f) => f.key === activeFilter)!;
 
-  // Fetch bookings based on filter
   const { data: bookings, isLoading } = useGetBookingsQuery(
     {
       businessId: business?.id || 0,
       status: currentFilter.status,
       from: activeFilter === 'upcoming' ? today : undefined,
     },
-    { skip: !business?.id }
+    { skip: !business?.id },
   );
 
-  // For Completed tab, also fetch NO_SHOW bookings
   const { data: noShowBookings } = useGetBookingsQuery(
     {
       businessId: business?.id || 0,
       status: 'NO_SHOW',
     },
-    { skip: !business?.id || activeFilter !== 'completed' }
+    { skip: !business?.id || activeFilter !== 'completed' },
   );
 
-  // Combine completed and no-show bookings
-  const displayBookings = activeFilter === 'completed' 
-    ? [...(bookings || []), ...(noShowBookings || [])]
-    : (bookings || []);
+  const displayBookings =
+    activeFilter === 'completed'
+      ? [...(bookings || []), ...(noShowBookings || [])]
+      : (bookings || []);
 
   if (!business) return null;
 
@@ -97,9 +86,8 @@ export function DashboardBookings() {
         <Text color="gray.500">Manage your appointments</Text>
       </Box>
 
-      {/* Segmented Control */}
-      <Box 
-        overflowX="auto" 
+      <Box
+        overflowX="auto"
         pb={2}
         mx={{ base: -4, md: 0 }}
         px={{ base: 4, md: 0 }}
@@ -108,17 +96,11 @@ export function DashboardBookings() {
           scrollbarWidth: 'none',
         }}
       >
-        <ButtonGroup 
-          isAttached 
-          size="sm"
-          bg="gray.100"
-          borderRadius="lg"
-          p="2px"
-        >
+        <ButtonGroup isAttached size="sm" bg="gray.100" borderRadius="lg" p="2px">
           {FILTER_OPTIONS.map((option) => {
             const isActive = activeFilter === option.key;
             const isRequests = option.key === 'requests';
-            
+
             return (
               <Button
                 key={option.key}
@@ -160,12 +142,7 @@ export function DashboardBookings() {
         </ButtonGroup>
       </Box>
 
-      {/* Bookings List */}
-      <BookingsList
-        bookings={displayBookings}
-        isLoading={isLoading}
-        type={activeFilter}
-      />
+      <BookingsList bookings={displayBookings} isLoading={isLoading} type={activeFilter} />
     </VStack>
   );
 }
@@ -176,17 +153,19 @@ interface BookingsListProps {
   type: FilterKey;
 }
 
+type RowActionType = 'accept' | 'decline' | 'cancel' | 'complete' | 'no_show';
+
 function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
   const toast = useToast();
-  const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
+  const [updateStatus] = useUpdateBookingStatusMutation();
   const { isOpen: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
   const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [actionType, setActionType] = useState<'accept' | 'decline' | 'cancel' | 'complete' | 'no_show'>('cancel');
+  const [actionType, setActionType] = useState<RowActionType>('cancel');
   const cancelRef = useRef<HTMLButtonElement>(null);
-  const [loadingBookingId, setLoadingBookingId] = useState<number | null>(null);
+  const [mutatingBookingId, setMutatingBookingId] = useState<number | null>(null);
 
-  const handleAction = (booking: Booking, action: typeof actionType) => {
+  const handleAction = (booking: Booking, action: RowActionType) => {
     setSelectedBooking(booking);
     setActionType(action);
     onAlertOpen();
@@ -198,7 +177,7 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
   };
 
   const handleQuickAccept = async (booking: Booking) => {
-    setLoadingBookingId(booking.id);
+    setMutatingBookingId(booking.id);
     try {
       await updateStatus({
         id: booking.id,
@@ -219,14 +198,17 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         duration: TOAST_DURATION.MEDIUM,
       });
     } finally {
-      setLoadingBookingId(null);
+      setMutatingBookingId(null);
     }
   };
 
   const confirmAction = async () => {
     if (!selectedBooking) return;
 
-    const statusMap: Record<typeof actionType, BookingStatus> = {
+    const id = selectedBooking.id;
+    setMutatingBookingId(id);
+
+    const statusMap: Record<RowActionType, BookingStatus> = {
       accept: 'CONFIRMED',
       decline: 'CANCELLED',
       cancel: 'CANCELLED',
@@ -236,11 +218,11 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
 
     try {
       await updateStatus({
-        id: selectedBooking.id,
+        id,
         status: statusMap[actionType],
       }).unwrap();
 
-      const messages: Record<typeof actionType, string> = {
+      const messages: Record<RowActionType, string> = {
         accept: 'Booking confirmed',
         decline: 'Booking declined',
         cancel: 'Booking cancelled',
@@ -261,8 +243,13 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         status: 'error',
         duration: TOAST_DURATION.MEDIUM,
       });
+    } finally {
+      setMutatingBookingId(null);
     }
   };
+
+  const alertDialogAction: BookingStatusDialogAction =
+    actionType === 'accept' ? 'cancel' : actionType;
 
   if (isLoading) {
     return (
@@ -291,7 +278,9 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         border="1px"
         borderColor="gray.100"
       >
-        <Text fontSize="3xl" mb={2}>{msg.icon}</Text>
+        <Text fontSize="3xl" mb={2}>
+          {msg.icon}
+        </Text>
         <Text fontWeight="600" color="gray.700" mb={1}>
           {msg.title}
         </Text>
@@ -317,61 +306,28 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
               <DashboardBookingCard
                 booking={booking}
                 type={type}
-                onAccept={() => handleQuickAccept(booking)}
+                onAccept={() => void handleQuickAccept(booking)}
                 onDecline={() => handleAction(booking, 'decline')}
                 onCancel={() => handleAction(booking, 'cancel')}
                 onComplete={() => handleAction(booking, 'complete')}
                 onNoShow={() => handleAction(booking, 'no_show')}
                 onViewDetails={() => handleViewDetails(booking)}
-                isLoading={loadingBookingId === booking.id || (isUpdating && selectedBooking?.id === booking.id)}
+                isLoading={mutatingBookingId === booking.id}
               />
             </MotionBox>
           ))}
         </VStack>
       </AnimatePresence>
 
-      {/* Confirmation Dialog */}
-      <AlertDialog
+      <BookingStatusConfirmDialog
         isOpen={isAlertOpen}
-        leastDestructiveRef={cancelRef}
         onClose={onAlertClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="600">
-              {actionType === 'decline' && 'Decline Booking'}
-              {actionType === 'cancel' && 'Cancel Booking'}
-              {actionType === 'complete' && 'Complete Booking'}
-              {actionType === 'no_show' && 'Mark as No-Show'}
-            </AlertDialogHeader>
+        leastDestructiveRef={cancelRef}
+        actionType={alertDialogAction}
+        onConfirm={confirmAction}
+        isConfirmLoading={mutatingBookingId !== null}
+      />
 
-            <AlertDialogBody>
-              {actionType === 'decline' && 'Are you sure you want to decline this booking request?'}
-              {actionType === 'cancel' && 'Are you sure you want to cancel this booking?'}
-              {actionType === 'complete' && 'Mark this booking as completed?'}
-              {actionType === 'no_show' && 'Mark this customer as a no-show?'}
-            </AlertDialogBody>
-
-            <AlertDialogFooter gap={3}>
-              <Button ref={cancelRef} onClick={onAlertClose}>
-                No
-              </Button>
-              <Button
-                colorScheme={
-                  actionType === 'decline' || actionType === 'cancel' ? 'red' :
-                  actionType === 'no_show' ? 'gray' : 'green'
-                }
-                onClick={confirmAction}
-                isLoading={isUpdating}
-              >
-                Yes
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-
-      {/* Booking Detail Drawer */}
       {selectedBooking && (
         <BookingDetailDrawer
           booking={selectedBooking}
@@ -380,203 +336,5 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
         />
       )}
     </>
-  );
-}
-
-interface DashboardBookingCardProps {
-  booking: Booking;
-  type: FilterKey;
-  onAccept: () => void;
-  onDecline: () => void;
-  onCancel: () => void;
-  onComplete: () => void;
-  onNoShow: () => void;
-  onViewDetails: () => void;
-  isLoading: boolean;
-}
-
-function DashboardBookingCard({
-  booking,
-  type,
-  onAccept,
-  onDecline,
-  onCancel,
-  onComplete,
-  onNoShow,
-  onViewDetails,
-  isLoading,
-}: DashboardBookingCardProps) {
-  const statusConfig = BOOKING_STATUS_CONFIG[booking.status];
-  const isRequest = type === 'requests';
-
-  // Fetch notes count for badge
-  const { data: notes = [] } = useGetNotesQuery({ bookingId: booking.id });
-  const notesCount = notes.length;
-
-  return (
-    <Box
-      bg="white"
-      borderRadius="xl"
-      border="1px"
-      borderColor={isRequest ? statusConfig.bg : 'gray.100'}
-      borderLeftWidth={isRequest ? '4px' : '1px'}
-      borderLeftColor={isRequest ? statusConfig.color : undefined}
-      p={5}
-      _hover={{ borderColor: isRequest ? statusConfig.color : 'gray.200', boxShadow: 'sm' }}
-      transition="all 0.2s"
-      position="relative"
-    >
-      {/* Time badge for requests */}
-      {isRequest && (
-        <Text fontSize="xs" color="gray.400" position="absolute" top={3} right={4}>
-          {formatBookingDate(booking.date)}
-        </Text>
-      )}
-
-      <Flex justify="space-between" align="flex-start" mb={3}>
-        <HStack spacing={3}>
-          <Box
-            w="48px"
-            h="48px"
-            bg={isRequest ? statusConfig.bg : 'brand.50'}
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            color={isRequest ? statusConfig.color : 'brand.500'}
-          >
-            <ClockIcon size={24} />
-          </Box>
-          <Box>
-            <Text fontWeight="600" color="gray.900">
-              {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
-            </Text>
-            {!isRequest && (
-              <Text fontSize="sm" color="gray.500">
-                {formatBookingDate(booking.date)}
-              </Text>
-            )}
-          </Box>
-        </HStack>
-        {!isRequest && (
-          <Badge
-            bg={statusConfig.bg}
-            color={statusConfig.color}
-            fontSize="xs"
-            px={2}
-            py={1}
-            borderRadius="full"
-            fontWeight="600"
-          >
-            {statusConfig.label}
-          </Badge>
-        )}
-      </Flex>
-
-      <Box mb={3}>
-        <Text fontWeight="500" color="gray.900" mb={1}>
-          {booking.customerName}
-        </Text>
-        <HStack spacing={1} fontSize="sm" color="gray.500">
-          <MailIcon size={14} />
-          <Text>{booking.customerEmail}</Text>
-        </HStack>
-      </Box>
-
-      {booking.service && (
-        <Flex
-          justify="space-between"
-          align="center"
-          py={2}
-          px={3}
-          bg="gray.50"
-          borderRadius="lg"
-          mb={3}
-        >
-          <Text fontSize="sm" color="gray.700">
-            {booking.service.name} · {booking.service.durationMinutes} min
-          </Text>
-          <Text fontSize="sm" fontWeight="600" color="gray.900">
-            {formatPrice(Number(booking.service.price))}
-          </Text>
-        </Flex>
-      )}
-
-      {/* Reference code and notes */}
-      <Flex justify="space-between" align="center" mb={3}>
-        {booking.reference && (
-          <Text fontSize="xs" color="gray.400">
-            Ref: {booking.reference}
-          </Text>
-        )}
-        <Button
-          size="xs"
-          variant="ghost"
-          leftIcon={<NoteIcon size={12} />}
-          color={notesCount > 0 ? 'blue.500' : 'gray.400'}
-          onClick={onViewDetails}
-          _hover={{ bg: 'blue.50', color: 'blue.600' }}
-        >
-          {notesCount > 0 ? `${notesCount} note${notesCount !== 1 ? 's' : ''}` : 'Notes'}
-        </Button>
-      </Flex>
-
-      {/* Action buttons */}
-      {type === 'requests' && (
-        <HStack spacing={2} justify="flex-end">
-          <Button
-            size="sm"
-            variant="outline"
-            colorScheme="red"
-            leftIcon={<CloseIcon size={12} />}
-            onClick={onDecline}
-            isDisabled={isLoading}
-          >
-            Decline
-          </Button>
-          <Button
-            size="sm"
-            colorScheme="green"
-            leftIcon={<CheckIcon size={14} />}
-            onClick={onAccept}
-            isLoading={isLoading}
-          >
-            Accept
-          </Button>
-        </HStack>
-      )}
-
-      {type === 'upcoming' && (
-        <HStack spacing={2} justify="flex-end">
-          <Button
-            size="sm"
-            variant="ghost"
-            colorScheme="gray"
-            onClick={onNoShow}
-            isDisabled={isLoading}
-          >
-            No-show
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            colorScheme="red"
-            onClick={onCancel}
-            isDisabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            colorScheme="green"
-            leftIcon={<CheckIcon size={14} />}
-            onClick={onComplete}
-            isLoading={isLoading}
-          >
-            Complete
-          </Button>
-        </HStack>
-      )}
-    </Box>
   );
 }

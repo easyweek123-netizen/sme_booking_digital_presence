@@ -7,6 +7,7 @@ interface LogoProps {
   size?: LogoSize;
   colorScheme?: LogoColorScheme;
   showTagline?: boolean;
+  iconOnly?: boolean;
   onClick?: () => void;
 }
 
@@ -49,11 +50,46 @@ export function Logo({
   size = 'md',
   colorScheme = 'light',
   showTagline = false,
+  iconOnly = false,
   onClick,
 }: LogoProps) {
   const sizeStyles = sizeConfig[size];
   const colorStyles = colorConfig[colorScheme];
   const isClickable = !!onClick;
+
+  const logoBox = (
+    <Box
+      w={sizeStyles.box}
+      h={sizeStyles.box}
+      bg="brand.500"
+      borderRadius={sizeStyles.borderRadius}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      boxShadow={size === 'lg' ? '0 2px 8px color-mix(in srgb, var(--chakra-colors-brand-500) 30%, transparent)' : undefined}
+      transition="box-shadow 0.2s ease"
+      _groupHover={isClickable ? { 
+        boxShadow: '0 4px 12px color-mix(in srgb, var(--chakra-colors-brand-500) 40%, transparent)' 
+      } : undefined}
+    >
+      <Text color="white" fontWeight="bold" fontSize={sizeStyles.fontSize}>
+        B
+      </Text>
+    </Box>
+  );
+
+  // Icon only mode - just return the logo box
+  if (iconOnly) {
+    return (
+      <Box
+        cursor={isClickable ? 'pointer' : 'default'}
+        onClick={onClick}
+        role={isClickable ? 'group' : undefined}
+      >
+        {logoBox}
+      </Box>
+    );
+  }
 
   return (
     <HStack
@@ -62,24 +98,7 @@ export function Logo({
       onClick={onClick}
       role={isClickable ? 'group' : undefined}
     >
-      <Box
-        w={sizeStyles.box}
-        h={sizeStyles.box}
-        bg="brand.500"
-        borderRadius={sizeStyles.borderRadius}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        boxShadow={size === 'lg' ? '0 2px 8px color-mix(in srgb, var(--chakra-colors-brand-500) 30%, transparent)' : undefined}
-        transition="box-shadow 0.2s ease"
-        _groupHover={isClickable ? { 
-          boxShadow: '0 4px 12px color-mix(in srgb, var(--chakra-colors-brand-500) 40%, transparent)' 
-        } : undefined}
-      >
-        <Text color="white" fontWeight="bold" fontSize={sizeStyles.fontSize}>
-          B
-        </Text>
-      </Box>
+      {logoBox}
       {showTagline ? (
         <VStack align="start" spacing={0}>
           <Heading

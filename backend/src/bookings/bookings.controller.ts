@@ -18,8 +18,9 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking.dto';
 import { FirebaseAuthGuard } from '../auth/guards';
 import { CustomerResolverInterceptor } from '../customers/interceptors';
+import { OwnerResolverInterceptor, OwnerId } from '../common';
 import { Booking, BookingStatus } from './entities/booking.entity';
-import type { RequestWithFirebaseUser, RequestWithCustomer } from '../common';
+import type { RequestWithCustomer } from '../common';
 
 @Controller('bookings')
 export class BookingsController {
@@ -61,14 +62,15 @@ export class BookingsController {
    */
   @Get('business/:businessId')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async findByBusiness(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('businessId', ParseIntPipe) businessId: number,
     @Query('status') status?: BookingStatus,
     @Query('from') from?: string,
     @Query('to') to?: string,
   ): Promise<Booking[]> {
-    return this.bookingsService.findByBusiness(businessId, req.firebaseUser, {
+    return this.bookingsService.findByBusiness(businessId, ownerId, {
       status,
       from,
       to,
@@ -82,11 +84,12 @@ export class BookingsController {
    */
   @Get('stats/:businessId')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async getStats(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('businessId', ParseIntPipe) businessId: number,
   ): Promise<{ total: number; today: number }> {
-    return this.bookingsService.getStats(businessId, req.firebaseUser);
+    return this.bookingsService.getStats(businessId, ownerId);
   }
 
   /**
@@ -106,11 +109,12 @@ export class BookingsController {
    */
   @Get('pending-count/:businessId')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async getPendingCount(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('businessId', ParseIntPipe) businessId: number,
   ): Promise<{ count: number }> {
-    const count = await this.bookingsService.getPendingCount(businessId, req.firebaseUser);
+    const count = await this.bookingsService.getPendingCount(businessId, ownerId);
     return { count };
   }
 
@@ -131,14 +135,15 @@ export class BookingsController {
    */
   @Patch(':id/status')
   @UseGuards(FirebaseAuthGuard)
+  @UseInterceptors(OwnerResolverInterceptor)
   async updateStatus(
-    @Request() req: RequestWithFirebaseUser,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBookingStatusDto: UpdateBookingStatusDto,
   ): Promise<Booking> {
     return this.bookingsService.updateStatus(
       id,
-      req.firebaseUser,
+      ownerId,
       updateBookingStatusDto.status,
     );
   }

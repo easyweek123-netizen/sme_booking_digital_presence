@@ -3,14 +3,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { AuthService } from '../auth/auth.service';
 import { verifyBusinessOwnership } from '../common';
-import type { FirebaseUser } from '../common';
 
 @Injectable()
 export class ServicesService {
@@ -19,22 +17,19 @@ export class ServicesService {
     private readonly serviceRepository: Repository<Service>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-    private readonly authService: AuthService,
   ) {}
 
   /**
    * Create a new service for a business
    */
   async create(
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     createServiceDto: CreateServiceDto,
   ): Promise<Service> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     await verifyBusinessOwnership(
       this.businessRepository,
       createServiceDto.businessId,
-      owner.id,
+      ownerId,
     );
 
     const service = this.serviceRepository.create({
@@ -87,16 +82,52 @@ export class ServicesService {
     return service;
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Entity Resolution Methods (for AI tool handlers)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Find a service by name within a business (case-insensitive)
+   * Used by AI tool handlers for entity resolution
+   */
+  async findByNameAndBusiness(
+    name: string,
+    businessId: number,
+  ): Promise<Service | null> {
+    return this.serviceRepository.findOne({
+      where: {
+        name: ILike(name),
+        businessId,
+      },
+      relations: ['category'],
+    });
+  }
+
+  /**
+   * Find a service by ID within a business (ownership check)
+   * Used by AI tool handlers to verify service belongs to business
+   */
+  async findByIdAndBusiness(
+    id: number,
+    businessId: number,
+  ): Promise<Service | null> {
+    return this.serviceRepository.findOne({
+      where: {
+        id,
+        businessId,
+      },
+      relations: ['category'],
+    });
+  }
+
   /**
    * Update a service
    */
   async update(
     id: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -106,8 +137,7 @@ export class ServicesService {
       throw new NotFoundException('Service not found');
     }
 
-    // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
     // Update fields
     if (updateServiceDto.categoryId !== undefined) {
@@ -142,11 +172,10 @@ export class ServicesService {
   }
 
   /**
-   * Soft delete a service by setting isActive = false
+   * Delete a service from the database.
+   * Use toggle isActive for hiding/showing without deleting.
    */
-  async remove(id: number, firebaseUser: FirebaseUser): Promise<void> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
+  async remove(id: number, ownerId: number): Promise<void> {
     const service = await this.serviceRepository.findOne({
       where: { id },
       relations: ['business'],
@@ -156,11 +185,10 @@ export class ServicesService {
       throw new NotFoundException('Service not found');
     }
 
-    // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
-    // Soft delete - mark as inactive
-    service.isActive = false;
-    await this.serviceRepository.save(service);
+    // Hard delete - remove from database
+    await this.serviceRepository.remove(service);
   }
+
 }

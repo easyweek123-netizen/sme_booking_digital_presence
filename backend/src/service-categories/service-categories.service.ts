@@ -8,9 +8,7 @@ import { ServiceCategory } from './entities/service-category.entity';
 import { Business } from '../business/entities/business.entity';
 import { CreateServiceCategoryDto } from './dto/create-service-category.dto';
 import { UpdateServiceCategoryDto } from './dto/update-service-category.dto';
-import { AuthService } from '../auth/auth.service';
 import { verifyBusinessOwnership } from '../common';
-import type { FirebaseUser } from '../common';
 
 @Injectable()
 export class ServiceCategoriesService {
@@ -19,22 +17,19 @@ export class ServiceCategoriesService {
     private readonly categoryRepository: Repository<ServiceCategory>,
     @InjectRepository(Business)
     private readonly businessRepository: Repository<Business>,
-    private readonly authService: AuthService,
   ) {}
 
   /**
    * Create a new service category for a business
    */
   async create(
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     createCategoryDto: CreateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     await verifyBusinessOwnership(
       this.businessRepository,
       createCategoryDto.businessId,
-      owner.id,
+      ownerId,
     );
 
     const category = this.categoryRepository.create({
@@ -84,11 +79,9 @@ export class ServiceCategoriesService {
    */
   async update(
     id: number,
-    firebaseUser: FirebaseUser,
+    ownerId: number,
     updateCategoryDto: UpdateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
     const category = await this.categoryRepository.findOne({
       where: { id },
     });
@@ -97,8 +90,7 @@ export class ServiceCategoriesService {
       throw new NotFoundException('Service category not found');
     }
 
-    // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, category.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, category.businessId, ownerId);
 
     // Update fields
     if (updateCategoryDto.name !== undefined) {
@@ -114,9 +106,7 @@ export class ServiceCategoriesService {
   /**
    * Delete a service category
    */
-  async remove(id: number, firebaseUser: FirebaseUser): Promise<void> {
-    const owner = await this.authService.getOrCreateOwner(firebaseUser);
-    
+  async remove(id: number, ownerId: number): Promise<void> {
     const category = await this.categoryRepository.findOne({
       where: { id },
     });
@@ -125,8 +115,7 @@ export class ServiceCategoriesService {
       throw new NotFoundException('Service category not found');
     }
 
-    // Verify ownership
-    await verifyBusinessOwnership(this.businessRepository, category.businessId, owner.id);
+    await verifyBusinessOwnership(this.businessRepository, category.businessId, ownerId);
 
     // Delete category - services will have categoryId set to null (onDelete: 'SET NULL')
     await this.categoryRepository.remove(category);

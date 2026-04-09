@@ -19,6 +19,7 @@ import storage from 'redux-persist/lib/storage';
 import authReducer from './slices/authSlice';
 import onboardingReducer from './slices/onboardingSlice';
 import chatReducer from './slices/chatSlice';
+import canvasReducer from './slices/canvasSlice';
 import { baseApi } from './api/baseApi';
 import { RESET_STORE } from './actions';
 
@@ -30,6 +31,7 @@ const appReducer = combineReducers({
   auth: authReducer,
   onboarding: onboardingReducer,
   chat: chatReducer,
+  canvas: canvasReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 
@@ -47,7 +49,7 @@ const persistConfig = {
   key: 'bookeasy',
   version: 1,
   storage,
-  whitelist: ['auth', 'onboarding', 'chat'],
+  whitelist: ['auth', 'onboarding', 'chat', 'canvas'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

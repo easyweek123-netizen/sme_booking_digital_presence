@@ -31,26 +31,48 @@ import {
 } from '../../constants';
 import { useGetServiceCategoriesQuery } from '../../store/api/servicesApi';
 import { ChevronDownIcon } from '../icons';
-import type { ServiceItem } from '../../types';
 import type { WorkingHours } from '../../types';
 
 const MotionBox = motion.create(Box);
 
-interface ExtendedServiceItem extends ServiceItem {
+// Default working hours - all days open 9-5
+const defaultWorkingHours: WorkingHours = {
+  monday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+  tuesday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+  wednesday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+  thursday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+  friday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+  saturday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
+  sunday: { isOpen: false, openTime: '09:00', closeTime: '17:00' },
+};
+
+/**
+ * Service form data - used for both input and output
+ */
+export interface ServiceFormData {
+  id?: string;
+  name: string;
+  price: number;
+  durationMinutes: number;
+  availableDays?: string[] | null;
   description?: string;
   imageUrl?: string;
   categoryId?: number | null;
 }
 
 interface ServiceFormProps {
-  initialValues?: ExtendedServiceItem | null;
-  businessId?: number; // For fetching categories
-  workingHours: WorkingHours;
-  onSave: (service: Omit<ExtendedServiceItem, 'id'> & { id?: string; categoryId?: number | null }) => void;
+  /** Initial values for editing. Pass null/undefined for create mode. */
+  initialValues?: ServiceFormData | null;
+  /** Business ID for category dropdown. Optional. */
+  businessId?: number;
+  /** Working hours for availability selection. Defaults to all weekdays open. */
+  workingHours?: WorkingHours;
+  /** Called when user submits the form */
+  onSubmit: (data: ServiceFormData) => void;
+  /** Called when user cancels */
   onCancel: () => void;
-  isEditing?: boolean;
-  showExtendedFields?: boolean; // Show description and image fields
-  extendedFieldsExpanded?: boolean; // Whether extended fields start expanded
+  /** Start with "More options" section expanded. Default: false */
+  moreOptionsExpanded?: boolean;
 }
 
 interface FormErrors {
@@ -62,13 +84,15 @@ interface FormErrors {
 export function ServiceForm({
   initialValues,
   businessId,
-  workingHours,
-  onSave,
+  workingHours = defaultWorkingHours,
+  onSubmit,
   onCancel,
-  isEditing = false,
-  showExtendedFields = false,
-  extendedFieldsExpanded = false,
+  moreOptionsExpanded = false,
 }: ServiceFormProps) {
+  // Derive isEditing from initialValues
+  const isEditing = initialValues != null;
+
+  // Form state
   const [name, setName] = useState(initialValues?.name || '');
   const [description, setDescription] = useState(initialValues?.description || '');
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || '');
@@ -85,7 +109,7 @@ export function ServiceForm({
   );
   const [errors, setErrors] = useState<FormErrors>({});
   const [imageError, setImageError] = useState(false);
-  const [showMoreOptions, setShowMoreOptions] = useState(extendedFieldsExpanded);
+  const [showMoreOptions, setShowMoreOptions] = useState(moreOptionsExpanded);
 
   // Fetch categories if businessId is provided
   const { data: categories = [] } = useGetServiceCategoriesQuery(businessId || 0, {
@@ -123,7 +147,7 @@ export function ServiceForm({
   const handleSubmit = () => {
     if (!validate()) return;
 
-    onSave({
+    onSubmit({
       id: initialValues?.id,
       name: name.trim(),
       description: description.trim() || undefined,
@@ -285,126 +309,122 @@ export function ServiceForm({
             )}
           </Box>
 
-          {/* Extended Fields - Collapsible (More Options) */}
-          {showExtendedFields && (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowMoreOptions(!showMoreOptions)}
-                rightIcon={
-                  <Box
-                    transform={showMoreOptions ? 'rotate(180deg)' : 'rotate(0deg)'}
-                    transition="transform 0.2s"
-                  >
-                    <ChevronDownIcon size={16} />
-                  </Box>
-                }
-                color="gray.500"
-                fontWeight="500"
-                px={0}
-                _hover={{ bg: 'transparent', color: 'gray.700' }}
+          {/* More Options - Always show toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowMoreOptions(!showMoreOptions)}
+            rightIcon={
+              <Box
+                transform={showMoreOptions ? 'rotate(180deg)' : 'rotate(0deg)'}
+                transition="transform 0.2s"
               >
-                {showMoreOptions ? 'Less options' : 'More options'}
-              </Button>
+                <ChevronDownIcon size={16} />
+              </Box>
+            }
+            color="gray.500"
+            fontWeight="500"
+            px={0}
+            _hover={{ bg: 'transparent', color: 'gray.700' }}
+          >
+            {showMoreOptions ? 'Less options' : 'More options'}
+          </Button>
 
-              <Collapse in={showMoreOptions}>
-                <VStack spacing={4} align="stretch">
-                  {/* Category Selection */}
-                  {categories.length > 0 && (
-                    <FormControl>
-                      <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                        Category
-                      </FormLabel>
-                      <Select
-                        value={categoryId || ''}
-                        onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
-                        size="md"
-                        bg="white"
-                        borderRadius="lg"
-                        placeholder="Select a category (optional)"
-                        _focus={{
-                          borderColor: 'brand.500',
-                          boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                        }}
-                      >
-                        {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  )}
+          <Collapse in={showMoreOptions}>
+            <VStack spacing={4} align="stretch">
+              {/* Category Selection */}
+              {categories.length > 0 && (
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                    Category
+                  </FormLabel>
+                  <Select
+                    value={categoryId || ''}
+                    onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+                    size="md"
+                    bg="white"
+                    borderRadius="lg"
+                    placeholder="Select a category (optional)"
+                    _focus={{
+                      borderColor: 'brand.500',
+                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    }}
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
 
-                  {/* Description */}
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                      Description
-                    </FormLabel>
-                    <Textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Describe this service..."
-                      size="md"
-                      bg="white"
-                      borderRadius="lg"
-                      rows={2}
-                      maxLength={500}
-                      _focus={{
-                        borderColor: 'brand.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                      }}
+              {/* Description */}
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                  Description
+                </FormLabel>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe this service..."
+                  size="md"
+                  bg="white"
+                  borderRadius="lg"
+                  rows={2}
+                  maxLength={500}
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                />
+                <FormHelperText fontSize="xs">
+                  {description.length}/500 characters
+                </FormHelperText>
+              </FormControl>
+
+              {/* Image URL */}
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                  Image URL
+                </FormLabel>
+                <Input
+                  value={imageUrl}
+                  onChange={(e) => {
+                    setImageUrl(e.target.value);
+                    setImageError(false);
+                  }}
+                  placeholder="https://example.com/service-image.jpg"
+                  size="md"
+                  bg="white"
+                  borderRadius="lg"
+                  _focus={{
+                    borderColor: 'brand.500',
+                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                  }}
+                />
+                <FormHelperText fontSize="xs">
+                  Optional: Add an image for this service
+                </FormHelperText>
+                {imageUrl && !imageError && (
+                  <Box mt={2} borderRadius="lg" overflow="hidden" maxH="100px">
+                    <Image
+                      src={imageUrl}
+                      alt="Service preview"
+                      maxH="100px"
+                      objectFit="cover"
+                      onError={() => setImageError(true)}
                     />
-                    <FormHelperText fontSize="xs">
-                      {description.length}/500 characters
-                    </FormHelperText>
-                  </FormControl>
-
-                  {/* Image URL */}
-                  <FormControl>
-                    <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                      Image URL
-                    </FormLabel>
-                    <Input
-                      value={imageUrl}
-                      onChange={(e) => {
-                        setImageUrl(e.target.value);
-                        setImageError(false);
-                      }}
-                      placeholder="https://example.com/service-image.jpg"
-                      size="md"
-                      bg="white"
-                      borderRadius="lg"
-                      _focus={{
-                        borderColor: 'brand.500',
-                        boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                      }}
-                    />
-                    <FormHelperText fontSize="xs">
-                      Optional: Add an image for this service
-                    </FormHelperText>
-                    {imageUrl && !imageError && (
-                      <Box mt={2} borderRadius="lg" overflow="hidden" maxH="100px">
-                        <Image
-                          src={imageUrl}
-                          alt="Service preview"
-                          maxH="100px"
-                          objectFit="cover"
-                          onError={() => setImageError(true)}
-                        />
-                      </Box>
-                    )}
-                    {imageError && (
-                      <Text fontSize="xs" color="orange.500" mt={1}>
-                        Unable to load image preview
-                      </Text>
-                    )}
-                  </FormControl>
-                </VStack>
-              </Collapse>
-            </>
-          )}
+                  </Box>
+                )}
+                {imageError && (
+                  <Text fontSize="xs" color="orange.500" mt={1}>
+                    Unable to load image preview
+                  </Text>
+                )}
+              </FormControl>
+            </VStack>
+          </Collapse>
 
           {/* Actions */}
           <Flex justify="flex-end" gap={2} pt={2}>
@@ -431,4 +451,3 @@ export function ServiceForm({
     </MotionBox>
   );
 }
-

@@ -1,51 +1,23 @@
-export interface Suggestion {
-  label: string;
-  value: string;
-  icon?: string;
-  variant?: 'default' | 'skip';
-}
+import type { ChatAction, PreviewContext, Suggestion } from '@shared';
 
 /**
- * Service data for form display
+ * Chat message structure (frontend-specific)
+ *
+ * Note: `proposals` contains action proposals from AI for canvas rendering.
  */
-export interface ServiceFormData {
-  name?: string;
-  price?: number;
-  durationMinutes?: number;
-  description?: string;
-}
-
-/**
- * Service item for list display
- */
-export interface ServiceListItem {
-  id: number;
-  name: string;
-  price: number;
-  durationMinutes: number;
-  description?: string;
-}
-
-/**
- * Discriminated union for chat actions
- * Frontend renders appropriate component based on type
- */
-export type ChatAction =
-  | {
-      type: 'service_form';
-      operation: 'create' | 'update' | 'delete';
-      businessId?: number;
-      serviceId?: number;
-      service: ServiceFormData;
-    }
-  | {
-      type: 'services_list';
-      services: ServiceListItem[];
-    };
-
 export interface Message {
   role: 'bot' | 'user';
   content: string;
   suggestions?: Suggestion[];
-  action?: ChatAction;
+  proposals?: ChatAction[];
+  previewContext?: PreviewContext;
+}
+
+/**
+ * Request to send action result to backend
+ */
+export interface ActionResultRequest {
+  proposalId: string;
+  status: 'confirmed' | 'cancelled' | 'modified';
+  result?: Record<string, unknown>;
 }

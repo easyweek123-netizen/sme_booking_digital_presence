@@ -1,5 +1,9 @@
 # BookEasy MVP - Implementation Plan
 
+> **Status: COMPLETED** -- This plan covers the original MVP build. All 6 phases have been implemented.
+> For the current active plan, see **[LAUNCH_PLAN.md](./LAUNCH_PLAN.md)**.
+> For current project status, see **[CURRENT_STATUS.md](./CURRENT_STATUS.md)**.
+
 **Total Estimated Time: 13-16 hours**
 
 ---

@@ -38,7 +38,11 @@ export {
 } from './bookingsApi';
 
 // Chat
-export { useInitChatQuery, useSendMessageMutation } from './chatApi';
+export { 
+  useInitChatQuery, 
+  useSendMessageMutation,
+  useSendActionResultMutation,
+} from './chatApi';
 
 // Notes
 export {

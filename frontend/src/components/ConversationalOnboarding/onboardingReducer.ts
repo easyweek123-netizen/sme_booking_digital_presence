@@ -1,4 +1,5 @@
-import type { Message, Suggestion } from '../../types/chat.types';
+import type { Message } from '../../types/chat.types';
+import type { Suggestion } from '@shared';
 
 // Step configuration
 export interface Step {

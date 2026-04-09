@@ -2,6 +2,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookingsService } from './bookings.service';
 import { BookingsController } from './bookings.controller';
+import {
+  ListBookingsTool,
+  BookingStatsTool,
+  UpdateBookingStatusTool,
+} from './tools';
 import { Booking } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
@@ -17,7 +22,12 @@ import { EmailModule } from '../email/email.module';
     EmailModule,
   ],
   controllers: [BookingsController],
-  providers: [BookingsService],
+  providers: [
+    BookingsService,
+    ListBookingsTool,
+    BookingStatsTool,
+    UpdateBookingStatusTool,
+  ],
   exports: [BookingsService],
 })
 export class BookingsModule {}

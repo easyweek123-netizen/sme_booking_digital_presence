@@ -1,6 +1,6 @@
 # BookEasy - Current Status
 
-**Last Updated:** December 15, 2024
+**Last Updated:** December 16, 2024
 
 ---
 
@@ -10,7 +10,7 @@
 |------|--------|
 | Current Phase | GTM Preparation |
 | Target Niche | Solo Wellness & Therapy Practitioners |
-| Next Up | Phase 1 - Client Notes System |
+| Next Up | Phase 2 - AI Chat Polish |
 | Blockers | None |
 
 ---
@@ -22,6 +22,7 @@
 | [AI_PRD.md](./AI_PRD.md) | Core AI-first strategy |
 | [AI_PRD_MOTIVATION.md](./AI_PRD_MOTIVATION.md) | Business strategy, market research, GTM plan |
 | [AI_GTM_TECHNICAL.md](./AI_GTM_TECHNICAL.md) | Technical implementation plan |
+| [NOTES_MODULE_IMPLEMENTATION.md](./NOTES_MODULE_IMPLEMENTATION.md) | Client notes implementation details |
 
 ---
 
@@ -52,55 +53,61 @@
 | ServiceFormCard component | ✅ Done |
 | Typing indicator | ✅ Done |
 
+### Phase 1: Client Notes ✅ COMPLETE
+
+| Feature | Status |
+|---------|--------|
+| Notes table with flexible schema | ✅ Done |
+| Notes CRUD endpoints | ✅ Done |
+| Customers list/get endpoints | ✅ Done |
+| DashboardClients page | ✅ Done |
+| ClientDetailDrawer with notes | ✅ Done |
+| BookingDetailDrawer with notes | ✅ Done |
+| CollapsibleSection component | ✅ Done |
+| BookingCard component | ✅ Done |
+| NotesEditor (compact + truncation) | ✅ Done |
+| Notes in DashboardBookings | ✅ Done |
+
 ---
 
 ## GTM Roadmap
 
-See [AI_GTM_TECHNICAL.md](./AI_GTM_TECHNICAL.md) for full technical details.
+### Phase 2: AI Chat Polish 🔄 NEXT
 
-### Phase 1: Client Notes (Week 1) 🔄 Next
+**Goal:** AI helps practitioners manage everything AND create beautiful booking pages.
 
-| Task | Status |
-|------|--------|
-| Add `notes` field to Customer entity | Pending |
-| Create SessionNote entity | Pending |
-| Customer endpoints (search, notes, history) | Pending |
-| Session notes endpoints | Pending |
-| DashboardClients page | Pending |
-| Client profile drawer with notes | Pending |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| `manage_clients` tool | Find clients, add notes | Pending |
+| `manage_bookings` tool | View, cancel bookings | Pending |
+| `get_schedule` tool | Today, tomorrow, week | Pending |
+| `manage_profile` tool | Update business profile | Pending |
+| `customize_page` tool | Style booking page via chat | Pending |
+| Chat UI cards | Rich cards for all tools | Pending |
 
-### Phase 2: Calendar System (Week 2-3)
+**Demo Scenarios:**
+- "Show my schedule for today"
+- "Who's my next client?"
+- "Add note: prefers firm pressure"
+- "Cancel my 4pm appointment"
+- "Make my booking page purple with a calming vibe"
 
-| Task | Status |
-|------|--------|
-| Calendar view endpoints | Pending |
-| DashboardCalendar page (week/month) | Pending |
-| Google Calendar OAuth integration | Pending |
-| 2-way sync (BookEasy ↔ Google) | Pending |
-| Settings page calendar section | Pending |
+### Phase 3: Calendar Integration (Post-Launch)
 
-### Phase 3: AI Tools for All Models (Week 3-4)
+**Decision:** Defer to post-launch. Users prefer Google Calendar.
 
-| Tool | Operations | Status |
-|------|------------|--------|
-| `manage_service` | get, create, update, delete | ✅ Done |
-| `manage_clients` | list, search, get, add_note | Pending |
-| `get_calendar` | today, tomorrow, week, date | Pending |
-| `manage_bookings` | list, get, cancel | Pending |
-| `manage_profile` | get, update | Pending |
+| Feature | Description | Status |
+|---------|-------------|--------|
+| Google Calendar OAuth | Connect account | Deferred |
+| One-way sync | Bookings → Google Calendar | Deferred |
+| Deep links | Manage booking links in events | Deferred |
 
-| Chat UI Card | Status |
-|--------------|--------|
-| ServiceFormCard | ✅ Done |
-| ServiceCard (list) | ✅ Done |
-| CalendarCard | Pending |
-| ClientCard | Pending |
-| ClientListCard | Pending |
-| BookingCard | Pending |
-| BookingListCard | Pending |
-| BusinessProfileCard | Pending |
+**Rationale:**
+- Solo practitioners already use Google Calendar
+- One-way sync (BookEasy → Google) covers 90% of use cases
+- Can add after validating with real users
 
-### Phase 4: Polish & Demo (Week 4-5)
+### Phase 4: Polish & Demo
 
 | Task | Status |
 |------|--------|
@@ -117,27 +124,24 @@ See [AI_GTM_TECHNICAL.md](./AI_GTM_TECHNICAL.md) for full technical details.
 
 | Week | Focus | Deliverable |
 |------|-------|-------------|
-| 1 | Client Notes | Full client management with notes |
-| 2-3 | Calendar | Calendar view + Google sync |
-| 3-4 | AI Tools | All tool handlers + chat cards |
-| 4-5 | Polish + Demo | Landing page, video, production deploy |
+| 1 | Client Notes | ✅ Complete |
+| 2-3 | AI Chat Polish | All tools + booking page customization |
+| 3-4 | Polish + Demo | Landing page, video, deploy |
 
-**Target:** 5-6 weeks to GTM-ready MVP
+**Target:** 4-5 weeks to GTM-ready MVP
 
 ---
 
 ## Definition of Done (GTM Ready)
 
-- [ ] Client list with search works
-- [ ] Client notes save/load correctly
-- [ ] Session notes per booking work
-- [ ] Calendar view works (week/month)
-- [ ] Google Calendar syncs both ways
-- [ ] AI can query calendar ("Show my schedule")
+- [x] Client list with search works
+- [x] Client notes save/load correctly
+- [x] Session notes per booking work
+- [ ] AI can query schedule ("Show my schedule")
 - [ ] AI can query clients ("Find Maria")
 - [ ] AI can add notes ("Add note for Maria")
 - [ ] AI can manage bookings ("Show my bookings")
-- [ ] AI can update profile ("Update my description")
+- [ ] AI can customize booking page ("Make it purple")
 - [ ] Landing page updated with niche messaging
 - [ ] Demo video recorded
 - [ ] Deployed to production (Render)
@@ -158,12 +162,16 @@ frontend/src/
 │   │   ├── DashboardBookings.tsx
 │   │   ├── DashboardServices.tsx
 │   │   ├── DashboardSettings.tsx
-│   │   ├── DashboardClients.tsx  # 🔜 To build
-│   │   └── DashboardCalendar.tsx # 🔜 To build
+│   │   └── DashboardClients.tsx  # ✅ Done
 │   └── booking/              # Public booking page
 ├── components/
 │   ├── chat/                 # Chat components
 │   ├── Dashboard/            # Dashboard components
+│   ├── ClientDetailDrawer/   # ✅ Done
+│   ├── BookingDetailDrawer/  # ✅ Done
+│   ├── BookingCard/          # ✅ Done
+│   ├── CollapsibleSection/   # ✅ Done
+│   ├── NotesEditor/          # ✅ Done
 │   └── icons/                # SVG icons
 ├── store/                    # Redux + RTK Query
 └── types/                    # TypeScript types
@@ -178,11 +186,21 @@ backend/src/
 │   └── prompts/              # Prompt templates
 ├── services/
 │   ├── services.service.ts
-│   └── service.tool-handler.ts
-├── customers/                # 🔜 Add tool handler
-├── bookings/                 # 🔜 Add tool handler + notes
-├── business/                 # 🔜 Add tool handler
-├── calendar/                 # 🔜 New module
+│   └── service.tool-handler.ts  # ✅ Done
+├── customers/
+│   ├── customers.controller.ts  # ✅ Done
+│   ├── customers.service.ts     # ✅ Done
+│   └── customer.tool-handler.ts # 🔜 To build
+├── bookings/
+│   ├── bookings.controller.ts
+│   └── booking.tool-handler.ts  # 🔜 To build
+├── business/
+│   ├── business.controller.ts
+│   └── business.tool-handler.ts # 🔜 To build
+├── notes/                    # ✅ Done
+│   ├── notes.controller.ts
+│   ├── notes.service.ts
+│   └── entities/note.entity.ts
 └── common/                   # Shared utilities
 ```
 
@@ -195,7 +213,7 @@ backend/src/
 | Firebase | Authentication | ✅ Configured |
 | Resend | Transactional emails | ✅ Configured |
 | Groq/OpenAI | AI chat | ✅ Configured |
-| Google Calendar | Calendar sync | 🔜 To configure |
+| Google Calendar | Calendar sync | 🔜 Post-launch |
 
 ---
 
@@ -220,7 +238,7 @@ AI_BASE_URL=
 AI_MODEL=
 ```
 
-### New (Coming)
+### Future (Post-Launch)
 ```bash
 # Google Calendar
 GOOGLE_CLIENT_ID=

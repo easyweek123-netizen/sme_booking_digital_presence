@@ -83,16 +83,36 @@ export class CustomersService {
   /**
    * Find all customers for a business owner (customers who have booked with any of owner's businesses)
    */
-  async findAllForOwner(ownerId: number): Promise<Customer[]> {
-    const customers = await this.customerRepository
+  async findAllForOwner(ownerId: number, search?: string): Promise<Customer[]> {
+    const qb = this.customerRepository
       .createQueryBuilder('customer')
       .leftJoinAndSelect('customer.bookings', 'booking')
       .leftJoinAndSelect('booking.business', 'business')
-      .where('business.ownerId = :ownerId', { ownerId })
-      .orderBy('customer.name', 'ASC')
-      .getMany();
+      .where('business.ownerId = :ownerId', { ownerId });
 
-    return customers;
+    if (search) {
+      qb.andWhere(
+        '(LOWER(customer.name) LIKE LOWER(:search) OR LOWER(customer.email) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+
+    qb.orderBy('customer.name', 'ASC');
+
+    return qb.getMany();
+  }
+
+  /**
+   * Find a customer by name for a specific owner (case-insensitive exact match)
+   */
+  async findByNameForOwner(name: string, ownerId: number): Promise<Customer | null> {
+    return this.customerRepository
+      .createQueryBuilder('customer')
+      .leftJoin('customer.bookings', 'booking')
+      .leftJoin('booking.business', 'business')
+      .where('business.ownerId = :ownerId', { ownerId })
+      .andWhere('LOWER(customer.name) = LOWER(:name)', { name })
+      .getOne();
   }
 
   /**

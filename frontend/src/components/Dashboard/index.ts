@@ -4,3 +4,6 @@ export { Sidebar } from './Sidebar';
 export { MobileNav } from './MobileNav';
 export { StatsCard } from './StatsCard';
 export { ServiceCard } from './ServiceCard';
+export { BusinessProfileFields } from './BusinessProfileFields';
+export type { BusinessProfileValues } from './BusinessProfileFields';
+export { AboutContentFields } from './AboutContentFields';

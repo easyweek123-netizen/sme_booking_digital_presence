@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import type { Message } from '../../types/chat.types';
+import type { Message, ActionResultRequest } from '../../types/chat.types';
 
 export const chatApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,8 +13,20 @@ export const chatApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    /** Send action result (confirm/cancel) and get AI follow-up */
+    sendActionResult: builder.mutation<Message, ActionResultRequest>({
+      query: (body) => ({
+        url: '/chat/action-result',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useInitChatQuery, useSendMessageMutation } = chatApi;
+export const { 
+  useInitChatQuery, 
+  useSendMessageMutation,
+  useSendActionResultMutation,
+} = chatApi;
 

@@ -308,8 +308,11 @@ export function BookingPage({
         zIndex={5}
         boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
       >
-        <Text fontSize="sm" color="gray.400">
-          Powered by <Text as="span" fontWeight="600" color="gray.500">BookEasy</Text>
+        <Text fontSize="xs" color="gray.400">
+          Powered by{' '}
+          <a href="/" style={{ color: 'inherit', fontWeight: 600 }}>
+            BookEasy
+          </a>
         </Text>
       </Box>
       

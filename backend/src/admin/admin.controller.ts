@@ -20,7 +20,10 @@ export class AdminController {
     private readonly ownerService: OwnerService,
     private readonly businessService: BusinessService,
   ) {
-    this.adminSecret = this.configService.get<string>('ADMIN_SECRET') || 'dev-secret-123';
+    this.adminSecret = this.configService.get<string>('ADMIN_SECRET') || '';
+    if (!this.adminSecret) {
+      throw new Error('ADMIN_SECRET environment variable is required. Set it in your .env file.');
+    }
   }
 
   private checkSecret(secret: string | undefined): void {

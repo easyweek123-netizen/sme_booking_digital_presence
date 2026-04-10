@@ -6,6 +6,7 @@ import {
   VStack,
   SimpleGrid,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Footer } from '../../components/Layout';
@@ -28,6 +29,15 @@ const FREE_FEATURES = [
   'Verified bookings (Google/Email)',
   'Working hours display',
   'Contact info & social links',
+];
+
+const CUSTOM_FEATURES = [
+  'Web & mobile app development',
+  'AI-powered solutions',
+  'System integrations',
+  'Custom booking & scheduling systems',
+  'Tailored to your business',
+  'Ongoing support & maintenance',
 ];
 
 const PREMIUM_FEATURES = [
@@ -53,12 +63,23 @@ export function PricingPage() {
     }
   };
 
-  const handleGetNotified = () => {
-    // Scroll to feedback form
+  const [feedbackTopic, setFeedbackTopic] = useState<'Product Feedback' | 'IT Services Inquiry'>('Product Feedback');
+
+  const scrollToFeedback = () => {
     const feedbackSection = document.getElementById('feedback-section');
     if (feedbackSection) {
       feedbackSection.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleGetNotified = () => {
+    setFeedbackTopic('Product Feedback');
+    scrollToFeedback();
+  };
+
+  const handleContactUs = () => {
+    setFeedbackTopic('IT Services Inquiry');
+    scrollToFeedback();
   };
 
   return (
@@ -117,16 +138,14 @@ export function PricingPage() {
 
           {/* Pricing Cards */}
           <SimpleGrid
-            columns={{ base: 1, lg: 2 }}
+            columns={{ base: 1, md: 2, lg: 3 }}
             spacing={{ base: 6, md: 8 }}
-            maxW="900px"
+            maxW="1200px"
             mx="auto"
             alignItems="stretch"
           >
             <PricingCard
-              title="Free Forever"
-              price="$0"
-              priceSubtext="/month"
+              title="Free"
               features={FREE_FEATURES}
               buttonText={isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
               onButtonClick={handleGetStarted}
@@ -143,13 +162,21 @@ export function PricingPage() {
               badge="Coming Soon"
               delay={0.1}
             />
+            <PricingCard
+              title="Custom Software"
+              buttonText="Contact Us"
+              onButtonClick={handleContactUs}
+              features={CUSTOM_FEATURES}
+              badge="Let's Talk"
+              delay={0.2}
+            />
           </SimpleGrid>
         </Container>
       </Box>
 
       {/* Feedback Section */}
       <Box id="feedback-section">
-        <FeedbackForm />
+        <FeedbackForm initialTopic={feedbackTopic} />
       </Box>
 
       <Footer />

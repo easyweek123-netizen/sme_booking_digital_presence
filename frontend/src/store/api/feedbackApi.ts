@@ -4,6 +4,7 @@ interface SubmitFeedbackRequest {
   email: string;
   message: string;
   source: 'pricing_page' | 'dashboard';
+  topic?: string;
 }
 
 interface FeedbackResponse {

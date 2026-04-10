@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+-- Sitemap: https://bzee.com/sitemap.xml

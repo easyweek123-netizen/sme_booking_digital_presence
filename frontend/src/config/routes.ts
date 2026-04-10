@@ -5,6 +5,7 @@ export const ROUTES = {
   PRICING: '/pricing',
   PRIVACY: '/privacy',
   TERMS: '/terms',
+  IMPRESSUM: '/impressum',
   DASHBOARD: {
     ROOT: '/dashboard',
     CHAT: '/dashboard/chat',

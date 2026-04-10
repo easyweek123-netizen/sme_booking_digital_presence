@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { FirebaseModule } from './firebase/firebase.module';
@@ -25,6 +26,7 @@ import { databaseConfig, appConfig } from './config';
       load: [databaseConfig, appConfig],
       envFilePath: ['.env.local', '.env'], // Load .env.local first, then .env
     }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 30 }]),
     DatabaseModule,
     FirebaseModule,
     AuthModule,

@@ -41,9 +41,9 @@ export function Hero() {
               lineHeight="1.1"
               letterSpacing="-0.02em"
             >
-              Get Your Business{' '}
+              Your Booking Page,{' '}
               <Text as="span" color="brand.500">
-                Online
+                Live & Free
               </Text>{' '}
               in Minutes
             </Heading>
@@ -53,8 +53,8 @@ export function Hero() {
               maxW={CONTENT_MAX_WIDTH.heroText}
               lineHeight="1.6"
             >
-              Create a professional booking page and start accepting appointments
-              today. No technical skills required.
+              Built for massage therapists, yoga teachers, coaches, barbers, and
+              wellness practitioners. Accept bookings 24/7 — no tech skills needed.
             </Text>
           </VStack>
           <HStack spacing={4}>

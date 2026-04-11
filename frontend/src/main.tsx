@@ -12,6 +12,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import { TourProvider } from './contexts/TourContext';
 import { TourOverlay, TourTooltip, TourIntro } from './components/Tour';
+import { CookieConsent } from './components/CookieConsent';
 import App from './App';
 
 import './index.css';
@@ -33,6 +34,7 @@ createRoot(document.getElementById('root')!).render(
               <AuthProvider>
                 <TourProvider>
                   <App />
+                  <CookieConsent />
                   <TourIntro />
                   <TourOverlay />
                   <TourTooltip />

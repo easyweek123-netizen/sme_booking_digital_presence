@@ -92,6 +92,7 @@ export function Footer() {
           <FooterSection title="Legal">
             <FooterLink to={ROUTES.PRIVACY}>Privacy Policy</FooterLink>
             <FooterLink to={ROUTES.TERMS}>Terms of Service</FooterLink>
+            <FooterLink to={ROUTES.IMPRESSUM}>Impressum</FooterLink>
           </FooterSection>
 
           {/* Contact */}
@@ -120,8 +121,19 @@ export function Footer() {
           <Text color="gray.500" fontSize="sm" textAlign="center">
             © {currentYear} BookEasy. All rights reserved.
           </Text>
-          <Text color="gray.600" fontSize="xs" textAlign="center">
-            Made with care for small businesses
+          <Text color="gray.500" fontSize="xs" textAlign="center">
+            Built by{' '}
+            <Link
+              as={RouterLink}
+              to={ROUTES.PRICING}
+              color="gray.500"
+              _hover={{ color: 'brand.500' }}
+              transition="color 0.2s"
+              fontWeight="500"
+            >
+              Book Easy
+            </Link>
+            {' · '}Custom Software Development
           </Text>
         </VStack>
         <HStack
@@ -132,8 +144,19 @@ export function Footer() {
           <Text color="gray.500" fontSize="sm">
             © {currentYear} BookEasy. All rights reserved.
           </Text>
-          <Text color="gray.600" fontSize="xs">
-            Made with care for small businesses
+          <Text color="gray.500" fontSize="xs">
+            Built by{' '}
+            <Link
+              as={RouterLink}
+              to={ROUTES.PRICING}
+              color="gray.500"
+              _hover={{ color: 'brand.500' }}
+              transition="color 0.2s"
+              fontWeight="500"
+            >
+              Book Easy
+            </Link>
+            {' · '}Custom Software Development
           </Text>
         </HStack>
       </Container>

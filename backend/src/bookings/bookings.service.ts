@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not } from 'typeorm';
+import { Repository, Not, DataSource } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Service } from '../services/entities/service.entity';
@@ -46,6 +46,7 @@ export class BookingsService {
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
     private readonly emailService: EmailService,
+    private readonly dataSource: DataSource,
   ) {}
 
   /**
@@ -61,15 +62,28 @@ export class BookingsService {
       throw new BadRequestException('Invalid date format. Use YYYY-MM-DD.');
     }
 
-    const dateObj = new Date(date + 'T00:00:00');
-    if (isNaN(dateObj.getTime())) {
-      throw new BadRequestException('Invalid date.');
+    // Validate calendar date is real (e.g. reject month 13, day 32)
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    if (
+      dateObj.getFullYear() !== year ||
+      dateObj.getMonth() !== month - 1 ||
+      dateObj.getDate() !== day
+    ) {
+      throw new BadRequestException('Invalid calendar date.');
     }
 
     // Don't allow booking in the past
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     if (dateObj < todayStart) {
+      return { slots: [] };
+    }
+
+    // Don't allow booking more than 90 days out
+    const maxDate = new Date(todayStart);
+    maxDate.setDate(maxDate.getDate() + 90);
+    if (dateObj > maxDate) {
       return { slots: [] };
     }
 
@@ -208,6 +222,8 @@ export class BookingsService {
     const endTime = this.addMinutesToTime(startTime, service.durationMinutes);
 
     // 5. Create the booking (defaults to PENDING status)
+    // Wrapped in try/catch to handle race condition — the partial unique index
+    // UQ_booking_slot catches concurrent inserts for the same slot.
     const booking = this.bookingRepository.create({
       businessId,
       serviceId,
@@ -221,7 +237,17 @@ export class BookingsService {
       // status defaults to PENDING via entity
     });
 
-    const savedBooking = await this.bookingRepository.save(booking);
+    let savedBooking: Booking;
+    try {
+      savedBooking = await this.bookingRepository.save(booking);
+    } catch (err: any) {
+      if (err.code === '23505') {
+        throw new BadRequestException(
+          'This time slot was just booked. Please choose another time.',
+        );
+      }
+      throw err;
+    }
 
     // Load booking with relations for email
     const fullBooking = await this.findOne(savedBooking.id);

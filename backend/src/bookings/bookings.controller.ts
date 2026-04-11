@@ -13,6 +13,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking.dto';
@@ -32,6 +33,7 @@ export class BookingsController {
    * Public endpoint
    */
   @Get('availability/:businessId')
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
   async getAvailability(
     @Param('businessId', ParseIntPipe) businessId: number,
     @Query('date') date: string,
@@ -98,6 +100,7 @@ export class BookingsController {
    * Public endpoint (for customer status lookup)
    */
   @Get('status/:reference')
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
   async findByReference(@Param('reference') reference: string): Promise<Booking> {
     return this.bookingsService.findByReference(reference);
   }

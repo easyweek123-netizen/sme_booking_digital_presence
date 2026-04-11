@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   VStack,
   Heading,
@@ -112,14 +113,24 @@ export function BookingPage({
           >
             <AlertIcon boxSize="40px" mr={0} mb={4} />
             <Heading size="md" mb={2}>
-              {isPreview ? "No Preview Available" : "Business Not Found"}
+              {isPreview ? "No Preview Available" : "Page Not Found"}
             </Heading>
-            <Text color="gray.600">
-              {isPreview 
+            <Text color="gray.600" mb={isPreview ? 0 : 4}>
+              {isPreview
                 ? "Complete your business setup to see a preview."
-                : "The booking page you're looking for doesn't exist or has been removed."
+                : "We couldn't find a business at this address. The link may be outdated or mistyped."
               }
             </Text>
+            {!isPreview && (
+              <Button
+                colorScheme="brand"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(ROUTES.HOME)}
+              >
+                Go to Homepage
+              </Button>
+            )}
           </Alert>
         </Container>
       </Box>

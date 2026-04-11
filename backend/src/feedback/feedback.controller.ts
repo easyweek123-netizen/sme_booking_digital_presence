@@ -1,3 +1,5 @@
+
+import { Throttle } from '@nestjs/throttler';
 import { Controller, Post, Body, Get, Headers, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FeedbackService } from './feedback.service';
@@ -18,6 +20,7 @@ export class FeedbackController {
   }
 
   @Post()
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   create(@Body() createFeedbackDto: CreateFeedbackDto) {
     return this.feedbackService.create(createFeedbackDto);
   }

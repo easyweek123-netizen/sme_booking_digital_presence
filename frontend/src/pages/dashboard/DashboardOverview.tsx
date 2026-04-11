@@ -11,7 +11,7 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { StatsCard } from '../../components/Dashboard';
+import { StatsCard, GettingStartedChecklist } from '../../components/Dashboard';
 import {
   CalendarIcon,
   LayersIcon,
@@ -144,7 +144,14 @@ export function DashboardOverview() {
         )}
       </Box>
 
-      {/* Quick Actions */}
+      {/* Getting Started Checklist (for new users) or Quick Actions */}
+      <GettingStartedChecklist
+        servicesCount={servicesCount}
+        hasCustomization={!!(business.brandColor || business.coverImageUrl)}
+        bookingUrl={`${window.location.origin}/book/${business.slug}`}
+        totalBookings={stats?.total || 0}
+      />
+
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Box
           bg="white"

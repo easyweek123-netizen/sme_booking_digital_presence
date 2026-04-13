@@ -89,7 +89,17 @@ export function BusinessUpdateProposal({
         <Button variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
-        <Button colorScheme="brand" size="sm" onClick={() => onSubmit(values)}>
+        <Button colorScheme="brand" size="sm" onClick={() => {
+          // Only send fields that have actual values — avoid sending empty strings
+          // that trigger backend validation (e.g., brandColor must be valid hex)
+          const filtered: Record<string, string> = {};
+          for (const [key, val] of Object.entries(values)) {
+            if (val !== '') {
+              filtered[key] = val;
+            }
+          }
+          onSubmit(filtered);
+        }}>
           Confirm
         </Button>
       </HStack>

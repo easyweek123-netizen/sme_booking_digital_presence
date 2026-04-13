@@ -38,8 +38,10 @@ function App() {
           <Route path={ROUTES.PRIVACY} element={<PrivacyPolicy />} />
           <Route path={ROUTES.TERMS} element={<TermsOfService />} />
           <Route path={ROUTES.IMPRESSUM} element={<Impressum />} />
-          <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
         </Route>
+
+        {/* Booking page — standalone, no BookEasy header/footer */}
+        <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
         
         {/* Protected routes - Dashboard has its own layout */}
         <Route

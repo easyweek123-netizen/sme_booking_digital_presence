@@ -35,8 +35,9 @@ export function ServiceCard({ service, brandColor, onBook }: ServiceCardProps) {
       p={4}
       borderRadius="xl"
       border="1px"
-      borderColor="gray.100"
-      _hover={{ borderColor: 'brand.200', boxShadow: 'sm' }}
+      borderColor="gray.200"
+      boxShadow="sm"
+      _hover={{ borderColor: 'brand.200', boxShadow: 'md' }}
       transition="all 0.2s"
     >
       <Flex gap={4}>

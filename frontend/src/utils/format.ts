@@ -9,10 +9,16 @@ export function formatDuration(minutes: number): string {
 }
 
 /**
- * Format price to currency string
+ * Format price to currency string.
+ * Defaults to EUR / de-AT locale for Austrian market.
+ * Override via optional params for other markets.
  */
-export function formatPrice(price: number, currency = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatPrice(
+  price: number,
+  currency = 'EUR',
+  locale = 'de-AT',
+): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
   }).format(price);

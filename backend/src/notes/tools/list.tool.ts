@@ -12,7 +12,8 @@ import { NotesService } from '../notes.service';
 @ToolHandler({
   name: 'notes_list',
   description:
-    'List notes for a customer or booking. Use customer ID from customers_list or booking ID from bookings_list. Returns note IDs for follow-up operations.',
+    'List notes filtered by customerId or bookingId. At least one filter is required. ' +
+    'Returns note IDs and content for follow-up with notes_update or notes_delete.',
 })
 @Injectable()
 export class ListNotesTool extends BaseToolHandler<NotesListFilters> {

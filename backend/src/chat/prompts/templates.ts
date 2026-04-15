@@ -1,98 +1,146 @@
-import type { Suggestion } from '@bookeasy/shared';
+import type { Business } from '../../business/entities/business.entity';
 
-export interface BusinessIdentity {
-  businessName: string;
-  businessType: string | null;
-  description: string | null;
+const PROMPT_TEMPLATE = `You are an expert in business development through digital marketing. 
+You need to help {owner}, who is owner of business "{name}".
+Analyse tools available and business profile carefully for reasoning.
+You need to own this business like an nice employee who is passionate about the business.
+Be concise (1-3 sentences) and helpful.
+
+You can help them by:
+1- Booking page setup: Customising their professional booking page for their bussiness.
+2- Grow bussiness: Helping them grow, by staying on top of their bussiness. 
+
+
+Proposal lifecycle (Actions panel):
+1. You call a tool that returns a proposal → the app shows an editable card in the Actions panel 
+(nothing is saved to the database yet).
+2. The user confirms or cancels on that card → only then does the change apply (or get discarded).
+3. Chat messages like "yes" or "confirm" are not a substitute for pressing Confirm on the card.
+4. As soon as user request to update something, show them the proposal card in the Actions panel and tell them to edit.
+5. After you create a proposal, tell the user to review the Actions panel and use Confirm or Cancel; do not say the change is already live until they confirm.
+
+Booking page setup:
+1- Check business profile and reason over what configuration user is missing to setup their booking page.
+Booking page should look professional and aesthetic after all configs in Business profile are present.
+2- Use tools to get and set data. Never make up data.
+3- When you want user to create/update/delete data, user tools for creating proposals. 
+User can confirm, cancel or ask followup questions about proposal.
+4- Be proactive about what user should do next.
+5- For better analysis business brand, start with adding desciption and services 
+so you know what their bussiness is about and then suggest proposals for contact 
+info, working hours, about content all other fields in business profile.
+6- On landing greet user with webpage since its live but encourage 
+them to update so it can be useful. Its easy to update and you can do it in a few minutes.
+7- Share the booking link from business profile bookingPageUrl. To get feedback and celebrate.
+
+Grow bussiness:
+1- Help user by staying on top of their bussiness. 
+2- Answer their questions in relevent domain.
+3- Provide realistic, next steps to grow their bussiness.
+4- Brainstorm ideas with user.
+5- Analyse data through tools and reason to come with useful stats i.e. Pending Requests, Todays Bookings, Upcoming bookings etc.
+
+RULES:
+1- For setup phase, create proposals with prefiled relevent data when user want to create or update something.
+2- Proactively find out if 1 is complete and move to phase 2.
+3- Use available tools to create proposals for all changes with prefilled suggestions.
+4- Be professional and engaging.
+5- Always use tools to stay grounded with data. Never make up data.
+6- Use data to reason and come with useful insights.
+
+NEVER:
+- Ask "would you like me to…?" — just create the proposal
+- Ask the user to provide field values in chat show proposal form instead.
+- Put HTML, code, or templates in your chat message — HTML belongs only in tool arguments
+- List your capabilities — take action or suggest a specific next step
+- Say "anything else?" — name what would make the page more valuable
+- Call business_get to check business profile — the context below is current
+
+BUSINESS PROFILE:
+{context}
+`;
+
+function summarizeWorkingHours(
+  wh: Record<string, { isOpen: boolean; openTime: string; closeTime: string }>,
+): string {
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+  const groups: { days: string[]; label: string }[] = [];
+
+  for (let i = 0; i < dayKeys.length; i++) {
+    const d = wh[dayKeys[i]];
+    const label = d?.isOpen ? `${d.openTime}-${d.closeTime}` : 'closed';
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) {
+      last.days.push(dayNames[i]);
+    } else {
+      groups.push({ days: [dayNames[i]], label });
+    }
+  }
+
+  return groups
+    .map((g) => {
+      const range =
+        g.days.length > 1
+          ? `${g.days[0]}-${g.days[g.days.length - 1]}`
+          : g.days[0];
+      return `${range} ${g.label}`;
+    })
+    .join(', ');
 }
 
-export const systemPrompt = (identity: BusinessIdentity): string => {
-  const type = identity.businessType || 'business';
-  const desc = identity.description
-    ? ` | ${identity.description}`
-    : '';
+export function formatBusinessContext(business: Business | null, appUrl: string): string {
+  if (!business) return 'No business created yet.';
 
-  return `You are BookEasy AI -- the dedicated business manager for "${identity.businessName}".
-Business: ${identity.businessName} | Type: ${type}${desc}
+  const val = (v: string | null | undefined) => v || 'not set';
 
-You help the owner manage their entire business through conversation:
-services, bookings, clients, and their public booking page.
+  const services = business.services ?? [];
+  const svc =
+    services.length === 0
+      ? 'none'
+      : services
+          .map((s) => `${s.name} ($${s.price}, ${s.durationMinutes}min)`)
+          .join(', ');
 
-# Rules
-1. Use tools for ALL data operations. Never fabricate business data.
-2. For any create or update: ALWAYS use tools to create proposals.
-   The user will see editable forms and confirm. Never just describe
-   changes in text — trigger the tool so the form appears.
-3. Be concise: 1-3 sentences per message.
-4. Extract MULTIPLE items from one message. If the user lists 3 services,
-   call services_create 3 times — one for each service. All forms will
-   appear together for the user to review.
-5. Never expose database IDs. Use names.
-6. Speak the language the user writes in.
+  const about = business.aboutContent
+    ? `set (${business.aboutContent.length} chars)`
+    : 'not set';
 
-# Guiding Setup
-When the business profile is incomplete:
-- Call business_get to check current state and missing fields.
-- Guide through this priority: services → contact info → working hours → description.
-- After each step, tell the user what's done and suggest the next step.
-- For working hours: suggest sensible defaults based on business type.
-- For description: write a professional draft and propose it via business_update.
-- Optional fields (brandColor, coverImageUrl, logoUrl): mention once, don't push.
-- When profile is complete: congratulate and share the booking page link.
+  const hours = business.workingHours
+    ? summarizeWorkingHours(
+        business.workingHours as unknown as Record<
+          string,
+          { isOpen: boolean; openTime: string; closeTime: string }
+        >,
+      )
+    : 'not set';
+  
+  const bookingUrl = appUrl && business.slug 
+    ? `${appUrl}/book/${business.slug}` 
+    : 'not available';
 
-# Daily Management
-When the business profile is complete:
-- Help with bookings, services, customers, notes, profile updates.
-- Be responsive to whatever the user needs.
-
-# Key Behavior
-- ALWAYS use tools to propose changes. The proposal creates a form
-  the user can edit. This is better than asking the user to type data.
-- When you have enough info to create a proposal, DO IT. Don't ask
-  "would you like me to add this?" — just propose it. The user can
-  cancel if they don't want it.
-- After the user confirms a proposal, suggest the next logical step.`;
-};
-
-export const buildWelcome = (businessName: string): string =>
-  `Welcome to ${businessName}! I'm your AI business manager. I can help you manage services, bookings, clients, and more. What would you like to do?`;
-
-interface SuggestionRule {
-  priority: number;
-  condition: (ctx: BusinessIdentity) => boolean;
-  build: (ctx: BusinessIdentity) => Suggestion;
+  return [
+    `name: ${business.name}`,
+    `type: ${business.businessType?.name ?? 'not set'}`,
+    `slug: ${business.slug}`,
+    `services: ${svc}`,
+    `phone: ${val(business.phone)}`,
+    `address: ${val(business.address)}`,
+    `city: ${val(business.city)}`,
+    `workingHours: ${hours}`,
+    `description: ${val(business.description)}`,
+    `aboutContent: ${about}`,
+    `website: ${val(business.website)}`,
+    `instagram: ${val(business.instagram)}`,
+    `brandColor: ${val(business.brandColor)}`,
+    `bookingPageUrl: ${bookingUrl}`,
+  ].join('\n');
 }
 
-const SUGGESTION_RULES: SuggestionRule[] = [
-  {
-    priority: 0,
-    condition: (ctx) => !ctx.businessType,
-    build: () => ({ label: 'Set business type', value: 'Help me set my business type' }),
-  },
-  {
-    priority: 1,
-    condition: (ctx) => !ctx.description,
-    build: () => ({ label: 'Add a description', value: 'Help me add a business description' }),
-  },
-  {
-    priority: 10,
-    condition: () => true,
-    build: () => ({ label: 'Manage services', value: 'Show me my services' }),
-  },
-  {
-    priority: 11,
-    condition: () => true,
-    build: () => ({ label: "Today's bookings", value: "What's my schedule today?" }),
-  },
-  {
-    priority: 12,
-    condition: () => true,
-    build: () => ({ label: 'View clients', value: 'Show my clients' }),
-  },
-];
-
-export const buildSuggestions = (identity: BusinessIdentity): Suggestion[] =>
-  SUGGESTION_RULES
-    .filter((rule) => rule.condition(identity))
-    .sort((a, b) => a.priority - b.priority)
-    .map((rule) => rule.build(identity));
+export function systemPrompt(business: Business | null, appUrl: string): string {
+  return PROMPT_TEMPLATE.replace('{name}', business?.name ?? 'New Business')
+    .replace('{context}', formatBusinessContext(business, appUrl))
+    .replace('{slug}', business?.slug ?? '')
+    .replace('{owner}', business?.owner?.name ?? 'the owner');
+}

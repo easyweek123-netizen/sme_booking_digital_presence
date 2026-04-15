@@ -13,8 +13,11 @@ import { BusinessService } from '../business.service';
 @ToolHandler({
   name: 'business_update',
   description:
-    'Update the business profile. Accepts any combination of: name, description, phone, address, city, website, instagram, logoUrl, brandColor, coverImageUrl, aboutContent. ' +
-    'For aboutContent: generate rich HTML content for the public booking page About section -- use headings, paragraphs, lists, and blockquotes to create a compelling business story. At least one field is required.',
+    'Propose updates for business profile. Call this tool to show an editable form and propose prefilled data as default values.' +
+    'User confirm, cancel or ask followup questions about proposal. ' +
+    'On updates: only send fields being changed — existing values are pre-filled automatically. ' +
+    'Fields: name, description (short plain-text tagline for the hero, not HTML), phone, address, city, website, instagram, logoUrl, brandColor, coverImageUrl, workingHours (all 7 days with sensible defaults for the business type), aboutContent (long About section: HTML only <h2>, <p>, <ul>, <blockquote>;. ' +
+    'Prefer batching related fields (e.g. phone + address + city, or all branding fields together). At least one field is required.',
 })
 @Injectable()
 export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
@@ -33,10 +36,9 @@ export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
       );
     }
 
-    // Destructure to exclude non-updateable fields; rest = full current profile
     const {
       id, ownerId, slug, createdAt, updatedAt,
-      owner, services, bookings, businessType, businessTypeId, workingHours,
+      owner, services, bookings, businessType, businessTypeId,
       ...currentProfile
     } = business;
 
@@ -54,8 +56,8 @@ export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
     const changes = Object.entries(updates).map(([key, value]) => {
       const old = currentProfile[key as keyof typeof currentProfile];
       return old === null || old === '' || old === undefined
-        ? `${key}: (added)`
-        : `${key}: updated`;
+        ? `${key}: (proposed new value)`
+        : `${key}: (updated to change)`;
     });
 
     return ToolResultHelpers.withProposal(

@@ -5,6 +5,7 @@ import { removeProposal } from '../store/slices/canvasSlice';
 import { useSendActionResultMutation } from '../store/api';
 import { useActionRegistry } from '../config/actionRegistry';
 import type { ChatAction } from '@shared';
+import { useState } from 'react';
 
 /**
  * Unified hook for executing and cancelling proposals.
@@ -17,6 +18,7 @@ export function useProposalExecution() {
   const toast = useToast();
   const [sendActionResult] = useSendActionResultMutation();
   const registry = useActionRegistry();
+  const [loadingProposalId, setLoadingProposalId] = useState<string | null>(null);
 
   /**
    * Execute a proposal with the given form data
@@ -24,6 +26,7 @@ export function useProposalExecution() {
   const execute = async (proposal: ChatAction, formData?: Record<string, unknown>) => {
     try {
       // Get config from registry
+      setLoadingProposalId(proposal.proposalId);
       const config = registry[proposal.type];
 
       // Execute mutation if defined
@@ -51,6 +54,8 @@ export function useProposalExecution() {
         duration: 3000,
       });
       throw error;
+    } finally {
+      setLoadingProposalId(null);
     }
   };
 
@@ -72,5 +77,5 @@ export function useProposalExecution() {
     }
   };
 
-  return { execute, cancel, registry };
+  return { execute, cancel, registry, loadingProposalId };
 }

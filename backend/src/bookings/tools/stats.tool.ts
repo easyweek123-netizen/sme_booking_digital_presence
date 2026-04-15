@@ -15,7 +15,8 @@ type BookingsStatsArgs = z.infer<typeof BookingsStatsArgsSchema>;
 @ToolHandler({
   name: 'bookings_stats',
   description:
-    'Get booking statistics: total active (excluding cancelled), count scheduled for today, pending requests awaiting confirmation, and a per-status breakdown (PENDING, CONFIRMED, CANCELLED, COMPLETED, NO_SHOW).',
+    'Quick booking overview: total active, today count, pending count, and per-status breakdown. ' +
+    'Use for dashboard summaries. For details on specific bookings, use bookings_list with filters instead.',
 })
 @Injectable()
 export class BookingStatsTool extends BaseToolHandler<BookingsStatsArgs> {

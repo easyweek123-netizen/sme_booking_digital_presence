@@ -14,7 +14,7 @@ import { CustomersService } from '../../customers/customers.service';
 @ToolHandler({
   name: 'notes_update',
   description:
-    'Update an existing note. Use note ID from notes_list.',
+    'Update note content. Requires note ID from notes_list and new content text. Replaces the entire note content.',
 })
 @Injectable()
 export class UpdateNoteTool extends BaseToolHandler<NotesUpdateArgs> {

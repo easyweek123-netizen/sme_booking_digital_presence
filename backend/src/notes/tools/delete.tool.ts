@@ -14,7 +14,7 @@ import { CustomersService } from '../../customers/customers.service';
 @ToolHandler({
   name: 'notes_delete',
   description:
-    'Delete a note. Use note ID from notes_list. Requires confirmation.',
+    'Delete a note permanently. Requires note ID from notes_list. Requires owner confirmation. Use only when user explicitly asks to remove a note.',
 })
 @Injectable()
 export class DeleteNoteTool extends BaseToolHandler<NotesDeleteArgs> {

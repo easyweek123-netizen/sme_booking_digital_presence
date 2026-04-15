@@ -50,7 +50,8 @@ type UpdateServiceArgs = z.infer<typeof UpdateServiceArgsSchema>;
 @ToolHandler({
   name: 'services_update',
   description:
-    'Update an existing service. Use the service ID from services_list, or the service name.',
+    'Update an existing service. Lookup by ID (preferred, from services_list) or name. ' +
+    'Can change any field i.e. name (via newName), price, durationMinutes, description, or imageUrl. Only send fields that change.',
 })
 @Injectable()
 export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {

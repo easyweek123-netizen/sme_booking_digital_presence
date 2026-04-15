@@ -19,7 +19,8 @@ import { BookingStatus } from '../entities/booking.entity';
 @ToolHandler({
   name: 'bookings_update_status',
   description:
-    'Change a booking status (confirm, cancel, complete, mark no-show). Use booking id from bookings_list or the reference code.',
+    'Change a booking status: CONFIRMED, CANCELLED, COMPLETED, or NO_SHOW. Lookup by booking ID (from bookings_list) or reference code. ' +
+    'Requires owner confirmation. Use after bookings_list to get the ID.',
 })
 @Injectable()
 export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatusArgs> {

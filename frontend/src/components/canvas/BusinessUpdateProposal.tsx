@@ -4,12 +4,16 @@ import { BUSINESS_PROFILE_FIELDS, BUSINESS_BRANDING_FIELDS, BUSINESS_ABOUT_FIELD
 import { BusinessProfileFields } from '../Dashboard/BusinessProfileFields';
 import { AboutContentFields } from '../Dashboard/AboutContentFields';
 import { BrandingFields } from '../ui/BrandingFields';
+import { WorkingHoursEditor } from '../onboarding/WorkingHoursEditor';
+import { defaultWorkingHours } from '../../store/slices/onboardingSlice';
+import type { WorkingHours } from '../../types';
 
 interface BusinessUpdateProposalProps {
-  initialValues: Record<string, string>;
+  initialValues: Record<string, unknown>;
   updatedFields: string[];
-  onSubmit: (data: Record<string, string>) => void;
+  onSubmit: (data: Record<string, unknown>) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 export function BusinessUpdateProposal({
@@ -17,6 +21,7 @@ export function BusinessUpdateProposal({
   updatedFields,
   onSubmit,
   onCancel,
+  isLoading = false,
 }: BusinessUpdateProposalProps) {
   const [values, setValues] = useState<Record<string, string>>(() => {
     const merged: Record<string, string> = {};
@@ -26,9 +31,14 @@ export function BusinessUpdateProposal({
     return merged;
   });
 
+  const [workingHours, setWorkingHours] = useState<WorkingHours>(
+    () => (initialValues.workingHours as WorkingHours) ?? defaultWorkingHours,
+  );
+
   const showProfile = updatedFields.some((f) => (BUSINESS_PROFILE_FIELDS as readonly string[]).includes(f));
   const showBranding = updatedFields.some((f) => (BUSINESS_BRANDING_FIELDS as readonly string[]).includes(f));
   const showAbout = updatedFields.some((f) => (BUSINESS_ABOUT_FIELDS as readonly string[]).includes(f));
+  const showWorkingHours = updatedFields.includes('workingHours');
 
   const handleFieldChange = (name: string, value: string) => {
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -85,18 +95,32 @@ export function BusinessUpdateProposal({
         </VStack>
       )}
 
+      {showWorkingHours && (
+        <VStack spacing={3} align="stretch">
+          <Heading size="xs" color="gray.600">
+            Working Hours
+          </Heading>
+          <WorkingHoursEditor
+            value={workingHours}
+            onChange={setWorkingHours}
+            defaultExpanded={true}
+          />
+        </VStack>
+      )}
+
       <HStack spacing={3} justify="flex-end" pt={2}>
-        <Button variant="ghost" size="sm" onClick={onCancel}>
+        <Button variant="ghost" size="sm" onClick={onCancel} isDisabled={isLoading}>
           Cancel
         </Button>
-        <Button colorScheme="brand" size="sm" onClick={() => {
-          // Only send fields that have actual values — avoid sending empty strings
-          // that trigger backend validation (e.g., brandColor must be valid hex)
-          const filtered: Record<string, string> = {};
+        <Button isLoading={isLoading} colorScheme="brand" size="sm" onClick={() => {
+          const filtered: Record<string, unknown> = {};
           for (const [key, val] of Object.entries(values)) {
             if (val !== '') {
               filtered[key] = val;
             }
+          }
+          if (showWorkingHours) {
+            filtered.workingHours = workingHours;
           }
           onSubmit(filtered);
         }}>

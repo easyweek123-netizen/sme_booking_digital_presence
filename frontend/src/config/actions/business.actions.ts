@@ -7,7 +7,7 @@ export function useBusinessActions(): Record<string, RuntimeActionHandler> {
   const [updateBusiness] = useUpdateBusinessMutation();
 
   return {
-    'business:update': defineHandler<BusinessUpdateAction, Record<string, string>>({
+    'business:update': defineHandler<BusinessUpdateAction, Record<string, unknown>>({
       component: BusinessUpdateProposal,
       title: 'Update Business Profile',
       getProps: (action) => ({

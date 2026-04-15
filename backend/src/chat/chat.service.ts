@@ -4,28 +4,54 @@ import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BusinessService } from '../business/business.service';
 import { ToolRegistry } from '../common/tools';
-import { ChatResponseDto } from './dto/chat.dto';
-import { ToolResultHelpers, type ChatAction, type PreviewContext, type ToolResult } from '@bookeasy/shared';
-import type { ToolContext } from '../common';
+import { ChatResponseDto, ActionResultDto } from './dto/chat.dto';
 import {
-  systemPrompt,
-  buildWelcome,
-  buildSuggestions,
-} from './prompts';
-import type { BusinessIdentity } from './prompts';
-import type { Business } from '../business/entities/business.entity';
+  ToolResultHelpers,
+  type ChatAction,
+  type PreviewContext,
+  type ToolResult,
+  type Suggestion,
+} from '@bookeasy/shared';
+import type { ToolContext } from '../common';
+import { systemPrompt } from './prompts';
 
-interface BusinessContext {
-  business: Pick<Business, 'id' | 'name' | 'description'> | null;
-  businessType: string | null;
-}
-
-/**
- * Chat Service
- * 
- * Orchestrates AI conversations and tool calls.
- * Uses ToolRegistry for explicitly registered tool handlers.
- */
+const RESPONSE_SCHEMA = {
+  type: 'json_schema' as const,
+  json_schema: {
+    name: 'chat_response',
+    strict: true,
+    schema: {
+      type: 'object',
+      properties: {
+        content: {
+          type: 'string',
+          description: 'Your message to the user',
+        },
+        suggestions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              label: {
+                type: 'string',
+                description: 'Short button label (2-5 words)',
+              },
+              value: {
+                type: 'string',
+                description: 'Message sent when user taps this',
+              },
+            },
+            required: ['label', 'value'],
+            additionalProperties: false,
+          },
+          description: 'Include 2-3 contextual suggestions when there is a clear next step. Omit suggestions (empty array) when the conversation is open-ended.',
+        },
+      },
+      required: ['content', 'suggestions'],
+      additionalProperties: false,
+    },
+  },
+};
 @Injectable()
 export class ChatService {
   private static readonly MAX_TOOL_ROUNDS = 10;
@@ -45,56 +71,83 @@ export class ChatService {
       baseURL: this.configService.get('AI_BASE_URL'),
     });
 
-    this.model = this.configService.get('AI_MODEL') || 'llama-3.3-70b-versatile';
+    this.model =
+      this.configService.get('AI_MODEL') || 'llama-3.3-70b-versatile';
   }
+
+  // ── Public API (thin wrappers) ───────────────────────────────────
 
   async initChat(ownerId: number): Promise<ChatResponseDto> {
-    const context = await this.buildContext(ownerId);
-    const prompt = this.buildSystemPrompt(context);
+    const { history, toolContext } = await this.prepareContext(ownerId);
+    history.push({ role: 'user', content: '[Chat opened]' });
+    return this.completeChat(ownerId, history, toolContext);
+  }
 
-    this.conversationHistory.set(ownerId, [
-      { role: 'system', content: prompt },
-    ]);
+  async sendMessage(
+    ownerId: number,
+    message: string,
+  ): Promise<ChatResponseDto> {
+    const { history, toolContext } = await this.prepareContext(ownerId);
+    history.push({ role: 'user', content: message });
+    return this.completeChat(ownerId, history, toolContext);
+  }
 
-    const identity = this.toIdentity(context);
+  async processActionResult(
+    ownerId: number,
+    dto: ActionResultDto,
+  ): Promise<ChatResponseDto> {
+    const { history, toolContext } = await this.prepareContext(ownerId);
+    history.push({
+      role: 'user',
+      content:
+        dto.status === 'confirmed'
+          ? `[Action confirmed: ${dto.proposalId}]`
+          : `[Action cancelled: ${dto.proposalId}]`,
+    });
+    return this.completeChat(ownerId, history, toolContext);
+  }
+
+  // ── Core: context preparation ────────────────────────────────────
+
+  private async prepareContext(ownerId: number) {
+    const business = await this.businessService.findByOwnerId(ownerId);
+    const appUrl = this.configService.get('FRONTEND_APP_URL', 'https://');
+    const prompt = systemPrompt(business, appUrl);
+    console.log('prompt', prompt);
+    let history = this.conversationHistory.get(ownerId);
+    if (!history) {
+      history = [{ role: 'system' as const, content: prompt }];
+      this.conversationHistory.set(ownerId, history);
+    } else {
+      history[0] = { role: 'system' as const, content: prompt };
+    }
 
     return {
-      role: 'bot',
-      content: buildWelcome(identity.businessName),
-      suggestions: buildSuggestions(identity),
+      history,
+      toolContext: {
+        ownerId,
+        businessId: business?.id ?? 0,
+      } as ToolContext,
     };
   }
 
-  async sendMessage(ownerId: number, message: string): Promise<ChatResponseDto> {
-    // Get or initialize conversation and business context
-    const businessContext = await this.buildContext(ownerId);
-    
-    let history = this.conversationHistory.get(ownerId);
-    if (!history) {
-      history = [{ role: 'system', content: this.buildSystemPrompt(businessContext) }];
-      this.conversationHistory.set(ownerId, history);
-    }
+  // ── Core: AI completion (tools + structured output) ──────────────
 
-    // Build tool context (pre-resolved for handlers)
-    const toolContext: ToolContext = {
-      ownerId,
-      businessId: businessContext.business?.id ?? 0,
-    };
-
-    // Add user message
-    history.push({ role: 'user', content: message });
-
+  private async completeChat(
+    ownerId: number,
+    history: ChatCompletionMessageParam[],
+    toolContext: ToolContext,
+  ): Promise<ChatResponseDto> {
     try {
-      // Call AI with registered tools
       const response = await this.client.chat.completions.create({
         model: this.model,
         messages: history,
         tools: this.toolRegistry.getToolDefinitions(),
+        response_format: RESPONSE_SCHEMA,
       });
 
       const choice = response.choices[0];
 
-      // Check if AI wants to call a tool
       if (
         choice.finish_reason === 'tool_calls' &&
         choice.message.tool_calls?.length
@@ -104,30 +157,26 @@ export class ChatService {
           type: string;
           function: { name: string; arguments: string };
         }>;
-        return this.handleToolCalls(ownerId, toolCalls, history, toolContext);
+        return this.handleToolCalls(
+          ownerId,
+          toolCalls,
+          history,
+          toolContext,
+        );
       }
-
-      // Normal text response
-      const content = choice.message.content || "I'm here to help!";
-      history.push({ role: 'assistant', content });
-      this.trimHistory(ownerId, history);
-
-      return { role: 'bot', content };
+      console.log("history", JSON.stringify(history));
+      return this.parseStructuredResponse(ownerId, choice.message.content, history);
     } catch (error) {
-      this.logger.error('AI API error:', error);
+      this.logger.error('AI completion error:', error);
       return {
         role: 'bot',
-        content: 'Sorry, I encountered an error. Please try again in a moment.',
+        content: 'Sorry, something went wrong. Please try again.',
       };
     }
   }
 
-  /**
-   * Process tool calls iteratively until the model returns a text response.
-   * Uses a local messages array so intermediate tool-call artifacts never
-   * pollute the persistent conversation history. Only the final assistant
-   * text response is pushed to history.
-   */
+  // ── Tool call loop (ReAct) ───────────────────────────────────────
+
   private async handleToolCalls(
     ownerId: number,
     toolCalls: Array<{
@@ -173,29 +222,33 @@ export class ChatService {
           model: this.model,
           messages,
           tools: this.toolRegistry.getToolDefinitions(),
+          response_format: RESPONSE_SCHEMA,
         });
 
         const choice = next.choices[0];
-        if (choice.finish_reason === 'tool_calls' && choice.message.tool_calls?.length) {
+        if (
+          choice.finish_reason === 'tool_calls' &&
+          choice.message.tool_calls?.length
+        ) {
           currentToolCalls = choice.message.tool_calls as typeof currentToolCalls;
           continue;
         }
 
-        const content = choice.message.content || 'Here you go!';
-        history.push({ role: 'assistant', content });
-        this.trimHistory(ownerId, history);
-
-        return {
-          role: 'bot',
-          content,
-          proposals: allProposals.length > 0 ? allProposals : undefined,
-          previewContext,
-        };
+        const response = this.parseStructuredResponse(
+          ownerId,
+          choice.message.content,
+          history,
+        );
+        response.proposals =
+          allProposals.length > 0 ? allProposals : undefined;
+        response.previewContext = previewContext;
+        return response;
       } catch (error) {
         this.logger.error('AI API error (tool chain):', error);
         return {
           role: 'bot',
-          content: 'I prepared that for you, but had an issue generating my response.',
+          content:
+            'I prepared that for you, but had an issue generating my response.',
           proposals: allProposals.length > 0 ? allProposals : undefined,
           previewContext,
         };
@@ -206,9 +259,36 @@ export class ChatService {
     this.trimHistory(ownerId, history);
     return {
       role: 'bot',
-      content: 'I gathered the information but hit a processing limit. Here is what I have so far.',
+      content:
+        'I gathered the information but hit a processing limit. Here is what I have so far.',
       proposals: allProposals.length > 0 ? allProposals : undefined,
       previewContext,
+    };
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────
+
+  private parseStructuredResponse(
+    ownerId: number,
+    rawContent: string | null,
+    history: ChatCompletionMessageParam[],
+  ): ChatResponseDto {
+    const fallback = { content: "I'm here to help!", suggestions: [] };
+
+    let parsed: { content: string; suggestions: Suggestion[] };
+    try {
+      parsed = rawContent ? JSON.parse(rawContent) : fallback;
+    } catch {
+      parsed = { content: rawContent || fallback.content, suggestions: [] };
+    }
+
+    history.push({ role: 'assistant', content: rawContent || fallback.content });
+    this.trimHistory(ownerId, history);
+
+    return {
+      role: 'bot',
+      content: parsed.content,
+      suggestions: parsed.suggestions,
     };
   }
 
@@ -231,51 +311,6 @@ export class ChatService {
     return this.toolRegistry.process(toolCall.function.name, args, toolContext);
   }
 
-  /**
-   * Process action result from frontend
-   */
-  async processActionResult(
-    ownerId: number,
-    result: { proposalId: string; status: string; result?: Record<string, unknown> },
-  ): Promise<ChatResponseDto> {
-    let history = this.conversationHistory.get(ownerId);
-    
-    if (!history) {
-      const context = await this.buildContext(ownerId);
-      history = [{ role: 'system', content: this.buildSystemPrompt(context) }];
-      this.conversationHistory.set(ownerId, history);
-    }
-
-    const statusMessage = result.status === 'confirmed'
-      ? `[Action confirmed: ${result.proposalId}]`
-      : `[Action cancelled: ${result.proposalId}]`;
-    
-    history.push({ role: 'user', content: statusMessage });
-
-    try {
-      const response = await this.client.chat.completions.create({
-        model: this.model,
-        messages: history,
-      });
-
-      const content = response.choices[0].message.content || 
-        (result.status === 'confirmed' ? 'Done! What else can I help with?' : 'No problem! What else can I help with?');
-      
-      history.push({ role: 'assistant', content });
-      this.trimHistory(ownerId, history);
-
-      return { role: 'bot', content };
-    } catch (error) {
-      this.logger.error('AI API error (action result):', error);
-      return {
-        role: 'bot',
-        content: result.status === 'confirmed' 
-          ? "There was problem processing your request. Sorry, Try Again."
-          : "No problem! Let me know if you need anything else.",
-      };
-    }
-  }
-
   private trimHistory(
     ownerId: number,
     history: ChatCompletionMessageParam[],
@@ -285,34 +320,5 @@ export class ChatService {
       const trimmed = [system, ...history.slice(-29)];
       this.conversationHistory.set(ownerId, trimmed);
     }
-  }
-
-  private async buildContext(ownerId: number): Promise<BusinessContext> {
-    const business = await this.businessService.findByOwnerId(ownerId);
-
-    if (!business) {
-      return { business: null, businessType: null };
-    }
-
-    return {
-      business: {
-        id: business.id,
-        name: business.name,
-        description: business.description,
-      },
-      businessType: business.businessType?.name ?? null,
-    };
-  }
-
-  private toIdentity(ctx: BusinessContext): BusinessIdentity {
-    return {
-      businessName: ctx.business?.name || 'Your Business',
-      businessType: ctx.businessType,
-      description: ctx.business?.description ?? null,
-    };
-  }
-
-  private buildSystemPrompt(context: BusinessContext): string {
-    return systemPrompt(this.toIdentity(context));
   }
 }

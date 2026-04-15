@@ -1,4 +1,4 @@
-import { Text, Center, VStack, Box, Badge, HStack } from '@chakra-ui/react';
+import { Text, Center, VStack, Box, HStack } from '@chakra-ui/react';
 import { useAppDispatch } from '../../store/hooks';
 import { setActiveTab, clearProposals, removeProposal } from '../../store/slices/canvasSlice';
 import { useGetMyBusinessQuery } from '../../store/api';
@@ -17,13 +17,13 @@ interface ActionsRendererProps {
 
 interface ProposalCardProps {
   proposal: ChatAction;
-  index: number;
-  total: number;
 }
 
-function ProposalCard({ proposal, index, total }: ProposalCardProps) {
+function ProposalCard({ proposal }: ProposalCardProps) {
   const { data: business } = useGetMyBusinessQuery();
-  const { execute, cancel, registry } = useProposalExecution();
+  const { execute, cancel, registry, loadingProposalId } = useProposalExecution();
+
+  const isLoading = loadingProposalId === proposal.proposalId;
 
   const config = registry[proposal.type];
   if (!config) {
@@ -51,15 +51,8 @@ function ProposalCard({ proposal, index, total }: ProposalCardProps) {
 
   return (
     <Box>
-      {total > 1 && (
-        <HStack mb={2} spacing={2}>
-          <Badge colorScheme="brand" fontSize="xs">
-            {index + 1} of {total}
-          </Badge>
-        </HStack>
-      )}
       <CanvasActionsContainer title={config.title}>
-        <Component {...componentProps} onSubmit={handleSubmit} onCancel={handleCancel} />
+        <Component {...componentProps} onSubmit={handleSubmit} onCancel={handleCancel} isLoading={isLoading} />
       </CanvasActionsContainer>
     </Box>
   );
@@ -92,20 +85,10 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
     );
   }
 
-  // Render first proposal (queue-style)
-  const currentProposal = proposals[0];
-
-  const handleDismissError = () => {
-    dispatch(removeProposal(currentProposal.proposalId));
-  };
-
   return (
     <VStack spacing={4} align="stretch" h="full">
       {proposals.length > 1 && (
-        <HStack justify="space-between" px={1}>
-          <Text fontSize="sm" color="gray.500">
-            {proposals.length} actions pending
-          </Text>
+        <HStack justify="flex-end" px={1}>
           <Text
             as="button"
             fontSize="xs"
@@ -119,13 +102,15 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
         </HStack>
       )}
 
-      <ActionErrorBoundary
-        key={currentProposal.proposalId}
-        proposalId={currentProposal.proposalId}
-        onDismiss={handleDismissError}
-      >
-        <ProposalCard proposal={currentProposal} index={0} total={proposals.length} />
-      </ActionErrorBoundary>
+      {proposals.map((proposal) => (
+        <ActionErrorBoundary
+          key={proposal.proposalId}
+          proposalId={proposal.proposalId}
+          onDismiss={() => dispatch(removeProposal(proposal.proposalId))}
+        >
+          <ProposalCard proposal={proposal} />
+        </ActionErrorBoundary>
+      ))}
     </VStack>
   );
 }

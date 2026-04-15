@@ -73,6 +73,9 @@ interface ServiceFormProps {
   onCancel: () => void;
   /** Start with "More options" section expanded. Default: false */
   moreOptionsExpanded?: boolean;
+
+  /** Is loading */
+  isLoading?: boolean;
 }
 
 interface FormErrors {
@@ -88,6 +91,7 @@ export function ServiceForm({
   onSubmit,
   onCancel,
   moreOptionsExpanded = false,
+  isLoading = false,
 }: ServiceFormProps) {
   // Derive isEditing from initialValues
   const isEditing = initialValues != null;
@@ -433,6 +437,7 @@ export function ServiceForm({
               size="md"
               onClick={onCancel}
               borderRadius="lg"
+              isDisabled={isLoading}
             >
               Cancel
             </Button>
@@ -441,7 +446,7 @@ export function ServiceForm({
               size="md"
               onClick={handleSubmit}
               borderRadius="lg"
-              isDisabled={!useAllDays && selectedDays.length === 0}
+              isDisabled={isLoading || (!useAllDays && selectedDays.length === 0)}
             >
               {isEditing ? 'Update' : 'Add Service'}
             </Button>

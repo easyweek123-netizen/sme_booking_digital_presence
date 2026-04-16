@@ -9,6 +9,7 @@ import {
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { BusinessService } from '../business.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 @ToolHandler({
   name: 'business_update',
@@ -62,7 +63,10 @@ export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared updates for your business profile: ${changes.join(', ')}. Please review and confirm.`,
+      buildProposalToolMessage(
+        `business profile update — fields: ${changes.join(', ')}`,
+        [proposal],
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react';
 import { useAppDispatch } from '../store/hooks';
 import { addMessage } from '../store/slices/chatSlice';
-import { removeProposal } from '../store/slices/canvasSlice';
+import { addProposals, removeProposal } from '../store/slices/canvasSlice';
 import { useSendActionResultMutation } from '../store/api';
 import { useActionRegistry } from '../config/actionRegistry';
 import type { ChatAction } from '@shared';
@@ -34,15 +34,20 @@ export function useProposalExecution() {
         await config.execute(proposal, formData);
       }
 
-      // Send confirmation to backend and get AI follow-up
+      // Send confirmation to backend and get AI follow-up (include result for enriched feedback)
       const response = await sendActionResult({
         proposalId: proposal.proposalId,
         status: 'confirmed',
+        result: formData,
       }).unwrap();
 
+      debugger;
       // Update UI
       dispatch(addMessage(response));
       dispatch(removeProposal(proposal.proposalId));
+      if (response.proposals) {
+        dispatch(addProposals(response.proposals));
+      }
 
       toast({ title: 'Success', status: 'success', duration: 2000 });
     } catch (error) {

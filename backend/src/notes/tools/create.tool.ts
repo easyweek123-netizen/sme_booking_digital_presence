@@ -9,6 +9,7 @@ import {
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { CustomersService } from '../../customers/customers.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 @ToolHandler({
   name: 'notes_create',
@@ -65,7 +66,7 @@ export class CreateNoteTool extends BaseToolHandler<NotesCreateArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared a note ${target}. Please review and confirm.`,
+      buildProposalToolMessage(`note create ${target}`, [proposal]),
       'clients',
     );
   }

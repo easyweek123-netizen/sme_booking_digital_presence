@@ -9,6 +9,7 @@ import {
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Schema for services_update tool arguments.
@@ -122,7 +123,10 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared updates for "${service.name}": ${changesSummary}. Please review and confirm.`,
+      buildProposalToolMessage(
+        `service update "${service.name}" — ${changesSummary}`,
+        [proposal],
+      ),
     );
   }
 }

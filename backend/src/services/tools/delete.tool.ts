@@ -4,6 +4,7 @@ import { ToolHandler, BaseToolHandler } from '../../common/tools';
 import { createProposal, ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Schema for services_delete tool arguments.
@@ -72,7 +73,10 @@ export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `Are you sure you want to delete "${service.name}"? This cannot be undone.`,
+      buildProposalToolMessage(
+        `delete service "${service.name}"`,
+        [proposal],
+      ),
     );
   }
 }

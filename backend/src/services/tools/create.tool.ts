@@ -8,6 +8,7 @@ import {
   type ToolResult,
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Tool handler for creating a new service.
@@ -34,7 +35,10 @@ export class CreateServiceTool extends BaseToolHandler<ServiceInput> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared a new service "${name}" for $${price} (${durationMinutes} min). Please review and confirm.`,
+      buildProposalToolMessage(
+        `new service "${name}" — $${price}, ${durationMinutes} min`,
+        [proposal],
+      ),
     );
   }
 }

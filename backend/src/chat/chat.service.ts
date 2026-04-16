@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BusinessService } from '../business/business.service';
 import { ToolRegistry } from '../common/tools';
+import type { Business } from '../business/entities/business.entity';
 import { ChatResponseDto, ActionResultDto } from './dto/chat.dto';
 import {
   ToolResultHelpers,
@@ -14,6 +14,34 @@ import {
 } from '@bookeasy/shared';
 import type { ToolContext } from '../common';
 import { systemPrompt } from './prompts';
+import {
+  ChatCompletionProvider,
+  type ChatToolDefinition,
+  type ToolCallSummary,
+} from './providers';
+import { ConversationStore } from './history';
+import {
+  buildToolTraceAssistantContent,
+  formatToolTraceLine,
+} from '../common/tools';
+
+// ── Response schema ─────────────────────────────────────────────────
+
+const SUGGESTION_ITEM_SCHEMA = {
+  type: 'object',
+  properties: {
+    label: {
+      type: 'string',
+      description: 'Short button label (2-5 words)',
+    },
+    value: {
+      type: 'string',
+      description: 'Message sent when user taps this',
+    },
+  },
+  required: ['label', 'value'],
+  additionalProperties: false,
+} as const;
 
 const RESPONSE_SCHEMA = {
   type: 'json_schema' as const,
@@ -25,62 +53,53 @@ const RESPONSE_SCHEMA = {
       properties: {
         content: {
           type: 'string',
-          description: 'Your message to the user',
+          description:
+            'Your message to the user. Never claim data is saved or live unless the user message is [Action confirmed: ...] or you are directing them to confirm in the Actions panel.',
         },
         suggestions: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              label: {
-                type: 'string',
-                description: 'Short button label (2-5 words)',
-              },
-              value: {
-                type: 'string',
-                description: 'Message sent when user taps this',
-              },
-            },
-            required: ['label', 'value'],
-            additionalProperties: false,
-          },
-          description: 'Include 2-3 contextual suggestions when there is a clear next step. Omit suggestions (empty array) when the conversation is open-ended.',
+          description:
+            'Quick-reply chips. Use null when the next step is the Actions panel (e.g. after creating proposals) or when chips would not be helpful.',
+          anyOf: [
+            { type: 'array', items: SUGGESTION_ITEM_SCHEMA },
+            { type: 'null' },
+          ],
         },
       },
       required: ['content', 'suggestions'],
       additionalProperties: false,
     },
   },
-};
+} as const;
+
+// ── Service ─────────────────────────────────────────────────────────
+
 @Injectable()
 export class ChatService {
   private static readonly MAX_TOOL_ROUNDS = 10;
   private readonly logger = new Logger(ChatService.name);
-  private client: OpenAI;
-  private model: string;
-  private conversationHistory: Map<number, ChatCompletionMessageParam[]> =
-    new Map();
 
   constructor(
-    private configService: ConfigService,
-    private businessService: BusinessService,
-    private toolRegistry: ToolRegistry,
-  ) {
-    this.client = new OpenAI({
-      apiKey: this.configService.get('AI_API_KEY'),
-      baseURL: this.configService.get('AI_BASE_URL'),
-    });
+    private readonly configService: ConfigService,
+    private readonly businessService: BusinessService,
+    private readonly toolRegistry: ToolRegistry,
+    private readonly completionProvider: ChatCompletionProvider,
+    private readonly conversationStore: ConversationStore,
+  ) {}
 
-    this.model =
-      this.configService.get('AI_MODEL') || 'llama-3.3-70b-versatile';
+  /**
+   * Resolved at request time because ToolDiscoveryService.onModuleInit
+   * registers handlers after all constructors have run.
+   */
+  private getTools(): ChatToolDefinition[] {
+    return this.toolRegistry.getToolDefinitions() as ChatToolDefinition[];
   }
 
-  // ── Public API (thin wrappers) ───────────────────────────────────
+  // ── Public entry points ───────────────────────────────────────────
 
   async initChat(ownerId: number): Promise<ChatResponseDto> {
     const { history, toolContext } = await this.prepareContext(ownerId);
     history.push({ role: 'user', content: '[Chat opened]' });
-    return this.completeChat(ownerId, history, toolContext);
+    return this.runChatTurn(ownerId, history, toolContext);
   }
 
   async sendMessage(
@@ -89,7 +108,7 @@ export class ChatService {
   ): Promise<ChatResponseDto> {
     const { history, toolContext } = await this.prepareContext(ownerId);
     history.push({ role: 'user', content: message });
-    return this.completeChat(ownerId, history, toolContext);
+    return this.runChatTurn(ownerId, history, toolContext);
   }
 
   async processActionResult(
@@ -97,30 +116,34 @@ export class ChatService {
     dto: ActionResultDto,
   ): Promise<ChatResponseDto> {
     const { history, toolContext } = await this.prepareContext(ownerId);
-    history.push({
-      role: 'user',
-      content:
-        dto.status === 'confirmed'
-          ? `[Action confirmed: ${dto.proposalId}]`
-          : `[Action cancelled: ${dto.proposalId}]`,
-    });
-    return this.completeChat(ownerId, history, toolContext);
+
+    const feedbackContent =
+      dto.status === 'confirmed'
+        ? this.buildConfirmedFeedback(dto)
+        : `[Action cancelled: ${dto.proposalId}] — no changes were made.`;
+
+    history.push({ role: 'user', content: feedbackContent });
+    return this.runChatTurn(ownerId, history, toolContext);
   }
 
-  // ── Core: context preparation ────────────────────────────────────
+  // ── Context preparation (single DB query) ─────────────────────────
 
-  private async prepareContext(ownerId: number) {
+  private async prepareContext(ownerId: number): Promise<{
+    history: ChatCompletionMessageParam[];
+    toolContext: ToolContext;
+    business: Business | null;
+  }> {
     const business = await this.businessService.findByOwnerId(ownerId);
-    const appUrl = this.configService.get('FRONTEND_APP_URL', 'https://');
+    const appUrl = this.configService.get<string>(
+      'FRONTEND_APP_URL',
+      'https://',
+    );
     const prompt = systemPrompt(business, appUrl);
-    console.log('prompt', prompt);
-    let history = this.conversationHistory.get(ownerId);
-    if (!history) {
-      history = [{ role: 'system' as const, content: prompt }];
-      this.conversationHistory.set(ownerId, history);
-    } else {
-      history[0] = { role: 'system' as const, content: prompt };
-    }
+
+    const history = this.conversationStore.ensure(ownerId, {
+      role: 'system',
+      content: prompt,
+    });
 
     return {
       history,
@@ -128,44 +151,34 @@ export class ChatService {
         ownerId,
         businessId: business?.id ?? 0,
       } as ToolContext,
+      business,
     };
   }
 
-  // ── Core: AI completion (tools + structured output) ──────────────
+  // ── Core turn: first completion → optional tool loop → response ───
 
-  private async completeChat(
+  private async runChatTurn(
     ownerId: number,
     history: ChatCompletionMessageParam[],
     toolContext: ToolContext,
   ): Promise<ChatResponseDto> {
     try {
-      const response = await this.client.chat.completions.create({
-        model: this.model,
+      const first = await this.completionProvider.complete({
         messages: history,
-        tools: this.toolRegistry.getToolDefinitions(),
-        response_format: RESPONSE_SCHEMA,
+        tools: this.getTools(),
+        responseFormat: RESPONSE_SCHEMA,
       });
 
-      const choice = response.choices[0];
-
-      if (
-        choice.finish_reason === 'tool_calls' &&
-        choice.message.tool_calls?.length
-      ) {
-        const toolCalls = choice.message.tool_calls as Array<{
-          id: string;
-          type: string;
-          function: { name: string; arguments: string };
-        }>;
+      if (first.finishReason === 'tool_calls' && first.toolCalls.length > 0) {
         return this.handleToolCalls(
           ownerId,
-          toolCalls,
+          first.toolCalls,
           history,
           toolContext,
         );
       }
-      console.log("history", JSON.stringify(history));
-      return this.parseStructuredResponse(ownerId, choice.message.content, history);
+
+      return this.buildResponse(ownerId, first.content, history);
     } catch (error) {
       this.logger.error('AI completion error:', error);
       return {
@@ -175,15 +188,11 @@ export class ChatService {
     }
   }
 
-  // ── Tool call loop (ReAct) ───────────────────────────────────────
+  // ── Tool call loop ────────────────────────────────────────────────
 
   private async handleToolCalls(
     ownerId: number,
-    toolCalls: Array<{
-      id: string;
-      type: string;
-      function: { name: string; arguments: string };
-    }>,
+    toolCalls: ToolCallSummary[],
     history: ChatCompletionMessageParam[],
     toolContext: ToolContext,
   ): Promise<ChatResponseDto> {
@@ -191,10 +200,13 @@ export class ChatService {
     let previewContext: PreviewContext | undefined;
     let currentToolCalls = toolCalls;
 
-    const messages: ChatCompletionMessageParam[] = [...history];
+    // Working copy for the multi-turn messages sent to the LLM.
+    // `history` is the persisted array; we only append trace + final to it.
+    // const messages: ChatCompletionMessageParam[] = [...history];
+    const toolTraceLines: string[] = [];
 
     for (let round = 0; round < ChatService.MAX_TOOL_ROUNDS; round++) {
-      messages.push({
+      history.push({
         role: 'assistant',
         content: null,
         tool_calls: currentToolCalls.map((tc) => ({
@@ -206,11 +218,14 @@ export class ChatService {
 
       for (const toolCall of currentToolCalls) {
         const result = await this.processToolCall(toolCall, toolContext);
-        messages.push({
+        history.push({
           role: 'tool',
           tool_call_id: toolCall.id,
           content: JSON.stringify(result),
         });
+        // toolTraceLines.push(
+        //   formatToolTraceLine(toolCall.function.name, result),
+        // );
         if (result.success) {
           if (result.proposals) allProposals.push(...result.proposals);
           if (result.previewContext) previewContext = result.previewContext;
@@ -218,25 +233,23 @@ export class ChatService {
       }
 
       try {
-        const next = await this.client.chat.completions.create({
-          model: this.model,
-          messages,
-          tools: this.toolRegistry.getToolDefinitions(),
-          response_format: RESPONSE_SCHEMA,
+        const next = await this.completionProvider.complete({
+          messages: history,
+          tools: this.getTools(),
+          responseFormat: RESPONSE_SCHEMA,
         });
 
-        const choice = next.choices[0];
-        if (
-          choice.finish_reason === 'tool_calls' &&
-          choice.message.tool_calls?.length
-        ) {
-          currentToolCalls = choice.message.tool_calls as typeof currentToolCalls;
+        if (next.finishReason === 'tool_calls' && next.toolCalls.length > 0) {
+          currentToolCalls = next.toolCalls;
           continue;
         }
 
-        const response = this.parseStructuredResponse(
+        // Persist tool trace to history once
+        this.appendToolTrace(history, toolTraceLines);
+
+        const response = await this.buildResponse(
           ownerId,
-          choice.message.content,
+          next.content,
           history,
         );
         response.proposals =
@@ -245,6 +258,7 @@ export class ChatService {
         return response;
       } catch (error) {
         this.logger.error('AI API error (tool chain):', error);
+        await this.conversationStore.trimWithSummaryIfNeeded(ownerId);
         return {
           role: 'bot',
           content:
@@ -256,7 +270,7 @@ export class ChatService {
     }
 
     this.logger.warn(`Tool loop hit ${ChatService.MAX_TOOL_ROUNDS} rounds`);
-    this.trimHistory(ownerId, history);
+    await this.conversationStore.trimWithSummaryIfNeeded(ownerId);
     return {
       role: 'bot',
       content:
@@ -266,34 +280,58 @@ export class ChatService {
     };
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────
 
-  private parseStructuredResponse(
+  private appendToolTrace(
+    history: ChatCompletionMessageParam[],
+    lines: string[],
+  ): void {
+    if (lines.length === 0) return;
+    history.push({
+      role: 'assistant',
+      content: buildToolTraceAssistantContent(lines),
+    });
+  }
+
+  private async buildResponse(
     ownerId: number,
     rawContent: string | null,
     history: ChatCompletionMessageParam[],
-  ): ChatResponseDto {
-    const fallback = { content: "I'm here to help!", suggestions: [] };
+  ): Promise<ChatResponseDto> {
+    const fallback = { content: "I'm here to help!", suggestions: null };
 
-    let parsed: { content: string; suggestions: Suggestion[] };
+    let parsed: { content: string; suggestions: Suggestion[] | null };
     try {
       parsed = rawContent ? JSON.parse(rawContent) : fallback;
     } catch {
-      parsed = { content: rawContent || fallback.content, suggestions: [] };
+      parsed = { content: rawContent || fallback.content, suggestions: null };
     }
 
-    history.push({ role: 'assistant', content: rawContent || fallback.content });
-    this.trimHistory(ownerId, history);
+    const suggestions =
+      parsed.suggestions == null || parsed.suggestions.length === 0
+        ? undefined
+        : parsed.suggestions;
+
+    history.push({ role: 'assistant', content: parsed.content });
+    await this.conversationStore.trimWithSummaryIfNeeded(ownerId);
 
     return {
       role: 'bot',
       content: parsed.content,
-      suggestions: parsed.suggestions,
+      suggestions,
     };
   }
 
+  private buildConfirmedFeedback(dto: ActionResultDto): string {
+    const fields =
+      dto.result && Object.keys(dto.result).length > 0
+        ? Object.keys(dto.result).join(', ')
+        : 'see proposal type';
+    return `[Action confirmed: ${dto.proposalId}] — applied fields: ${fields}. Database is now updated.`;
+  }
+
   private async processToolCall(
-    toolCall: { function: { name: string; arguments: string } },
+    toolCall: ToolCallSummary,
     toolContext: ToolContext,
   ): Promise<ToolResult> {
     let args: Record<string, unknown>;
@@ -309,16 +347,5 @@ export class ChatService {
     }
 
     return this.toolRegistry.process(toolCall.function.name, args, toolContext);
-  }
-
-  private trimHistory(
-    ownerId: number,
-    history: ChatCompletionMessageParam[],
-  ): void {
-    if (history.length > 30) {
-      const system = history[0];
-      const trimmed = [system, ...history.slice(-29)];
-      this.conversationHistory.set(ownerId, trimmed);
-    }
   }
 }

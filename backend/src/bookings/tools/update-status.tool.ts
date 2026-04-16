@@ -12,6 +12,7 @@ import type { ToolContext } from '../../common';
 import { formatLocalYmd } from '../../common/time/local-date';
 import { BookingsService } from '../bookings.service';
 import { BookingStatus } from '../entities/booking.entity';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Propose a booking status change for owner confirmation.
@@ -67,7 +68,10 @@ export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatu
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `Ready to update ${booking.customerName}'s booking (${scheduledSummary}) from ${booking.status} to ${args.status}. Please confirm.`,
+      buildProposalToolMessage(
+        `booking status ${booking.customerName} (${scheduledSummary}): ${booking.status} → ${args.status}`,
+        [proposal],
+      ),
       'bookings',
     );
   }

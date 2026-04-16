@@ -12,7 +12,7 @@ export const ROUTES = {
     CANVAS: '/dashboard/canvas',
     BOOKINGS: '/dashboard/bookings',
     SERVICES: '/dashboard/services',
-    SETTINGS: '/dashboard/settings',
+    WEBSITE: '/dashboard/website',
   },
   BOOKING: {
     PATTERN: '/book/:slug',

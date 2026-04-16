@@ -23,7 +23,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import { PrimaryButton } from '../ui/PrimaryButton';
-import { MenuIcon, CloseIcon, UserIcon, SettingsIcon, LogOutIcon, ChevronDownIcon } from '../icons';
+import { MenuIcon, CloseIcon, UserIcon, GlobeIcon, LogOutIcon, ChevronDownIcon } from '../icons';
 import { ROUTES } from '../../config/routes';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { resetStore } from '../../store/actions';
@@ -170,13 +170,13 @@ export function Header() {
                       Dashboard
                     </MenuItem>
                     <MenuItem
-                      icon={<SettingsIcon size={18} />}
-                      onClick={() => navigate(ROUTES.DASHBOARD.SETTINGS)}
+                      icon={<GlobeIcon size={18} />}
+                      onClick={() => navigate(ROUTES.DASHBOARD.WEBSITE)}
                       _hover={{ bg: 'gray.50' }}
                       py={2}
                       px={4}
                     >
-                      Settings
+                      Website
                     </MenuItem>
                     <MenuDivider my={1} />
                     <MenuItem

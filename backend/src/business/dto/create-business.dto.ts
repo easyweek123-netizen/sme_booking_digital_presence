@@ -11,6 +11,7 @@ import {
   MaxLength,
   IsBoolean,
   Matches,
+  IsInt,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -122,6 +123,11 @@ export class CreateBusinessDto {
   @ValidateNested()
   @Type(() => WorkingHoursDto)
   workingHours?: WorkingHoursDto;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  businessTypeId?: number | null;
 
   @IsOptional()
   @IsArray()

@@ -17,6 +17,7 @@ const HOURS_SUGGESTIONS: Suggestion[] = [
 ];
 
 // Data collection steps (same for all users)
+// Business type suggestions are injected dynamically in useOnboardingFlow
 export const STEPS: Step[] = [
   {
     id: 'name',
@@ -24,9 +25,8 @@ export const STEPS: Step[] = [
     placeholder: 'e.g Mindful Studio',
   },
   {
-    id: 'hours',
-    message: 'What hours work best for {businessName}?',
-    suggestions: HOURS_SUGGESTIONS,
+    id: 'type',
+    message: 'What type of business is {businessName}?',
   },
 ];
 
@@ -35,6 +35,7 @@ export type HoursPreference = 'morning' | 'standard' | 'evening';
 
 export interface BusinessData {
   businessName: string;
+  businessTypeId: number | null;
   hoursPreference: HoursPreference | null;
 }
 
@@ -54,7 +55,7 @@ export type OnboardingAction =
 export const initialState: OnboardingState = {
   stepIndex: 0,
   messages: [{ role: 'bot', content: STEPS[0].message }],
-  data: { businessName: '', hoursPreference: null },
+  data: { businessName: '', businessTypeId: null, hoursPreference: null },
   isTyping: false,
 };
 
@@ -72,9 +73,15 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
         ? (action.value as HoursPreference)
         : null; // Custom text → null → defaults to standard
 
+      // Business type value is a stringified number ID (or empty string for skip)
+      const businessTypeIdValue = currentStep.id === 'type'
+        ? (action.value ? parseInt(action.value, 10) || null : null)
+        : undefined;
+
       const newData = {
         ...state.data,
         ...(currentStep.id === 'name' && { businessName: action.value }),
+        ...(currentStep.id === 'type' && { businessTypeId: businessTypeIdValue ?? null }),
         ...(currentStep.id === 'hours' && { hoursPreference: hoursValue }),
       };
 

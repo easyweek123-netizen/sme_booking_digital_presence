@@ -6,6 +6,20 @@ const config: ThemeConfig = {
 };
 
 const colors = {
+  // Alert red — for notification badges (proposals, pending actions)
+  // rose-600 tone: noticeable but not harsh
+  alert: {
+    50: '#FFF1F2',
+    100: '#FFE4E6',
+    200: '#FECDD3',
+    300: '#FDA4AF',
+    400: '#FB7185',
+    500: '#E11D48',
+    600: '#BE123C',
+    700: '#9F1239',
+    800: '#881337',
+    900: '#4C0519',
+  },
   brand: {
     50: '#E6F7F0',
     100: '#C0EAD8',

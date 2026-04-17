@@ -9,8 +9,6 @@ import {
   UseGuards,
   UseInterceptors,
   ParseIntPipe,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto, UpdateServiceDto } from './dto';
@@ -73,17 +71,18 @@ export class ServicesController {
   }
 
   /**
-   * Delete a service from the database
+   * Delete a service from the database.
+   * Returns { archived: true } if the service had bookings and was archived instead.
+   * Returns { archived: false } if it was permanently deleted.
    * DELETE /api/services/:id
    */
   @Delete(':id')
   @UseGuards(FirebaseAuthGuard)
   @UseInterceptors(OwnerResolverInterceptor)
-  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<void> {
+  ): Promise<{ archived: boolean }> {
     return this.servicesService.remove(id, ownerId);
   }
 }

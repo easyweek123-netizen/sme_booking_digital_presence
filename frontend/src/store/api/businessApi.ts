@@ -2,6 +2,7 @@ import { baseApi } from './baseApi';
 import type {
   Business,
   BusinessWithServices,
+  BusinessCategory,
   CreateBusinessRequest,
   UpdateBusinessRequest,
 } from '../../types';
@@ -31,6 +32,9 @@ export const businessApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Business'],
     }),
+    getBusinessCategories: builder.query<BusinessCategory[], void>({
+      query: () => '/business-categories',
+    }),
   }),
 });
 
@@ -39,4 +43,5 @@ export const {
   useGetMyBusinessQuery,
   useGetBusinessBySlugQuery,
   useUpdateBusinessMutation,
+  useGetBusinessCategoriesQuery,
 } = businessApi;

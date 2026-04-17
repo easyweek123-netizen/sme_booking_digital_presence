@@ -5,7 +5,8 @@ import {
   morningWorkingHours,
   eveningWorkingHours,
 } from '../../store/slices/onboardingSlice';
-import type { WorkingHours } from '../../types';
+import type { WorkingHours, BusinessCategory } from '../../types';
+import type { Suggestion } from '@shared';
 
 const HOURS_PRESETS: Record<HoursPreference, WorkingHours> = {
   morning: morningWorkingHours,
@@ -15,32 +16,49 @@ const HOURS_PRESETS: Record<HoursPreference, WorkingHours> = {
 
 const TYPING_DELAY = 700;
 
-export function useOnboardingFlow() {
+function buildBusinessTypeSuggestions(categories: BusinessCategory[]): Suggestion[] {
+  const typeSuggestions: Suggestion[] = categories.flatMap((category) =>
+    (category.types ?? [])
+      .filter((t) => t.isActive)
+      .map((t) => ({ label: t.name, value: String(t.id) }))
+  );
+  return [
+    ...typeSuggestions,
+    { label: 'Skip', value: '', variant: 'skip' as const },
+  ];
+}
+
+export function useOnboardingFlow(businessCategories: BusinessCategory[] = []) {
   const [{ stepIndex, messages, data, isTyping }, dispatch] = useReducer(onboardingReducer, initialState);
 
   const currentStep = STEPS[stepIndex];
   const nextStep = STEPS[stepIndex + 1];
-  
+
   // Onboarding is complete when stepIndex exceeds available steps
   const onboardingComplete = stepIndex >= STEPS.length;
 
   // Handle typing animation delay - only runs when there's a next step to show
   useEffect(() => {
     if (isTyping && nextStep) {
+      // Inject dynamic business type suggestions when the type step is next
+      const suggestions = nextStep.id === 'type'
+        ? buildBusinessTypeSuggestions(businessCategories)
+        : nextStep.suggestions;
+
       const timer = setTimeout(() => {
         dispatch({
           type: 'FINISH_TYPING',
           message: {
             role: 'bot',
             content: nextStep.message.replace('{businessName}', data.businessName),
-            suggestions: nextStep.suggestions,
+            suggestions,
           },
         });
       }, TYPING_DELAY);
 
       return () => clearTimeout(timer);
     }
-  }, [isTyping, data.businessName, nextStep]);
+  }, [isTyping, data.businessName, nextStep, businessCategories]);
 
   const handleSubmit = useCallback((value: string) => {
     const trimmed = value.trim();
@@ -73,5 +91,6 @@ export function useOnboardingFlow() {
     handleSubmit,
     handleSuggestionSelect,
     workingHours,
+    businessTypeId: data.businessTypeId,
   };
 }

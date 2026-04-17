@@ -117,11 +117,14 @@ export function DashboardServices() {
     if (!deletingService) return;
 
     try {
-      await deleteService(deletingService.id).unwrap();
+      const { archived } = await deleteService(deletingService.id).unwrap();
       toast({
-        title: 'Service deleted',
+        title: archived ? 'Service archived' : 'Service deleted',
+        description: archived
+          ? 'This service has existing bookings, so it was hidden to preserve booking history.'
+          : undefined,
         status: 'success',
-        duration: TOAST_DURATION.MEDIUM,
+        duration: archived ? TOAST_DURATION.LONG : TOAST_DURATION.MEDIUM,
       });
       closeDelete();
     } catch {
@@ -272,8 +275,10 @@ export function DashboardServices() {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you want to delete "{deletingService?.name}"? This action
-              cannot be undone.
+              Are you sure you want to delete "{deletingService?.name}"?
+              {' '}If this service has existing bookings, it will be archived
+              (hidden from your booking page) to preserve booking history.
+              Otherwise it will be permanently removed.
             </AlertDialogBody>
 
             <AlertDialogFooter gap={3}>

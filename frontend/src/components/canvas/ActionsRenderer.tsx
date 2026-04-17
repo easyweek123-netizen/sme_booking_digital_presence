@@ -53,7 +53,7 @@ function ProposalCard({ proposal, index, total }: ProposalCardProps) {
     <Box>
       {total > 1 && (
         <HStack mb={2} spacing={2}>
-          <Badge colorScheme="brand" fontSize="xs">
+          <Badge colorScheme="alert" fontSize="xs">
             {index + 1} of {total}
           </Badge>
         </HStack>

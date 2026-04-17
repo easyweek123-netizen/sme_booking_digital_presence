@@ -129,6 +129,7 @@ export interface CreateBusinessRequest {
   logoUrl?: string;
   brandColor?: string;
   workingHours?: WorkingHours;
+  businessTypeId?: number | null;
   services?: ServiceDto[];
 }
 

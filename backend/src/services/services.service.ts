@@ -172,13 +172,14 @@ export class ServicesService {
   }
 
   /**
-   * Delete a service from the database.
-   * Use toggle isActive for hiding/showing without deleting.
+   * Delete a service — hard deletes if it has no bookings, archives (isActive=false)
+   * if bookings exist so booking history is preserved.
+   * Returns { archived: true } when archived, { archived: false } when hard deleted.
    */
-  async remove(id: number, ownerId: number): Promise<void> {
+  async remove(id: number, ownerId: number): Promise<{ archived: boolean }> {
     const service = await this.serviceRepository.findOne({
       where: { id },
-      relations: ['business'],
+      relations: ['business', 'bookings'],
     });
 
     if (!service) {
@@ -187,8 +188,15 @@ export class ServicesService {
 
     await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
 
-    // Hard delete - remove from database
+    if (service.bookings && service.bookings.length > 0) {
+      // Archive instead of deleting — preserves booking history
+      service.isActive = false;
+      await this.serviceRepository.save(service);
+      return { archived: true };
+    }
+
     await this.serviceRepository.remove(service);
+    return { archived: false };
   }
 
 }

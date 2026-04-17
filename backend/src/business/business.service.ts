@@ -75,7 +75,7 @@ export class BusinessService {
       business.logoUrl = createBusinessDto.logoUrl || null;
       business.brandColor = createBusinessDto.brandColor || null;
       business.workingHours = createBusinessDto.workingHours || DEFAULT_WORKING_HOURS;
-      business.businessTypeId = null; // Category is optional, can be set later
+      business.businessTypeId = createBusinessDto.businessTypeId ?? null;
 
       const savedBusiness = await queryRunner.manager.save(business);
 

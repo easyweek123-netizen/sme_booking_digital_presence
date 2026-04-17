@@ -14,7 +14,22 @@ export function CanvasChat() {
   const isDesktop = useBreakpointValue({ base: false, lg: true });
 
   if (!isDesktop) {
-    return <MobileChatTabs />;
+    return (
+      // Fixed to viewport below the sticky MobileNav (60px).
+      // Escapes DashboardLayout's padded, unbounded parent so the tab footer
+      // stays pinned to the bottom of the screen regardless of content length.
+      <Box
+        position="fixed"
+        top="60px"
+        left={0}
+        right={0}
+        bottom={0}
+        bg="white"
+        zIndex={1}
+      >
+        <MobileChatTabs />
+      </Box>
+    );
   }
 
   return (

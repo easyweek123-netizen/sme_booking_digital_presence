@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 import { ConversationalOnboarding } from '../../components/ConversationalOnboarding';
 import { useOnboardingFlow } from '../../components/ConversationalOnboarding/useOnboardingFlow';
-import { useGetMyBusinessQuery, useCreateBusinessMutation } from '../../store/api/businessApi';
+import { useGetMyBusinessQuery, useCreateBusinessMutation, useGetBusinessCategoriesQuery } from '../../store/api/businessApi';
 import { useAppSelector } from '../../store/hooks';
 import { ROUTES } from '../../config/routes';
 
@@ -11,6 +11,9 @@ export function OnboardingPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  // Fetch business categories for the type selection step
+  const { data: businessCategories = [] } = useGetBusinessCategoriesQuery();
 
   // Onboarding flow state
   const {
@@ -23,7 +26,8 @@ export function OnboardingPage() {
     handleSubmit,
     handleSuggestionSelect,
     workingHours,
-  } = useOnboardingFlow();
+    businessTypeId,
+  } = useOnboardingFlow(businessCategories);
 
   // Business API
   const { data: existingBusiness, isLoading: isCheckingBusiness } = useGetMyBusinessQuery(
@@ -44,7 +48,11 @@ export function OnboardingPage() {
     if (!data.businessName || isCreating || isSuccess) return;
     
     try {
-      await createBusiness({ name: data.businessName, workingHours }).unwrap();
+      await createBusiness({
+        name: data.businessName,
+        workingHours,
+        businessTypeId: businessTypeId ?? undefined,
+      }).unwrap();
       navigate(ROUTES.DASHBOARD.CHAT, { state: { fromOnboarding: true } });
     } catch {
       toast({

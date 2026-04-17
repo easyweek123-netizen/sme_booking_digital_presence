@@ -61,11 +61,16 @@ export function ChatPanel() {
       if (response.proposals && response.proposals.length > 0) {
         dispatch(setProposals(response.proposals));
       }
-    } catch {
-      dispatch(addMessage({
-        role: 'bot',
-        content: 'Sorry, something went wrong. Please try again.',
-      }));
+    } catch (err: unknown) {
+      // 401 is handled globally by baseQueryWithAuth (shows toast + redirects to login).
+      // Only surface a chat-level error for other failures.
+      const status = (err as { status?: number })?.status;
+      if (status !== 401) {
+        dispatch(addMessage({
+          role: 'bot',
+          content: 'Sorry, something went wrong. Please try again.',
+        }));
+      }
     }
   };
 

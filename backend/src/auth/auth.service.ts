@@ -1,7 +1,12 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { OwnerService } from '../owner/owner.service';
 import { Owner } from '../owner/entities/owner.entity';
 import type { AuthUser, FirebaseUser } from '../common/types';
+import { normalizeOwnerEmail } from '../common/utils/email';
 
 export interface AuthResponse {
   user: AuthUser;
@@ -12,46 +17,65 @@ export class AuthService {
   constructor(private readonly ownerService: OwnerService) {}
 
   /**
-   * Pure lookup -- throws if owner is not registered.
-   * Used by interceptors and services for auth resolution.
+   * Resolve Owner for this Firebase session: by UID, else merge by verified email, else insert.
+   * Used by GET /auth/me and OwnerResolverInterceptor so UID changes do not strand users.
    */
-  async getOwner(firebaseUser: FirebaseUser): Promise<Owner> {
-    const owner = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
-    if (!owner) {
-      throw new UnauthorizedException('Owner not registered');
+  async resolveRegisteredOwner(firebaseUser: FirebaseUser): Promise<Owner> {
+    const byUid = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
+    if (byUid) {
+      return byUid;
     }
-    return owner;
-  }
 
-  /**
-   * Find-or-create an Owner from Firebase user data.
-   * Only used by getCurrentUser (GET /auth/me) -- the single registration entry point.
-   */
-  async registerOwner(firebaseUser: FirebaseUser): Promise<Owner> {
-    let owner = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
+    if (!firebaseUser.email) {
+      throw new BadRequestException(
+        'Email is required for owner registration. Please sign in with an email-based method.',
+      );
+    }
 
-    if (!owner) {
-      if (!firebaseUser.email) {
-        throw new BadRequestException(
-          'Email is required for owner registration. Please sign in with an email-based method.',
+    const canonical = normalizeOwnerEmail(firebaseUser.email);
+    const byEmail = await this.ownerService.findByCanonicalEmail(canonical);
+
+    if (byEmail) {
+      if (byEmail.firebaseUid === firebaseUser.uid) {
+        return byEmail;
+      }
+
+      if (firebaseUser.emailVerified !== true) {
+        throw new ForbiddenException(
+          'Verify your email before signing in, or contact support if this account already exists.',
         );
       }
 
-      owner = await this.ownerService.create({
+      const name =
+        firebaseUser.name && firebaseUser.name.trim().length > 0
+          ? firebaseUser.name
+          : byEmail.name;
+
+      const updated = await this.ownerService.update(byEmail.id, {
         firebaseUid: firebaseUser.uid,
-        email: firebaseUser.email,
-        name: firebaseUser.name || firebaseUser.email.split('@')[0],
+        email: canonical,
+        name,
       });
+
+      if (!updated) {
+        throw new ForbiddenException('Could not update owner record.');
+      }
+
+      return updated;
     }
 
-    return owner;
+    return this.ownerService.create({
+      firebaseUid: firebaseUser.uid,
+      email: canonical,
+      name: firebaseUser.name || canonical.split('@')[0],
+    });
   }
 
   /**
    * Get current user info from Firebase user (registers if first sign-in)
    */
   async getCurrentUser(firebaseUser: FirebaseUser): Promise<AuthUser> {
-    const owner = await this.registerOwner(firebaseUser);
+    const owner = await this.resolveRegisteredOwner(firebaseUser);
     return this.toAuthUser(owner);
   }
 

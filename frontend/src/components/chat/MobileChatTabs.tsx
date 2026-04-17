@@ -20,30 +20,32 @@ export function MobileChatTabs() {
   const { proposals } = useAppSelector((state) => state.canvas);
 
   return (
-    <Flex direction="column" h="full" position="absolute" inset={0}>
+    <Flex direction="column" h="100%" w="100%">
       <Tabs
         variant="enclosed"
         isFitted
         flex={1}
+        minH={0}
         display="flex"
         flexDirection="column"
       >
         {/* Tab panels - main content */}
-        <TabPanels flex={1} overflow="hidden">
-          <TabPanel p={0} h="full">
+        <TabPanels flex={1} minH={0} overflow="hidden">
+          <TabPanel p={0} h="100%">
             <ChatPanel />
           </TabPanel>
-          <TabPanel p={0} h="full">
+          <TabPanel p={0} h="100%">
             <CanvasPanel />
           </TabPanel>
         </TabPanels>
 
-        {/* Bottom tab bar */}
+        {/* Bottom tab bar — stays pinned; safe-area padding for iPhone home indicator */}
         <TabList
           bg="white"
           borderTop="1px"
           borderColor="gray.200"
           flexShrink={0}
+          pb="env(safe-area-inset-bottom)"
         >
           <Tab
             py={3}

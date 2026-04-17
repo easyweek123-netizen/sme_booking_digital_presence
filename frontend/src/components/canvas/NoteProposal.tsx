@@ -7,6 +7,7 @@ interface NoteProposalProps {
   isUpdate?: boolean;
   onSubmit: (data: { content: string }) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -19,6 +20,7 @@ export function NoteProposal({
   isUpdate = false,
   onSubmit,
   onCancel,
+  isLoading = false,
 }: NoteProposalProps) {
   const [value, setValue] = useState(content);
 
@@ -44,7 +46,7 @@ export function NoteProposal({
       />
 
       <HStack spacing={3} justify="flex-end">
-        <Button variant="ghost" size="sm" onClick={onCancel}>
+        <Button variant="ghost" size="sm" onClick={onCancel} isDisabled={isLoading}>
           Cancel
         </Button>
         <Button
@@ -52,6 +54,7 @@ export function NoteProposal({
           size="sm"
           onClick={() => onSubmit({ content: value })}
           isDisabled={!value.trim()}
+          isLoading={isLoading}
         >
           {isUpdate ? 'Update Note' : 'Add Note'}
         </Button>

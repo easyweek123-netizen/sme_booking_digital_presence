@@ -12,18 +12,28 @@ import {
   Container,
   Alert,
   AlertIcon,
+  Select,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSubmitFeedbackMutation } from '../../store/api/feedbackApi';
 import { TOAST_DURATION } from '../../constants';
 
 const MotionBox = motion.create(Box);
 
-export function FeedbackForm() {
+interface FeedbackFormProps {
+  initialTopic?: 'Product Feedback' | 'IT Services Inquiry';
+}
+
+export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackFormProps) {
   const toast = useToast();
   const [submitFeedback, { isLoading }] = useSubmitFeedbackMutation();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [topic, setTopic] = useState<'Product Feedback' | 'IT Services Inquiry'>(initialTopic);
+
+  useEffect(() => {
+    setTopic(initialTopic);
+  }, [initialTopic]);
   const [formData, setFormData] = useState({
     email: '',
     message: '',
@@ -46,10 +56,12 @@ export function FeedbackForm() {
         email: formData.email,
         message: formData.message,
         source: 'pricing_page',
+        topic,
       }).unwrap();
 
       setIsSubmitted(true);
       setFormData({ email: '', message: '' });
+      setTopic('Product Feedback');
 
       toast({
         title: 'Thank you for your feedback!',
@@ -165,6 +177,27 @@ export function FeedbackForm() {
               boxShadow="0 4px 20px rgba(0,0,0,0.05)"
             >
               <VStack spacing={5}>
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                    Topic
+                  </FormLabel>
+                  <Select
+                    value={topic}
+                    onChange={(e) =>
+                      setTopic(e.target.value as 'Product Feedback' | 'IT Services Inquiry')
+                    }
+                    size="lg"
+                    borderRadius="xl"
+                    _focus={{
+                      borderColor: 'brand.500',
+                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+                    }}
+                  >
+                    <option value="Product Feedback">Product Feedback</option>
+                    <option value="IT Services Inquiry">IT Services Inquiry</option>
+                  </Select>
+                </FormControl>
+
                 <FormControl isRequired>
                   <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
                     Email Address
@@ -190,7 +223,11 @@ export function FeedbackForm() {
                     Your Feedback
                   </FormLabel>
                   <Textarea
-                    placeholder="Tell us what features you'd love to see, any suggestions to improve BookEasy, or feedback on your experience..."
+                    placeholder={
+                      topic === 'IT Services Inquiry'
+                        ? "Tell us about your project — what are you looking to build?"
+                        : "Tell us what features you'd love to see, any suggestions to improve BookEasy, or feedback on your experience..."
+                    }
                     value={formData.message}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, message: e.target.value }))

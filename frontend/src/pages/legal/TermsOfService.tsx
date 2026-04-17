@@ -11,7 +11,7 @@ import {
 import { Header, Footer } from '../../components/Layout';
 
 export function TermsOfService() {
-  const lastUpdated = 'December 2024';
+  const lastUpdated = 'April 2026';
 
   return (
     <Box minH="100vh" bg="white">
@@ -119,7 +119,7 @@ export function TermsOfService() {
 
             <Section title="Governing Law">
               <Text>
-                These terms are governed by applicable laws. Any disputes arising from 
+                These terms are governed by the laws of Austria. Any disputes arising from
                 these terms or your use of BookEasy will be resolved through appropriate 
                 legal channels.
               </Text>

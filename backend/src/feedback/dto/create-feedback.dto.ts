@@ -13,5 +13,10 @@ export class CreateFeedbackDto {
   @IsString()
   @IsOptional()
   source?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  topic?: string;
 }
 

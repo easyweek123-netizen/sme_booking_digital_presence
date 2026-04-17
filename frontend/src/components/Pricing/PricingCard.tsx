@@ -14,7 +14,7 @@ const MotionBox = motion.create(Box);
 
 interface PricingCardProps {
   title: string;
-  price: string;
+  price?: string;
   priceSubtext?: string;
   features: string[];
   buttonText: string;
@@ -105,21 +105,23 @@ export function PricingCard({
           >
             {title}
           </Text>
-          <HStack align="baseline" spacing={1}>
-            <Heading
-              fontSize="4xl"
-              fontWeight="800"
-              color="gray.900"
-              letterSpacing="-0.02em"
-            >
-              {price}
-            </Heading>
-            {priceSubtext && (
-              <Text fontSize="md" color="gray.500">
-                {priceSubtext}
-              </Text>
-            )}
-          </HStack>
+          {price && (
+            <HStack align="baseline" spacing={1}>
+              <Heading
+                fontSize="4xl"
+                fontWeight="800"
+                color="gray.900"
+                letterSpacing="-0.02em"
+              >
+                {price}
+              </Heading>
+              {priceSubtext && (
+                <Text fontSize="md" color="gray.500">
+                  {priceSubtext}
+                </Text>
+              )}
+            </HStack>
+          )}
         </Box>
 
         {/* Features */}

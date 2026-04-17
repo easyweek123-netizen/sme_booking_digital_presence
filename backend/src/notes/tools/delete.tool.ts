@@ -10,11 +10,12 @@ import {
 import type { ToolContext } from '../../common';
 import { NotesService } from '../notes.service';
 import { CustomersService } from '../../customers/customers.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 @ToolHandler({
   name: 'notes_delete',
   description:
-    'Delete a note. Use note ID from notes_list. Requires confirmation.',
+    'Delete a note permanently. Requires note ID from notes_list. Requires owner confirmation. Use only when user explicitly asks to remove a note.',
 })
 @Injectable()
 export class DeleteNoteTool extends BaseToolHandler<NotesDeleteArgs> {
@@ -60,7 +61,10 @@ export class DeleteNoteTool extends BaseToolHandler<NotesDeleteArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `Are you sure you want to delete this note? This cannot be undone.`,
+      buildProposalToolMessage(
+        `delete note${customerName ? ` for ${customerName}` : ''}`,
+        [proposal],
+      ),
       'clients',
     );
   }

@@ -22,7 +22,7 @@ function getPageTitle(pathname: string): string {
   if (pathname.includes('/bookings')) return 'Bookings';
   if (pathname.includes('/clients')) return 'Clients';
   if (pathname.includes('/services')) return 'Services';
-  if (pathname.includes('/settings')) return 'Settings';
+  if (pathname.includes('/website')) return 'Website';
   return 'Dashboard';
 }
 

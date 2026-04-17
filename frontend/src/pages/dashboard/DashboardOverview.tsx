@@ -17,6 +17,7 @@ import {
   LayersIcon,
   UsersIcon,
   HeartIcon,
+  GlobeIcon,
 } from '../../components/icons';
 import { BookingLinkCard } from '../../components/QRCode';
 import { useGetMyBusinessQuery } from '../../store/api/businessApi';
@@ -144,7 +145,6 @@ export function DashboardOverview() {
         )}
       </Box>
 
-      {/* Quick Actions */}
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Box
           bg="white"
@@ -177,18 +177,18 @@ export function DashboardOverview() {
           p={6}
           _hover={{ borderColor: 'brand.200', cursor: 'pointer' }}
           transition="all 0.2s"
-          onClick={() => navigate(ROUTES.DASHBOARD.SETTINGS)}
+          onClick={() => navigate(ROUTES.DASHBOARD.WEBSITE)}
         >
           <HStack spacing={3} mb={2}>
             <Box color="brand.500">
-              <CalendarIcon size={24} />
+              <GlobeIcon size={24} />
             </Box>
             <Heading size="sm" color="gray.900">
-              Business Settings
+              Website
             </Heading>
           </HStack>
           <Text fontSize="sm" color="gray.500">
-            Update your working hours, contact info, and more
+            Customize your booking page, branding, hours, and about section
           </Text>
         </Box>
       </SimpleGrid>

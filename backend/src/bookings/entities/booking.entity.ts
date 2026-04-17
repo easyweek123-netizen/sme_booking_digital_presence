@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn, Index } from 'typeorm';
 import { Business } from '../../business/entities/business.entity';
 import { Service } from '../../services/entities/service.entity';
 import { Customer } from '../../customers/entities/customer.entity';
@@ -11,7 +11,10 @@ export enum BookingStatus {
   NO_SHOW = 'NO_SHOW',       // Customer didn't show up
 }
 
+// Partial unique index UQ_booking_slot on (businessId, date, startTime) WHERE status != 'CANCELLED'
+// is enforced via migration 1734400000000. TypeORM @Index doesn't support WHERE clauses.
 @Entity('bookings')
+@Index(['businessId', 'date', 'startTime'])
 export class Booking {
   @PrimaryGeneratedColumn()
   id: number;

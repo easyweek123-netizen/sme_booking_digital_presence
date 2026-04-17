@@ -5,13 +5,14 @@ export const ROUTES = {
   PRICING: '/pricing',
   PRIVACY: '/privacy',
   TERMS: '/terms',
+  IMPRESSUM: '/impressum',
   DASHBOARD: {
     ROOT: '/dashboard',
     CHAT: '/dashboard/chat',
     CANVAS: '/dashboard/canvas',
     BOOKINGS: '/dashboard/bookings',
     SERVICES: '/dashboard/services',
-    SETTINGS: '/dashboard/settings',
+    WEBSITE: '/dashboard/website',
   },
   BOOKING: {
     PATTERN: '/book/:slug',

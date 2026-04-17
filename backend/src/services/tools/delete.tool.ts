@@ -4,6 +4,7 @@ import { ToolHandler, BaseToolHandler } from '../../common/tools';
 import { createProposal, ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Schema for services_delete tool arguments.
@@ -33,7 +34,7 @@ type DeleteServiceArgs = z.infer<typeof DeleteServiceArgsSchema>;
 @ToolHandler({
   name: 'services_delete',
   description:
-    'Delete a service. Use the service ID from services_list, or the service name. Requires confirmation.',
+    'Delete a service. Lookup by ID (preferred, from services_list) or name. Requires owner confirmation before execution. Use only when user explicitly asks to remove a service.',
 })
 @Injectable()
 export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
@@ -72,7 +73,10 @@ export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `Are you sure you want to delete "${service.name}"? This cannot be undone.`,
+      buildProposalToolMessage(
+        `delete service "${service.name}"`,
+        [proposal],
+      ),
     );
   }
 }

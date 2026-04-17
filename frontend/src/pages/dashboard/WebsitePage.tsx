@@ -9,20 +9,23 @@ import {
   Center,
   Flex,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   useGetMyBusinessQuery,
   useUpdateBusinessMutation,
 } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
 import { BrandingFields } from '../../components/ui/BrandingFields';
-import { BusinessProfileFields } from '../../components/Dashboard/BusinessProfileFields';
-import { AboutContentFields } from '../../components/Dashboard/AboutContentFields';
+import {
+  AboutContentFields,
+  BusinessProfileFields,
+  WebsiteCompletionProgress,
+} from '../../components/Dashboard';
 import { BookingLinkCard } from '../../components/QRCode';
 import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours } from '../../types';
 
-export function DashboardSettings() {
+export function WebsitePage() {
   const toast = useToast();
   const { data: business, isLoading } = useGetMyBusinessQuery();
   const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
@@ -43,7 +46,6 @@ export function DashboardSettings() {
   const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Initialize form with business data
   useEffect(() => {
     if (business) {
       setFormData({
@@ -62,6 +64,13 @@ export function DashboardSettings() {
       setWorkingHours(business.workingHours);
     }
   }, [business]);
+
+  const scrollToSection = useCallback((sectionId: string) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, []);
 
   const handleWorkingHoursChange = (hours: WorkingHours) => {
     setWorkingHours(hours);
@@ -91,7 +100,7 @@ export function DashboardSettings() {
       }).unwrap();
 
       toast({
-        title: 'Settings saved',
+        title: 'Website saved',
         status: 'success',
         duration: TOAST_DURATION.MEDIUM,
       });
@@ -99,7 +108,7 @@ export function DashboardSettings() {
     } catch {
       toast({
         title: 'Error',
-        description: 'Could not save settings. Please try again.',
+        description: 'Could not save changes. Please try again.',
         status: 'error',
         duration: TOAST_DURATION.MEDIUM,
       });
@@ -114,91 +123,117 @@ export function DashboardSettings() {
     );
   }
 
+  const sectionCardProps = {
+    bg: 'white' as const,
+    borderRadius: 'xl' as const,
+    border: '1px solid' as const,
+    borderColor: 'gray.100' as const,
+    p: 6,
+  };
+
   return (
     <VStack spacing={8} align="stretch">
       <Box>
         <Heading size="lg" color="gray.900" mb={1}>
-          Settings
+          Website
         </Heading>
-        <Text color="gray.500">Update your business profile</Text>
+        <Text color="gray.500">Build and customize your booking page</Text>
       </Box>
 
-      {/* Booking Link */}
-      <Box>
-        <Heading size="sm" color="gray.900" mb={4}>
-          Your Booking Link
+      <WebsiteCompletionProgress
+        business={business}
+        onScrollToSection={scrollToSection}
+      />
+
+      <Box id="section-booking-link">
+        <Heading size="sm" color="gray.900" mb={1}>
+          Your booking link
         </Heading>
-        <BookingLinkCard slug={business.slug} />
+        <Text fontSize="sm" color="gray.500" mb={4}>
+          Share this link or QR code so customers can book online.
+        </Text>
+        <Box {...sectionCardProps}>
+          <BookingLinkCard slug={business.slug} />
+        </Box>
       </Box>
 
-      {/* Branding */}
-      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={6}>
-        <Heading size="sm" color="gray.900" mb={4}>
+      <Box id="section-business-profile">
+        <Heading size="sm" color="gray.900" mb={1}>
+          Business profile
+        </Heading>
+        <Text fontSize="sm" color="gray.500" mb={4}>
+          Name, description, and contact details shown on your booking page.
+        </Text>
+        <Box {...sectionCardProps}>
+          <BusinessProfileFields
+            values={formData}
+            onChange={(name, value) => {
+              setFormData((prev) => ({ ...prev, [name]: value }));
+              setHasChanges(true);
+            }}
+          />
+        </Box>
+      </Box>
+
+      <Box id="section-branding">
+        <Heading size="sm" color="gray.900" mb={1}>
           Branding
         </Heading>
         <Text fontSize="sm" color="gray.500" mb={4}>
-          Customize your booking page with your logo and brand color
+          Logo, brand color, and cover image for a polished booking page.
         </Text>
-        <BrandingFields
-          logoUrl={formData.logoUrl}
-          brandColor={formData.brandColor}
-          onLogoUrlChange={handleLogoUrlChange}
-          onBrandColorChange={handleBrandColorChange}
-          coverImageUrl={formData.coverImageUrl}
-          onCoverImageUrlChange={(url) => {
-            setFormData((prev) => ({ ...prev, coverImageUrl: url }));
-            setHasChanges(true);
-          }}
-        />
+        <Box {...sectionCardProps}>
+          <BrandingFields
+            logoUrl={formData.logoUrl}
+            brandColor={formData.brandColor}
+            onLogoUrlChange={handleLogoUrlChange}
+            onBrandColorChange={handleBrandColorChange}
+            coverImageUrl={formData.coverImageUrl}
+            onCoverImageUrlChange={(url) => {
+              setFormData((prev) => ({ ...prev, coverImageUrl: url }));
+              setHasChanges(true);
+            }}
+          />
+        </Box>
       </Box>
 
-      {/* About Section */}
-      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={6}>
-        <Heading size="sm" color="gray.900" mb={2}>
-          About Section
+      <Box id="section-working-hours">
+        <Heading size="sm" color="gray.900" mb={1}>
+          Working hours
         </Heading>
         <Text fontSize="sm" color="gray.500" mb={4}>
-          Tell your story. This appears in the &ldquo;About&rdquo; tab on your booking page.
+          When customers can book with you.
         </Text>
-        <AboutContentFields
-          value={formData.aboutContent}
-          onChange={(val) => {
-            setFormData((prev) => ({ ...prev, aboutContent: val }));
-            setHasChanges(true);
-          }}
-          brandColor={formData.brandColor}
-          businessName={formData.name}
-        />
+        <Box {...sectionCardProps}>
+          {workingHours && (
+            <WorkingHoursEditor
+              value={workingHours}
+              onChange={handleWorkingHoursChange}
+            />
+          )}
+        </Box>
       </Box>
 
-      {/* Business Profile */}
-      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={6}>
-        <Heading size="sm" color="gray.900" mb={4}>
-          Business Profile
+      <Box id="section-about">
+        <Heading size="sm" color="gray.900" mb={1}>
+          About section
         </Heading>
-        <BusinessProfileFields
-          values={formData}
-          onChange={(name, value) => {
-            setFormData((prev) => ({ ...prev, [name]: value }));
-            setHasChanges(true);
-          }}
-        />
-      </Box>
-
-      {/* Working Hours */}
-      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={6}>
-        <Heading size="sm" color="gray.900" mb={4}>
-          Working Hours
-        </Heading>
-        {workingHours && (
-          <WorkingHoursEditor
-            value={workingHours}
-            onChange={handleWorkingHoursChange}
+        <Text fontSize="sm" color="gray.500" mb={4}>
+          Tell your story. This appears in the About tab on your booking page.
+        </Text>
+        <Box {...sectionCardProps}>
+          <AboutContentFields
+            value={formData.aboutContent}
+            onChange={(val) => {
+              setFormData((prev) => ({ ...prev, aboutContent: val }));
+              setHasChanges(true);
+            }}
+            brandColor={formData.brandColor}
+            businessName={formData.name}
           />
-        )}
+        </Box>
       </Box>
 
-      {/* Save Button (bottom) */}
       <Flex justify="flex-end">
         <Button
           colorScheme="brand"
@@ -207,10 +242,9 @@ export function DashboardSettings() {
           isLoading={isUpdating}
           isDisabled={!hasChanges}
         >
-          Save Changes
+          Save changes
         </Button>
       </Flex>
     </VStack>
   );
 }
-

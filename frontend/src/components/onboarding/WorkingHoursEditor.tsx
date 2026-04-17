@@ -27,10 +27,11 @@ const MotionBox = motion.create(Box);
 interface WorkingHoursEditorProps {
   value: WorkingHours;
   onChange: (hours: WorkingHours) => void;
+  defaultExpanded?: boolean;
 }
 
-export function WorkingHoursEditor({ value, onChange }: WorkingHoursEditorProps) {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
+export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }: WorkingHoursEditorProps) {
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: defaultExpanded });
   const isMobile = useBreakpointValue({ base: true, md: false });
   const timeOptions = generateTimeOptions();
 

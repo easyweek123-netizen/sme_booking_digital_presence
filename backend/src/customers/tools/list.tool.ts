@@ -13,7 +13,8 @@ import { CustomersService } from '../customers.service';
 @ToolHandler({
   name: 'customers_list',
   description:
-    'List customers for the business. Optionally search by name or email. Returns IDs for follow-up operations like notes_create.',
+    'List all customers or search by name/email. Returns IDs, booking counts, and last booking date. ' +
+    'Use before customers_get, notes_create, or notes_list to get the customer ID.',
 })
 @Injectable()
 export class ListCustomersTool extends BaseToolHandler<CustomersListArgs> {

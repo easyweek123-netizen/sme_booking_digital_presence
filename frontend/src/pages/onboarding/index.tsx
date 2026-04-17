@@ -35,7 +35,7 @@ export function OnboardingPage() {
   // Redirect if user already has a business
   useEffect(() => {
     if (isAuthenticated && existingBusiness && !isCheckingBusiness) {
-      navigate(ROUTES.DASHBOARD.CHAT);
+      navigate(ROUTES.DASHBOARD.CANVAS);
     }
   }, [isAuthenticated, existingBusiness, isCheckingBusiness, navigate]);
 
@@ -45,7 +45,7 @@ export function OnboardingPage() {
     
     try {
       await createBusiness({ name: data.businessName, workingHours }).unwrap();
-      navigate(ROUTES.DASHBOARD.CHAT, { state: { fromOnboarding: true } });
+      navigate(ROUTES.DASHBOARD.CANVAS, { state: { fromOnboarding: true } });
     } catch {
       toast({
         title: 'Failed to create practice',

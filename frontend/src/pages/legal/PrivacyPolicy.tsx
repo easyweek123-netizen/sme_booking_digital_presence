@@ -11,7 +11,7 @@ import {
 import { Header, Footer } from '../../components/Layout';
 
 export function PrivacyPolicy() {
-  const lastUpdated = 'December 2024';
+  const lastUpdated = 'April 2026';
 
   return (
     <Box minH="100vh" bg="white">
@@ -68,6 +68,9 @@ export function PrivacyPolicy() {
                   <strong>Resend:</strong> For sending email notifications
                 </ListItem>
                 <ListItem>
+                  <strong>Groq / OpenAI:</strong> For AI chat assistant functionality
+                </ListItem>
+                <ListItem>
                   <strong>Cloud hosting:</strong> For storing and serving your data securely
                 </ListItem>
               </UnorderedList>
@@ -89,6 +92,7 @@ export function PrivacyPolicy() {
                 <ListItem>Update or correct your information</ListItem>
                 <ListItem>Delete your account and associated data</ListItem>
                 <ListItem>Export your data</ListItem>
+                <ListItem>File a complaint with the Austrian Data Protection Authority (Datenschutzbehörde) at dsb.gv.at</ListItem>
               </UnorderedList>
               <Text mt={3}>
                 To exercise these rights, please contact us at the email below.

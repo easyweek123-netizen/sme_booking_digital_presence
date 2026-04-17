@@ -9,15 +9,15 @@ export interface TourStep {
   placement: 'top' | 'bottom' | 'left' | 'right';
 }
 
-// Desktop order: Settings → Services → Share Link → Bookings
+// Desktop order: Website → Services → Share Link → Bookings
 // Mobile: Only shows booking-link step
 export const TOUR_STEPS: TourStep[] = [
   {
-    id: 'settings-tab',
-    targetId: 'tour-settings-nav',
-    title: '⚙️ Settings',
-    message: 'Customize your branding, working hours, cover image, and about section.',
-    route: ROUTES.DASHBOARD.SETTINGS,
+    id: 'website-tab',
+    targetId: 'tour-website-nav',
+    title: '🌐 Website',
+    message: 'Build your booking page: profile, branding, hours, and about section.',
+    route: ROUTES.DASHBOARD.WEBSITE,
     placement: 'right',
   },
   {

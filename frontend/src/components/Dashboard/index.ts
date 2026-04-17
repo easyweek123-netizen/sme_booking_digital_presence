@@ -7,4 +7,5 @@ export { ServiceCard } from './ServiceCard';
 export { BusinessProfileFields } from './BusinessProfileFields';
 export type { BusinessProfileValues } from './BusinessProfileFields';
 export { AboutContentFields } from './AboutContentFields';
-export { GettingStartedChecklist } from './GettingStartedChecklist';
+export { WebsiteCompletionProgress } from './WebsiteCompletionProgress';
+export type { WebsiteCompletionProgressProps } from './WebsiteCompletionProgress';

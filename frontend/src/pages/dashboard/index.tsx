@@ -22,7 +22,7 @@ import { CanvasChat } from './CanvasChat';
 import { DashboardBookings } from './DashboardBookings';
 import { DashboardClients } from './DashboardClients';
 import { DashboardServices } from './DashboardServices';
-import { DashboardSettings } from './DashboardSettings';
+import { WebsitePage } from './WebsitePage';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -89,7 +89,11 @@ export function DashboardPage() {
         <Route path="bookings" element={<DashboardBookings />} />
         <Route path="clients" element={<DashboardClients />} />
         <Route path="services" element={<DashboardServices />} />
-        <Route path="settings" element={<DashboardSettings />} />
+        <Route path="website" element={<WebsitePage />} />
+        <Route
+          path="settings"
+          element={<Navigate to={ROUTES.DASHBOARD.WEBSITE} replace />}
+        />
         <Route path="*" element={<Navigate to={ROUTES.DASHBOARD.ROOT} replace />} />
       </Routes>
     </DashboardLayout>

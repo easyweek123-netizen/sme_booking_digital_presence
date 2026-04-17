@@ -17,7 +17,8 @@ import { BookingStatus } from '../entities/booking.entity';
 @ToolHandler({
   name: 'bookings_list',
   description:
-    'List bookings for the business. Optional filters: status, date range (from/to as YYYY-MM-DD). Returns IDs and references for follow-up actions.',
+    'List bookings with optional filters: status (PENDING/CONFIRMED/CANCELLED/COMPLETED/NO_SHOW), date range (from/to as YYYY-MM-DD). ' +
+    'Call server_clock first when user says "today" or "this week" to get the real date. Returns IDs and references for follow-up with bookings_update_status.',
 })
 @Injectable()
 export class ListBookingsTool extends BaseToolHandler<BookingsListFilters> {

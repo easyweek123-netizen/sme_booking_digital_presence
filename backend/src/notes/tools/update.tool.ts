@@ -10,11 +10,12 @@ import {
 import type { ToolContext } from '../../common';
 import { NotesService } from '../notes.service';
 import { CustomersService } from '../../customers/customers.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 @ToolHandler({
   name: 'notes_update',
   description:
-    'Update an existing note. Use note ID from notes_list.',
+    'Update note content. Requires note ID from notes_list and new content text. Replaces the entire note content.',
 })
 @Injectable()
 export class UpdateNoteTool extends BaseToolHandler<NotesUpdateArgs> {
@@ -56,7 +57,7 @@ export class UpdateNoteTool extends BaseToolHandler<NotesUpdateArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared an update for this note. Please review and confirm.`,
+      buildProposalToolMessage('note update', [proposal]),
       'clients',
     );
   }

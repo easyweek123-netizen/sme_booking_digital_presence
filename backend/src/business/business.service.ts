@@ -146,7 +146,7 @@ export class BusinessService {
   async findByOwnerId(ownerId: number): Promise<Business | null> {
     return this.businessRepository.findOne({
       where: { ownerId },
-      relations: ['services', 'services.category', 'businessType'],
+      relations: ['services', 'services.category', 'businessType', 'owner'],
     });
   }
 

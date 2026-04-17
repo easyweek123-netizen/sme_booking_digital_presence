@@ -3,7 +3,12 @@ import { Box, Flex, VStack, Text, HStack } from '@chakra-ui/react';
 import { useInitChatQuery, useSendMessageMutation, useGetMyBusinessQuery } from '../../store/api';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { addMessage, setInitialized, clearChat } from '../../store/slices/chatSlice';
-import { setProposals, setPreviewContext, clearProposals } from '../../store/slices/canvasSlice';
+import {
+  setProposals,
+  addProposals,
+  setPreviewContext,
+  clearProposals,
+} from '../../store/slices/canvasSlice';
 import { AllMessages } from './AllMessages';
 import { ChatInput } from './ChatInput';
 import { TypingIndicator } from './TypingIndicator';
@@ -59,7 +64,7 @@ export function ChatPanel() {
       
       // Handle proposals - show in actions tab
       if (response.proposals && response.proposals.length > 0) {
-        dispatch(setProposals(response.proposals));
+        dispatch(addProposals(response.proposals));
       }
     } catch (err: unknown) {
       // 401 is handled globally by baseQueryWithAuth (shows toast + redirects to login).

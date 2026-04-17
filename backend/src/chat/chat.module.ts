@@ -8,13 +8,9 @@ import { BookingsModule } from '../bookings/bookings.module';
 import { CustomersModule } from '../customers/customers.module';
 import { NotesModule } from '../notes/notes.module';
 import { ToolsModule } from '../common/tools';
+import { ChatCompletionProvider, OpenAIChatProvider } from './providers';
+import { ConversationStore } from './history';
 
-/**
- * Chat Module
- *
- * Tool handlers are auto-discovered from entity modules (ServicesModule, BookingsModule, etc.)
- * No need to import them here - just import ToolsModule.
- */
 @Module({
   imports: [
     BusinessModule,
@@ -23,9 +19,17 @@ import { ToolsModule } from '../common/tools';
     BookingsModule,
     CustomersModule,
     NotesModule,
-    ToolsModule, // Auto-discovers all @ToolHandler decorated classes
+    ToolsModule,
   ],
   controllers: [ChatController],
-  providers: [ChatService],
+  providers: [
+    OpenAIChatProvider,
+    {
+      provide: ChatCompletionProvider,
+      useExisting: OpenAIChatProvider,
+    },
+    ConversationStore,
+    ChatService,
+  ],
 })
 export class ChatModule {}

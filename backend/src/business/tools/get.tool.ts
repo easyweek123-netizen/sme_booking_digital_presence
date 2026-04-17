@@ -11,7 +11,8 @@ type GetBusinessArgs = z.infer<typeof GetBusinessArgsSchema>;
 @ToolHandler({
   name: 'business_get',
   description:
-    'Get the business profile including name, description, contact info, branding, and about content. Use this to check what is set up and what is missing.',
+    'Get the full business profile. ' +
+    'Use it when you need to check business current state and need to suggest ideas i.e. what can provide more value to their business',
 })
 @Injectable()
 export class GetBusinessTool extends BaseToolHandler<GetBusinessArgs> {
@@ -43,6 +44,7 @@ export class GetBusinessTool extends BaseToolHandler<GetBusinessArgs> {
       brandColor: business.brandColor,
       coverImageUrl: business.coverImageUrl,
       aboutContent: business.aboutContent,
+      workingHours: business.workingHours,
       slug: business.slug,
       businessType: business.businessType?.name ?? null,
     };

@@ -19,7 +19,8 @@ type ListServicesArgs = z.infer<typeof ListServicesArgsSchema>;
 @ToolHandler({
   name: 'services_list',
   description:
-    'Get all services for the business. Returns a list with names, prices, durations, and IDs.',
+    'List all services for the business. Returns names, prices, durations, and IDs. ' +
+    'Call before services_update or services_delete to get the service ID. No arguments needed.',
 })
 @Injectable()
 export class ListServicesTool extends BaseToolHandler<ListServicesArgs> {

@@ -6,6 +6,7 @@ interface DeleteConfirmationProps {
   name: string;
   onSubmit: (id: number) => Promise<void>;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -18,6 +19,7 @@ export function DeleteConfirmation({
   name,
   onSubmit,
   onCancel,
+  isLoading = false,
 }: DeleteConfirmationProps) {
   return (
     <VStack spacing={4} align="stretch">
@@ -29,10 +31,11 @@ export function DeleteConfirmation({
           colorScheme="red"
           onClick={() => onSubmit(id)}
           flex={1}
+          isDisabled={isLoading}
         >
           Delete {entityType}
         </Button>
-        <Button variant="outline" onClick={onCancel} flex={1}>
+        <Button variant="outline" onClick={onCancel} flex={1} isDisabled={isLoading}>
           Cancel
         </Button>
       </HStack>

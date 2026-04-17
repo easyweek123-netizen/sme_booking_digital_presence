@@ -20,7 +20,9 @@ const markdownComponents: Components = {
   ),
   ul: (props) => <Box as="ul" pl={4} mb={1} fontSize="sm" {...props} />,
   ol: (props) => <Box as="ol" pl={4} mb={1} fontSize="sm" {...props} />,
-  li: (props) => <Text as="li" fontSize="sm" lineHeight="tall" {...props} />,
+  li: (props) => (
+    <Box as="li" fontSize="sm" lineHeight="tall" {...props} />
+  ),
   a: (props) => (
     <Link color="brand.500" textDecoration="underline" isExternal {...props} />
   ),

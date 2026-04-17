@@ -1,10 +1,11 @@
 import { useToast } from '@chakra-ui/react';
 import { useAppDispatch } from '../store/hooks';
 import { addMessage } from '../store/slices/chatSlice';
-import { removeProposal } from '../store/slices/canvasSlice';
+import { addProposals, removeProposal } from '../store/slices/canvasSlice';
 import { useSendActionResultMutation } from '../store/api';
 import { useActionRegistry } from '../config/actionRegistry';
 import type { ChatAction } from '@shared';
+import { useState } from 'react';
 
 /**
  * Unified hook for executing and cancelling proposals.
@@ -17,6 +18,7 @@ export function useProposalExecution() {
   const toast = useToast();
   const [sendActionResult] = useSendActionResultMutation();
   const registry = useActionRegistry();
+  const [loadingProposalId, setLoadingProposalId] = useState<string | null>(null);
 
   /**
    * Execute a proposal with the given form data
@@ -24,6 +26,7 @@ export function useProposalExecution() {
   const execute = async (proposal: ChatAction, formData?: Record<string, unknown>) => {
     try {
       // Get config from registry
+      setLoadingProposalId(proposal.proposalId);
       const config = registry[proposal.type];
 
       // Execute mutation if defined
@@ -31,15 +34,20 @@ export function useProposalExecution() {
         await config.execute(proposal, formData);
       }
 
-      // Send confirmation to backend and get AI follow-up
+      // Send confirmation to backend and get AI follow-up (include result for enriched feedback)
       const response = await sendActionResult({
         proposalId: proposal.proposalId,
         status: 'confirmed',
+        result: formData,
       }).unwrap();
 
+      debugger;
       // Update UI
       dispatch(addMessage(response));
       dispatch(removeProposal(proposal.proposalId));
+      if (response.proposals) {
+        dispatch(addProposals(response.proposals));
+      }
 
       toast({ title: 'Success', status: 'success', duration: 2000 });
     } catch (error) {
@@ -51,6 +59,8 @@ export function useProposalExecution() {
         duration: 3000,
       });
       throw error;
+    } finally {
+      setLoadingProposalId(null);
     }
   };
 
@@ -72,5 +82,5 @@ export function useProposalExecution() {
     }
   };
 
-  return { execute, cancel, registry };
+  return { execute, cancel, registry, loadingProposalId };
 }

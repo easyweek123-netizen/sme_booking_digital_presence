@@ -9,11 +9,13 @@ import {
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { CustomersService } from '../../customers/customers.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 @ToolHandler({
   name: 'notes_create',
   description:
-    'Add a note for a customer or booking. Use customer ID from customers_list (preferred) or customer name as fallback. bookingId MUST be a real ID from customers_list or customers_get — never guess or invent one.',
+    'Add a note for a customer or booking. Requires customerId (preferred, from customers_list) or customerName as fallback. ' +
+    'Optional bookingId to link note to a specific booking — MUST be a real ID from bookings_list or customers_get, never invented.',
 })
 @Injectable()
 export class CreateNoteTool extends BaseToolHandler<NotesCreateArgs> {
@@ -64,7 +66,7 @@ export class CreateNoteTool extends BaseToolHandler<NotesCreateArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared a note ${target}. Please review and confirm.`,
+      buildProposalToolMessage(`note create ${target}`, [proposal]),
       'clients',
     );
   }

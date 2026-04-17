@@ -12,6 +12,7 @@ import type { ToolContext } from '../../common';
 import { formatLocalYmd } from '../../common/time/local-date';
 import { BookingsService } from '../bookings.service';
 import { BookingStatus } from '../entities/booking.entity';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Propose a booking status change for owner confirmation.
@@ -19,7 +20,8 @@ import { BookingStatus } from '../entities/booking.entity';
 @ToolHandler({
   name: 'bookings_update_status',
   description:
-    'Change a booking status (confirm, cancel, complete, mark no-show). Use booking id from bookings_list or the reference code.',
+    'Change a booking status: CONFIRMED, CANCELLED, COMPLETED, or NO_SHOW. Lookup by booking ID (from bookings_list) or reference code. ' +
+    'Requires owner confirmation. Use after bookings_list to get the ID.',
 })
 @Injectable()
 export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatusArgs> {
@@ -66,7 +68,10 @@ export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatu
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `Ready to update ${booking.customerName}'s booking (${scheduledSummary}) from ${booking.status} to ${args.status}. Please confirm.`,
+      buildProposalToolMessage(
+        `booking status ${booking.customerName} (${scheduledSummary}): ${booking.status} → ${args.status}`,
+        [proposal],
+      ),
       'bookings',
     );
   }

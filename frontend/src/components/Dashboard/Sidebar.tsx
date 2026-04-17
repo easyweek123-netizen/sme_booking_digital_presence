@@ -8,7 +8,7 @@ import {
   CalendarIcon,
   UsersIcon,
   LayersIcon,
-  SettingsIcon,
+  GlobeIcon,
   LogOutIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
   { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings`, badgeKey: 'pending', tourId: 'tour-bookings-nav' },
   { label: 'Clients', icon: <UsersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/clients` },
   { label: 'Services', icon: <LayersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/services`, tourId: 'tour-services-nav' },
-  { label: 'Settings', icon: <SettingsIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/settings`, tourId: 'tour-settings-nav' },
+  { label: 'Website', icon: <GlobeIcon size={20} />, path: ROUTES.DASHBOARD.WEBSITE, tourId: 'tour-website-nav' },
 ];
 
 interface SidebarProps {

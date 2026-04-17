@@ -13,7 +13,8 @@ import { CustomersService } from '../customers.service';
 @ToolHandler({
   name: 'customers_get',
   description:
-    'Get detailed information about a specific customer including booking history. Use customer ID from customers_list, or search by name.',
+    'Get a single customer with full booking history. Lookup by ID (preferred, from customers_list) or name. ' +
+    'Use when user asks about a specific customer. Returns recent bookings and contact info.',
 })
 @Injectable()
 export class GetCustomerTool extends BaseToolHandler<CustomersGetArgs> {

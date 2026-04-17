@@ -8,6 +8,7 @@ import {
   type ToolResult,
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Tool handler for creating a new service.
@@ -17,7 +18,8 @@ import type { ToolContext } from '../../common';
 @ToolHandler({
   name: 'services_create',
   description:
-    'Create a new service for the business. Requires name, price, and duration.',
+    'Create a new service. Requires name, price, durationMinutes. Description and imageUrl are optional. Call once per service, if user lists 3, make 3 parallel calls. ' +
+    'Use sensible defaults when user is vague: haircut ~30min, massage ~60min, consultation ~45min, color ~90min.',
 })
 @Injectable()
 export class CreateServiceTool extends BaseToolHandler<ServiceInput> {
@@ -33,7 +35,10 @@ export class CreateServiceTool extends BaseToolHandler<ServiceInput> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared a new service "${name}" for $${price} (${durationMinutes} min). Please review and confirm.`,
+      buildProposalToolMessage(
+        `new service "${name}" — $${price}, ${durationMinutes} min`,
+        [proposal],
+      ),
     );
   }
 }

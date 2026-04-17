@@ -20,8 +20,12 @@ export class FirebaseAuthGuard implements CanActivate {
 
     try {
       const decoded = await this.firebaseService.verifyToken(token);
-      // Attach Firebase user to request
-      request.firebaseUser = decoded;
+      request.firebaseUser = {
+        uid: decoded.uid,
+        email: decoded.email,
+        name: decoded.name,
+        emailVerified: decoded.email_verified === true,
+      };
       return true;
     } catch (error) {
       console.error('Firebase auth error:', error);

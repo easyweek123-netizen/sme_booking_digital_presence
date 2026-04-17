@@ -9,6 +9,7 @@ import {
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
+import { buildProposalToolMessage } from '../../common/tools';
 
 /**
  * Schema for services_update tool arguments.
@@ -50,7 +51,8 @@ type UpdateServiceArgs = z.infer<typeof UpdateServiceArgsSchema>;
 @ToolHandler({
   name: 'services_update',
   description:
-    'Update an existing service. Use the service ID from services_list, or the service name.',
+    'Update an existing service. Lookup by ID (preferred, from services_list) or name. ' +
+    'Can change any field i.e. name (via newName), price, durationMinutes, description, or imageUrl. Only send fields that change.',
 })
 @Injectable()
 export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
@@ -121,7 +123,10 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      `I've prepared updates for "${service.name}": ${changesSummary}. Please review and confirm.`,
+      buildProposalToolMessage(
+        `service update "${service.name}" — ${changesSummary}`,
+        [proposal],
+      ),
     );
   }
 }

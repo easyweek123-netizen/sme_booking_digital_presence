@@ -94,14 +94,6 @@ export class ChatService {
     return this.toolRegistry.getToolDefinitions() as ChatToolDefinition[];
   }
 
-  // ── Public entry points ───────────────────────────────────────────
-
-  async initChat(ownerId: number): Promise<ChatResponseDto> {
-    const { history, toolContext } = await this.prepareContext(ownerId);
-    history.push({ role: 'user', content: '[Chat opened]' });
-    return this.runChatTurn(ownerId, history, toolContext);
-  }
-
   async sendMessage(
     ownerId: number,
     message: string,

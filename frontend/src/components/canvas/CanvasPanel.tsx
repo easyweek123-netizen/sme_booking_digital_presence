@@ -15,7 +15,7 @@ import { DashboardServices } from '../../pages/dashboard/DashboardServices';
 import { DashboardBookings } from '../../pages/dashboard/DashboardBookings';
 import { DashboardClients } from '../../pages/dashboard/DashboardClients';
 import type { PreviewContext } from '@shared';
-import { WebsitePage } from 'src/pages/dashboard/WebsitePage';
+import { WebsitePage } from '../../pages/dashboard/WebsitePage';
 
 /**
  * Canvas panel with Preview and Actions tabs.

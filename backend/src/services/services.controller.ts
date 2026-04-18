@@ -30,10 +30,7 @@ export class ServicesController {
   @UseGuards(FirebaseAuthGuard)
   @UseInterceptors(OwnerResolverInterceptor)
   @HttpCode(HttpStatus.CREATED)
-  async create(
-    @OwnerId() ownerId: number,
-    @Body() createServiceDto: CreateServiceDto,
-  ): Promise<Service> {
+  async create(@OwnerId() ownerId: number, @Body() createServiceDto: CreateServiceDto): Promise<Service> {
     return this.servicesService.create(ownerId, createServiceDto);
   }
 

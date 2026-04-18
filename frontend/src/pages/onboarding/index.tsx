@@ -6,7 +6,7 @@ import { useOnboardingFlow } from '../../components/ConversationalOnboarding/use
 import { useGetMyBusinessQuery, useCreateBusinessMutation, useGetBusinessCategoriesQuery } from '../../store/api/businessApi';
 import { useAppSelector } from '../../store/hooks';
 import { ROUTES } from '../../config/routes';
-
+import { TOAST_DURATION } from '../../constants';
 export function OnboardingPage() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -25,7 +25,6 @@ export function OnboardingPage() {
     placeholder,
     handleSubmit,
     handleSuggestionSelect,
-    workingHours,
     businessTypeId,
   } = useOnboardingFlow(businessCategories);
 
@@ -34,7 +33,7 @@ export function OnboardingPage() {
     undefined,
     { skip: !isAuthenticated }
   );
-  const [createBusiness, { isLoading: isCreating, isSuccess }] = useCreateBusinessMutation();
+  const [createBusiness, { isLoading: isCreating, isSuccess, isError }] = useCreateBusinessMutation();
 
   // Redirect if user already has a business
   useEffect(() => {
@@ -43,25 +42,26 @@ export function OnboardingPage() {
     }
   }, [isAuthenticated, existingBusiness, isCheckingBusiness, navigate]);
 
+  const handleAuthError = (error: any) => {
+    toast({
+      title: 'Authentication failed',
+      description: error.message || 'Something went wrong. Please try again.',
+      status: 'error',
+      duration: TOAST_DURATION.LONG,
+      isClosable: true,
+    });
+  }
   // Create business handler
   const handleCreateBusiness = async () => {
     if (!data.businessName || isCreating || isSuccess) return;
-    
     try {
       await createBusiness({
         name: data.businessName,
-        workingHours,
         businessTypeId: businessTypeId ?? undefined,
       }).unwrap();
       navigate(ROUTES.DASHBOARD.CANVAS, { state: { fromOnboarding: true } });
-    } catch {
-      toast({
-        title: 'Failed to create practice',
-        description: 'Something went wrong. Please try again.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      });
+    } catch(error) {
+      handleAuthError(error);
     }
   };
 
@@ -72,6 +72,7 @@ export function OnboardingPage() {
       isAuthenticated &&
       onboardingComplete &&
       data.businessName &&
+      !isError &&
       !isCreating &&
       !isSuccess &&
       !isCheckingBusiness &&
@@ -90,9 +91,10 @@ export function OnboardingPage() {
       placeholder={placeholder}
       onSubmit={handleSubmit}
       onSuggestionSelect={handleSuggestionSelect}
-      onCreateBusiness={handleCreateBusiness}
       isAuthenticated={isAuthenticated}
       isCreating={isCreating}
+      isError={isError}
+      handleAuthError={handleAuthError}
     />
   );
 }

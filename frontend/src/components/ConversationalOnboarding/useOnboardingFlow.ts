@@ -77,8 +77,8 @@ export function useOnboardingFlow(businessCategories: BusinessCategory[] = []) {
 
   // Compute working hours based on preference, defaulting to standard (9-5)
   const workingHours = useMemo(() => {
-    const preference = data.hoursPreference;
-    return preference ? HOURS_PRESETS[preference] : defaultWorkingHours;
+  const preference = data.hoursPreference;
+  return preference ? HOURS_PRESETS[preference] : defaultWorkingHours;
   }, [data.hoursPreference]);
 
   return {

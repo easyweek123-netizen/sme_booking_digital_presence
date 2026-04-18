@@ -117,14 +117,11 @@ export function DashboardServices() {
     if (!deletingService) return;
 
     try {
-      const { archived } = await deleteService(deletingService.id).unwrap();
+      await deleteService(deletingService.id).unwrap();
       toast({
-        title: archived ? 'Service archived' : 'Service deleted',
-        description: archived
-          ? 'This service has existing bookings, so it was hidden to preserve booking history.'
-          : undefined,
+        title: 'Service removed',
         status: 'success',
-        duration: archived ? TOAST_DURATION.LONG : TOAST_DURATION.MEDIUM,
+        duration: TOAST_DURATION.MEDIUM,
       });
       closeDelete();
     } catch {

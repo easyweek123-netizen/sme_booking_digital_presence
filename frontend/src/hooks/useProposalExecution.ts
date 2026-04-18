@@ -30,18 +30,17 @@ export function useProposalExecution() {
       const config = registry[proposal.type];
 
       // Execute mutation if defined
-      if (config?.execute && formData) {
+      if (config?.execute) {
         await config.execute(proposal, formData);
       }
 
-      // Send confirmation to backend and get AI follow-up (include result for enriched feedback)
+      // Send confirmation to backend and get AI follow-up
       const response = await sendActionResult({
         proposalId: proposal.proposalId,
         status: 'confirmed',
-        result: formData,
+        result: {},
       }).unwrap();
 
-      debugger;
       // Update UI
       dispatch(addMessage(response));
       dispatch(removeProposal(proposal.proposalId));

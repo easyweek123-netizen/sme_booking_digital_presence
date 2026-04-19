@@ -1,25 +1,29 @@
+import { useState } from 'react';
 import {
   Box,
   VStack,
   Heading,
   Text,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
   Button,
   useToast,
   Container,
   Alert,
   AlertIcon,
-  Select,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
+import { feedbackFormSchema, type FeedbackFormValues } from './feedbackFormSchema';
 import { useSubmitFeedbackMutation } from '../../store/api/feedbackApi';
 import { TOAST_DURATION } from '../../constants';
+import { SelectField, TextField, TextAreaField, SubmitButton } from '../ui/form';
 
 const MotionBox = motion.create(Box);
+
+const TOPIC_OPTIONS = [
+  { value: 'Product Feedback', label: 'Product Feedback' },
+  { value: 'IT Services Inquiry', label: 'IT Services Inquiry' },
+];
 
 interface FeedbackFormProps {
   initialTopic?: 'Product Feedback' | 'IT Services Inquiry';
@@ -29,39 +33,30 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
   const toast = useToast();
   const [submitFeedback, { isLoading }] = useSubmitFeedbackMutation();
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [topic, setTopic] = useState<'Product Feedback' | 'IT Services Inquiry'>(initialTopic);
 
-  useEffect(() => {
-    setTopic(initialTopic);
-  }, [initialTopic]);
-  const [formData, setFormData] = useState({
-    email: '',
-    message: '',
+  const methods = useForm<FeedbackFormValues>({
+    resolver: zodResolver(feedbackFormSchema),
+    defaultValues: {
+      topic: initialTopic,
+      email: '',
+      message: '',
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { handleSubmit, watch, reset } = methods;
+  const topic = watch('topic');
 
-    if (!formData.email || !formData.message) {
-      toast({
-        title: 'Please fill in all fields',
-        status: 'warning',
-        duration: TOAST_DURATION.MEDIUM,
-      });
-      return;
-    }
-
+  const onSubmit = async (data: FeedbackFormValues) => {
     try {
       await submitFeedback({
-        email: formData.email,
-        message: formData.message,
+        email: data.email,
+        message: data.message,
         source: 'pricing_page',
-        topic,
+        topic: data.topic,
       }).unwrap();
 
       setIsSubmitted(true);
-      setFormData({ email: '', message: '' });
-      setTopic('Product Feedback');
+      reset({ topic: 'Product Feedback', email: '', message: '' });
 
       toast({
         title: 'Thank you for your feedback!',
@@ -82,11 +77,11 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
   return (
     <Box
       py={{ base: 16, md: 24 }}
-      bg="gray.50"
+      bg="surface.page"
       position="relative"
       overflow="hidden"
     >
-      {/* Decorative background elements */}
+      {/* Decorative background blobs */}
       <Box
         position="absolute"
         top="-100px"
@@ -94,7 +89,7 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
         w="300px"
         h="300px"
         borderRadius="full"
-        bg="purple.100"
+        bg="brand.50"
         opacity={0.3}
         filter="blur(60px)"
       />
@@ -123,12 +118,11 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
                 as="h2"
                 fontSize={{ base: '2xl', md: '3xl' }}
                 fontWeight="700"
-                color="gray.900"
                 mb={3}
               >
                 Help Us Build Premium
               </Heading>
-              <Text color="gray.600" fontSize={{ base: 'md', md: 'lg' }} maxW="500px" mx="auto">
+              <Text fontSize={{ base: 'md', md: 'lg' }} maxW="500px" mx="auto">
                 What features matter most to you? Share your feedback and help shape
                 the future of BookEasy.
               </Text>
@@ -145,15 +139,15 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
               textAlign="center"
               borderRadius="xl"
               py={10}
-              bg="white"
+              bg="surface.card"
               border="1px"
-              borderColor="green.200"
+              borderColor="brand.200"
             >
               <AlertIcon boxSize="40px" mr={0} mb={4} />
               <Heading size="md" mb={2}>
                 Thank you for your feedback!
               </Heading>
-              <Text color="gray.600">
+              <Text>
                 We appreciate you taking the time to share your thoughts.
               </Text>
               <Button
@@ -167,99 +161,56 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
             </Alert>
           ) : (
             <Box
-              as="form"
-              onSubmit={handleSubmit}
-              bg="white"
+              bg="surface.card"
               borderRadius="2xl"
               border="1px"
-              borderColor="gray.200"
+              borderColor="border.subtle"
               p={{ base: 6, md: 8 }}
-              boxShadow="0 4px 20px rgba(0,0,0,0.05)"
+              boxShadow="card"
             >
-              <VStack spacing={5}>
-                <FormControl>
-                  <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                    Topic
-                  </FormLabel>
-                  <Select
-                    value={topic}
-                    onChange={(e) =>
-                      setTopic(e.target.value as 'Product Feedback' | 'IT Services Inquiry')
-                    }
-                    size="lg"
-                    borderRadius="xl"
-                    _focus={{
-                      borderColor: 'brand.500',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                    }}
-                  >
-                    <option value="Product Feedback">Product Feedback</option>
-                    <option value="IT Services Inquiry">IT Services Inquiry</option>
-                  </Select>
-                </FormControl>
+              <FormProvider {...methods}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <VStack spacing={5}>
+                    <SelectField<FeedbackFormValues>
+                      name="topic"
+                      label="Topic"
+                      options={TOPIC_OPTIONS}
+                      size="lg"
+                    />
 
-                <FormControl isRequired>
-                  <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                    Email Address
-                  </FormLabel>
-                  <Input
-                    type="email"
-                    placeholder="you@example.com"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                    size="lg"
-                    borderRadius="xl"
-                    _focus={{
-                      borderColor: 'brand.500',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                    }}
-                  />
-                </FormControl>
+                    <TextField<FeedbackFormValues>
+                      name="email"
+                      label="Email Address"
+                      placeholder="you@example.com"
+                      type="email"
+                      autoComplete="email"
+                      isRequired
+                      size="lg"
+                    />
 
-                <FormControl isRequired>
-                  <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                    Your Feedback
-                  </FormLabel>
-                  <Textarea
-                    placeholder={
-                      topic === 'IT Services Inquiry'
-                        ? "Tell us about your project — what are you looking to build?"
-                        : "Tell us what features you'd love to see, any suggestions to improve BookEasy, or feedback on your experience..."
-                    }
-                    value={formData.message}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, message: e.target.value }))
-                    }
-                    size="lg"
-                    borderRadius="xl"
-                    rows={5}
-                    resize="vertical"
-                    _focus={{
-                      borderColor: 'brand.500',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                    }}
-                  />
-                </FormControl>
+                    <TextAreaField<FeedbackFormValues>
+                      name="message"
+                      label="Your Feedback"
+                      placeholder={
+                        topic === 'IT Services Inquiry'
+                          ? 'Tell us about your project — what are you looking to build?'
+                          : "Tell us what features you'd love to see, any suggestions to improve BookEasy, or feedback on your experience..."
+                      }
+                      isRequired
+                      rows={5}
+                      size="lg"
+                    />
 
-                <Button
-                  type="submit"
-                  colorScheme="brand"
-                  size="lg"
-                  w="full"
-                  isLoading={isLoading}
-                  loadingText="Submitting..."
-                  fontWeight="600"
-                  py={6}
-                  _hover={{
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 14px rgba(46, 182, 125, 0.3)',
-                  }}
-                >
-                  Submit Feedback
-                </Button>
-              </VStack>
+                    <SubmitButton
+                      isLoading={isLoading}
+                      loadingText="Submitting..."
+                      w="full"
+                    >
+                      Submit Feedback
+                    </SubmitButton>
+                  </VStack>
+                </form>
+              </FormProvider>
             </Box>
           )}
         </MotionBox>
@@ -267,4 +218,3 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
     </Box>
   );
 }
-

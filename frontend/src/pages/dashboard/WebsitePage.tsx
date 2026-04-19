@@ -8,8 +8,12 @@ import {
   Spinner,
   Center,
   Flex,
+  HStack,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
 } from '@chakra-ui/react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useGetMyBusinessQuery,
   useUpdateBusinessMutation,
@@ -19,16 +23,31 @@ import { BrandingFields } from '../../components/ui/BrandingFields';
 import {
   AboutContentFields,
   BusinessProfileFields,
-  WebsiteCompletionProgress,
 } from '../../components/Dashboard';
 import { BookingLinkCard } from '../../components/QRCode';
+import { CheckIcon } from '../../components/icons';
 import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours } from '../../types';
+
+type TabKey = 'profile' | 'branding' | 'hours' | 'about';
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'profile', label: 'Profile' },
+  { key: 'branding', label: 'Branding' },
+  { key: 'hours', label: 'Hours' },
+  { key: 'about', label: 'About' },
+];
+
+function filled(v?: string | null): boolean {
+  return !!(v && String(v).trim());
+}
 
 export function WebsitePage() {
   const toast = useToast();
   const { data: business, isLoading } = useGetMyBusinessQuery();
   const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
+
+  const [activeTab, setActiveTab] = useState<TabKey>('profile');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -64,13 +83,6 @@ export function WebsitePage() {
       setWorkingHours(business.workingHours);
     }
   }, [business]);
-
-  const scrollToSection = useCallback((sectionId: string) => {
-    document.getElementById(sectionId)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  }, []);
 
   const handleWorkingHoursChange = (hours: WorkingHours) => {
     setWorkingHours(hours);
@@ -123,6 +135,27 @@ export function WebsitePage() {
     );
   }
 
+  const tabStatus = {
+    profile: {
+      done: [
+        formData.name,
+        formData.description,
+        formData.phone,
+        formData.address,
+        formData.city,
+      ].filter(filled).length,
+      total: 5,
+    },
+    branding: {
+      done: [formData.logoUrl, formData.brandColor, formData.coverImageUrl].filter(filled).length,
+      total: 3,
+    },
+    hours: { done: workingHours ? 1 : 0, total: 1 },
+    about: { done: filled(formData.aboutContent) ? 1 : 0, total: 1 },
+  };
+
+  const isComplete = (k: TabKey) => tabStatus[k].done === tabStatus[k].total;
+
   const sectionCardProps = {
     bg: 'white' as const,
     borderRadius: 'xl' as const,
@@ -140,12 +173,7 @@ export function WebsitePage() {
         <Text color="gray.500">Build and customize your booking page</Text>
       </Box>
 
-      <WebsiteCompletionProgress
-        business={business}
-        onScrollToSection={scrollToSection}
-      />
-
-      <Box id="section-booking-link">
+      <Box>
         <Heading size="sm" color="gray.900" mb={1}>
           Your booking link
         </Heading>
@@ -157,80 +185,89 @@ export function WebsitePage() {
         </Box>
       </Box>
 
-      <Box id="section-business-profile">
-        <Heading size="sm" color="gray.900" mb={1}>
-          Business profile
-        </Heading>
-        <Text fontSize="sm" color="gray.500" mb={4}>
-          Name, description, and contact details shown on your booking page.
-        </Text>
-        <Box {...sectionCardProps}>
-          <BusinessProfileFields
-            values={formData}
-            onChange={(name, value) => {
-              setFormData((prev) => ({ ...prev, [name]: value }));
-              setHasChanges(true);
-            }}
-          />
-        </Box>
-      </Box>
+      <Box>
+        <Breadcrumb separator=">" spacing={3} fontWeight="medium" fontSize="md">
+          {TABS.map((t) => {
+            const isActive = activeTab === t.key;
+            const complete = isComplete(t.key);
+            const { done, total } = tabStatus[t.key];
+            return (
+              <BreadcrumbItem key={t.key} isCurrentPage={isActive}>
+                <BreadcrumbLink
+                  as="button"
+                  type="button"
+                  onClick={() => setActiveTab(t.key)}
+                  color={isActive ? 'brand.600' : 'gray.500'}
+                  fontWeight={isActive ? '600' : '500'}
+                  textDecoration="none"
+                  _hover={{ color: 'brand.600', textDecoration: 'none' }}
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'brand.500',
+                    outlineOffset: '2px',
+                    borderRadius: 'sm',
+                  }}
+                >
+                  <HStack spacing={1}>
+                    <Text>{t.label}</Text>
+                    {complete ? (
+                      <Box color="green.500" aria-label="complete" display="inline-flex">
+                        <CheckIcon size={14} />
+                      </Box>
+                    ) : done > 0 ? (
+                      <Text as="span" fontSize="xs" color="gray.400">
+                        {done}/{total}
+                      </Text>
+                    ) : null}
+                  </HStack>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            );
+          })}
+        </Breadcrumb>
 
-      <Box id="section-branding">
-        <Heading size="sm" color="gray.900" mb={1}>
-          Branding
-        </Heading>
-        <Text fontSize="sm" color="gray.500" mb={4}>
-          Logo, brand color, and cover image for a polished booking page.
-        </Text>
-        <Box {...sectionCardProps}>
-          <BrandingFields
-            logoUrl={formData.logoUrl}
-            brandColor={formData.brandColor}
-            onLogoUrlChange={handleLogoUrlChange}
-            onBrandColorChange={handleBrandColorChange}
-            coverImageUrl={formData.coverImageUrl}
-            onCoverImageUrlChange={(url) => {
-              setFormData((prev) => ({ ...prev, coverImageUrl: url }));
-              setHasChanges(true);
-            }}
-          />
-        </Box>
-      </Box>
-
-      <Box id="section-working-hours">
-        <Heading size="sm" color="gray.900" mb={1}>
-          Working hours
-        </Heading>
-        <Text fontSize="sm" color="gray.500" mb={4}>
-          When customers can book with you.
-        </Text>
-        <Box {...sectionCardProps}>
-          {workingHours && (
-            <WorkingHoursEditor
-              value={workingHours}
-              onChange={handleWorkingHoursChange}
+        <Box mt={4} {...sectionCardProps}>
+          {activeTab === 'profile' && (
+            <BusinessProfileFields
+              values={formData}
+              onChange={(name, value) => {
+                setFormData((prev) => ({ ...prev, [name]: value }));
+                setHasChanges(true);
+              }}
             />
           )}
-        </Box>
-      </Box>
-
-      <Box id="section-about">
-        <Heading size="sm" color="gray.900" mb={1}>
-          About section
-        </Heading>
-        <Text fontSize="sm" color="gray.500" mb={4}>
-          Tell your story. This appears in the About tab on your booking page.
-        </Text>
-        <Box {...sectionCardProps}>
-          <AboutContentFields
-            value={formData.aboutContent}
-            onChange={(val) => {
-              setFormData((prev) => ({ ...prev, aboutContent: val }));
-              setHasChanges(true);
-            }}
-            brandColor={formData.brandColor}
-            businessName={formData.name}
-          />
+          {activeTab === 'branding' && (
+            <BrandingFields
+              logoUrl={formData.logoUrl}
+              brandColor={formData.brandColor}
+              onLogoUrlChange={handleLogoUrlChange}
+              onBrandColorChange={handleBrandColorChange}
+              coverImageUrl={formData.coverImageUrl}
+              onCoverImageUrlChange={(url) => {
+                setFormData((prev) => ({ ...prev, coverImageUrl: url }));
+                setHasChanges(true);
+              }}
+            />
+          )}
+          {activeTab === 'hours' && workingHours && (
+            <WorkingHoursEditor value={workingHours} onChange={handleWorkingHoursChange} />
+          )}
+          {activeTab === 'hours' && !workingHours && (
+            <Text color="gray.500" fontSize="sm">
+              Working hours are not configured yet.
+            </Text>
+          )}
+          {activeTab === 'about' && (
+            <AboutContentFields
+              value={formData.aboutContent}
+              onChange={(val) => {
+                setFormData((prev) => ({ ...prev, aboutContent: val }));
+                setHasChanges(true);
+              }}
+              brandColor={formData.brandColor}
+              businessName={formData.name}
+            />
+          )}
         </Box>
       </Box>
 

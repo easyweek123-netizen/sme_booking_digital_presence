@@ -4,7 +4,7 @@ import type { Message } from '../../types/chat.types';
 
 interface AllMessagesProps {
   messages: Message[];
-  onSuggestionSelect?: (value: string) => void;
+  onSuggestionSelect?: (value: string, label: string) => void;
 }
 
 export function AllMessages({ messages, onSuggestionSelect }: AllMessagesProps) {

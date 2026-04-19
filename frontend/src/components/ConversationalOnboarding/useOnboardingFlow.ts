@@ -66,14 +66,16 @@ export function useOnboardingFlow(businessCategories: BusinessCategory[] = []) {
     dispatch({ type: 'SUBMIT', value: trimmed });
   }, [isTyping]);
 
-  const handleSuggestionSelect = useCallback((value: string) => {
+  const handleSuggestionSelect = useCallback((value: string, label?: string) => {
     if (isTyping) return;
     if (value === '') {
       dispatch({ type: 'SKIP' });
+    } else if (stepIndex >= STEPS.length) {
+      dispatch({ type: 'UPDATE_SELECTION', value, label });
     } else {
-      dispatch({ type: 'SUBMIT', value });
+      dispatch({ type: 'SUBMIT', value, label });
     }
-  }, [isTyping]);
+  }, [isTyping, stepIndex]);
 
   // Compute working hours based on preference, defaulting to standard (9-5)
   const workingHours = useMemo(() => {

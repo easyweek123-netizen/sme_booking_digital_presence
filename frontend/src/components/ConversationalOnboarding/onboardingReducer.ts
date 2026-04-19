@@ -47,7 +47,8 @@ export interface OnboardingState {
 }
 
 export type OnboardingAction =
-  | { type: 'SUBMIT'; value: string }
+  | { type: 'SUBMIT'; value: string; label?: string }
+  | { type: 'UPDATE_SELECTION'; value: string; label?: string }
   | { type: 'SKIP' }
   | { type: 'FINISH_TYPING'; message: Message };
 
@@ -67,6 +68,8 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
 
   switch (action.type) {
     case 'SUBMIT': {
+      if (state.stepIndex >= STEPS.length) return state;
+
       // Map value to valid hours preference, or null for custom/unknown input
       const validPreferences: HoursPreference[] = ['morning', 'standard', 'evening'];
       const hoursValue = validPreferences.includes(action.value as HoursPreference)
@@ -85,13 +88,59 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
         ...(currentStep.id === 'hours' && { hoursPreference: hoursValue }),
       };
 
-      // Add user message; advance step and skip typing if last step
+      // Mark the selected chip in the last bot message that has suggestions
+      const messagesWithSelection = state.messages.map((m) => {
+        if (m.role === 'bot' && m.suggestions?.length) {
+          return {
+            ...m,
+            suggestions: m.suggestions.map((s) => ({
+              ...s,
+              isSelected: s.value === action.value,
+            })),
+          };
+        }
+        return m;
+      });
+
       return {
         ...state,
         stepIndex: isLastStep ? nextStepIndex : state.stepIndex,
-        messages: [...state.messages, { role: 'user', content: action.value }],
+        messages: [...messagesWithSelection, { role: 'user', content: action.label ?? action.value }],
         data: newData,
         isTyping: !isLastStep,
+      };
+    }
+
+    case 'UPDATE_SELECTION': {
+      const businessTypeIdValue = action.value ? parseInt(action.value, 10) || null : null;
+      const updated = [...state.messages];
+
+      // Update last user message text
+      for (let i = updated.length - 1; i >= 0; i--) {
+        if (updated[i].role === 'user') {
+          updated[i] = { ...updated[i], content: action.label ?? action.value };
+          break;
+        }
+      }
+
+      // Update selected chip in last bot message with suggestions
+      for (let i = updated.length - 1; i >= 0; i--) {
+        if (updated[i].role === 'bot' && updated[i].suggestions?.length) {
+          updated[i] = {
+            ...updated[i],
+            suggestions: updated[i].suggestions!.map((s) => ({
+              ...s,
+              isSelected: s.value === action.value,
+            })),
+          };
+          break;
+        }
+      }
+
+      return {
+        ...state,
+        messages: updated,
+        data: { ...state.data, businessTypeId: businessTypeIdValue },
       };
     }
 

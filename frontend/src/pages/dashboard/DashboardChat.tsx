@@ -45,7 +45,7 @@ export function DashboardChat() {
     }
   };
 
-  const handleSuggestionSelect = (value: string) => {
+  const handleSuggestionSelect = (value: string, _label: string) => {
     handleSubmit(value);
   };
 

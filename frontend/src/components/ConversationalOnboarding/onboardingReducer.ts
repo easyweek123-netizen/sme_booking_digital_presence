@@ -17,6 +17,7 @@ const HOURS_SUGGESTIONS: Suggestion[] = [
 ];
 
 // Data collection steps (same for all users)
+// Business type suggestions are injected dynamically in useOnboardingFlow
 export const STEPS: Step[] = [
   {
     id: 'name',
@@ -24,9 +25,8 @@ export const STEPS: Step[] = [
     placeholder: 'e.g Mindful Studio',
   },
   {
-    id: 'hours',
-    message: 'What hours work best for {businessName}?',
-    suggestions: HOURS_SUGGESTIONS,
+    id: 'type',
+    message: 'What type of business is {businessName}?',
   },
 ];
 
@@ -35,6 +35,7 @@ export type HoursPreference = 'morning' | 'standard' | 'evening';
 
 export interface BusinessData {
   businessName: string;
+  businessTypeId: number | null;
   hoursPreference: HoursPreference | null;
 }
 
@@ -46,7 +47,8 @@ export interface OnboardingState {
 }
 
 export type OnboardingAction =
-  | { type: 'SUBMIT'; value: string }
+  | { type: 'SUBMIT'; value: string; label?: string }
+  | { type: 'UPDATE_SELECTION'; value: string; label?: string }
   | { type: 'SKIP' }
   | { type: 'FINISH_TYPING'; message: Message };
 
@@ -54,7 +56,7 @@ export type OnboardingAction =
 export const initialState: OnboardingState = {
   stepIndex: 0,
   messages: [{ role: 'bot', content: STEPS[0].message }],
-  data: { businessName: '', hoursPreference: null },
+  data: { businessName: '', businessTypeId: null, hoursPreference: null },
   isTyping: false,
 };
 
@@ -66,25 +68,79 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
 
   switch (action.type) {
     case 'SUBMIT': {
+      if (state.stepIndex >= STEPS.length) return state;
+
       // Map value to valid hours preference, or null for custom/unknown input
       const validPreferences: HoursPreference[] = ['morning', 'standard', 'evening'];
       const hoursValue = validPreferences.includes(action.value as HoursPreference)
         ? (action.value as HoursPreference)
         : null; // Custom text → null → defaults to standard
 
+      // Business type value is a stringified number ID (or empty string for skip)
+      const businessTypeIdValue = currentStep.id === 'type'
+        ? (action.value ? parseInt(action.value, 10) || null : null)
+        : undefined;
+
       const newData = {
         ...state.data,
         ...(currentStep.id === 'name' && { businessName: action.value }),
+        ...(currentStep.id === 'type' && { businessTypeId: businessTypeIdValue ?? null }),
         ...(currentStep.id === 'hours' && { hoursPreference: hoursValue }),
       };
 
-      // Add user message; advance step and skip typing if last step
+      // Mark the selected chip in the last bot message that has suggestions
+      const messagesWithSelection = state.messages.map((m) => {
+        if (m.role === 'bot' && m.suggestions?.length) {
+          return {
+            ...m,
+            suggestions: m.suggestions.map((s) => ({
+              ...s,
+              isSelected: s.value === action.value,
+            })),
+          };
+        }
+        return m;
+      });
+
       return {
         ...state,
         stepIndex: isLastStep ? nextStepIndex : state.stepIndex,
-        messages: [...state.messages, { role: 'user', content: action.value }],
+        messages: [...messagesWithSelection, { role: 'user', content: action.label ?? action.value }],
         data: newData,
         isTyping: !isLastStep,
+      };
+    }
+
+    case 'UPDATE_SELECTION': {
+      const businessTypeIdValue = action.value ? parseInt(action.value, 10) || null : null;
+      const updated = [...state.messages];
+
+      // Update last user message text
+      for (let i = updated.length - 1; i >= 0; i--) {
+        if (updated[i].role === 'user') {
+          updated[i] = { ...updated[i], content: action.label ?? action.value };
+          break;
+        }
+      }
+
+      // Update selected chip in last bot message with suggestions
+      for (let i = updated.length - 1; i >= 0; i--) {
+        if (updated[i].role === 'bot' && updated[i].suggestions?.length) {
+          updated[i] = {
+            ...updated[i],
+            suggestions: updated[i].suggestions!.map((s) => ({
+              ...s,
+              isSelected: s.value === action.value,
+            })),
+          };
+          break;
+        }
+      }
+
+      return {
+        ...state,
+        messages: updated,
+        data: { ...state.data, businessTypeId: businessTypeIdValue },
       };
     }
 

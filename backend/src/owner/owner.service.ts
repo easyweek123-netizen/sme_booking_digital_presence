@@ -29,6 +29,14 @@ export class OwnerService {
     return this.ownerRepository.findOne({ where: { email } });
   }
 
+  /** Match legacy rows regardless of stored email casing / whitespace */
+  async findByCanonicalEmail(canonicalEmail: string): Promise<Owner | null> {
+    return this.ownerRepository
+      .createQueryBuilder('owner')
+      .where('LOWER(TRIM(owner.email)) = :canonical', { canonical: canonicalEmail })
+      .getOne();
+  }
+
   async findByFirebaseUid(firebaseUid: string): Promise<Owner | null> {
     return this.ownerRepository.findOne({ where: { firebaseUid } });
   }

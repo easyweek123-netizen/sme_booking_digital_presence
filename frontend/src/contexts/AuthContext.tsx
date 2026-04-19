@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { auth, onAuthStateChanged, type User } from '../lib/firebase';
+import { auth, logOut, onAuthStateChanged, type User } from '../lib/firebase';
 import { useAppDispatch } from '../store/hooks';
 import { setCredentials } from '../store/slices/authSlice';
 import { authApi } from '../store/api/authApi';
+import { toast } from '../utils/toast';
+import { resetStore } from '../store/actions';
 
 interface AuthContextType {
   firebaseUser: User | null;
@@ -31,11 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Set credentials with token first (for API calls to work)
         dispatch(
           setCredentials({
-            user: {
-              id: 0, // Temporary - will be updated by getMe
-              email: user.email || '',
-              name: user.displayName || user.email?.split('@')[0] || 'User',
-            },
+            user: null,
             token,
           }),
         );
@@ -50,6 +48,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
             }),
           );
         } catch {
+          await logOut();
+          dispatch(resetStore());
+          toast({
+            title: 'Email not verified',
+            description: 'Please check your inbox and verify your email before signing in.',
+            status: 'warning',
+            duration: 8000,
+            isClosable: true,
+            position: 'top',
+          });
           // Backend might not be available yet, keep temporary data
         }
       }

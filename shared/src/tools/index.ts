@@ -92,6 +92,7 @@ export const SuggestionSchema = z.object({
   value: z.string(),
   icon: z.string().optional(),
   variant: z.enum(['default', 'skip']).optional(),
+  isSelected: z.boolean().optional(),
 });
 export type Suggestion = z.infer<typeof SuggestionSchema>;
 

@@ -24,7 +24,7 @@ export class OwnerResolverInterceptor implements NestInterceptor {
       .switchToHttp()
       .getRequest<RequestWithFirebaseUser>();
 
-    const owner = await this.authService.getOwner(request.firebaseUser);
+    const owner = await this.authService.resolveRegisteredOwner(request.firebaseUser);
     (request as RequestWithOwner).ownerId = owner.id;
 
     return next.handle();

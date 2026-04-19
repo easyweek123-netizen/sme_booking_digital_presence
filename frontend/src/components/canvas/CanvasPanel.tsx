@@ -103,7 +103,7 @@ export function CanvasPanel() {
             Actions
             {proposals.length > 0 && (
               <Badge
-                colorScheme="brand"
+                colorScheme="alert"
                 borderRadius="full"
                 ml={1.5}
                 fontSize="2xs"

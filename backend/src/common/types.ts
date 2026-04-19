@@ -33,6 +33,8 @@ export interface FirebaseUser {
   uid: string;
   email?: string;
   name?: string;
+  /** From ID token `email_verified`; required for email-based UID rebind */
+  emailVerified?: boolean;
 }
 
 // Firebase auth request - used after FirebaseAuthGuard

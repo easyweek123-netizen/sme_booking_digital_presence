@@ -64,7 +64,7 @@ export function MobileChatTabs() {
               <SparkleIcon size={18} />
               AI Actions
               {proposals.length > 0 && (
-                <Badge colorScheme="brand" borderRadius="full" fontSize="xs">
+                <Badge colorScheme="alert" borderRadius="full" fontSize="xs">
                   {proposals.length}
                 </Badge>
               )}

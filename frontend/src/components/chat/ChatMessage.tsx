@@ -30,7 +30,7 @@ const markdownComponents: Components = {
 
 interface ChatMessageProps {
   message: Message;
-  onSuggestionSelect?: (value: string) => void;
+  onSuggestionSelect?: (value: string, label: string) => void;
 }
 
 export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {

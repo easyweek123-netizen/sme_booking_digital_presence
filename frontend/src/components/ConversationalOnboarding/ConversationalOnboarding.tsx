@@ -15,11 +15,12 @@ interface ConversationalOnboardingProps {
   placeholder?: string;
   // Handlers
   onSubmit: (value: string) => void;
-  onSuggestionSelect: (value: string) => void;
-  onCreateBusiness: () => void;
+  onSuggestionSelect: (value: string, label: string) => void;
   // Auth state
   isAuthenticated: boolean;
   isCreating: boolean;
+  isError: boolean;
+  handleAuthError: (error: any) => void;
 }
 
 export function ConversationalOnboarding({
@@ -30,9 +31,10 @@ export function ConversationalOnboarding({
   placeholder,
   onSubmit,
   onSuggestionSelect,
-  onCreateBusiness,
   isAuthenticated,
   isCreating,
+  isError,
+  handleAuthError,
 }: ConversationalOnboardingProps) {
   // Step indicator: 0=name, 1=category, 2=complete/auth
   const stepIndex = currentStep ? (currentStep.id === 'name' ? 0 : 1) : 2;
@@ -54,13 +56,16 @@ export function ConversationalOnboarding({
         {/* Input area */}
         <Box mt={6} flexShrink={0} flex={2}>
           {onboardingComplete ? (
-            isAuthenticated ? (
+            isAuthenticated && !isError ? (
               <HStack justify="center" spacing={3} py={4}>
                 <Spinner size="sm" color="brand.500" />
                 <Text color="gray.500">Creating your practice...</Text>
               </HStack>
             ) : (
-              <GoogleButton onSuccess={onCreateBusiness} isDisabled={isCreating} />
+              <GoogleButton 
+                onError={handleAuthError} 
+                onSuccess={() => {}}
+                isDisabled={isCreating} />
             )
           ) : (
             <ChatInput placeholder={placeholder} onSubmit={onSubmit} />

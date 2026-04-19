@@ -111,12 +111,12 @@ function FAQCard({
       <Box
         bg="white"
         borderRadius="2xl"
-        boxShadow={isOpen ? '0 8px 30px rgba(0,0,0,0.08)' : '0 4px 20px rgba(0,0,0,0.04)'}
+        boxShadow={isOpen ? 'cardHover' : 'card'}
         overflow="hidden"
         transition="all 0.2s ease"
         w="full"
         _hover={{
-          boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+          boxShadow: 'cardHover',
           transform: 'translateY(-2px)',
         }}
       >

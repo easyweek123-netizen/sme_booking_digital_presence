@@ -32,10 +32,10 @@ export function CategoryCard({ category, onTypeClick }: CategoryCardProps) {
       minW={{ base: '280px', md: '320px' }}
       maxW={{ base: '280px', md: '320px' }}
       h="auto"
-      boxShadow="0 1px 3px rgba(0,0,0,0.04)"
+      boxShadow="card"
       whileHover={{
         y: -4,
-        boxShadow: '0 12px 24px rgba(0,0,0,0.08)',
+        boxShadow: 'cardHover',
       }}
       transition={{ duration: 0.2 }}
       flexShrink={0}

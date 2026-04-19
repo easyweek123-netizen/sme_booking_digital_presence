@@ -74,7 +74,7 @@ export function DashboardClients() {
         {/* Clients Table */}
         {isLoading ? (
           <Center py={12}>
-            <Spinner size="lg" color="blue.500" />
+            <Spinner size="lg" color="brand.500" />
           </Center>
         ) : filteredCustomers.length === 0 ? (
           <Center py={12}>
@@ -101,7 +101,7 @@ export function DashboardClients() {
                 p={4}
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ borderColor: 'blue.300', shadow: 'sm' }}
+                _hover={{ borderColor: 'brand.300', shadow: 'sm' }}
                 onClick={() => handleCustomerClick(customer)}
               >
                 <VStack align="stretch" spacing={2}>

@@ -92,8 +92,8 @@ export function BookingStatusCheck() {
           </HStack>
 
           {searchError && (
-            <Box p={4} bg="red.50" borderRadius="lg" textAlign="center">
-              <Text color="red.600" fontSize="sm">
+            <Box p={4} bg="alert.50" borderRadius="lg" textAlign="center">
+              <Text color="alert.600" fontSize="sm">
                 Booking not found. Please check your reference code.
               </Text>
             </Box>

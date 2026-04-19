@@ -46,10 +46,10 @@ export function TourIntro() {
           transition={{ duration: TOUR_ANIMATION.duration }}
         >
           <Box
-            bg="white"
-            // borderRadius="2xl"
+            bg="surface.card"
+            borderRadius="2xl"
             overflow="hidden"
-            // boxShadow="0 20px 60px rgba(0,0,0,0.15)"
+            boxShadow="modal"
             position="relative"
           >
             {/* Close button */}

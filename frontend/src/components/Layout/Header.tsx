@@ -90,7 +90,7 @@ export function Header() {
         top={0}
         zIndex={100}
         backdropFilter="blur(8px)"
-        bgColor="rgba(255,255,255,0.9)"
+        bgColor="whiteAlpha.900"
       >
         <Container maxW="container.xl" py={4}>
           <Flex justify="space-between" align="center">
@@ -156,9 +156,9 @@ export function Header() {
                   <MenuList
                     py={2}
                     borderRadius="xl"
-                    boxShadow="0 10px 40px rgba(0,0,0,0.1)"
+                    boxShadow="popover"
                     border="1px"
-                    borderColor="gray.100"
+                    borderColor="border.subtle"
                   >
                     <MenuItem
                       icon={<UserIcon size={18} />}
@@ -182,8 +182,8 @@ export function Header() {
                     <MenuItem
                       icon={<LogOutIcon size={18} />}
                       onClick={handleLogout}
-                      color="red.500"
-                      _hover={{ bg: 'red.50' }}
+                      color="danger.primary"
+                      _hover={{ bg: 'alert.50' }}
                       py={2}
                       px={4}
                     >
@@ -325,7 +325,7 @@ export function Header() {
 
                   <Button
                     variant="ghost"
-                    color="red.500"
+                    color="danger.primary"
                     fontWeight="500"
                     onClick={handleLogout}
                     w="full"
@@ -369,7 +369,7 @@ export function Header() {
                     onClick={() => handleNavigate(ROUTES.ONBOARDING)}
                     h="52px"
                     borderRadius="xl"
-                    boxShadow="0 4px 14px rgba(46, 182, 125, 0.3)"
+                    boxShadow="outline"
                     w="full"
                   >
                     Get Started

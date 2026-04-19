@@ -37,10 +37,10 @@ export function PricingCard({
 }: PricingCardProps) {
   return (
     <MotionBox
-      bg="white"
+      bg="surface.card"
       borderRadius="2xl"
       border="2px"
-      borderColor={isPremium ? 'purple.200' : 'gray.100'}
+      borderColor={isPremium ? 'brand.200' : 'border.subtle'}
       p={8}
       position="relative"
       overflow="hidden"
@@ -52,16 +52,14 @@ export function PricingCard({
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
       _hover={{
-        borderColor: isPremium ? 'purple.300' : 'brand.200',
-        boxShadow: isPremium
-          ? '0 20px 40px rgba(139, 92, 246, 0.15)'
-          : '0 20px 40px rgba(0,0,0,0.08)',
+        borderColor: isPremium ? 'brand.300' : 'brand.200',
+        boxShadow: 'cardHover',
         transform: 'translateY(-4px)',
       }}
       transitionProperty="all"
       transitionDuration="0.3s"
     >
-      {/* Premium gradient accent */}
+      {/* Premium accent */}
       {isPremium && (
         <Box
           position="absolute"
@@ -69,7 +67,7 @@ export function PricingCard({
           left={0}
           right={0}
           h="4px"
-          bgGradient="linear(to-r, purple.400, indigo.500, purple.600)"
+          bg="brand.500"
         />
       )}
 
@@ -79,7 +77,7 @@ export function PricingCard({
           position="absolute"
           top={4}
           right={4}
-          colorScheme={isPremium ? 'purple' : 'green'}
+          colorScheme="brand"
           px={3}
           py={1}
           borderRadius="full"
@@ -98,7 +96,7 @@ export function PricingCard({
           <Text
             fontSize="sm"
             fontWeight="600"
-            color={isPremium ? 'purple.600' : 'brand.600'}
+            color="brand.600"
             textTransform="uppercase"
             letterSpacing="wide"
             mb={1}
@@ -133,8 +131,8 @@ export function PricingCard({
                 w="20px"
                 h="20px"
                 borderRadius="full"
-                bg={isPremium ? 'purple.100' : 'green.100'}
-                color={isPremium ? 'purple.600' : 'green.600'}
+                bg="brand.100"
+                color="brand.600"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -153,16 +151,14 @@ export function PricingCard({
         <Button
           size="lg"
           w="full"
-          colorScheme={isPremium ? 'purple' : 'brand'}
+          colorScheme="brand"
           variant={isPremium ? 'outline' : 'solid'}
           onClick={onButtonClick}
           fontWeight="600"
           py={6}
           _hover={{
             transform: 'translateY(-2px)',
-            boxShadow: isPremium
-              ? '0 4px 12px rgba(139, 92, 246, 0.3)'
-              : '0 4px 12px rgba(46, 182, 125, 0.3)',
+            boxShadow: 'outline',
           }}
         >
           {buttonText}

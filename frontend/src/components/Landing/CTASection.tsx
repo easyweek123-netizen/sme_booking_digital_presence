@@ -73,11 +73,10 @@ export function CTASection() {
               py={6}
               fontWeight="600"
               fontSize={{ base: 'md', md: 'lg' }}
-              _hover={{
-                bg: 'gray.100',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 10px 30px rgba(255,255,255,0.1)',
-              }}
+            _hover={{
+              bg: 'gray.100',
+              transform: 'translateY(-2px)',
+            }}
               _active={{ bg: 'gray.200', transform: 'translateY(0)' }}
               transition="all 0.2s"
               onClick={handleClick}

@@ -159,7 +159,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
                 <HStack spacing={2}>
                   <Button
                     size="sm"
-                    colorScheme="blue"
+                    colorScheme="brand"
                     onClick={() => handleUpdate(note.id)}
                     isLoading={isUpdating}
                   >
@@ -219,7 +219,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
                     <Link
                       as="button"
                       fontSize="xs"
-                      color="blue.500"
+                      color="brand.500"
                       mt={1}
                       onClick={() => toggleExpanded(note.id)}
                       _hover={{ textDecoration: 'underline' }}

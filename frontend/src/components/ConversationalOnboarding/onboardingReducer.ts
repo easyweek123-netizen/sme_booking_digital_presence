@@ -9,13 +9,6 @@ export interface Step {
   suggestions?: Suggestion[];
 }
 
-const HOURS_SUGGESTIONS: Suggestion[] = [
-  { label: 'Mornings (8am-2pm)', value: 'morning', icon: '☀️' },
-  { label: 'Standard (9am-5pm)', value: 'standard', icon: '🏢' },
-  { label: 'Evenings (2pm-8pm)', value: 'evening', icon: '🌙' },
-  { label: 'Skip', value: '', variant: 'skip' },
-];
-
 // Data collection steps (same for all users)
 // Business type suggestions are injected dynamically in useOnboardingFlow
 export const STEPS: Step[] = [

@@ -79,7 +79,7 @@ export function DashboardOverview() {
           label="Today's Bookings"
           value={stats?.today || 0}
           icon={<UsersIcon size={24} />}
-          color="blue.500"
+          color="brand.500"
           index={1}
           to={ROUTES.DASHBOARD.BOOKINGS}
         />
@@ -87,7 +87,7 @@ export function DashboardOverview() {
           label="Active Services"
           value={servicesCount}
           icon={<LayersIcon size={24} />}
-          color="purple.500"
+          color="brand.500"
           index={2}
           to={ROUTES.DASHBOARD.SERVICES}
         />
@@ -195,12 +195,12 @@ export function DashboardOverview() {
 
       {/* Feedback Card */}
       <Box
-        bgGradient="linear(to-br, purple.50, indigo.50)"
+        bg="brand.50"
         borderRadius="2xl"
         border="1px"
-        borderColor="purple.100"
+        borderColor="brand.100"
         p={6}
-        _hover={{ borderColor: 'purple.200', cursor: 'pointer', transform: 'translateY(-2px)' }}
+        _hover={{ borderColor: 'brand.200', cursor: 'pointer', transform: 'translateY(-2px)' }}
         transition="all 0.2s"
         onClick={() => navigate(ROUTES.PRICING)}
       >
@@ -209,11 +209,11 @@ export function DashboardOverview() {
             w="48px"
             h="48px"
             borderRadius="xl"
-            bg="purple.100"
+            bg="brand.100"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            color="purple.600"
+            color="brand.600"
           >
             <HeartIcon size={24} />
           </Box>
@@ -226,7 +226,7 @@ export function DashboardOverview() {
             </Text>
           </Box>
           <Badge
-            colorScheme="purple"
+            colorScheme="brand"
             px={3}
             py={1}
             borderRadius="full"

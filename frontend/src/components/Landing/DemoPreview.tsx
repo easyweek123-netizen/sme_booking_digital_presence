@@ -53,9 +53,9 @@ export function DemoPreview() {
               mx="auto"
               borderRadius="xl"
               overflow="hidden"
-              boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.15)"
+              boxShadow="modal"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="border.subtle"
             >
               {/* Browser Chrome */}
               <HStack
@@ -68,9 +68,9 @@ export function DemoPreview() {
               >
                 {/* Traffic lights */}
                 <HStack spacing={2}>
-                  <Box w="12px" h="12px" borderRadius="full" bg="red.300" />
-                  <Box w="12px" h="12px" borderRadius="full" bg="yellow.300" />
-                  <Box w="12px" h="12px" borderRadius="full" bg="green.300" />
+                  <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+                  <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+                  <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
                 </HStack>
                 {/* Address bar */}
                 <Box

@@ -97,9 +97,9 @@ export function ServiceCard({ service, onEdit, onDelete, index }: ServiceCardPro
             icon={<TrashIcon size={16} />}
             size="sm"
             variant="ghost"
-            colorScheme="red"
+            colorScheme="alert"
             onClick={onDelete}
-            _hover={{ bg: 'red.50' }}
+            _hover={{ bg: 'alert.50' }}
           />
         </HStack>
       </Flex>

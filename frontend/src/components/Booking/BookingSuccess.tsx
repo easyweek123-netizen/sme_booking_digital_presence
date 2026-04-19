@@ -45,11 +45,11 @@ export function BookingSuccess({
               w="80px"
               h="80px"
               borderRadius="full"
-              bg="yellow.100"
+              bg="brand.50"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              color="yellow.500"
+              color="brand.500"
             >
               <CheckCircleIcon size={48} />
             </Box>
@@ -69,7 +69,7 @@ export function BookingSuccess({
           <Text color="gray.500" fontSize="sm" mb={2}>
             Awaiting confirmation from {business.name}
           </Text>
-          <Badge colorScheme="yellow" fontSize="sm" px={3} py={1} borderRadius="full">
+          <Badge colorScheme="brand" fontSize="sm" px={3} py={1} borderRadius="full">
             Reference: {booking.reference}
           </Badge>
         </MotionBox>

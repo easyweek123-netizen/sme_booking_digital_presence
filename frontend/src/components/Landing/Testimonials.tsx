@@ -27,7 +27,7 @@ const testimonials: Testimonial[] = [
     quote:
       'I used to manage bookings through WhatsApp messages. Now clients book themselves and I get email confirmations instantly. Setup took me 3 minutes.',
     initials: 'LM',
-    gradient: 'linear(to-br, purple.400, pink.400)',
+    gradient: 'linear(to-br, brand.500, brand.600)',
   },
   {
     name: 'Markus W.',
@@ -35,7 +35,7 @@ const testimonials: Testimonial[] = [
     quote:
       'My clients love the booking page — it looks professional and works perfectly on their phones. I just share the QR code in my shop.',
     initials: 'MW',
-    gradient: 'linear(to-br, blue.400, teal.400)',
+    gradient: 'linear(to-br, brand.500, brand.600)',
   },
   {
     name: 'Sarah K.',
@@ -43,7 +43,7 @@ const testimonials: Testimonial[] = [
     quote:
       "I was paying for another booking tool that was way too complicated. BookEasy does exactly what I need — simple, clean, and it's free.",
     initials: 'SK',
-    gradient: 'linear(to-br, orange.400, red.400)',
+    gradient: 'linear(to-br, brand.500, brand.600)',
   },
 ];
 
@@ -62,15 +62,15 @@ function TestimonialCard({
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
       <Box
-        bg="white"
+        bg="surface.card"
         borderRadius="2xl"
         border="1px solid"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         p={{ base: 6, md: 8 }}
         h="100%"
         _hover={{
-          borderColor: 'gray.200',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+          borderColor: 'border.strong',
+          boxShadow: 'sm',
         }}
         transition="all 0.2s"
       >
@@ -130,7 +130,7 @@ export function Testimonials() {
     <Box
       id="testimonials"
       py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }}
-      bg="white"
+      bg="surface.card"
     >
       <Container maxW="container.lg">
         <VStack spacing={{ base: 8, md: 12 }}>

@@ -25,25 +25,25 @@ const steps: Step[] = [
     id: 1,
     title: 'Add Business Info',
     description: 'Enter your name, hours, and location',
-    color: '#8B5CF6', // Purple
+    color: 'brand.500',
   },
   {
     id: 2,
     title: 'Add Services',
     description: 'Set your services, prices, and durations',
-    color: '#14B8A6', // Teal
+    color: 'brand.500',
   },
   {
     id: 3,
     title: 'Create Account',
     description: 'Sign up with Google to save your page',
-    color: '#F97316', // Orange
+    color: 'brand.500',
   },
   {
     id: 4,
     title: 'Share & Grow',
     description: 'Get your link and start accepting bookings',
-    color: '#3B82F6', // Blue
+    color: 'brand.500',
   },
 ];
 
@@ -63,16 +63,16 @@ function StepCard({ step, index }: { step: Step; index: number }) {
         <Box position="relative">
           <Circle
             size={{ base: '80px', md: '100px' }}
-            bg={`${step.color}15`}
+            bg="brand.50"
             position="relative"
           >
             <Circle
               size={{ base: '60px', md: '72px' }}
-              bg={step.color}
+              bg="brand.500"
               color="white"
               fontSize={{ base: 'xl', md: '2xl' }}
               fontWeight="bold"
-              boxShadow={`0 8px 24px ${step.color}40`}
+              boxShadow="outline"
             >
               {step.id}
             </Circle>

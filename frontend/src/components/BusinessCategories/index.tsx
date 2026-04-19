@@ -118,7 +118,7 @@ export function BusinessCategories() {
                 size="lg"
                 bg="white"
                 color="gray.600"
-                boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+                boxShadow="popover"
                 _hover={{ bg: 'gray.50' }}
                 isDisabled={activeIndex === 0}
                 pointerEvents="auto"
@@ -133,7 +133,7 @@ export function BusinessCategories() {
                 size="lg"
                 bg="white"
                 color="gray.600"
-                boxShadow="0 4px 12px rgba(0,0,0,0.1)"
+                boxShadow="popover"
                 _hover={{ bg: 'gray.50' }}
                 isDisabled={activeIndex >= (categories?.length || 1) - 1}
                 pointerEvents="auto"

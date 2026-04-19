@@ -107,9 +107,9 @@ export function TourTooltip() {
         position="fixed"
         {...position}
         w={`${TOUR_DIMENSIONS.tooltipWidth}px`}
-        bg="white"
-        borderRadius="16px"
-        boxShadow="0 4px 6px -1px rgba(0,0,0,0.1), 0 10px 20px -5px rgba(0,0,0,0.1)"
+        bg="surface.card"
+        borderRadius="xl"
+        boxShadow="popover"
         zIndex={TOUR_Z_INDEX.tooltip}
         overflow="hidden"
       >

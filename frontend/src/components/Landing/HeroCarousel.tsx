@@ -29,25 +29,25 @@ const slides: Slide[] = [
     id: 1,
     title: 'Your Professional Booking Page',
     subtitle: 'Free forever. Ready in 2 minutes.',
-    color: '#8B5CF6', // Purple
+    color: 'brand.500',
   },
   {
     id: 2,
     title: 'Accept Bookings 24/7',
     subtitle: 'Customers book anytime, from any device.',
-    color: '#14B8A6', // Teal
+    color: 'brand.500',
   },
   {
     id: 3,
     title: 'Focus on Clients, Not Admin',
     subtitle: 'Automated notifications. Zero hassle.',
-    color: '#F97316', // Orange
+    color: 'brand.500',
   },
   {
     id: 4,
     title: 'Share Your Page Anywhere',
     subtitle: 'QR code, link, or embed on your website.',
-    color: '#3B82F6', // Blue
+    color: 'brand.500',
   },
 ];
 
@@ -81,8 +81,6 @@ export function HeroCarousel() {
     }
   };
 
-  const currentColor = slides[currentSlide].color;
-
   return (
     <MotionBox
       position="relative"
@@ -90,8 +88,7 @@ export function HeroCarousel() {
       display="flex"
       alignItems="center"
       overflow="hidden"
-      animate={{ backgroundColor: currentColor }}
-      transition={{ duration: 0.8, ease: 'easeInOut' }}
+      bg="brand.500"
     >
       {/* Decorative elements */}
       <Box
@@ -162,11 +159,11 @@ export function HeroCarousel() {
             py={{ base: 6, md: 7 }}
             fontSize={{ base: 'md', md: 'lg' }}
             bg="white"
-            color={currentColor}
+            color="brand.500"
             _hover={{
               bg: 'whiteAlpha.900',
               transform: 'translateY(-2px)',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+              boxShadow: 'cardHover',
             }}
             onClick={handleStartNow}
           >

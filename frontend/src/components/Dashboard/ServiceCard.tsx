@@ -126,7 +126,7 @@ export function ServiceCard({
                 <Button
                   size="sm"
                   variant="ghost"
-                  colorScheme="red"
+                  colorScheme="alert"
                   onClick={onDelete}
                 >
                   <TrashIcon size={16} />

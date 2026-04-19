@@ -14,7 +14,7 @@ export function DashboardLayout({ children, businessName }: DashboardLayoutProps
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
 
   return (
-    <Flex minH="100vh" bg="gray.50">
+    <Flex minH="100vh" bg="surface.page">
       {/* Desktop Sidebar - Fixed */}
       <Box
         display={{ base: 'none', lg: 'block' }}

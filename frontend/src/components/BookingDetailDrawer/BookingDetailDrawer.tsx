@@ -190,7 +190,7 @@ export function BookingDetailDrawer({
               />
               <Button
                 size="sm"
-                colorScheme="blue"
+                colorScheme="brand"
                 onClick={handleAddNote}
                 isLoading={isCreating}
                 isDisabled={!noteContent.trim()}

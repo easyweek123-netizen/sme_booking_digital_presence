@@ -94,7 +94,7 @@ export function ChatPanel() {
       direction="column"
       h="full"
       overflow="hidden"
-      bg="linear-gradient(180deg, rgba(46, 182, 125, 0.03) 0%, transparent 50%)"
+      bg="surface.page"
     >
       {/* Header */}
       <HStack

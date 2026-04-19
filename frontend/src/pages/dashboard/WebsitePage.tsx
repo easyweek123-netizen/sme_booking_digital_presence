@@ -211,7 +211,7 @@ export function WebsitePage() {
                   <HStack spacing={1}>
                     <Text>{t.label}</Text>
                     {complete ? (
-                      <Box color="green.500" aria-label="complete" display="inline-flex">
+                      <Box color="brand.500" aria-label="complete" display="inline-flex">
                         <CheckIcon size={14} />
                       </Box>
                     ) : done > 0 ? (

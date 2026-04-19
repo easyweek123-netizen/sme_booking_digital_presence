@@ -161,9 +161,9 @@ export function DashboardBookingCard({
           size="xs"
           variant="ghost"
           leftIcon={<NoteIcon size={12} />}
-          color={notesCount > 0 ? 'blue.500' : 'gray.400'}
+          color={notesCount > 0 ? 'brand.500' : 'gray.400'}
           onClick={onViewDetails}
-          _hover={{ bg: 'blue.50', color: 'blue.600' }}
+          _hover={{ bg: 'brand.50', color: 'brand.600' }}
         >
           {notesCount > 0 ? `${notesCount} note${notesCount !== 1 ? 's' : ''}` : 'Notes'}
         </Button>
@@ -175,7 +175,7 @@ export function DashboardBookingCard({
             <Button
               size="sm"
               variant="outline"
-              colorScheme="red"
+              colorScheme="alert"
               leftIcon={<CloseIcon size={12} />}
               onClick={onDecline}
               isDisabled={isLoading}
@@ -186,7 +186,7 @@ export function DashboardBookingCard({
           {showAction(allowedActions, 'accept') && (
             <Button
               size="sm"
-              colorScheme="green"
+              colorScheme="brand"
               leftIcon={<CheckIcon size={14} />}
               onClick={onAccept}
               isLoading={isLoading}
@@ -214,7 +214,7 @@ export function DashboardBookingCard({
             <Button
               size="sm"
               variant="outline"
-              colorScheme="red"
+              colorScheme="alert"
               onClick={onCancel}
               isDisabled={isLoading}
             >
@@ -224,7 +224,7 @@ export function DashboardBookingCard({
           {showAction(allowedActions, 'complete') && (
             <Button
               size="sm"
-              colorScheme="green"
+              colorScheme="brand"
               leftIcon={<CheckIcon size={14} />}
               onClick={onComplete}
               isLoading={isLoading}

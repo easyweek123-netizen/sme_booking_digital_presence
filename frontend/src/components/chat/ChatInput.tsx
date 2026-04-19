@@ -53,15 +53,15 @@ export function ChatInput({ placeholder, onSubmit, disabled }: ChatInputProps) {
 
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       borderRadius="2xl"
       border="1px solid"
-      borderColor="gray.200"
-      boxShadow="0 2px 8px rgba(0, 0, 0, 0.04)"
+      borderColor="border.subtle"
+      boxShadow="card"
       transition="all 0.2s"
       _focusWithin={{
         borderColor: 'brand.300',
-        boxShadow: '0 2px 12px rgba(46, 182, 125, 0.12)',
+        boxShadow: 'inputFocus',
       }}
     >
       <HStack spacing={0} p={2} align="end">

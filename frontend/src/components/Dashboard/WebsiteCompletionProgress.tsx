@@ -237,18 +237,18 @@ export function WebsiteCompletionProgress(
 
           {allComplete ? (
             <Box
-              bg="green.50"
+              bg="brand.50"
               borderRadius="xl"
               border="1px solid"
-              borderColor="green.100"
+              borderColor="brand.100"
               px={4}
               py={3}
             >
               <HStack spacing={2}>
-                <Box color="green.600">
+                <Box color="brand.600">
                   <CheckIcon size={18} />
                 </Box>
-                <Text fontSize="sm" fontWeight="600" color="green.800">
+                <Text fontSize="sm" fontWeight="600" color="brand.700">
                   Your website is ready.
                 </Text>
               </HStack>
@@ -266,16 +266,16 @@ export function WebsiteCompletionProgress(
                     py={3}
                     px={3}
                     borderRadius="xl"
-                    bg={complete ? 'green.50' : 'gray.50'}
+                    bg={complete ? 'brand.50' : 'gray.50'}
                     border="1px solid"
-                    borderColor={complete ? 'green.100' : 'gray.100'}
+                    borderColor={complete ? 'brand.100' : 'gray.100'}
                     cursor="pointer"
                     role="button"
                     tabIndex={0}
                     onClick={() => handleRowAction(row)}
                     onKeyDown={(e) => handleRowKeyDown(e, row)}
                     _hover={{
-                      borderColor: complete ? 'green.200' : 'gray.200',
+                      borderColor: complete ? 'brand.200' : 'gray.200',
                     }}
                     _focusVisible={{
                       outline: '2px solid',
@@ -289,8 +289,8 @@ export function WebsiteCompletionProgress(
                       align="center"
                       justify="center"
                       borderRadius="lg"
-                      bg={complete ? 'green.100' : 'white'}
-                      color={complete ? 'green.600' : 'gray.500'}
+                      bg={complete ? 'brand.100' : 'white'}
+                      color={complete ? 'brand.600' : 'gray.500'}
                       flexShrink={0}
                     >
                       {row.icon}
@@ -304,7 +304,7 @@ export function WebsiteCompletionProgress(
                       </Text>
                     </Box>
                     {complete && (
-                      <Box color="green.600" flexShrink={0}>
+                      <Box color="brand.600" flexShrink={0}>
                         <CheckIcon size={18} />
                       </Box>
                     )}

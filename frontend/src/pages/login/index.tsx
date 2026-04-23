@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { Logo } from '../../components/ui/Logo';
 import { GoogleButton } from '../../lib/auth';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import { type User } from '../../lib/firebase';
 import { ROUTES } from '../../config/routes';
 import { TOAST_DURATION } from '../../constants';

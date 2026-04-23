@@ -1,13 +1,11 @@
 import {
   Box,
-  Flex,
   VStack,
   FormControl,
   FormLabel,
   FormHelperText,
   Input,
   Textarea,
-  SimpleGrid,
   Divider,
   Heading,
   InputGroup,
@@ -40,6 +38,7 @@ export function BusinessProfileFields({
     onChange(e.target.name, e.target.value);
   };
 
+  // console.log('values', values);
   return (
     <VStack spacing={6} align="stretch">
       <Box>
@@ -106,12 +105,6 @@ export function BusinessProfileFields({
           </FormControl>
 
           <FormControl>
-            <Flex
-              direction={{ base: 'column', sm: 'row' }}
-              gap={{ base: 3, sm: 3 }}
-              align={{ base: 'stretch', sm: 'flex-end' }}
-            >
-              <Box flex="1" minW={0}>
                 <FormLabel fontSize="sm" fontWeight="500">
                   Address
                 </FormLabel>
@@ -121,9 +114,11 @@ export function BusinessProfileFields({
                   onChange={handleChange}
                   placeholder="Street and number"
                   size="sm"
+                  autoComplete="address"
                 />
-              </Box>
-              <Box w={{ base: '100%', sm: '160px' }} flexShrink={0}>
+          </FormControl>
+          
+          <FormControl>
                 <FormLabel fontSize="sm" fontWeight="500">
                   City
                 </FormLabel>
@@ -134,8 +129,6 @@ export function BusinessProfileFields({
                   placeholder="City"
                   size="sm"
                 />
-              </Box>
-            </Flex>
             <FormHelperText>Helps customers find your location.</FormHelperText>
           </FormControl>
         </VStack>
@@ -143,7 +136,7 @@ export function BusinessProfileFields({
 
       <Divider />
 
-      <Box>
+      {/* <Box>
         <Heading size="xs" color="gray.700" textTransform="uppercase" letterSpacing="wider" mb={3}>
           Online presence
         </Heading>
@@ -175,7 +168,7 @@ export function BusinessProfileFields({
             <FormHelperText>@handle or full URL.</FormHelperText>
           </FormControl>
         </SimpleGrid>
-      </Box>
+      </Box> */}
     </VStack>
   );
 }

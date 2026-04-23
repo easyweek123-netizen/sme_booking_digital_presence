@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   VStack,
@@ -5,19 +6,13 @@ import {
   Text,
   Button,
   useToast,
-  Spinner,
-  Center,
   Flex,
   HStack,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
-import {
-  useGetMyBusinessQuery,
-  useUpdateBusinessMutation,
-} from '../../store/api/businessApi';
+import { useUpdateBusinessMutation } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
 import { BrandingFields } from '../../components/ui/BrandingFields';
 import {
@@ -27,7 +22,7 @@ import {
 import { BookingLinkCard } from '../../components/QRCode';
 import { CheckIcon } from '../../components/icons';
 import { TOAST_DURATION } from '../../constants';
-import type { WorkingHours } from '../../types';
+import type { WorkingHours, BusinessWithServices } from '../../types';
 
 type TabKey = 'profile' | 'branding' | 'hours' | 'about';
 
@@ -42,47 +37,33 @@ function filled(v?: string | null): boolean {
   return !!(v && String(v).trim());
 }
 
-export function WebsitePage() {
+interface DashboardWebsiteFormProps {
+  business: BusinessWithServices;
+}
+
+export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
   const toast = useToast();
-  const { data: business, isLoading } = useGetMyBusinessQuery();
   const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
 
   const [activeTab, setActiveTab] = useState<TabKey>('profile');
 
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    phone: '',
-    address: '',
-    city: '',
-    website: '',
-    instagram: '',
-    logoUrl: '',
-    brandColor: '',
-    coverImageUrl: '',
-    aboutContent: '',
-  });
-  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(null);
+  const [formData, setFormData] = useState(() => ({
+    name: business.name || '',
+    description: business.description || '',
+    phone: business.phone || '',
+    address: business.address || '',
+    city: business.city || '',
+    website: business.website || '',
+    instagram: business.instagram || '',
+    logoUrl: business.logoUrl || '',
+    brandColor: business.brandColor || '',
+    coverImageUrl: business.coverImageUrl || '',
+    aboutContent: business.aboutContent || '',
+  }));
+  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(
+    () => business.workingHours ?? null,
+  );
   const [hasChanges, setHasChanges] = useState(false);
-
-  useEffect(() => {
-    if (business) {
-      setFormData({
-        name: business.name || '',
-        description: business.description || '',
-        phone: business.phone || '',
-        address: business.address || '',
-        city: business.city || '',
-        website: business.website || '',
-        instagram: business.instagram || '',
-        logoUrl: business.logoUrl || '',
-        brandColor: business.brandColor || '',
-        coverImageUrl: business.coverImageUrl || '',
-        aboutContent: business.aboutContent || '',
-      });
-      setWorkingHours(business.workingHours);
-    }
-  }, [business]);
 
   const handleWorkingHoursChange = (hours: WorkingHours) => {
     setWorkingHours(hours);
@@ -100,8 +81,6 @@ export function WebsitePage() {
   };
 
   const handleSave = async () => {
-    if (!business) return;
-
     try {
       await updateBusiness({
         id: business.id,
@@ -126,14 +105,6 @@ export function WebsitePage() {
       });
     }
   };
-
-  if (isLoading || !business) {
-    return (
-      <Center py={12}>
-        <Spinner size="lg" color="brand.500" />
-      </Center>
-    );
-  }
 
   const tabStatus = {
     profile: {

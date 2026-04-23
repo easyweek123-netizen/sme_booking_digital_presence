@@ -12,7 +12,7 @@ import {
   VStack,
   FormHelperText,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { CloseIcon } from '../icons';
 import { DEFAULT_BRAND_COLOR } from '../../utils/brandColor';
 
@@ -36,11 +36,11 @@ export function BrandingFields({
   const [logoError, setLogoError] = useState(false);
   // Local state for color picker - prevents Redux dispatch on every drag
   const [localColor, setLocalColor] = useState(brandColor || DEFAULT_BRAND_COLOR);
-
-  // Sync local state when prop changes externally (e.g., reset)
-  useEffect(() => {
+  const [prevBrandColor, setPrevBrandColor] = useState(brandColor);
+  if (brandColor !== prevBrandColor) {
+    setPrevBrandColor(brandColor);
     setLocalColor(brandColor || DEFAULT_BRAND_COLOR);
-  }, [brandColor]);
+  }
 
   const handleLogoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onLogoUrlChange(e.target.value);

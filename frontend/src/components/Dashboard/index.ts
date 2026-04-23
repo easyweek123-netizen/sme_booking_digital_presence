@@ -1,4 +1,5 @@
 export { CategoryManagement } from './CategoryManagement';
+export { BusinessGate } from './BusinessGate';
 export { DashboardLayout } from './DashboardLayout';
 export { Sidebar } from './Sidebar';
 export { MobileNav } from './MobileNav';

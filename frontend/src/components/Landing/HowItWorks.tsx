@@ -9,7 +9,6 @@ import {
   Circle,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { SECTION_PADDING } from '../../constants';
 
 const MotionBox = motion.create(Box);
 
@@ -72,7 +71,7 @@ function StepCard({ step, index }: { step: Step; index: number }) {
               color="white"
               fontSize={{ base: 'xl', md: '2xl' }}
               fontWeight="bold"
-              boxShadow="outline"
+              boxShadow="card"
             >
               {step.id}
             </Circle>
@@ -85,12 +84,10 @@ function StepCard({ step, index }: { step: Step; index: number }) {
             as="h3"
             fontSize={{ base: 'lg', md: 'xl' }}
             fontWeight="600"
-            color="gray.900"
           >
             {step.title}
           </Heading>
           <Text
-            color="gray.500"
             fontSize={{ base: 'sm', md: 'md' }}
             maxW="200px"
           >
@@ -109,14 +106,10 @@ function ConnectorLine() {
       flex="0 0 auto"
       w="60px"
       h="2px"
-      bg="gray.200"
+      bg="border.subtle"
       borderRadius="full"
       position="relative"
       top="-20px"
-      sx={{
-        backgroundImage: 'linear-gradient(90deg, transparent 50%, gray.200 50%)',
-        backgroundSize: '8px 2px',
-      }}
     />
   );
 }
@@ -127,7 +120,7 @@ function MobileConnector() {
       display={{ base: 'flex', md: 'none' }}
       w="2px"
       h="40px"
-      bg="gray.200"
+      bg="border.subtle"
       mx="auto"
       borderRadius="full"
     />
@@ -136,7 +129,7 @@ function MobileConnector() {
 
 export function HowItWorks() {
   return (
-    <Box id="how-it-works" py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }} bg="white">
+    <Box id="how-it-works" py={{ base: 16, md: 24 }} bg="surface.page">
       <Container maxW="container.xl">
         <VStack spacing={{ base: 12, md: 16 }}>
           {/* Section header */}
@@ -150,7 +143,6 @@ export function HowItWorks() {
                 as="h2"
                 fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
                 fontWeight="700"
-                color="gray.900"
               >
                 How It Works
               </Heading>
@@ -161,7 +153,7 @@ export function HowItWorks() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Text color="gray.500" fontSize={{ base: 'md', md: 'lg' }}>
+              <Text fontSize={{ base: 'md', md: 'lg' }}>
                 Get your professional booking page up and running in minutes
               </Text>
             </MotionBox>

@@ -17,7 +17,7 @@ import {
   useToast,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DateSelector } from './DateSelector';
 import { TimeSlotGrid } from './TimeSlotGrid';
@@ -41,11 +41,6 @@ interface BookingDrawerProps {
 
 type BookingStep = 'select' | 'verify' | 'success';
 
-interface VerifiedCustomer {
-  firebaseUser: User;
-  name: string;
-}
-
 export function BookingDrawer({ isOpen, onClose, service, business }: BookingDrawerProps) {
   const toast = useToast();
   const placement = useBreakpointValue<'bottom' | 'right'>({ base: 'bottom', md: 'right' }) || 'bottom';
@@ -64,7 +59,6 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [step, setStep] = useState<BookingStep>('select');
   const [createdBooking, setCreatedBooking] = useState<Booking | null>(null);
-  const [_verifiedCustomer, setVerifiedCustomer] = useState<VerifiedCustomer | null>(null);
 
   // API hooks
   const {
@@ -82,21 +76,10 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
 
   const [createBooking, { isLoading: isCreating }] = useCreateBookingMutation();
 
-  // Reset state when drawer closes
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedDate(getTodayString());
-      setSelectedTime(null);
-      setStep('select');
-      setCreatedBooking(null);
-      setVerifiedCustomer(null);
-    }
-  }, [isOpen]);
-
-  // Reset time when date changes
-  useEffect(() => {
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
     setSelectedTime(null);
-  }, [selectedDate]);
+  };
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
@@ -105,12 +88,9 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
 
   const handleBackToSelect = () => {
     setStep('select');
-    setVerifiedCustomer(null);
   };
 
   const handleVerified = async (firebaseUser: User, name: string) => {
-    setVerifiedCustomer({ firebaseUser, name });
-    
     // Proceed to create booking
     if (!selectedTime) return;
 
@@ -196,7 +176,6 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                     setStep('select');
                     setSelectedTime(null);
                     setCreatedBooking(null);
-                    setVerifiedCustomer(null);
                   }}
                 />
               </MotionBox>
@@ -212,7 +191,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                   <Box p={4} bg="gray.50">
                     <DateSelector
                       selectedDate={selectedDate}
-                      onDateChange={setSelectedDate}
+                      onDateChange={handleDateSelect}
                       workingHours={business.workingHours}
                     />
                   </Box>
@@ -253,7 +232,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                           mb={4}
                           p={3}
                           bg="brand.50"
-                          borderRadius="lg"
+                          borderRadius="sm"
                         >
                           <Text fontSize="sm" color="gray.700">
                             {formatDateDisplay(selectedDate)} at{' '}

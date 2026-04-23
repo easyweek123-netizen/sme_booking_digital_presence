@@ -41,7 +41,7 @@ export function CanvasActionsContainer({
       direction="column"
       h="full"
       bg="white"
-      borderRadius="xl"
+      borderRadius="sm"
       overflow="hidden"
       border="1px"
       borderColor="gray.100"

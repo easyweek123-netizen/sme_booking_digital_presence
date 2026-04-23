@@ -10,7 +10,7 @@ import {
   Alert,
   AlertIcon,
 } from '@chakra-ui/react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { feedbackFormSchema, type FeedbackFormValues } from './feedbackFormSchema';
@@ -43,8 +43,8 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
     },
   });
 
-  const { handleSubmit, watch, reset } = methods;
-  const topic = watch('topic');
+  const { handleSubmit, control, reset } = methods;
+  const topic = useWatch({ control, name: 'topic' });
 
   const onSubmit = async (data: FeedbackFormValues) => {
     try {

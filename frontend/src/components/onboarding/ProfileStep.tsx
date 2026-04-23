@@ -49,11 +49,6 @@ export function ProfileStep() {
   );
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // Sync local color when brandColor changes externally
-  useEffect(() => {
-    setLocalColor(brandColor || DEFAULT_BRAND_COLOR);
-  }, [brandColor]);
-
   const handleColorBlur = () => {
     if (localColor !== (brandColor || DEFAULT_BRAND_COLOR)) {
       setBrandColor(localColor === DEFAULT_BRAND_COLOR ? '' : localColor);
@@ -74,13 +69,6 @@ export function ProfileStep() {
     };
     dispatch(updateBusinessProfile(profile));
   }, [name, phone, description, address, city, logoUrl, brandColor, workingHours, dispatch]);
-
-  // Validate name field
-  useEffect(() => {
-    if (name.trim()) {
-      setErrors((prev) => ({ ...prev, name: undefined }));
-    }
-  }, [name]);
 
   return (
     <MotionBox
@@ -109,7 +97,13 @@ export function ProfileStep() {
             </FormLabel>
             <Input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setName(val);
+                if (val.trim() && errors.name) {
+                  setErrors((prev) => ({ ...prev, name: undefined }));
+                }
+              }}
               placeholder="e.g., Sarah's Salon"
               size="lg"
               borderRadius="lg"

@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { setActiveTab } from '../../store/slices/canvasSlice';
-import { useGetMyBusinessQuery } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { CanvasPreview } from './CanvasPreview';
 import { ActionsRenderer } from './ActionsRenderer';
 import { BookingPage } from '../../pages/booking';
@@ -15,7 +15,7 @@ import { DashboardServices } from '../../pages/dashboard/DashboardServices';
 import { DashboardBookings } from '../../pages/dashboard/DashboardBookings';
 import { DashboardClients } from '../../pages/dashboard/DashboardClients';
 import type { PreviewContext } from '@shared';
-import { WebsitePage } from '../../pages/dashboard/WebsitePage';
+import { DashboardWebsite } from '../../pages/dashboard/DashboardWebsite';
 
 /**
  * Canvas panel with Preview and Actions tabs.
@@ -25,7 +25,7 @@ import { WebsitePage } from '../../pages/dashboard/WebsitePage';
 export function CanvasPanel() {
   const dispatch = useAppDispatch();
   const { activeTab, proposals, previewContext } = useAppSelector((state) => state.canvas);
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
 
   /**
    * Render preview content based on previewContext
@@ -33,7 +33,7 @@ export function CanvasPanel() {
   const renderPreviewContent = () => {
     const previewMap: Record<PreviewContext, React.ReactNode> = {
       booking_page: <BookingPage business={business} isPreview />,
-      business_profile: <WebsitePage />,
+      business_profile: <DashboardWebsite />,
       services: <DashboardServices />,
       bookings: <DashboardBookings />,
       clients: <DashboardClients />,
@@ -62,7 +62,7 @@ export function CanvasPanel() {
           isAttached
           size="sm"
           bg="gray.100"
-          borderRadius="lg"
+          borderRadius="md"
           p="2px"
         >
           <Button
@@ -104,7 +104,7 @@ export function CanvasPanel() {
             {proposals.length > 0 && (
               <Badge
                 colorScheme="alert"
-                borderRadius="full"
+                borderRadius="md"
                 ml={1.5}
                 fontSize="2xs"
                 minW="18px"

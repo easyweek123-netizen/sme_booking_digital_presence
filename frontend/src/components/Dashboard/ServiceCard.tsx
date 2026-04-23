@@ -44,7 +44,7 @@ export function ServiceCard({
   return (
     <Box
       bg="white"
-      borderRadius="xl"
+      borderRadius="sm"
       border="1px"
       borderColor="gray.100"
       overflow="hidden"

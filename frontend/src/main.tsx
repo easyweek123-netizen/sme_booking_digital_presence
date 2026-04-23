@@ -4,11 +4,10 @@ import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import '@fontsource/inter/800.css';
 
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { ChakraProvider, Spinner, Center } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 
 import { store, persistor } from './store/store';
@@ -16,40 +15,28 @@ import './store/storeListeners'; // Register store side-effect listeners
 import { theme } from './theme';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
-import { TourProvider } from './contexts/TourContext';
-import { TourOverlay, TourTooltip, TourIntro } from './components/Tour';
 import { CookieConsent } from './components/CookieConsent';
+import { PersistLoader } from './components/PersistLoader';
 import App from './App';
 
 import './index.css';
-
-// Loading component for PersistGate
-const PersistLoader = () => (
-  <Center h="100vh">
-    <Spinner size="xl" color="brand.500" thickness="4px" />
-  </Center>
-);
+// import { StrictMode } from 'react';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  // <StrictMode>
     <ErrorBoundary>
       <Provider store={store}>
         <PersistGate loading={<PersistLoader />} persistor={persistor}>
           <ChakraProvider theme={theme}>
             <BrowserRouter>
               <AuthProvider>
-                <TourProvider>
-                  <App />
-                  <CookieConsent />
-                  <TourIntro />
-                  <TourOverlay />
-                  <TourTooltip />
-                </TourProvider>
+                <App />
+                <CookieConsent />
               </AuthProvider>
             </BrowserRouter>
           </ChakraProvider>
         </PersistGate>
       </Provider>
     </ErrorBoundary>
-  </StrictMode>
+  // </StrictMode>,
 );

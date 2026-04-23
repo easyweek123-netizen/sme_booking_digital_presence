@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Flex,
   IconButton,
   Text,
@@ -7,10 +8,11 @@ import {
   DrawerBody,
   DrawerOverlay,
   DrawerContent,
+  DrawerCloseButton,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MenuIcon, CloseIcon } from '../icons';
+import { MenuIcon } from '../icons';
 import { Sidebar } from './Sidebar';
 import { ROUTES } from '../../config/routes';
 
@@ -35,17 +37,15 @@ export function MobileNav({ businessName }: MobileNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const pageTitle = getPageTitle(location.pathname);
-
   return (
     <>
       <Box
-        display={{ base: 'block', lg: 'none' }}
         position="sticky"
         top={0}
-        zIndex={10}
         bg="white"
         borderBottom="1px"
         borderColor="gray.100"
+        zIndex={2}
       >
         <Flex h="60px" align="center" justify="space-between" px={4}>
           <IconButton
@@ -55,12 +55,13 @@ export function MobileNav({ businessName }: MobileNavProps) {
             size="md"
             onClick={onOpen}
             color="gray.600"
-            borderRadius="lg"
+            borderRadius="sm"
             _hover={{ bg: 'gray.50' }}
+            zIndex={3}
           />
 
           <Box textAlign="center">
-            <Text fontSize="sm" fontWeight="600" color="gray.900">
+            <Text fontSize="sm" fontWeight="600" color="text.primary">
               {pageTitle}
             </Text>
             {businessName && (
@@ -70,53 +71,35 @@ export function MobileNav({ businessName }: MobileNavProps) {
             )}
           </Box>
 
-          {/* Logo icon - navigates home */}
-          <Box
-            as="button"
+          <Button
+            aria-label="Go to home"
             w="36px"
             h="36px"
+            minW="36px"
+            p={0}
             bg="brand.500"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
+            borderRadius="md"
             onClick={() => navigate(ROUTES.HOME)}
             _hover={{ bg: 'brand.600' }}
             _active={{ transform: 'scale(0.95)' }}
             transition="all 0.15s"
-            aria-label="Go to home"
+            color="white"
+            fontWeight="bold"
+            fontSize="md"
           >
-            <Text color="white" fontWeight="bold" fontSize="md">
-              B
-            </Text>
-          </Box>
+            B
+          </Button>
         </Flex>
       </Box>
 
-      {/* Mobile drawer */}
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
-        <DrawerContent maxW="280px" bg="white">
-          {/* Close button */}
-          <Box position="absolute" top={4} right={4} zIndex={1}>
-            <IconButton
-              aria-label="Close menu"
-              icon={<CloseIcon />}
-              variant="ghost"
-              size="sm"
-              color="gray.500"
-              _hover={{ bg: 'gray.100' }}
-              onClick={onClose}
-              borderRadius="full"
-            />
-          </Box>
-
+        <DrawerContent maxW="240px" bg="white">
           <DrawerBody p={0}>
-            <Sidebar onClose={onClose} />
+            <Sidebar onClose={onClose} isInDrawer />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
     </>
   );
 }
-

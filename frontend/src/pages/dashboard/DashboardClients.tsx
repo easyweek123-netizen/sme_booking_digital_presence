@@ -2,10 +2,7 @@ import {
   Box,
   VStack,
   HStack,
-  Heading,
   Text,
-  Spinner,
-  Center,
   Input,
   InputGroup,
   InputLeftElement,
@@ -13,10 +10,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useState, useMemo } from 'react';
-import { SearchIcon } from '../../components/icons';
+import { SearchIcon, UsersIcon } from '../../components/icons';
 import { useGetCustomersQuery } from '../../store/api';
 import { ClientDetailDrawer } from '../../components/ClientDetailDrawer';
 import type { Customer } from '../../types';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { SkeletonList, EmptyState } from '../../components/ui/states';
 
 export function DashboardClients() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +24,6 @@ export function DashboardClients() {
 
   const { data: customers = [], isLoading } = useGetCustomersQuery();
 
-  // Filter customers based on search query
   const filteredCustomers = useMemo(() => {
     if (!searchQuery.trim()) return customers;
 
@@ -50,18 +48,14 @@ export function DashboardClients() {
   return (
     <>
       <VStack spacing={6} align="stretch">
-        <Box>
-          <Heading size="lg" color="gray.900" mb={1}>
-            Clients
-          </Heading>
-          <Text color="gray.500">
-            Manage your clients and their booking history
-          </Text>
-        </Box>
+        <PageHeader
+          title="Clients"
+          description="Manage your clients and their booking history"
+        />
 
         {/* Search */}
         <InputGroup maxW="400px">
-          <InputLeftElement pointerEvents="none" color="gray.400">
+          <InputLeftElement pointerEvents="none" color="text.muted">
             <SearchIcon size={16} />
           </InputLeftElement>
           <Input
@@ -73,31 +67,26 @@ export function DashboardClients() {
 
         {/* Clients Table */}
         {isLoading ? (
-          <Center py={12}>
-            <Spinner size="lg" color="brand.500" />
-          </Center>
+          <SkeletonList count={5} />
         ) : filteredCustomers.length === 0 ? (
-          <Center py={12}>
-            <VStack spacing={2}>
-              <Text color="gray.500" fontSize="lg">
-                {searchQuery ? 'No clients found' : 'No clients yet'}
-              </Text>
-              {!searchQuery && (
-                <Text color="gray.400" fontSize="sm">
-                  Clients will appear here after they make their first booking
-                </Text>
-              )}
-            </VStack>
-          </Center>
+          <EmptyState
+            icon={<UsersIcon size={28} />}
+            title={searchQuery ? 'No clients found' : 'No clients yet'}
+            description={
+              searchQuery
+                ? undefined
+                : 'Clients will appear here once they book an appointment.'
+            }
+          />
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
             {filteredCustomers.map((customer) => (
               <Box
                 key={customer.id}
-                bg="white"
-                borderRadius="xl"
+                bg="surface.card"
+                borderRadius="sm"
                 border="1px"
-                borderColor="gray.200"
+                borderColor="border.subtle"
                 p={4}
                 cursor="pointer"
                 transition="all 0.2s"
@@ -108,14 +97,14 @@ export function DashboardClients() {
                   <Text fontWeight="semibold" fontSize="lg" noOfLines={1}>
                     {customer.name}
                   </Text>
-                  <Text fontSize="sm" color="gray.600" noOfLines={1}>
+                  <Text fontSize="sm" color="text.secondary" noOfLines={1}>
                     {customer.email || 'No email'}
                   </Text>
                   <HStack justify="space-between" pt={2}>
-                    <Text fontSize="sm" color="gray.500">
+                    <Text fontSize="sm" color="text.secondary">
                       {customer.bookings?.length || 0} booking{(customer.bookings?.length || 0) !== 1 ? 's' : ''}
                     </Text>
-                    <Text fontSize="sm" color="gray.400">
+                    <Text fontSize="sm" color="text.muted">
                       {new Date(customer.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -131,7 +120,7 @@ export function DashboardClients() {
 
         {/* Results count */}
         {!isLoading && filteredCustomers.length > 0 && (
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="text.secondary">
             Showing {filteredCustomers.length} of {customers.length} clients
           </Text>
         )}
@@ -148,4 +137,3 @@ export function DashboardClients() {
     </>
   );
 }
-

@@ -45,28 +45,20 @@ export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
       maxW="85%"
     >
       <Box
-        bg={isBot ? 'white' : 'brand.500'}
-        color={isBot ? 'gray.700' : 'white'}
+        bg={isBot ? 'surface.card' : 'brand.500'}
         px={4}
-        py={3}
+        py={2}
         borderRadius="2xl"
         borderTopLeftRadius={isBot ? 'lg' : '2xl'}
         borderTopRightRadius={isBot ? '2xl' : 'lg'}
         boxShadow={isBot ? 'sm' : 'md'}
-        border={isBot ? '1px solid' : 'none'}
-        borderColor="gray.100"
-        background={
-          !isBot
-            ? 'linear-gradient(135deg, var(--chakra-colors-brand-500) 0%, var(--chakra-colors-brand-600) 100%)'
-            : undefined
-        }
       >
         {isBot ? (
           <ReactMarkdown components={markdownComponents}>
             {message.content}
           </ReactMarkdown>
         ) : (
-          <Text fontSize="sm" lineHeight="tall" whiteSpace="pre-wrap">
+          <Text color="surface.card" lineHeight="tall" whiteSpace="pre-wrap">
             {message.content}
           </Text>
         )}

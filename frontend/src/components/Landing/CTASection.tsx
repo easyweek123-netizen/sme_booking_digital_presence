@@ -2,7 +2,6 @@ import { Box, Button, Container, Heading, Text, VStack } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ROUTES } from '../../config/routes';
-import { SECTION_PADDING } from '../../constants';
 import { useAppSelector } from '../../store/hooks';
 
 const MotionBox = motion.create(Box);
@@ -21,12 +20,12 @@ export function CTASection() {
 
   return (
     <Box
-      bg="gray.900"
-      py={{ base: SECTION_PADDING.base + 4, md: SECTION_PADDING.md + 8 }}
+      bg="surface.inverted"
+      py={{ base: 20, md: 32 }}
       position="relative"
       overflow="hidden"
     >
-      {/* Decorative gradient */}
+      {/* Decorative radial gradient */}
       <Box
         position="absolute"
         top="0"
@@ -34,8 +33,9 @@ export function CTASection() {
         transform="translateX(-50%)"
         w="150%"
         h="100%"
-        bgGradient="radial(circle at 50% 0%, brand.900, transparent 60%)"
-        opacity={0.3}
+        bgGradient="radial(circle at 50% 0%, brand.600, transparent 60%)"
+        opacity={0.25}
+        pointerEvents="none"
       />
 
       <Container maxW="container.md" position="relative" zIndex={1}>
@@ -50,7 +50,7 @@ export function CTASection() {
               as="h2"
               fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
               fontWeight="700"
-              color="white"
+              color="text.inverted"
               lineHeight="1.2"
             >
               Focus on your clients.
@@ -58,7 +58,8 @@ export function CTASection() {
               We handle the bookings.
             </Heading>
             <Text
-              color="gray.400"
+              color="text.inverted"
+              opacity={0.8}
               fontSize={{ base: 'md', md: 'lg' }}
               maxW="500px"
             >
@@ -68,15 +69,16 @@ export function CTASection() {
             <Button
               size="lg"
               bg="white"
-              color="gray.900"
+              color="brand.500"
+              colorScheme="whiteAlpha"
               px={{ base: 8, md: 10 }}
               py={6}
               fontWeight="600"
               fontSize={{ base: 'md', md: 'lg' }}
-            _hover={{
-              bg: 'gray.100',
-              transform: 'translateY(-2px)',
-            }}
+              _hover={{
+                bg: 'gray.100',
+                transform: 'translateY(-2px)',
+              }}
               _active={{ bg: 'gray.200', transform: 'translateY(0)' }}
               transition="all 0.2s"
               onClick={handleClick}

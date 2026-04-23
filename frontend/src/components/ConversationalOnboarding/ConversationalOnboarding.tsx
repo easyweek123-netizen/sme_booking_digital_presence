@@ -20,7 +20,7 @@ interface ConversationalOnboardingProps {
   isAuthenticated: boolean;
   isCreating: boolean;
   isError: boolean;
-  handleAuthError: (error: any) => void;
+  handleAuthError: (error: unknown) => void;
 }
 
 export function ConversationalOnboarding({

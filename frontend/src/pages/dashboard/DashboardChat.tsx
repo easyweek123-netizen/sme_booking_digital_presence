@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Box, Flex, VStack, Text, HStack } from '@chakra-ui/react';
-import { useInitChatQuery, useSendMessageMutation, useGetMyBusinessQuery } from '../../store/api';
+import { useInitChatQuery, useSendMessageMutation } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { addMessage, setInitialized, clearChat } from '../../store/slices/chatSlice';
 import { AllMessages, ChatInput, TypingIndicator } from '../../components/chat';
@@ -10,14 +11,14 @@ import type { Message } from '../../types/chat.types';
 export function DashboardChat() {
   const dispatch = useAppDispatch();
   const { messages, initialized } = useAppSelector((state) => state.chat);
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const { data: initData, isLoading: isInitLoading, refetch } = useInitChatQuery(undefined, {
     skip: initialized,
   });
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const businessName = business?.name || 'Your';
+  const businessName = business.name;
 
   useEffect(() => {
     if (initData && !initialized) {
@@ -45,7 +46,7 @@ export function DashboardChat() {
     }
   };
 
-  const handleSuggestionSelect = (value: string, _label: string) => {
+  const handleSuggestionSelect = (value: string) => {
     handleSubmit(value);
   };
 

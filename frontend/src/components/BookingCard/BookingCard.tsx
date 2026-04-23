@@ -39,7 +39,7 @@ export function BookingCard({
     <Box
       bg="white"
       p={isCompact ? 3 : 4}
-      borderRadius="lg"
+      borderRadius="sm"
       border="1px"
       borderColor="gray.200"
       borderLeftWidth="4px"
@@ -60,7 +60,7 @@ export function BookingCard({
           fontSize="xs"
           px={2}
           py={0.5}
-          borderRadius="full"
+          borderRadius="lg"
           fontWeight="600"
         >
           {statusConfig.label}

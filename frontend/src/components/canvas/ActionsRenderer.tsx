@@ -1,7 +1,7 @@
 import { Text, Center, VStack, Box, HStack } from '@chakra-ui/react';
 import { useAppDispatch } from '../../store/hooks';
 import { setActiveTab, clearProposals, removeProposal } from '../../store/slices/canvasSlice';
-import { useGetMyBusinessQuery } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { useProposalExecution } from '../../hooks';
 import { CanvasActionsContainer } from './CanvasActionsContainer';
 import { ActionErrorBoundary } from './ActionErrorBoundary';
@@ -20,7 +20,7 @@ interface ProposalCardProps {
 }
 
 function ProposalCard({ proposal }: ProposalCardProps) {
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const { execute, cancel, registry, loadingProposalId } = useProposalExecution();
 
   const isLoading = loadingProposalId === proposal.proposalId;
@@ -36,7 +36,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
 
   // Build props from proposal data
   const componentProps = config.getProps(proposal, {
-    business: business ?? undefined,
+    business,
   });
 
   const handleSubmit = async (formData: Record<string, unknown>) => {

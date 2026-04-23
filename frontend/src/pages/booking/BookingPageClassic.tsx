@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/preserve-manual-memoization, react-hooks/static-components -- legacy page scheduled for removal */
 import {
   Box,
   Container,
@@ -305,7 +306,7 @@ export function BookingPageClassic({
         bg="white"
         borderTop="1px"
         borderColor="gray.100"
-        zIndex={5}
+        // zIndex={5}
         boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
       >
         <Text fontSize="xs" color="gray.400">

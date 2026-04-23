@@ -35,7 +35,7 @@ export function StatsCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
       bg="white"
-      borderRadius="2xl"
+      borderRadius="sm"
       border="1px"
       borderColor="gray.100"
       p={5}
@@ -75,7 +75,7 @@ export function StatsCard({
           h="44px"
           align="center"
           justify="center"
-          borderRadius="xl"
+          borderRadius="sm"
           bg={`${color.split('.')[0]}.50`}
           color={color}
         >

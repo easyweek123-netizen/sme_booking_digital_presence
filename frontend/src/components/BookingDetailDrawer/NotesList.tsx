@@ -144,7 +144,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
             key={note.id}
             p={3}
             bg="gray.50"
-            borderRadius="md"
+            borderRadius="sm"
             border="1px"
             borderColor="gray.200"
           >

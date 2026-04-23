@@ -195,7 +195,7 @@ export function WebsiteCompletionProgress(
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
         bg="white"
-        borderRadius="xl"
+        borderRadius="md"
         border="1px"
         borderColor="gray.100"
         p={6}

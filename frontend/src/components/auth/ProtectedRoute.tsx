@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { Spinner, Center } from '@chakra-ui/react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import { ROUTES } from '../../config/routes';
 
 interface ProtectedRouteProps {

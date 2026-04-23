@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Box, Flex, VStack, Text, HStack } from '@chakra-ui/react';
-import { useInitChatQuery, useSendMessageMutation, useGetMyBusinessQuery } from '../../store/api';
+import { useInitChatQuery, useSendMessageMutation } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { addMessage, setInitialized, clearChat } from '../../store/slices/chatSlice';
 import {
@@ -22,14 +23,14 @@ import type { Message } from '../../types/chat.types';
 export function ChatPanel() {
   const dispatch = useAppDispatch();
   const { messages, initialized } = useAppSelector((state) => state.chat);
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const { data: initData, isLoading: isInitLoading, refetch } = useInitChatQuery(undefined, {
     skip: initialized,
   });
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const businessName = business?.name || 'Your';
+  const businessName = business.name;
 
   // Handle initial chat message
   useEffect(() => {
@@ -79,7 +80,7 @@ export function ChatPanel() {
     }
   };
 
-  const handleSuggestionSelect = (value: string, _label: string) => {
+  const handleSuggestionSelect = (value: string) => {
     handleSubmit(value);
   };
 
@@ -108,7 +109,7 @@ export function ChatPanel() {
         bg="white"
       >
         <HStack spacing={2}>
-          <Box p={1.5} borderRadius="lg" bg="brand.50" color="brand.500">
+          <Box p={1.5} borderRadius="sm" bg="brand.50" color="brand.500">
             <SparkleIcon size={16} />
           </Box>
           <Text fontWeight="600" color="gray.700" fontSize="sm">
@@ -125,7 +126,7 @@ export function ChatPanel() {
             onClick={handleClearChat}
             px={2}
             py={1}
-            borderRadius="md"
+            borderRadius="sm"
             _hover={{ color: 'gray.600', bg: 'gray.50' }}
             transition="all 0.2s"
           >
@@ -145,7 +146,7 @@ export function ChatPanel() {
               py={16}
               color="gray.400"
             >
-              <Box p={4} borderRadius="2xl" bg="gray.50" color="gray.300" mb={4}>
+              <Box p={4} borderRadius="sm" bg="gray.50" color="gray.300" mb={4}>
                 <SparkleIcon size={32} />
               </Box>
               <Text fontSize="lg" fontWeight="500" color="gray.500">

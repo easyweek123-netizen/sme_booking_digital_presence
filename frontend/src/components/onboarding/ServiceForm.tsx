@@ -17,7 +17,7 @@ import {
   Image,
   Collapse,
 } from '@chakra-ui/react';
-import { useForm, FormProvider, Controller } from 'react-hook-form';
+import { useForm, FormProvider, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { serviceFormSchema, type ServiceFormValues } from './serviceFormSchema';
@@ -118,12 +118,11 @@ export function ServiceForm({
   const {
     handleSubmit,
     setValue,
-    watch,
     control,
     formState: { errors },
   } = methods;
 
-  const imageUrl = watch('imageUrl');
+  const imageUrl = useWatch({ control, name: 'imageUrl' });
 
   // Keep availableDays form value in sync with UX state
   useEffect(() => {

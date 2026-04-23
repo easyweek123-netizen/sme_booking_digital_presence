@@ -88,7 +88,7 @@ export function Header() {
         borderColor="gray.100"
         position="sticky"
         top={0}
-        zIndex={100}
+        // zIndex={100}
         backdropFilter="blur(8px)"
         bgColor="whiteAlpha.900"
       >

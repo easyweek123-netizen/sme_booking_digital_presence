@@ -98,7 +98,7 @@ function SlotSection({ title, slots, selectedTime, onSelectTime }: SlotSectionPr
               display="flex"
               alignItems="center"
               justifyContent="center"
-              borderRadius="lg"
+              borderRadius="sm"
               border="2px"
               borderColor={isSelected ? 'brand.500' : 'gray.200'}
               bg={isSelected ? 'brand.500' : 'white'}

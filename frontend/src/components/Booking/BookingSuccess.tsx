@@ -44,7 +44,7 @@ export function BookingSuccess({
             <Box
               w="80px"
               h="80px"
-              borderRadius="full"
+              borderRadius="sm"
               bg="brand.50"
               display="flex"
               alignItems="center"
@@ -69,7 +69,7 @@ export function BookingSuccess({
           <Text color="gray.500" fontSize="sm" mb={2}>
             Awaiting confirmation from {business.name}
           </Text>
-          <Badge colorScheme="brand" fontSize="sm" px={3} py={1} borderRadius="full">
+          <Badge colorScheme="brand" fontSize="sm" px={3} py={1} borderRadius="lg">
             Reference: {booking.reference}
           </Badge>
         </MotionBox>
@@ -83,7 +83,7 @@ export function BookingSuccess({
         >
           <Box
             bg="gray.50"
-            borderRadius="xl"
+            borderRadius="sm"
             p={5}
             border="1px"
             borderColor="gray.100"
@@ -161,7 +161,7 @@ export function BookingSuccess({
               size="lg"
               w="full"
               h="56px"
-              borderRadius="xl"
+              borderRadius="sm"
               onClick={onClose}
             >
               Done

@@ -54,15 +54,10 @@ export function ChatInput({ placeholder, onSubmit, disabled }: ChatInputProps) {
   return (
     <Box
       bg="surface.card"
-      borderRadius="2xl"
+      borderRadius="md"
       border="1px solid"
       borderColor="border.subtle"
-      boxShadow="card"
       transition="all 0.2s"
-      _focusWithin={{
-        borderColor: 'brand.300',
-        boxShadow: 'inputFocus',
-      }}
     >
       <HStack spacing={0} p={2} align="end">
         <Textarea
@@ -92,7 +87,7 @@ export function ChatInput({ placeholder, onSubmit, disabled }: ChatInputProps) {
           size="md"
           colorScheme={hasValue ? 'brand' : 'gray'}
           variant={hasValue ? 'solid' : 'ghost'}
-          borderRadius="lg"
+          borderRadius="md"
           onClick={handleSubmit}
           isDisabled={!hasValue || disabled}
           transition="all 0.2s"

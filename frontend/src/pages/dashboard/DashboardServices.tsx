@@ -1,12 +1,7 @@
 import {
-  Box,
   VStack,
-  Heading,
-  Text,
   SimpleGrid,
   Button,
-  Spinner,
-  Center,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -21,10 +16,9 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
-  Flex,
 } from '@chakra-ui/react';
 import { useState, useRef } from 'react';
-import { useGetMyBusinessQuery } from '../../store/api/businessApi';
+import { useBusiness } from '../../contexts/useBusiness';
 import {
   useCreateServiceMutation,
   useUpdateServiceMutation,
@@ -35,10 +29,12 @@ import { ServiceForm, type ServiceFormData } from '../../components/onboarding/S
 import { CategoryManagement, ServiceCard } from '../../components/Dashboard';
 import { TOAST_DURATION } from '../../constants';
 import type { Service } from '../../types';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { EmptyState } from '../../components/ui/states';
 
 export function DashboardServices() {
   const toast = useToast();
-  const { data: business, isLoading: isLoadingBusiness } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
   const { isOpen: isDeleteOpen, onOpen: openDelete, onClose: closeDelete } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -46,9 +42,11 @@ export function DashboardServices() {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deletingService, setDeletingService] = useState<Service | null>(null);
 
-  const [createService] = useCreateServiceMutation();
-  const [updateService] = useUpdateServiceMutation();
+  const [createService, { isLoading: isCreating }] = useCreateServiceMutation();
+  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
+
+  const isSaving = isCreating || isUpdating;
 
   const handleAddService = () => {
     setEditingService(null);
@@ -66,8 +64,6 @@ export function DashboardServices() {
   };
 
   const handleSaveService = async (serviceData: ServiceFormData) => {
-    if (!business) return;
-
     try {
       if (editingService) {
         await updateService({
@@ -155,60 +151,30 @@ export function DashboardServices() {
     }
   };
 
-  if (isLoadingBusiness || !business) {
-    return (
-      <Center py={12}>
-        <Spinner size="lg" color="brand.500" />
-      </Center>
-    );
-  }
-
   const services = business.services || [];
 
   return (
     <VStack spacing={6} align="stretch">
-      <Flex justify="space-between" align="center">
-        <Box>
-          <Heading size="lg" color="gray.900" mb={1}>
-            Services
-          </Heading>
-          <Text color="gray.500">Manage your service catalog</Text>
-        </Box>
-        <Button
-          colorScheme="brand"
-          leftIcon={<PlusIcon size={18} />}
-          onClick={handleAddService}
-        >
-          Add Service
-        </Button>
-      </Flex>
+      <PageHeader
+        title="Services"
+        description="Manage your service catalog"
+        actions={
+          <Button leftIcon={<PlusIcon size={18} />} onClick={handleAddService}>
+            Add Service
+          </Button>
+        }
+      />
 
       {/* Category Management */}
       <CategoryManagement businessId={business.id} />
 
       {services.length === 0 ? (
-        <Box
-          py={12}
-          textAlign="center"
-          bg="white"
-          borderRadius="xl"
-          border="1px"
-          borderColor="gray.100"
-        >
-          <Box color="gray.300" display="inline-block" mb={3}>
-            <LayersIcon size={48} />
-          </Box>
-          <Text color="gray.500" mb={4}>
-            No services yet. Add your first service to start accepting bookings.
-          </Text>
-          <Button
-            colorScheme="brand"
-            leftIcon={<PlusIcon size={18} />}
-            onClick={handleAddService}
-          >
-            Add Service
-          </Button>
-        </Box>
+        <EmptyState
+          icon={<LayersIcon size={28} />}
+          title="No services yet"
+          description="Add your first service to start accepting bookings."
+          action={{ label: 'Add Service', onClick: handleAddService, variant: 'solid' }}
+        />
       ) : (
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
           {services.map((service) => (
@@ -253,6 +219,7 @@ export function DashboardServices() {
                 onSubmit={handleSaveService}
                 onCancel={closeModal}
                 moreOptionsExpanded
+                isLoading={isSaving}
               />
             )}
           </ModalBody>
@@ -283,7 +250,7 @@ export function DashboardServices() {
                 Cancel
               </Button>
               <Button
-                colorScheme="red"
+                colorScheme="alert"
                 onClick={handleConfirmDelete}
                 isLoading={isDeleting}
               >
@@ -296,4 +263,3 @@ export function DashboardServices() {
     </VStack>
   );
 }
-

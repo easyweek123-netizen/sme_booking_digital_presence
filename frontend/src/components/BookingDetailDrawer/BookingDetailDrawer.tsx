@@ -93,7 +93,7 @@ export function BookingDetailDrawer({
                   fontSize="sm"
                   px={2}
                   py={0.5}
-                  borderRadius="full"
+                  borderRadius="lg"
                 >
                   {statusConfig.label}
                 </Badge>

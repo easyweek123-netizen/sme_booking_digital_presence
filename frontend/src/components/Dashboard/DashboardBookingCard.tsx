@@ -66,7 +66,7 @@ export function DashboardBookingCard({
   return (
     <Box
       bg="white"
-      borderRadius="xl"
+      borderRadius="sm"
       border="1px"
       borderColor={isRequest ? statusConfig.bg : 'gray.100'}
       borderLeftWidth={isRequest ? '4px' : '1px'}
@@ -88,7 +88,7 @@ export function DashboardBookingCard({
             w="48px"
             h="48px"
             bg={isRequest ? statusConfig.bg : 'brand.50'}
-            borderRadius="lg"
+            borderRadius="sm"
             display="flex"
             alignItems="center"
             justifyContent="center"
@@ -139,7 +139,7 @@ export function DashboardBookingCard({
           py={2}
           px={3}
           bg="gray.50"
-          borderRadius="lg"
+          borderRadius="sm"
           mb={3}
         >
           <Text fontSize="sm" color="gray.700">

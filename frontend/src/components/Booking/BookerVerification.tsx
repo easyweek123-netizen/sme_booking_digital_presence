@@ -48,7 +48,7 @@ export function BookerVerification({
           onChange={(e) => setName(e.target.value)}
           placeholder="John Smith"
           size="lg"
-          borderRadius="lg"
+          borderRadius="sm"
           _focus={{
             borderColor: 'brand.500',
             boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',

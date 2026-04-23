@@ -21,7 +21,7 @@ export function BookingTabs({ activeTab, onTabChange, brandColor }: BookingTabsP
       borderColor="gray.100"
       position="sticky"
       top={0}
-      zIndex={10}
+      // zIndex={10}
       py={3}
       px={4}
     >

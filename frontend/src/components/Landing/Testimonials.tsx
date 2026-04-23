@@ -8,7 +8,6 @@ import {
   Flex,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { SECTION_PADDING } from '../../constants';
 
 const MotionBox = motion.create(Box);
 
@@ -17,7 +16,6 @@ interface Testimonial {
   role: string;
   quote: string;
   initials: string;
-  gradient: string;
 }
 
 const testimonials: Testimonial[] = [
@@ -27,7 +25,6 @@ const testimonials: Testimonial[] = [
     quote:
       'I used to manage bookings through WhatsApp messages. Now clients book themselves and I get email confirmations instantly. Setup took me 3 minutes.',
     initials: 'LM',
-    gradient: 'linear(to-br, brand.500, brand.600)',
   },
   {
     name: 'Markus W.',
@@ -35,7 +32,6 @@ const testimonials: Testimonial[] = [
     quote:
       'My clients love the booking page — it looks professional and works perfectly on their phones. I just share the QR code in my shop.',
     initials: 'MW',
-    gradient: 'linear(to-br, brand.500, brand.600)',
   },
   {
     name: 'Sarah K.',
@@ -43,7 +39,6 @@ const testimonials: Testimonial[] = [
     quote:
       "I was paying for another booking tool that was way too complicated. BookEasy does exactly what I need — simple, clean, and it's free.",
     initials: 'SK',
-    gradient: 'linear(to-br, brand.500, brand.600)',
   },
 ];
 
@@ -62,7 +57,7 @@ function TestimonialCard({
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
       <Box
-        bg="surface.card"
+        bg="surface.page"
         borderRadius="2xl"
         border="1px solid"
         borderColor="border.subtle"
@@ -70,14 +65,12 @@ function TestimonialCard({
         h="100%"
         _hover={{
           borderColor: 'border.strong',
-          boxShadow: 'sm',
+          boxShadow: 'cardHover',
         }}
         transition="all 0.2s"
       >
         <VStack align="start" spacing={4} h="100%">
-          {/* Quote */}
           <Text
-            color="gray.600"
             fontSize={{ base: 'sm', md: 'md' }}
             lineHeight="1.7"
             flex={1}
@@ -85,13 +78,12 @@ function TestimonialCard({
             &ldquo;{testimonial.quote}&rdquo;
           </Text>
 
-          {/* Author */}
           <Flex align="center" gap={3} pt={2}>
             <Flex
               w="40px"
               h="40px"
               borderRadius="full"
-              bgGradient={testimonial.gradient}
+              bg="brand.500"
               align="center"
               justify="center"
               flexShrink={0}
@@ -106,15 +98,10 @@ function TestimonialCard({
               </Text>
             </Flex>
             <Box>
-              <Text
-                fontWeight="600"
-                fontSize="sm"
-                color="gray.900"
-                lineHeight="1.3"
-              >
+              <Text fontWeight="600" fontSize="sm" lineHeight="1.3">
                 {testimonial.name}
               </Text>
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="text.muted">
                 {testimonial.role}
               </Text>
             </Box>
@@ -129,31 +116,27 @@ export function Testimonials() {
   return (
     <Box
       id="testimonials"
-      py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }}
+      py={{ base: 16, md: 24 }}
       bg="surface.card"
     >
       <Container maxW="container.lg">
         <VStack spacing={{ base: 8, md: 12 }}>
-          {/* Section Header */}
           <VStack spacing={4} textAlign="center">
             <Heading
               fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
               fontWeight="800"
-              color="gray.900"
               letterSpacing="-0.02em"
             >
               Trusted by Practitioners
             </Heading>
             <Text
               fontSize={{ base: 'md', md: 'lg' }}
-              color="gray.500"
               maxW="480px"
             >
               Join wellness professionals who simplified their booking process
             </Text>
           </VStack>
 
-          {/* Testimonial Cards */}
           <SimpleGrid
             columns={{ base: 1, md: 3 }}
             spacing={{ base: 6, md: 8 }}

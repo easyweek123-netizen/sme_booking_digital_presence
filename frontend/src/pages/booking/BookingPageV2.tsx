@@ -50,12 +50,13 @@ export function BookingPageV2({
   const servicesRef = useRef<HTMLDivElement>(null);
 
   // Brand color CSS variables
+  const brandColor = business?.brandColor;
   const brandColorStyles = useMemo(() => {
-    if (business?.brandColor && isValidHexColor(business.brandColor)) {
-      return generateBrandColorCss(business.brandColor);
+    if (brandColor && isValidHexColor(brandColor)) {
+      return generateBrandColorCss(brandColor);
     }
     return {};
-  }, [business?.brandColor]);
+  }, [brandColor]);
 
   const handleBookService = (service: Service) => {
     if (isPreview) return;

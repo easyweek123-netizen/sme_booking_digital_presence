@@ -33,7 +33,7 @@ export function ServiceCard({ service, brandColor, onBook }: ServiceCardProps) {
     <Box
       bg="white"
       p={4}
-      borderRadius="xl"
+      borderRadius="sm"
       border="1px"
       borderColor="gray.200"
       boxShadow="sm"
@@ -46,7 +46,7 @@ export function ServiceCard({ service, brandColor, onBook }: ServiceCardProps) {
           w="72px"
           h="72px"
           minW="72px"
-          borderRadius="lg"
+          borderRadius="sm"
           overflow="hidden"
           bg={hasImage ? 'gray.100' : fallbackBg}
           display="flex"

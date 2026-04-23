@@ -1,15 +1,17 @@
 import { Box, Flex } from '@chakra-ui/react';
-import { Sidebar, SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './Sidebar';
+import { Sidebar } from './Sidebar';
+import { SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './constants';
 import { MobileNav } from './MobileNav';
 import { useSidebarCollapsed } from '../../hooks';
+import { useBusinessOptional } from '../../contexts/useBusiness';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  businessName?: string;
 }
 
-export function DashboardLayout({ children, businessName }: DashboardLayoutProps) {
-  const { isCollapsed } = useSidebarCollapsed();
+export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { isCollapsed } = useSidebarCollapsed({ isMobile: false });
+  const { business } = useBusinessOptional();
 
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
 
@@ -38,8 +40,10 @@ export function DashboardLayout({ children, businessName }: DashboardLayoutProps
         minH="100vh"
         transition="margin-left 200ms ease"
       >
-        {/* Mobile Navigation */}
-        <MobileNav businessName={businessName} />
+        {/* Mobile Navigation — always mounted on mobile via CSS so Drawer state survives breakpoint rerenders */}
+        <Box display={{ base: 'block', lg: 'none' }}>
+          <MobileNav businessName={business?.name} />
+        </Box>
 
         {/* Page content - fills remaining space */}
         <Box flex={1} position="relative" p={{ base: 4, md: 6, lg: 8 }}>

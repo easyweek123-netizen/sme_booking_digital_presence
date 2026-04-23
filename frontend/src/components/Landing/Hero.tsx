@@ -1,12 +1,90 @@
-import { Box, Container, Heading, Text, VStack, HStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  HStack,
+  Image,
+  SimpleGrid,
+  Text,
+} from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PrimaryButton } from '../ui/PrimaryButton';
+import { CheckCircleIcon } from '../icons';
 import { ROUTES } from '../../config/routes';
-import { SECTION_PADDING, CONTENT_MAX_WIDTH } from '../../constants';
 import { useAppSelector } from '../../store/hooks';
 
-const MotionVStack = motion.create(VStack);
+const MotionBox = motion.create(Box);
+
+const trustPoints = ['No credit card', 'Free forever', '2-minute setup'];
+
+function BrowserFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <Box
+      borderRadius="2xl"
+      overflow="hidden"
+      boxShadow="modal"
+      border="1px solid"
+      borderColor="border.subtle"
+    >
+      <HStack
+        bg="gray.100"
+        px={4}
+        py={3}
+        borderBottom="1px solid"
+        borderColor="border.subtle"
+        spacing={3}
+      >
+        <HStack spacing={2}>
+          <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+          <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+          <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+        </HStack>
+        <Box
+          flex={1}
+          bg="white"
+          borderRadius="md"
+          px={3}
+          py={1.5}
+          fontSize="xs"
+          color="text.muted"
+          border="1px solid"
+          borderColor="border.subtle"
+        >
+          bookeasy.app/your-business
+        </Box>
+      </HStack>
+      {children}
+    </Box>
+  );
+}
+
+export function TrustBand() {
+  return (
+    <Box
+      bg="surface.card"
+      borderTop="1px solid"
+      borderBottom="1px solid"
+      borderColor="border.subtle"
+      py={6}
+    >
+      <Container maxW="container.xl">
+        <Flex direction="column" align="center" gap={3}>
+          <Text
+            fontSize="xs"
+            fontWeight="600"
+            color="text.muted"
+            letterSpacing="0.08em"
+            textAlign="center"
+          >
+            TRUSTED BY INDEPENDENT PRACTITIONERS
+          </Text>
+        </Flex>
+      </Container>
+    </Box>
+  );
+}
 
 export function Hero() {
   const navigate = useNavigate();
@@ -20,55 +98,118 @@ export function Hero() {
     }
   };
 
+  const handleHowItWorks = () => {
+    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <Box bg="white" py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }} overflow="hidden">
+    <Box bg="surface.page" py={{ base: 20, md: 32 }} overflow="hidden">
       <Container maxW="container.xl">
-        <MotionVStack
-          spacing={8}
-          textAlign="center"
-          maxW={CONTENT_MAX_WIDTH.hero}
-          mx="auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }}
+          spacing={{ base: 12, md: 16 }}
+          alignItems="center"
         >
-          <VStack spacing={4}>
-            <Heading
-              as="h1"
-              fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}
-              fontWeight="800"
-              color="gray.900"
-              lineHeight="1.1"
-              letterSpacing="-0.02em"
-            >
-              Your Booking Page,{' '}
-              <Text as="span" color="brand.500">
-                Live & Free
-              </Text>{' '}
-              in Minutes
-            </Heading>
-            <Text
-              fontSize={{ base: 'lg', md: 'xl' }}
-              color="gray.500"
-              maxW={CONTENT_MAX_WIDTH.heroText}
-              lineHeight="1.6"
-            >
-              Built for massage therapists, yoga teachers, coaches, barbers, and
-              wellness practitioners. Accept bookings 24/7 — no tech skills needed.
-            </Text>
-          </VStack>
-          <HStack spacing={4}>
-            <PrimaryButton
-              size="lg"
-              px={8}
-              py={6}
-              fontSize="md"
-              onClick={handleStartNow}
-            >
-              {isAuthenticated ? 'Dashboard' : 'Start Now — It\'s Free'}
-            </PrimaryButton>
-          </HStack>
-        </MotionVStack>
+          {/* Left column — copy + CTAs */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Flex direction="column" gap={6}>
+              <Text
+                fontSize="xs"
+                fontWeight="700"
+                color="brand.500"
+                letterSpacing="0.08em"
+                textTransform="uppercase"
+              >
+                AI FRONT-OF-HOUSE FOR WELLNESS SMES
+              </Text>
+
+              <Heading
+                as="h1"
+                fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }}
+                fontWeight="800"
+                lineHeight="1.05"
+                letterSpacing="-0.02em"
+              >
+                Your booking page, live in two minutes.
+              </Heading>
+
+              <Text
+                fontSize={{ base: 'lg', md: 'xl' }}
+                color="text.secondary"
+                maxW="520px"
+                lineHeight="1.6"
+              >
+                Built for massage therapists, yoga teachers, coaches, and barbers.
+                Accept bookings 24/7 — no tech skills needed.
+              </Text>
+
+              <HStack spacing={3} flexWrap="wrap">
+                <Button size="lg" px={8} onClick={handleStartNow}>
+                  {isAuthenticated ? 'Go to dashboard' : 'Start free'}
+                </Button>
+                <Button size="lg" variant="outline" onClick={handleHowItWorks}>
+                  See how it works
+                </Button>
+              </HStack>
+
+              <HStack spacing={5} flexWrap="wrap">
+                {trustPoints.map((point) => (
+                  <HStack key={point} spacing={1.5} color="text.muted">
+                    <CheckCircleIcon size={14} />
+                    <Text fontSize="sm">{point}</Text>
+                  </HStack>
+                ))}
+              </HStack>
+            </Flex>
+          </MotionBox>
+
+          {/* Right column — device frame preview */}
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            maxW={{ base: '400px', md: 'none' }}
+            mx={{ base: 'auto', md: 0 }}
+            position="relative"
+          >
+            {/* Brand glow disc */}
+            <Box
+              position="absolute"
+              top="50%"
+              left="50%"
+              transform="translate(-50%, -50%)"
+              w="80%"
+              h="80%"
+              borderRadius="full"
+              bg="brand.500"
+              opacity={0.08}
+              filter="blur(48px)"
+              zIndex={0}
+              pointerEvents="none"
+            />
+            <Box position="relative" zIndex={1}>
+              <BrowserFrame>
+                <Image
+                  src="/demo-booking-page.png"
+                  alt="BookEasy booking page preview showing services, time slots and customer booking flow"
+                  w="100%"
+                  display="block"
+                  fallback={
+                    <Box bg="surface.card" py={20} textAlign="center">
+                      <Text color="text.muted" fontSize="sm">
+                        Booking page preview
+                      </Text>
+                    </Box>
+                  }
+                />
+              </BrowserFrame>
+            </Box>
+          </MotionBox>
+        </SimpleGrid>
       </Container>
     </Box>
   );

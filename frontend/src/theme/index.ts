@@ -125,8 +125,10 @@ const semanticTokens = {
 const components = {
   Button: {
     baseStyle: {
+      paddingX: 0.5,
+      paddingY: 1,
       fontWeight: '600',
-      borderRadius: 'lg',
+      borderRadius: 'md',
       _focusVisible: { boxShadow: 'outline' },
     },
     variants: {
@@ -173,7 +175,7 @@ const components = {
     variants: {
       outline: {
         field: {
-          borderRadius: 'lg',
+          borderRadius: 'md',
           borderColor: 'border.strong',
           bg: 'surface.card',
           _hover: { borderColor: 'gray.400' },
@@ -193,7 +195,7 @@ const components = {
   Textarea: {
     variants: {
       outline: {
-        borderRadius: 'lg',
+        borderRadius: 'md',
         borderColor: 'border.strong',
         bg: 'surface.card',
         _hover: { borderColor: 'gray.400' },
@@ -207,7 +209,7 @@ const components = {
     variants: {
       outline: {
         field: {
-          borderRadius: 'lg',
+          borderRadius: 'md',
           borderColor: 'border.strong',
           bg: 'surface.card',
           _focus: { borderColor: 'brand.500', boxShadow: 'inputFocus' },
@@ -219,7 +221,7 @@ const components = {
   Card: {
     baseStyle: {
       container: {
-        borderRadius: 'xl',
+        borderRadius: 'sm',
         boxShadow: 'card',
         border: '1px solid',
         borderColor: 'border.subtle',
@@ -230,7 +232,7 @@ const components = {
   Modal: {
     baseStyle: {
       dialog: {
-        borderRadius: '2xl',
+        borderRadius: 'md',
         boxShadow: 'modal',
         bg: 'surface.card',
       },

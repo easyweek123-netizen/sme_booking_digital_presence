@@ -37,21 +37,21 @@ export function BookingCard({
 
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       p={isCompact ? 3 : 4}
       borderRadius="sm"
       border="1px"
-      borderColor="gray.200"
+      borderColor="border.subtle"
       borderLeftWidth="4px"
       borderLeftColor={statusConfig.color}
       onClick={onClick}
       cursor={onClick ? 'pointer' : 'default'}
-      _hover={onClick ? { borderColor: 'gray.300', shadow: 'sm' } : undefined}
+      _hover={onClick ? { borderColor: 'border.strong', shadow: 'sm' } : undefined}
       transition="all 0.15s"
     >
       {/* Header: Reference + Status */}
       <Flex justify="space-between" align="center" mb={isCompact ? 2 : 3}>
-        <Text fontSize="xs" color="gray.400" fontWeight="500">
+        <Text fontSize="xs" color="text.faint" fontWeight="500">
           {booking.reference}
         </Text>
         <Badge
@@ -70,17 +70,17 @@ export function BookingCard({
       {/* Service Info */}
       {booking.service && (
         <Box mb={isCompact ? 2 : 3}>
-          <Text fontWeight="600" color="gray.900" fontSize={isCompact ? 'sm' : 'md'}>
+          <Text fontWeight="600" color="text.heading" fontSize={isCompact ? 'sm' : 'md'}>
             {booking.service.name}
           </Text>
-          <Text fontSize={isCompact ? 'xs' : 'sm'} color="gray.500">
+          <Text fontSize={isCompact ? 'xs' : 'sm'} color="text.muted">
             {booking.service.durationMinutes} min · {formatPrice(Number(booking.service.price))}
           </Text>
         </Box>
       )}
 
       {/* Date/Time */}
-      <HStack spacing={4} fontSize={isCompact ? 'xs' : 'sm'} color="gray.600" mb={showNotes ? 3 : 0}>
+      <HStack spacing={4} fontSize={isCompact ? 'xs' : 'sm'} color="text.secondary" mb={showNotes ? 3 : 0}>
         <HStack spacing={1}>
           <ClockIcon size={isCompact ? 12 : 14} />
           <Text>
@@ -95,7 +95,7 @@ export function BookingCard({
           mt={3}
           pt={3}
           borderTopWidth="1px"
-          borderTopColor="gray.100"
+          borderTopColor="border.subtle"
         >
           <CollapsibleSection
             title="Notes"

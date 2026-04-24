@@ -31,7 +31,7 @@ export function ServiceCard({ service, brandColor, onBook }: ServiceCardProps) {
 
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       p={4}
       borderRadius="sm"
       border="1px"
@@ -76,11 +76,11 @@ export function ServiceCard({ service, brandColor, onBook }: ServiceCardProps) {
         {/* Service Info */}
         <Flex flex={1} direction="column" justify="space-between" minW={0}>
           <Box>
-            <Text fontWeight="600" color="gray.900" fontSize="md" noOfLines={1}>
+            <Text fontWeight="600" color="text.heading" fontSize="md" noOfLines={1}>
               {service.name}
             </Text>
             {description && (
-              <Text color="gray.500" fontSize="sm" mt={0.5}>
+              <Text color="text.muted" fontSize="sm" mt={0.5}>
                 {displayDescription}
                 {needsTruncation && (
                   <Link
@@ -103,7 +103,7 @@ export function ServiceCard({ service, brandColor, onBook }: ServiceCardProps) {
           </Box>
 
           <Flex justify="space-between" align="center" mt={2}>
-            <Text color="gray.500" fontSize="sm">
+            <Text color="text.muted" fontSize="sm">
               {formatDuration(service.durationMinutes)} · {formatPrice(Number(service.price))}
             </Text>
             <Button

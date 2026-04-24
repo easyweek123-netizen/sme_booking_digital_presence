@@ -43,18 +43,18 @@ export function ServiceCard({
 
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       borderRadius="sm"
       border="1px"
-      borderColor="gray.100"
+      borderColor="border.subtle"
       overflow="hidden"
       opacity={service.isActive !== false ? 1 : 0.6}
-      _hover={{ borderColor: 'gray.200' }}
+      _hover={{ borderColor: 'border.subtle' }}
       transition="all 0.2s"
     >
       {/* Service Image */}
       {service.imageUrl && (
-        <Box h="100px" overflow="hidden" borderBottom="1px" borderColor="gray.100">
+        <Box h="100px" overflow="hidden" borderBottom="1px" borderColor="border.subtle">
           <Box
             h="100%"
             bgImage={`url(${service.imageUrl})`}
@@ -68,7 +68,7 @@ export function ServiceCard({
         <Flex justify="space-between" align="flex-start" mb={2}>
           <Box flex={1}>
             <HStack spacing={2} mb={1}>
-              <Text fontWeight="600" color="gray.900">
+              <Text fontWeight="600" color="text.heading">
                 {service.name}
               </Text>
               {service.isActive === false && (
@@ -77,28 +77,28 @@ export function ServiceCard({
                 </Badge>
               )}
             </HStack>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm" color="text.muted">
               {formatDuration(service.durationMinutes)}
             </Text>
           </Box>
-          <Text fontWeight="600" color="brand.600" fontSize="lg">
+          <Text fontWeight="600" color="accent.hover" fontSize="lg">
             {formatPrice(Number(service.price))}
           </Text>
         </Flex>
 
         {/* Description */}
         {service.description && (
-          <Text fontSize="sm" color="gray.500" noOfLines={2} mb={hasActions ? 2 : 0}>
+          <Text fontSize="sm" color="text.muted" noOfLines={2} mb={hasActions ? 2 : 0}>
             {service.description}
           </Text>
         )}
 
         {/* Action Footer - only show when actions are enabled */}
         {hasActions && (
-          <Flex justify="space-between" align="center" pt={3} borderTop="1px" borderColor="gray.100">
+          <Flex justify="space-between" align="center" pt={3} borderTop="1px" borderColor="border.subtle">
             {onToggleActive ? (
               <HStack spacing={2}>
-                <Text fontSize="sm" color="gray.500">
+                <Text fontSize="sm" color="text.muted">
                   Visible
                 </Text>
                 <Switch

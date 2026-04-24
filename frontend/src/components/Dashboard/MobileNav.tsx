@@ -8,7 +8,6 @@ import {
   DrawerBody,
   DrawerOverlay,
   DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -42,9 +41,9 @@ export function MobileNav({ businessName }: MobileNavProps) {
       <Box
         position="sticky"
         top={0}
-        bg="white"
+        bg="surface.card"
         borderBottom="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         zIndex={2}
       >
         <Flex h="60px" align="center" justify="space-between" px={4}>
@@ -54,9 +53,9 @@ export function MobileNav({ businessName }: MobileNavProps) {
             variant="ghost"
             size="md"
             onClick={onOpen}
-            color="gray.600"
+            color="text.secondary"
             borderRadius="sm"
-            _hover={{ bg: 'gray.50' }}
+            _hover={{ bg: 'surface.alt' }}
             zIndex={3}
           />
 
@@ -65,7 +64,7 @@ export function MobileNav({ businessName }: MobileNavProps) {
               {pageTitle}
             </Text>
             {businessName && (
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="text.muted">
                 {businessName}
               </Text>
             )}
@@ -94,7 +93,7 @@ export function MobileNav({ businessName }: MobileNavProps) {
 
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
-        <DrawerContent maxW="240px" bg="white">
+        <DrawerContent maxW="240px" bg="surface.card">
           <DrawerBody p={0}>
             <Sidebar onClose={onClose} isInDrawer />
           </DrawerBody>

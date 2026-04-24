@@ -8,15 +8,15 @@ const MotionBox = motion.create(Box);
 
 const markdownComponents: Components = {
   p: (props) => (
-    <Text fontSize="sm" lineHeight="tall" mb={1} _last={{ mb: 0 }} {...props} />
+    <Text color="text.primary" fontSize="sm" lineHeight="tall" mb={1} _last={{ mb: 0 }} {...props} />
   ),
-  strong: (props) => <Text as="span" fontWeight="600" {...props} />,
+  strong: (props) => <Text as="span" color="text.heading" fontWeight="600" {...props} />,
   em: (props) => <Text as="span" fontStyle="italic" {...props} />,
   h3: (props) => (
-    <Text fontSize="sm" fontWeight="700" mt={2} mb={1} {...props} />
+    <Text fontSize="sm" color="text.heading" fontWeight="700" mt={2} mb={1} {...props} />
   ),
   h4: (props) => (
-    <Text fontSize="sm" fontWeight="600" mt={2} mb={1} {...props} />
+    <Text fontSize="sm" color="text.heading" fontWeight="600" mt={2} mb={1} {...props} />
   ),
   ul: (props) => <Box as="ul" pl={4} mb={1} fontSize="sm" {...props} />,
   ol: (props) => <Box as="ol" pl={4} mb={1} fontSize="sm" {...props} />,
@@ -24,7 +24,7 @@ const markdownComponents: Components = {
     <Box as="li" fontSize="sm" lineHeight="tall" {...props} />
   ),
   a: (props) => (
-    <Link color="brand.500" textDecoration="underline" isExternal {...props} />
+    <Link color="accent.primary" textDecoration="underline" isExternal {...props} />
   ),
 };
 

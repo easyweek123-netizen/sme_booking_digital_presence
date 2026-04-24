@@ -17,8 +17,6 @@ import { useAppSelector } from '../../store/hooks';
 
 const MotionBox = motion.create(Box);
 
-const trustPoints = ['No credit card', 'Free forever', '2-minute setup'];
-
 function BrowserFrame({ children }: { children: React.ReactNode }) {
   return (
     <Box
@@ -29,7 +27,7 @@ function BrowserFrame({ children }: { children: React.ReactNode }) {
       borderColor="border.subtle"
     >
       <HStack
-        bg="gray.100"
+        bg="surface.page"
         px={4}
         py={3}
         borderBottom="1px solid"
@@ -43,7 +41,7 @@ function BrowserFrame({ children }: { children: React.ReactNode }) {
         </HStack>
         <Box
           flex={1}
-          bg="white"
+          bg="surface.card"
           borderRadius="md"
           px={3}
           py={1.5}
@@ -103,7 +101,7 @@ export function Hero() {
   };
 
   return (
-    <Box bg="surface.page" py={{ base: 20, md: 32 }} overflow="hidden">
+    <Box bg="surface.page" py={{ base: 10, lg: 28 }} overflow="hidden">
       <Container maxW="container.xl">
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
@@ -120,49 +118,34 @@ export function Hero() {
               <Text
                 fontSize="xs"
                 fontWeight="700"
-                color="brand.500"
+                color="accent.primary"
                 letterSpacing="0.08em"
                 textTransform="uppercase"
               >
-                AI FRONT-OF-HOUSE FOR WELLNESS SMES
+                For Service Professionals
               </Text>
 
               <Heading
                 as="h1"
                 fontSize={{ base: '4xl', md: '5xl', lg: '6xl' }}
-                fontWeight="800"
-                lineHeight="1.05"
-                letterSpacing="-0.02em"
+                color="gray.800"
               >
-                Your booking page, live in two minutes.
+                A booking page that does the Work
+                <Text
+                  fontSize={{ base: '6xl', md: '7xl', lg: '7xl' }}
+                  color="brand.500"
+                >
+                  for you.
+                </Text>
               </Heading>
-
-              <Text
-                fontSize={{ base: 'lg', md: 'xl' }}
-                color="text.secondary"
-                maxW="520px"
-                lineHeight="1.6"
-              >
-                Built for massage therapists, yoga teachers, coaches, and barbers.
-                Accept bookings 24/7 — no tech skills needed.
-              </Text>
 
               <HStack spacing={3} flexWrap="wrap">
                 <Button size="lg" px={8} onClick={handleStartNow}>
-                  {isAuthenticated ? 'Go to dashboard' : 'Start free'}
+                  {isAuthenticated ? 'Go to dashboard' : 'Create your website'}
                 </Button>
                 <Button size="lg" variant="outline" onClick={handleHowItWorks}>
                   See how it works
                 </Button>
-              </HStack>
-
-              <HStack spacing={5} flexWrap="wrap">
-                {trustPoints.map((point) => (
-                  <HStack key={point} spacing={1.5} color="text.muted">
-                    <CheckCircleIcon size={14} />
-                    <Text fontSize="sm">{point}</Text>
-                  </HStack>
-                ))}
               </HStack>
             </Flex>
           </MotionBox>

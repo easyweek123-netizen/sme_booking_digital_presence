@@ -31,16 +31,16 @@ export function BookerVerification({
   return (
     <VStack spacing={6} w="full" p={4}>
       <VStack spacing={1} textAlign="center">
-        <Text fontSize="lg" fontWeight="600" color="gray.900">
+        <Text fontSize="lg" fontWeight="600" color="text.heading">
           Complete your booking
         </Text>
-        <Text color="gray.600" fontSize="sm">
+        <Text color="text.secondary" fontSize="sm">
           at {businessName}
         </Text>
       </VStack>
 
       <FormControl>
-        <FormLabel color="gray.700" fontSize="sm">
+        <FormLabel color="text.strong" fontSize="sm">
           Your name (optional)
         </FormLabel>
         <Input
@@ -63,7 +63,7 @@ export function BookerVerification({
           text="Continue with Google"
         />
 
-        <Text color="gray.500" fontSize="xs" textAlign="center" pt={2}>
+        <Text color="text.muted" fontSize="xs" textAlign="center" pt={2}>
           Sign in to complete your booking
         </Text>
       </VStack>

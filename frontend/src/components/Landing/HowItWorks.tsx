@@ -24,25 +24,25 @@ const steps: Step[] = [
     id: 1,
     title: 'Add Business Info',
     description: 'Enter your name, hours, and location',
-    color: 'brand.500',
+    color: 'accent.primary',
   },
   {
     id: 2,
     title: 'Add Services',
     description: 'Set your services, prices, and durations',
-    color: 'brand.500',
+    color: 'accent.primary',
   },
   {
     id: 3,
     title: 'Create Account',
     description: 'Sign up with Google to save your page',
-    color: 'brand.500',
+    color: 'accent.primary',
   },
   {
     id: 4,
     title: 'Share & Grow',
     description: 'Get your link and start accepting bookings',
-    color: 'brand.500',
+    color: 'accent.primary',
   },
 ];
 

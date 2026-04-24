@@ -42,7 +42,7 @@ export function DateSelector({ selectedDate, onDateChange, workingHours }: DateS
 
   return (
     <Box>
-      <Text fontSize="sm" fontWeight="500" color="gray.500" mb={3} textTransform="uppercase">
+      <Text fontSize="sm" fontWeight="500" color="text.muted" mb={3} textTransform="uppercase">
         Select Date
       </Text>
       <Box
@@ -116,7 +116,7 @@ export function DateSelector({ selectedDate, onDateChange, workingHours }: DateS
                     </Text>
                   )}
                   {isClosed && !isToday && (
-                    <Text fontSize="9px" color="gray.400" textTransform="uppercase">
+                    <Text fontSize="9px" color="text.faint" textTransform="uppercase">
                       Closed
                     </Text>
                   )}

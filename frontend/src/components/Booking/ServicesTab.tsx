@@ -138,17 +138,17 @@ function CategorySection({
         _hover={{ bg: 'transparent' }}
       >
         <Flex align="center" gap={2}>
-          <Text fontWeight="600" color="gray.800" fontSize="md">
+          <Text fontWeight="600" color="text.primary" fontSize="md">
             {group.categoryName}
           </Text>
-          <Text fontSize="sm" color="gray.400">
+          <Text fontSize="sm" color="text.faint">
             ({group.services.length})
           </Text>
         </Flex>
         <Box
           transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
           transition="transform 0.2s"
-          color="gray.400"
+          color="text.faint"
         >
           <ChevronDownIcon size={20} />
         </Box>

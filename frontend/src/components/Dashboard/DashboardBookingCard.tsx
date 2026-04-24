@@ -65,19 +65,19 @@ export function DashboardBookingCard({
 
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       borderRadius="sm"
       border="1px"
-      borderColor={isRequest ? statusConfig.bg : 'gray.100'}
+      borderColor={isRequest ? statusConfig.bg : 'border.subtle'}
       borderLeftWidth={isRequest ? '4px' : '1px'}
       borderLeftColor={isRequest ? statusConfig.color : undefined}
       p={5}
-      _hover={{ borderColor: isRequest ? statusConfig.color : 'gray.200', boxShadow: 'sm' }}
+      _hover={{ borderColor: isRequest ? statusConfig.color : 'border.subtle', boxShadow: 'sm' }}
       transition="all 0.2s"
       position="relative"
     >
       {isRequest && (
-        <Text fontSize="xs" color="gray.400" position="absolute" top={3} right={4}>
+        <Text fontSize="xs" color="text.faint" position="absolute" top={3} right={4}>
           {formatBookingDate(booking.date)}
         </Text>
       )}
@@ -97,11 +97,11 @@ export function DashboardBookingCard({
             <ClockIcon size={24} />
           </Box>
           <Box>
-            <Text fontWeight="600" color="gray.900">
+            <Text fontWeight="600" color="text.heading">
               {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
             </Text>
             {!isRequest && (
-              <Text fontSize="sm" color="gray.500">
+              <Text fontSize="sm" color="text.muted">
                 {formatBookingDate(booking.date)}
               </Text>
             )}
@@ -123,10 +123,10 @@ export function DashboardBookingCard({
       </Flex>
 
       <Box mb={3}>
-        <Text fontWeight="500" color="gray.900" mb={1}>
+        <Text fontWeight="500" color="text.heading" mb={1}>
           {booking.customerName}
         </Text>
-        <HStack spacing={1} fontSize="sm" color="gray.500">
+        <HStack spacing={1} fontSize="sm" color="text.muted">
           <MailIcon size={14} />
           <Text>{booking.customerEmail}</Text>
         </HStack>
@@ -138,14 +138,14 @@ export function DashboardBookingCard({
           align="center"
           py={2}
           px={3}
-          bg="gray.50"
+          bg="surface.alt"
           borderRadius="sm"
           mb={3}
         >
-          <Text fontSize="sm" color="gray.700">
+          <Text fontSize="sm" color="text.strong">
             {booking.service.name} · {booking.service.durationMinutes} min
           </Text>
-          <Text fontSize="sm" fontWeight="600" color="gray.900">
+          <Text fontSize="sm" fontWeight="600" color="text.heading">
             {formatPrice(Number(booking.service.price))}
           </Text>
         </Flex>
@@ -153,7 +153,7 @@ export function DashboardBookingCard({
 
       <Flex justify="space-between" align="center" mb={3}>
         {booking.reference && (
-          <Text fontSize="xs" color="gray.400">
+          <Text fontSize="xs" color="text.faint">
             Ref: {booking.reference}
           </Text>
         )}
@@ -163,7 +163,7 @@ export function DashboardBookingCard({
           leftIcon={<NoteIcon size={12} />}
           color={notesCount > 0 ? 'brand.500' : 'gray.400'}
           onClick={onViewDetails}
-          _hover={{ bg: 'brand.50', color: 'brand.600' }}
+          _hover={{ bg: 'brand.50', color: 'accent.hover' }}
         >
           {notesCount > 0 ? `${notesCount} note${notesCount !== 1 ? 's' : ''}` : 'Notes'}
         </Button>

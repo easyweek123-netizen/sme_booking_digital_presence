@@ -73,7 +73,7 @@ export function BrandingFields({
     <VStack spacing={4} align="stretch">
       {/* Logo URL - Full Row */}
       <FormControl>
-        <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+        <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
           Logo URL
         </FormLabel>
         <HStack spacing={3}>
@@ -96,8 +96,8 @@ export function BrandingFields({
                   icon={<CloseIcon />}
                   size="sm"
                   variant="ghost"
-                  color="gray.400"
-                  _hover={{ color: 'gray.600' }}
+                  color="text.faint"
+                  _hover={{ color: 'text.secondary' }}
                   onClick={handleClearLogo}
                 />
               </InputRightElement>
@@ -110,7 +110,7 @@ export function BrandingFields({
             h="48px"
             borderRadius="xl"
             border="2px"
-            borderColor={logoUrl && !logoError ? 'brand.200' : 'gray.200'}
+            borderColor={logoUrl && !logoError ? 'brand.200' : 'border.subtle'}
             bg={logoUrl && !logoError ? 'white' : 'gray.50'}
             overflow="hidden"
             flexShrink={0}
@@ -129,7 +129,7 @@ export function BrandingFields({
                 onError={() => setLogoError(true)}
               />
             ) : (
-              <Text fontSize="lg" color="gray.300">
+              <Text fontSize="lg" color="text.faint">
                 {logoError ? '⚠' : '🖼'}
               </Text>
             )}
@@ -144,7 +144,7 @@ export function BrandingFields({
 
       {/* Brand Color - Full Row */}
       <FormControl>
-        <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+        <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
           Brand Color
         </FormLabel>
         <HStack spacing={3}>
@@ -157,8 +157,8 @@ export function BrandingFields({
             bg={localColor}
             cursor="pointer"
             border="2px"
-            borderColor={brandColor ? 'gray.300' : 'gray.200'}
-            _hover={{ transform: 'scale(1.03)', borderColor: 'gray.400' }}
+            borderColor="border.subtle"
+            _hover={{ transform: 'scale(1.03)', borderColor: 'border.strong' }}
             transition="all 0.15s"
             position="relative"
             overflow="hidden"
@@ -206,8 +206,8 @@ export function BrandingFields({
                   icon={<CloseIcon />}
                   size="sm"
                   variant="ghost"
-                  color="gray.400"
-                  _hover={{ color: 'gray.600' }}
+                  color="text.faint"
+                  _hover={{ color: 'text.secondary' }}
                   onClick={handleClearColor}
                 />
               </InputRightElement>
@@ -218,7 +218,7 @@ export function BrandingFields({
 
       {onCoverImageUrlChange && (
         <FormControl>
-          <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+          <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
             Cover Image URL
           </FormLabel>
           <Input
@@ -242,7 +242,7 @@ export function BrandingFields({
               h="120px"
               borderRadius="lg"
               overflow="hidden"
-              bg="gray.100"
+              bg="surface.page"
               bgImage={`url(${coverImageUrl})`}
               bgSize="cover"
               bgPosition="center"

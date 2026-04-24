@@ -159,7 +159,7 @@ export function WebsiteCompletionProgress(
   return (
     <VStack align="stretch" spacing={4}>
       <Box>
-        <Heading size="sm" color="gray.900" mb={1}>
+        <Heading size="sm" color="text.heading" mb={1}>
           Website progress
         </Heading>
         <Flex
@@ -168,7 +168,7 @@ export function WebsiteCompletionProgress(
           wrap="wrap"
           gap={2}
         >
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="text.muted">
             {completed} of {TOTAL_ITEMS} complete
           </Text>
           {allComplete && bookingUrl && (
@@ -177,7 +177,7 @@ export function WebsiteCompletionProgress(
               isExternal
               fontSize="sm"
               fontWeight="600"
-              color="brand.600"
+              color="accent.hover"
               display="inline-flex"
               alignItems="center"
               gap={1}
@@ -194,10 +194,10 @@ export function WebsiteCompletionProgress(
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        bg="white"
+        bg="surface.card"
         borderRadius="md"
         border="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         p={6}
       >
         <VStack align="stretch" spacing={4}>
@@ -208,7 +208,7 @@ export function WebsiteCompletionProgress(
                 colorScheme="brand"
                 borderRadius="full"
                 size="sm"
-                bg="gray.100"
+                bg="surface.page"
               />
             </Box>
             <IconButton
@@ -245,7 +245,7 @@ export function WebsiteCompletionProgress(
               py={3}
             >
               <HStack spacing={2}>
-                <Box color="brand.600">
+                <Box color="accent.hover">
                   <CheckIcon size={18} />
                 </Box>
                 <Text fontSize="sm" fontWeight="600" color="brand.700">
@@ -268,14 +268,14 @@ export function WebsiteCompletionProgress(
                     borderRadius="xl"
                     bg={complete ? 'brand.50' : 'gray.50'}
                     border="1px solid"
-                    borderColor={complete ? 'brand.100' : 'gray.100'}
+                    borderColor={complete ? 'brand.100' : 'border.subtle'}
                     cursor="pointer"
                     role="button"
                     tabIndex={0}
                     onClick={() => handleRowAction(row)}
                     onKeyDown={(e) => handleRowKeyDown(e, row)}
                     _hover={{
-                      borderColor: complete ? 'brand.200' : 'gray.200',
+                      borderColor: complete ? 'brand.200' : 'border.subtle',
                     }}
                     _focusVisible={{
                       outline: '2px solid',
@@ -296,15 +296,15 @@ export function WebsiteCompletionProgress(
                       {row.icon}
                     </Flex>
                     <Box flex={1} minW={0}>
-                      <Text fontSize="sm" fontWeight="600" color="gray.800">
+                      <Text fontSize="sm" fontWeight="600" color="text.primary">
                         {row.label}
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="xs" color="text.muted">
                         {complete ? 'Complete' : `${row.done}/${row.total}`}
                       </Text>
                     </Box>
                     {complete && (
-                      <Box color="brand.600" flexShrink={0}>
+                      <Box color="accent.hover" flexShrink={0}>
                         <CheckIcon size={18} />
                       </Box>
                     )}

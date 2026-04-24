@@ -46,7 +46,7 @@ export function DashboardOverview() {
           label="Total Bookings"
           value={stats?.total || 0}
           icon={<CalendarIcon size={24} />}
-          color="brand.500"
+          color="accent.primary"
           index={0}
           to={ROUTES.DASHBOARD.BOOKINGS}
         />
@@ -54,7 +54,7 @@ export function DashboardOverview() {
           label="Today's Bookings"
           value={stats?.today || 0}
           icon={<UsersIcon size={24} />}
-          color="brand.500"
+          color="accent.primary"
           index={1}
           to={ROUTES.DASHBOARD.BOOKINGS}
         />
@@ -62,7 +62,7 @@ export function DashboardOverview() {
           label="Active Services"
           value={servicesCount}
           icon={<LayersIcon size={24} />}
-          color="brand.500"
+          color="accent.primary"
           index={2}
           to={ROUTES.DASHBOARD.SERVICES}
         />
@@ -119,7 +119,7 @@ export function DashboardOverview() {
           onClick={() => navigate(ROUTES.DASHBOARD.SERVICES)}
         >
           <HStack spacing={3} mb={2}>
-            <Box color="brand.500">
+            <Box color="accent.primary">
               <LayersIcon size={24} />
             </Box>
             <Heading size="sm">
@@ -142,7 +142,7 @@ export function DashboardOverview() {
           onClick={() => navigate(ROUTES.DASHBOARD.WEBSITE)}
         >
           <HStack spacing={3} mb={2}>
-            <Box color="brand.500">
+            <Box color="accent.primary">
               <GlobeIcon size={24} />
             </Box>
             <Heading size="sm">
@@ -175,7 +175,7 @@ export function DashboardOverview() {
             display="flex"
             alignItems="center"
             justifyContent="center"
-            color="brand.600"
+            color="accent.hover"
           >
             <HeartIcon size={24} />
           </Box>
@@ -183,7 +183,7 @@ export function DashboardOverview() {
             <Heading size="sm" mb={1}>
               Help Us Improve
             </Heading>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="text.secondary">
               Share your feedback and feature requests. We'd love to hear from you!
             </Text>
           </Box>

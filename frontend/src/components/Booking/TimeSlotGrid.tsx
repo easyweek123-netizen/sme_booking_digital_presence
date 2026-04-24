@@ -19,10 +19,10 @@ export function TimeSlotGrid({ slots, selectedTime, onSelectTime }: TimeSlotGrid
     return (
       <Center py={12}>
         <VStack spacing={3}>
-          <Box color="gray.300">
+          <Box color="text.faint">
             <CalendarIcon size={48} />
           </Box>
-          <Text color="gray.500" textAlign="center">
+          <Text color="text.muted" textAlign="center">
             No available times for this date.
             <br />
             <Text as="span" fontSize="sm">
@@ -79,7 +79,7 @@ function SlotSection({ title, slots, selectedTime, onSelectTime }: SlotSectionPr
       <Text
         fontSize="sm"
         fontWeight="500"
-        color="gray.500"
+        color="text.muted"
         mb={3}
         textTransform="uppercase"
       >

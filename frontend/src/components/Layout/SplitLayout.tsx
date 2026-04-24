@@ -23,7 +23,7 @@ export function SplitLayout({ leftPanel, children }: SplitLayoutProps) {
       <Flex
         flex={1}
         justify="center"
-        bg="white"
+        bg="surface.card"
         px={{ base: 2, md: 8 }}
       >
         {children}

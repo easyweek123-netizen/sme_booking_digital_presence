@@ -16,9 +16,9 @@ export function BookingTabs({ activeTab, onTabChange, brandColor }: BookingTabsP
 
   return (
     <Box 
-      bg="white" 
+      bg="surface.card" 
       borderBottom="1px" 
-      borderColor="gray.100"
+      borderColor="border.subtle"
       position="sticky"
       top={0}
       // zIndex={10}
@@ -29,7 +29,7 @@ export function BookingTabs({ activeTab, onTabChange, brandColor }: BookingTabsP
         <ButtonGroup 
           isAttached 
           size="sm"
-          bg="gray.100"
+          bg="surface.page"
           borderRadius="lg"
           p="3px"
           w="100%"

@@ -28,7 +28,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
   const config = registry[proposal.type];
   if (!config) {
     return (
-      <Center p={4} color="gray.400">
+      <Center p={4} color="text.faint">
         <Text>Unknown action: {proposal.type}</Text>
       </Center>
     );
@@ -76,7 +76,7 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
 
   if (proposals.length === 0) {
     return (
-      <Center h="full" color="gray.400">
+      <Center h="full" color="text.faint">
         <VStack spacing={2}>
           <Text fontSize="lg">No active actions</Text>
           <Text fontSize="sm">Ask the AI to help you manage your business</Text>
@@ -92,10 +92,10 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
           <Text
             as="button"
             fontSize="xs"
-            color="gray.400"
+            color="text.faint"
             cursor="pointer"
             onClick={handleClearAll}
-            _hover={{ color: 'gray.600' }}
+            _hover={{ color: 'text.secondary' }}
           >
             Clear all
           </Text>

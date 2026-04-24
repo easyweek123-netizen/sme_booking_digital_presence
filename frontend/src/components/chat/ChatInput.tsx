@@ -79,7 +79,7 @@ export function ChatInput({ placeholder, onSubmit, disabled }: ChatInputProps) {
           fontSize="sm"
           lineHeight="tall"
           _focus={{ boxShadow: 'none' }}
-          _placeholder={{ color: 'gray.400' }}
+          _placeholder={{ color: 'text.faint' }}
         />
         <IconButton
           aria-label="Send"

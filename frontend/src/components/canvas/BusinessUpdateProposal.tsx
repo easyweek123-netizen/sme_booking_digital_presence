@@ -48,7 +48,7 @@ export function BusinessUpdateProposal({
     <VStack spacing={6} align="stretch">
       {showProfile && (
         <VStack spacing={3} align="stretch">
-          <Heading size="xs" color="gray.600">
+          <Heading size="xs" color="text.secondary">
             Business Profile
           </Heading>
           <BusinessProfileFields
@@ -68,7 +68,7 @@ export function BusinessUpdateProposal({
 
       {showBranding && (
         <VStack spacing={3} align="stretch">
-          <Heading size="xs" color="gray.600">
+          <Heading size="xs" color="text.secondary">
             Branding
           </Heading>
           <BrandingFields
@@ -84,7 +84,7 @@ export function BusinessUpdateProposal({
 
       {showAbout && (
         <VStack spacing={3} align="stretch">
-          <Heading size="xs" color="gray.600">
+          <Heading size="xs" color="text.secondary">
             About Section
           </Heading>
           <AboutContentFields
@@ -97,7 +97,7 @@ export function BusinessUpdateProposal({
 
       {showWorkingHours && (
         <VStack spacing={3} align="stretch">
-          <Heading size="xs" color="gray.600">
+          <Heading size="xs" color="text.secondary">
             Working Hours
           </Heading>
           <WorkingHoursEditor

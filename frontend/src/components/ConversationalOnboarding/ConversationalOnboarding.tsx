@@ -58,8 +58,8 @@ export function ConversationalOnboarding({
           {onboardingComplete ? (
             isAuthenticated && !isError ? (
               <HStack justify="center" spacing={3} py={4}>
-                <Spinner size="sm" color="brand.500" />
-                <Text color="gray.500">Creating your practice...</Text>
+                <Spinner size="sm" color="accent.primary" />
+                <Text color="text.muted">Creating your practice...</Text>
               </HStack>
             ) : (
               <GoogleButton 

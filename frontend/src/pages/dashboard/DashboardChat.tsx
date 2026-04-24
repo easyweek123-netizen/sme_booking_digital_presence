@@ -71,19 +71,19 @@ export function DashboardChat() {
         px={4}
         py={3}
         borderBottom="1px"
-        borderColor="gray.100"
-        bg="white"
+        borderColor="border.subtle"
+        bg="surface.card"
       >
         <HStack spacing={2}>
           <Box
             p={1.5}
             borderRadius="lg"
             bg="brand.50"
-            color="brand.500"
+            color="accent.primary"
           >
             <SparkleIcon size={16} />
           </Box>
-          <Text fontWeight="600" color="gray.700" fontSize="sm">
+          <Text fontWeight="600" color="text.strong" fontSize="sm">
             {businessName}'s AI Assistant
           </Text>
         </HStack>
@@ -92,13 +92,13 @@ export function DashboardChat() {
           <Text
             as="button"
             fontSize="xs"
-            color="gray.400"
+            color="text.faint"
             cursor="pointer"
             onClick={handleClearChat}
             px={2}
             py={1}
             borderRadius="md"
-            _hover={{ color: 'gray.600', bg: 'gray.50' }}
+            _hover={{ color: 'text.secondary', bg: 'surface.alt' }}
             transition="all 0.2s"
           >
             New chat
@@ -121,21 +121,21 @@ export function DashboardChat() {
               align="center" 
               justify="center" 
               py={16}
-              color="gray.400"
+              color="text.faint"
             >
               <Box
                 p={4}
                 borderRadius="2xl"
-                bg="gray.50"
-                color="gray.300"
+                bg="surface.alt"
+                color="accent.primary"
                 mb={4}
               >
                 <SparkleIcon size={32} />
               </Box>
-              <Text fontSize="lg" fontWeight="500" color="gray.500">
+              <Text fontSize="lg" fontWeight="500" color="text.muted">
                 How can I help you today?
               </Text>
-              <Text fontSize="sm" color="gray.400" mt={1}>
+              <Text fontSize="sm" color="text.faint" mt={1}>
                 Ask me anything about your business
               </Text>
             </Flex>
@@ -153,7 +153,7 @@ export function DashboardChat() {
         px={4} 
         py={4}
         borderTop="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
       >
         <Box maxW="720px" mx="auto">
           <ChatInput

@@ -51,7 +51,7 @@ export function CanvasPreview({ children }: CanvasPreviewProps) {
       ref={setContainerRef}
       h="full"
       overflow="auto"
-      bg="gray.50"
+      bg="surface.alt"
       p={4}
     >
       {childWithProps}

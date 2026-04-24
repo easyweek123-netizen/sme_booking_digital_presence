@@ -55,11 +55,11 @@ export function LoginPage() {
   // Show loading while checking auth state
   if (isLoading) {
     return (
-      <Box minH="100vh" bg="gray.50" py={20}>
+      <Box minH="100vh" bg="surface.alt" py={20}>
         <Container maxW="md">
           <VStack spacing={8}>
             <Logo size="lg" />
-            <Text color="gray.600">Loading...</Text>
+            <Text color="text.secondary">Loading...</Text>
           </VStack>
         </Container>
       </Box>
@@ -67,24 +67,24 @@ export function LoginPage() {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" py={20}>
+    <Box minH="100vh" bg="surface.alt" py={20}>
       <Container maxW="md">
         <VStack spacing={8}>
           <Logo size="lg" onClick={() => navigate(ROUTES.HOME)} />
 
           <VStack
             spacing={6}
-            bg="white"
+            bg="surface.card"
             p={8}
             borderRadius="xl"
             boxShadow="sm"
             w="full"
           >
             <VStack spacing={2} textAlign="center">
-              <Heading size="lg" color="gray.900">
+              <Heading size="lg" color="text.heading">
                 Welcome to BookEasy
               </Heading>
-              <Text color="gray.600">
+              <Text color="text.secondary">
                 Sign in with Google to manage your business
               </Text>
             </VStack>
@@ -94,7 +94,7 @@ export function LoginPage() {
               onError={handleAuthError}
             />
 
-            <Text color="gray.500" fontSize="xs" textAlign="center" pt={2}>
+            <Text color="text.muted" fontSize="xs" textAlign="center" pt={2}>
               By signing in, you agree to our Terms of Service and Privacy Policy.
             </Text>
           </VStack>

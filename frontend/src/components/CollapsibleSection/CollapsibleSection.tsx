@@ -45,11 +45,11 @@ export function CollapsibleSection({
       >
         <Flex align="center" gap={2}>
           {icon && (
-            <Box color="gray.500" fontSize="sm">
+            <Box color="text.muted" fontSize="sm">
               {icon}
             </Box>
           )}
-          <Text fontSize="sm" fontWeight="600" color="gray.700">
+          <Text fontSize="sm" fontWeight="600" color="text.strong">
             {title}
           </Text>
           {count !== undefined && (
@@ -67,7 +67,7 @@ export function CollapsibleSection({
         <Icon
           as={ChevronRightIcon}
           boxSize={4}
-          color="gray.400"
+          color="text.faint"
           transform={isOpen ? 'rotate(90deg)' : 'rotate(0deg)'}
           transition="transform 0.2s ease-out"
         />

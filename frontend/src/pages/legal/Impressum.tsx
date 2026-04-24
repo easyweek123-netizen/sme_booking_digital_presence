@@ -10,7 +10,7 @@ import { Header, Footer } from '../../components/Layout';
 
 export function Impressum() {
   return (
-    <Box minH="100vh" bg="white">
+    <Box minH="100vh" bg="surface.card">
       <Header />
       <Container maxW="container.md" py={{ base: 12, md: 20 }}>
         <VStack spacing={8} align="stretch">
@@ -18,7 +18,7 @@ export function Impressum() {
             <Heading as="h1" fontSize={{ base: '3xl', md: '4xl' }} fontWeight="700">
               Impressum
             </Heading>
-            <Text color="gray.500">
+            <Text color="text.muted">
               Angaben gemäß ECG §5 / Information according to ECG §5
             </Text>
           </VStack>
@@ -33,7 +33,7 @@ export function Impressum() {
 
             <Section title="Kontakt / Contact">
               <Text>
-                <Text as="span" color="brand.500" fontWeight="500">
+                <Text as="span" color="accent.primary" fontWeight="500">
                   easyweek123@gmail.com
                 </Text>
               </Text>
@@ -66,10 +66,10 @@ export function Impressum() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <VStack spacing={3} align="stretch">
-      <Heading as="h2" fontSize="xl" fontWeight="600" color="gray.900">
+      <Heading as="h2" fontSize="xl" fontWeight="600" color="text.heading">
         {title}
       </Heading>
-      <Box color="gray.600" lineHeight="1.7">
+      <Box color="text.secondary" lineHeight="1.7">
         {children}
       </Box>
     </VStack>

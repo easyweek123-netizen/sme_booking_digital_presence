@@ -86,7 +86,7 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
     <Flex
       direction="column"
       h="full"
-      bg="white"
+      bg="surface.card"
       borderRight="1px"
       borderColor="border.subtle"
       w={isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH}
@@ -123,7 +123,7 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
               borderRadius="lg"
               color="text.muted"
               bg="surface.muted"
-              _hover={{ bg: 'brand.50', color: 'brand.600' }}
+              _hover={{ bg: 'brand.50', color: 'accent.hover' }}
               transition="all 200ms ease"
             />
           </Tooltip>
@@ -137,15 +137,6 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
               transition="opacity 200ms ease"
             >
               <Logo size="md" iconOnly />
-              <Text
-                ml={3}
-                fontWeight="700"
-                fontSize="md"
-                color="text.primary"
-                whiteSpace="nowrap"
-              >
-                BookEasy
-              </Text>
             </Flex>
             <IconButton
               aria-label="Collapse sidebar"

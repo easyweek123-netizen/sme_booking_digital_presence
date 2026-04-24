@@ -20,7 +20,7 @@ export function Suggestions({ suggestions, onSelect }: SuggestionsProps) {
               borderRadius="full"
               fontWeight="500"
               color={isSelected ? undefined : suggestion.variant === 'skip' ? 'gray.500' : 'gray.700'}
-              borderColor={isSelected ? undefined : suggestion.variant === 'skip' ? 'transparent' : 'gray.200'}
+              borderColor={isSelected ? undefined : suggestion.variant === 'skip' ? 'transparent' : 'border.subtle'}
               onClick={() => onSelect(suggestion.value, suggestion.label)}
               _hover={isSelected ? {} : {
                 borderColor: suggestion.variant === 'skip' ? 'transparent' : 'brand.500',

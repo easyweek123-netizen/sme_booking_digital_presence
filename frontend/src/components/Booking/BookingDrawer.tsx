@@ -137,21 +137,21 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
         borderTopRadius={isDesktop ? 'none' : '2xl'}
         borderLeftRadius={isDesktop ? 'xl' : 'none'}
         maxH={isDesktop ? '100vh' : '90vh'}
-        bg="white"
+        bg="surface.card"
         style={brandColorStyles}
       >
         <DrawerCloseButton size="lg" top={4} right={4} />
         
         {/* Header - Service Info */}
-        <DrawerHeader borderBottomWidth="1px" borderColor="gray.100" pb={4}>
+        <DrawerHeader borderBottomWidth="1px" borderColor="border.subtle" pb={4}>
           <VStack align="start" spacing={1}>
-            <Text fontSize="xl" fontWeight="600" color="gray.900">
+            <Text fontSize="xl" fontWeight="600" color="text.heading">
               {service.name}
             </Text>
-            <HStack spacing={2} color="gray.500" fontSize="sm">
+            <HStack spacing={2} color="text.muted" fontSize="sm">
               <Text>{formatDuration(service.durationMinutes)}</Text>
               <Text>·</Text>
-              <Text fontWeight="500" color="gray.700">
+              <Text fontWeight="500" color="text.strong">
                 {formatPrice(Number(service.price))}
               </Text>
             </HStack>
@@ -188,7 +188,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
               >
                 <VStack spacing={0} align="stretch">
                   {/* Date Selector - always visible */}
-                  <Box p={4} bg="gray.50">
+                  <Box p={4} bg="surface.alt">
                     <DateSelector
                       selectedDate={selectedDate}
                       onDateChange={handleDateSelect}
@@ -205,8 +205,8 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                         {isLoadingSlots || isFetchingSlots ? (
                           <Center py={12}>
                             <VStack spacing={3}>
-                              <Spinner size="lg" color="brand.500" />
-                              <Text color="gray.500" fontSize="sm">
+                              <Spinner size="lg" color="accent.primary" />
+                              <Text color="text.muted" fontSize="sm">
                                 Loading available times...
                               </Text>
                             </VStack>
@@ -234,9 +234,9 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                           bg="brand.50"
                           borderRadius="sm"
                         >
-                          <Text fontSize="sm" color="gray.700">
+                          <Text fontSize="sm" color="text.strong">
                             {formatDateDisplay(selectedDate)} at{' '}
-                            <Text as="span" fontWeight="600" color="brand.600">
+                            <Text as="span" fontWeight="600" color="accent.hover">
                               {selectedTime && formatTime(selectedTime)}
                             </Text>
                           </Text>
@@ -260,8 +260,8 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                         {isCreating && (
                           <Center py={4}>
                             <VStack spacing={2}>
-                              <Spinner size="md" color="brand.500" />
-                              <Text fontSize="sm" color="gray.500">
+                              <Spinner size="md" color="accent.primary" />
+                              <Text fontSize="sm" color="text.muted">
                                 Creating your booking...
                               </Text>
                             </VStack>

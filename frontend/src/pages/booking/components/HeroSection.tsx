@@ -76,7 +76,7 @@ export function HeroSection({ business, onBookNow }: HeroSectionProps) {
               h="80px"
               borderRadius="2xl"
               overflow="hidden"
-              bg="white"
+              bg="surface.card"
               boxShadow="lg"
               display="flex"
               alignItems="center"
@@ -162,12 +162,12 @@ export function HeroSection({ business, onBookNow }: HeroSectionProps) {
           {/* CTA */}
           <Button
             size="lg"
-            bg="white"
-            color="gray.900"
+            bg="surface.card"
+            color="text.heading"
             fontWeight="600"
             borderRadius="full"
             px={8}
-            _hover={{ bg: 'gray.100', transform: 'translateY(-1px)' }}
+            _hover={{ bg: 'surface.page', transform: 'translateY(-1px)' }}
             _active={{ bg: 'gray.200' }}
             transition="all 0.2s"
             boxShadow="md"

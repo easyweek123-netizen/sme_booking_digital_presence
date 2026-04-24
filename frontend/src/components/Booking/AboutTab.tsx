@@ -62,14 +62,14 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
   if (!content) {
     return (
       <Box
-        bg="white"
+        bg="surface.card"
         p={8}
         borderRadius="xl"
         border="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         textAlign="center"
       >
-        <Text color="gray.400">No information available.</Text>
+        <Text color="text.faint">No information available.</Text>
       </Box>
     );
   }
@@ -89,12 +89,12 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
       
       {/* Content container */}
       <Box
-        bg="white"
+        bg="surface.card"
         p={6}
         pl={8}
         borderRadius="xl"
         border="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         ml={1}
         position="relative"
         className="about-content"
@@ -113,7 +113,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           '& h1': {
             fontSize: '2xl',
             fontWeight: '700',
-            color: 'gray.900',
+            color: 'text.heading',
             mb: 4,
             mt: 5,
             _first: { mt: 0 },
@@ -121,7 +121,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           '& h2': {
             fontSize: 'xl',
             fontWeight: '700',
-            color: 'gray.900',
+            color: 'text.heading',
             mb: 3,
             mt: 4,
             position: 'relative',
@@ -141,20 +141,20 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           '& h3': {
             fontSize: 'lg',
             fontWeight: '600',
-            color: 'gray.800',
+            color: 'text.primary',
             mb: 2,
             mt: 4,
           },
           '& h4, & h5, & h6': {
             fontSize: 'md',
             fontWeight: '600',
-            color: 'gray.700',
+            color: 'text.strong',
             mb: 2,
             mt: 3,
           },
           '& p': {
             fontSize: 'md',
-            color: 'gray.600',
+            color: 'text.secondary',
             lineHeight: '1.8',
             mb: 3,
             _last: { mb: 0 },
@@ -162,7 +162,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           '& ul, & ol': {
             pl: 5,
             mb: 3,
-            color: 'gray.600',
+            color: 'text.secondary',
           },
           '& li': {
             mb: 1.5,
@@ -177,7 +177,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
             bg: `${accentColor}08`,
             borderRadius: 'lg',
             fontStyle: 'italic',
-            color: 'gray.600',
+            color: 'text.secondary',
           },
           '& a': {
             color: accentColor,
@@ -189,7 +189,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           },
           '& strong, & b': {
             fontWeight: '600',
-            color: 'gray.800',
+            color: 'text.primary',
           },
           '& em, & i': {
             fontStyle: 'italic',
@@ -207,7 +207,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           },
           '& figcaption': {
             fontSize: 'sm',
-            color: 'gray.500',
+            color: 'text.muted',
             textAlign: 'center',
             mt: 2,
           },
@@ -220,29 +220,29 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
           },
           '& th, & td': {
             border: '1px solid',
-            borderColor: 'gray.200',
+            borderColor: 'border.subtle',
             px: 3,
             py: 2,
             textAlign: 'left',
           },
           '& th': {
-            bg: 'gray.50',
+            bg: 'surface.alt',
             fontWeight: '600',
-            color: 'gray.700',
+            color: 'text.strong',
           },
           '& tr:hover td': {
-            bg: 'gray.50',
+            bg: 'surface.alt',
           },
           // Horizontal rule
           '& hr': {
             border: 'none',
             borderTop: '1px solid',
-            borderColor: 'gray.200',
+            borderColor: 'border.subtle',
             my: 6,
           },
           // Code
           '& code': {
-            bg: 'gray.100',
+            bg: 'surface.page',
             px: 1.5,
             py: 0.5,
             borderRadius: 'md',
@@ -250,7 +250,7 @@ export function AboutTab({ content, brandColor }: AboutTabProps) {
             fontFamily: 'mono',
           },
           '& pre': {
-            bg: 'gray.100',
+            bg: 'surface.page',
             p: 4,
             borderRadius: 'lg',
             overflow: 'auto',

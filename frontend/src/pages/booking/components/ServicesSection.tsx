@@ -13,8 +13,8 @@ export function ServicesSection({ services, brandColor, onBookService }: Service
     return (
       <Box as="section" id="services" py={12}>
         <Container maxW="600px" px={6}>
-          <Box p={8} textAlign="center" borderRadius="xl" bg="gray.50">
-            <Text color="gray.500">No services available at the moment.</Text>
+          <Box p={8} textAlign="center" borderRadius="xl" bg="surface.alt">
+            <Text color="text.muted">No services available at the moment.</Text>
           </Box>
         </Container>
       </Box>
@@ -22,12 +22,12 @@ export function ServicesSection({ services, brandColor, onBookService }: Service
   }
 
   return (
-    <Box as="section" id="services" py={6} bg="gray.50">
+    <Box as="section" id="services" py={6} bg="surface.alt">
       <Container maxW="600px" px={6}>
-        <Heading size="lg" color="gray.900" mb={2} letterSpacing="-0.02em">
+        <Heading size="lg" color="text.heading" mb={2} letterSpacing="-0.02em">
           Services
         </Heading>
-        <Text color="gray.500" mb={6} fontSize="sm">
+        <Text color="text.muted" mb={6} fontSize="sm">
           Choose a service to book your appointment
         </Text>
         <ServicesTab

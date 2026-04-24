@@ -128,27 +128,27 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
   const isComplete = (k: TabKey) => tabStatus[k].done === tabStatus[k].total;
 
   const sectionCardProps = {
-    bg: 'white' as const,
+    bg: 'surface.card' as const,
     borderRadius: 'xl' as const,
     border: '1px solid' as const,
-    borderColor: 'gray.100' as const,
+    borderColor: 'border.subtle' as const,
     p: 6,
   };
 
   return (
     <VStack spacing={8} align="stretch">
       <Box>
-        <Heading size="lg" color="gray.900" mb={1}>
+        <Heading size="lg" color="text.heading" mb={1}>
           Website
         </Heading>
-        <Text color="gray.500">Build and customize your booking page</Text>
+        <Text color="text.muted">Build and customize your booking page</Text>
       </Box>
 
       <Box>
-        <Heading size="sm" color="gray.900" mb={1}>
+        <Heading size="sm" color="text.heading" mb={1}>
           Your booking link
         </Heading>
-        <Text fontSize="sm" color="gray.500" mb={4}>
+        <Text fontSize="sm" color="text.muted" mb={4}>
           Share this link or QR code so customers can book online.
         </Text>
         <Box {...sectionCardProps}>
@@ -171,7 +171,7 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
                   color={isActive ? 'brand.600' : 'gray.500'}
                   fontWeight={isActive ? '600' : '500'}
                   textDecoration="none"
-                  _hover={{ color: 'brand.600', textDecoration: 'none' }}
+                  _hover={{ color: 'accent.hover', textDecoration: 'none' }}
                   _focusVisible={{
                     outline: '2px solid',
                     outlineColor: 'brand.500',
@@ -182,11 +182,11 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
                   <HStack spacing={1}>
                     <Text>{t.label}</Text>
                     {complete ? (
-                      <Box color="brand.500" aria-label="complete" display="inline-flex">
+                      <Box color="accent.primary" aria-label="complete" display="inline-flex">
                         <CheckIcon size={14} />
                       </Box>
                     ) : done > 0 ? (
-                      <Text as="span" fontSize="xs" color="gray.400">
+                      <Text as="span" fontSize="xs" color="text.faint">
                         {done}/{total}
                       </Text>
                     ) : null}
@@ -224,7 +224,7 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
             <WorkingHoursEditor value={workingHours} onChange={handleWorkingHoursChange} />
           )}
           {activeTab === 'hours' && !workingHours && (
-            <Text color="gray.500" fontSize="sm">
+            <Text color="text.muted" fontSize="sm">
               Working hours are not configured yet.
             </Text>
           )}

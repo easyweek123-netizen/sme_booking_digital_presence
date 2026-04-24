@@ -96,7 +96,7 @@ export function PricingCard({
           <Text
             fontSize="sm"
             fontWeight="600"
-            color="brand.600"
+            color="accent.hover"
             textTransform="uppercase"
             letterSpacing="wide"
             mb={1}
@@ -108,13 +108,13 @@ export function PricingCard({
               <Heading
                 fontSize="4xl"
                 fontWeight="800"
-                color="gray.900"
+                color="text.heading"
                 letterSpacing="-0.02em"
               >
                 {price}
               </Heading>
               {priceSubtext && (
-                <Text fontSize="md" color="gray.500">
+                <Text fontSize="md" color="text.muted">
                   {priceSubtext}
                 </Text>
               )}
@@ -132,7 +132,7 @@ export function PricingCard({
                 h="20px"
                 borderRadius="full"
                 bg="brand.100"
-                color="brand.600"
+                color="accent.hover"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -140,7 +140,7 @@ export function PricingCard({
               >
                 <CheckIcon size={12} />
               </Box>
-              <Text color="gray.600" fontSize="sm" lineHeight="1.5">
+              <Text color="text.secondary" fontSize="sm" lineHeight="1.5">
                 {feature}
               </Text>
             </HStack>

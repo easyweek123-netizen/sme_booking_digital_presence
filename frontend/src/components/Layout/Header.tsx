@@ -83,14 +83,13 @@ export function Header() {
     <>
       <Box
         as="header"
-        bg="white"
         borderBottom="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         position="sticky"
         top={0}
-        // zIndex={100}
-        backdropFilter="blur(8px)"
-        bgColor="whiteAlpha.900"
+        zIndex={2}
+        // backdropFilter="blur(8px)"
+        bgColor="surface.page"
       >
         <Container maxW="container.xl" py={4}>
           <Flex justify="space-between" align="center">
@@ -98,117 +97,112 @@ export function Header() {
             <Logo size="md" onClick={() => navigate(ROUTES.HOME)} />
 
             {/* Center Navigation - Desktop */}
-            <HStack
-              spacing={1}
-              display={{ base: 'none', md: 'flex' }}
-              position="absolute"
-              left="50%"
-              transform="translateX(-50%)"
-            >
-              {navLinks.map((link, index) => (
-                <HStack key={link.label} spacing={1}>
-                  {index > 0 && (
-                    <Text color="gray.300" fontSize="sm" px={1}>
-                      •
-                    </Text>
-                  )}
-                  <Button
-                    variant="ghost"
-                    color="gray.600"
-                    fontWeight="500"
-                    fontSize="md"
-                    onClick={() => handleNavClick(link.href, link.isPage)}
-                    _hover={{ color: 'brand.500', bg: 'transparent' }}
-                    px={3}
-                  >
-                    {link.label}
-                  </Button>
-                </HStack>
-              ))}
-            </HStack>
+            <Flex>
+              <HStack
+                spacing={1}
+                display={{ base: 'none', md: 'flex' }}
+              >
+                {navLinks.map((link) => (
+                  <HStack key={link.label} spacing={1}>
 
-            {/* Right Section - Desktop */}
-            <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
-              {isAuthenticated ? (
-                <Menu>
-                  <MenuButton
-                    as={Button}
-                    variant="ghost"
-                    color="gray.700"
-                    fontWeight="500"
-                    rightIcon={<ChevronDownIcon size={16} />}
-                    _hover={{ bg: 'gray.50' }}
-                    _active={{ bg: 'gray.100' }}
-                    pl={2}
-                    pr={3}
-                  >
-                    <HStack spacing={2}>
-                      <Avatar
-                        size="xs"
-                        name={user?.name}
-                        bg="brand.500"
-                        color="white"
-                        fontSize="xs"
-                      />
-                      <Text>{user?.name}</Text>
-                    </HStack>
-                  </MenuButton>
-                  <MenuList
-                    py={2}
-                    borderRadius="xl"
-                    boxShadow="popover"
-                    border="1px"
-                    borderColor="border.subtle"
-                  >
-                    <MenuItem
-                      icon={<UserIcon size={18} />}
-                      onClick={() => navigate(ROUTES.DASHBOARD.ROOT)}
-                      _hover={{ bg: 'gray.50' }}
-                      py={2}
-                      px={4}
+                    <Button
+                      variant="ghost"
+                      color="text.secondary"
+                      fontWeight="500"
+                      onClick={() => handleNavClick(link.href, link.isPage)}
+                      _hover={{ color: 'accent.primary', bg: 'transparent' }}
+                      px={3}
                     >
-                      Dashboard
-                    </MenuItem>
-                    <MenuItem
-                      icon={<GlobeIcon size={18} />}
-                      onClick={() => navigate(ROUTES.DASHBOARD.WEBSITE)}
-                      _hover={{ bg: 'gray.50' }}
-                      py={2}
-                      px={4}
+                      {link.label}
+                    </Button>
+                  </HStack>
+                ))}
+              </HStack>
+
+              {/* Right Section - Desktop */}
+              <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
+                {isAuthenticated ? (
+                  <Menu>
+                    <MenuButton
+                      as={Button}
+                      variant="ghost"
+                      color="text.strong"
+                      fontWeight="500"
+                      rightIcon={<ChevronDownIcon size={16} />}
+                      _hover={{ bg: 'surface.alt' }}
+                      _active={{ bg: 'surface.page' }}
+                      pl={2}
+                      pr={3}
                     >
-                      Website
-                    </MenuItem>
-                    <MenuDivider my={1} />
-                    <MenuItem
-                      icon={<LogOutIcon size={18} />}
-                      onClick={handleLogout}
-                      color="danger.primary"
-                      _hover={{ bg: 'alert.50' }}
+                      <HStack spacing={2}>
+                        <Avatar
+                          size="xs"
+                          name={user?.name}
+                          bg="brand.500"
+                          color="white"
+                          fontSize="xs"
+                        />
+                        <Text>{user?.name}</Text>
+                      </HStack>
+                    </MenuButton>
+                    <MenuList
                       py={2}
-                      px={4}
+                      borderRadius="xl"
+                      boxShadow="popover"
+                      border="1px"
+                      borderColor="border.subtle"
                     >
-                      Log out
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    color="gray.600"
-                    fontWeight="500"
-                    onClick={() => navigate(ROUTES.LOGIN)}
-                    _hover={{ color: 'brand.500', bg: 'transparent' }}
-                  >
-                    Log in
-                  </Button>
-                    <PrimaryButton 
-                      onClick={() => navigate(ROUTES.ONBOARDING)}>
-                      Get Started
-                    </PrimaryButton>
-                </>
-              )}
-            </HStack>
+                      <MenuItem
+                        icon={<UserIcon size={18} />}
+                        onClick={() => navigate(ROUTES.DASHBOARD.ROOT)}
+                        _hover={{ bg: 'surface.alt' }}
+                        py={2}
+                        px={4}
+                      >
+                        Dashboard
+                      </MenuItem>
+                      <MenuItem
+                        icon={<GlobeIcon size={18} />}
+                        onClick={() => navigate(ROUTES.DASHBOARD.WEBSITE)}
+                        _hover={{ bg: 'surface.alt' }}
+                        py={2}
+                        px={4}
+                      >
+                        Website
+                      </MenuItem>
+                      <MenuDivider my={1} />
+                      <MenuItem
+                        icon={<LogOutIcon size={18} />}
+                        onClick={handleLogout}
+                        color="danger.primary"
+                        _hover={{ bg: 'alert.50' }}
+                        py={2}
+                        px={4}
+                      >
+                        Log out
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      color="text.secondary"
+                      fontWeight="500"
+                      onClick={() => navigate(ROUTES.LOGIN)}
+                      _hover={{ color: 'accent.primary', bg: 'transparent' }}
+                    >
+                      Log in
+                    </Button>
+                      <PrimaryButton 
+                        onClick={() => navigate(ROUTES.ONBOARDING)}>
+                        Start Free
+                      </PrimaryButton>
+                  </>
+                )}
+              </HStack>
+            </Flex>
+
 
             {/* Mobile Hamburger */}
             <IconButton
@@ -217,10 +211,10 @@ export function Header() {
               variant="ghost"
               display={{ base: 'flex', md: 'none' }}
               onClick={onOpen}
-              color="gray.600"
+              color="text.secondary"
               size="md"
               borderRadius="lg"
-              _hover={{ bg: 'brand.50', color: 'brand.500' }}
+              _hover={{ bg: 'brand.50', color: 'accent.primary' }}
               _active={{ bg: 'brand.100' }}
               transition="all 0.2s"
             />
@@ -231,7 +225,7 @@ export function Header() {
       {/* Mobile Drawer */}
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
-        <DrawerContent bg="white" maxW="300px">
+        <DrawerContent bg="surface.card" maxW="300px">
           {/* Custom Close Button */}
           <Box position="absolute" top={4} right={4} zIndex={1}>
             <IconButton
@@ -239,8 +233,8 @@ export function Header() {
               icon={<CloseIcon />}
               variant="ghost"
               size="sm"
-              color="gray.500"
-              _hover={{ bg: 'gray.100', color: 'gray.700' }}
+              color="text.muted"
+              _hover={{ bg: 'surface.page', color: 'text.strong' }}
               onClick={onClose}
               borderRadius="full"
             />
@@ -256,7 +250,7 @@ export function Header() {
               <Text
                 fontSize="xs"
                 fontWeight="600"
-                color="gray.400"
+                color="text.faint"
                 textTransform="uppercase"
                 letterSpacing="wider"
                 mb={1}
@@ -276,12 +270,12 @@ export function Header() {
                   py={3}
                   px={4}
                   borderRadius="xl"
-                  bg="gray.50"
-                  color="gray.700"
+                  bg="surface.alt"
+                  color="text.strong"
                   fontWeight="500"
                   fontSize="md"
                   transition="all 0.2s"
-                  _hover={{ bg: 'gray.100', transform: 'translateX(4px)' }}
+                  _hover={{ bg: 'surface.page', transform: 'translateX(4px)' }}
                   _active={{ bg: 'gray.200' }}
                   onClick={() => handleNavClick(link.href, link.isPage)}
                 >
@@ -289,7 +283,7 @@ export function Header() {
                 </Box>
               ))}
 
-              <Box h="1px" bg="gray.100" my={3} />
+              <Box h="1px" bg="surface.page" my={3} />
 
               {isAuthenticated ? (
                 <>
@@ -302,24 +296,24 @@ export function Header() {
                     py={3}
                     px={4}
                     borderRadius="xl"
-                    bg="gray.50"
-                    color="gray.700"
+                    bg="surface.alt"
+                    color="text.strong"
                     fontWeight="500"
                     fontSize="md"
                     transition="all 0.2s"
-                    _hover={{ bg: 'gray.100', transform: 'translateX(4px)' }}
+                    _hover={{ bg: 'surface.page', transform: 'translateX(4px)' }}
                     _active={{ bg: 'gray.200' }}
                     onClick={() => handleNavigate(ROUTES.DASHBOARD.ROOT)}
                   >
-                    <Box color="gray.500">
+                    <Box color="text.muted">
                       <UserIcon size={20} />
                     </Box>
                     Dashboard
                   </Box>
 
-                  <Box h="1px" bg="gray.100" my={3} />
+                  <Box h="1px" bg="surface.page" my={3} />
 
-                  <Text color="gray.500" fontSize="sm" px={4}>
+                  <Text color="text.muted" fontSize="sm" px={4}>
                     {user?.name}
                   </Text>
 
@@ -346,22 +340,22 @@ export function Header() {
                     py={3}
                     px={4}
                     borderRadius="xl"
-                    bg="gray.50"
-                    color="gray.700"
+                    bg="surface.alt"
+                    color="text.strong"
                     fontWeight="500"
                     fontSize="md"
                     transition="all 0.2s"
-                    _hover={{ bg: 'gray.100', transform: 'translateX(4px)' }}
+                    _hover={{ bg: 'surface.page', transform: 'translateX(4px)' }}
                     _active={{ bg: 'gray.200' }}
                     onClick={() => handleNavigate(ROUTES.LOGIN)}
                   >
-                    <Box color="gray.500">
+                    <Box color="text.muted">
                       <UserIcon size={20} />
                     </Box>
                     Log in
                   </Box>
 
-                  <Box h="1px" bg="gray.100" my={3} />
+                  <Box h="1px" bg="surface.page" my={3} />
 
                   {/* CTA Button */}
                   <PrimaryButton
@@ -380,8 +374,8 @@ export function Header() {
           </DrawerBody>
 
           {/* Footer */}
-          <Box px={6} py={5} borderTop="1px" borderColor="gray.100" bg="gray.50">
-            <Text fontSize="xs" color="gray.400" textAlign="center">
+          <Box px={6} py={5} borderTop="1px" borderColor="border.subtle" bg="surface.alt">
+            <Text fontSize="xs" color="text.faint" textAlign="center">
               © {new Date().getFullYear()} BookEasy
             </Text>
           </Box>

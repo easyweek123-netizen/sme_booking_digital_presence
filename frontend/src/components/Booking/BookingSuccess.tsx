@@ -49,7 +49,7 @@ export function BookingSuccess({
               display="flex"
               alignItems="center"
               justifyContent="center"
-              color="brand.500"
+              color="accent.primary"
             >
               <CheckCircleIcon size={48} />
             </Box>
@@ -63,10 +63,10 @@ export function BookingSuccess({
           transition={{ delay: 0.2 }}
           textAlign="center"
         >
-          <Text fontSize="2xl" fontWeight="700" color="gray.900" mb={1}>
+          <Text fontSize="2xl" fontWeight="700" color="text.heading" mb={1}>
             Request Sent!
           </Text>
-          <Text color="gray.500" fontSize="sm" mb={2}>
+          <Text color="text.muted" fontSize="sm" mb={2}>
             Awaiting confirmation from {business.name}
           </Text>
           <Badge colorScheme="brand" fontSize="sm" px={3} py={1} borderRadius="lg">
@@ -82,64 +82,64 @@ export function BookingSuccess({
           w="full"
         >
           <Box
-            bg="gray.50"
+            bg="surface.alt"
             borderRadius="sm"
             p={5}
             border="1px"
-            borderColor="gray.100"
+            borderColor="border.subtle"
           >
             {/* Service Info */}
-            <Text fontSize="lg" fontWeight="600" color="gray.900" mb={3}>
+            <Text fontSize="lg" fontWeight="600" color="text.heading" mb={3}>
               {service.name}
             </Text>
 
             <VStack spacing={2} align="stretch">
               <HStack spacing={3}>
-                <Box color="gray.400">
+                <Box color="text.faint">
                   <CalendarIcon size={18} />
                 </Box>
-                <Text color="gray.700" fontSize="sm">
+                <Text color="text.strong" fontSize="sm">
                   {formatFullDate(booking.date)}
                 </Text>
               </HStack>
 
               <HStack spacing={3}>
-                <Box color="gray.400">
+                <Box color="text.faint">
                   <ClockIcon size={18} />
                 </Box>
-                <Text color="gray.700" fontSize="sm">
+                <Text color="text.strong" fontSize="sm">
                   {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
                 </Text>
               </HStack>
 
               <HStack spacing={3} justify="space-between">
                 <HStack spacing={3}>
-                  <Box color="gray.400" w="18px" />
-                  <Text color="gray.500" fontSize="sm">
+                  <Box color="text.faint" w="18px" />
+                  <Text color="text.muted" fontSize="sm">
                     Total
                   </Text>
                 </HStack>
-                <Text fontWeight="600" color="gray.900">
+                <Text fontWeight="600" color="text.heading">
                   {formatPrice(Number(service.price))}
                 </Text>
               </HStack>
             </VStack>
 
-            <Divider my={4} borderColor="gray.200" />
+            <Divider my={4} borderColor="border.subtle" />
 
             {/* Business Info */}
             <VStack spacing={2} align="stretch">
-              <Text fontWeight="600" color="gray.900" fontSize="sm">
+              <Text fontWeight="600" color="text.heading" fontSize="sm">
                 {business.name}
               </Text>
               {business.city && (
-                <HStack spacing={2} color="gray.500" fontSize="sm">
+                <HStack spacing={2} color="text.muted" fontSize="sm">
                   <MapPinIcon size={14} />
                   <Text>{business.city}</Text>
                 </HStack>
               )}
               {business.phone && (
-                <HStack spacing={2} color="gray.500" fontSize="sm">
+                <HStack spacing={2} color="text.muted" fontSize="sm">
                   <PhoneIcon size={14} />
                   <Text>{business.phone}</Text>
                 </HStack>

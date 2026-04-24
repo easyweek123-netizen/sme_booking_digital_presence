@@ -140,12 +140,12 @@ export function BookingQRModal({
       <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
       <ModalContent borderRadius="2xl" mx={4} overflow="hidden">
         <ModalHeader
-          bg="gray.50"
+          bg="surface.alt"
           borderBottom="1px"
-          borderColor="gray.100"
+          borderColor="border.subtle"
           py={4}
         >
-          <Text fontSize="lg" fontWeight="600" color="gray.900">
+          <Text fontSize="lg" fontWeight="600" color="text.heading">
             Share Your Booking Page
           </Text>
         </ModalHeader>
@@ -154,11 +154,11 @@ export function BookingQRModal({
         <ModalBody py={6}>
           <VStack spacing={5}>
             <Box
-              bg="white"
+              bg="surface.card"
               p={4}
               borderRadius="xl"
               border="2px"
-              borderColor="gray.100"
+              borderColor="border.subtle"
               boxShadow="sm"
               lineHeight={0}
             >
@@ -174,7 +174,7 @@ export function BookingQRModal({
             </Box>
 
             <Box
-              bg="gray.50"
+              bg="surface.alt"
               px={4}
               py={2}
               borderRadius="lg"
@@ -184,7 +184,7 @@ export function BookingQRModal({
               <Text
                 fontSize="sm"
                 fontWeight="500"
-                color="brand.600"
+                color="accent.hover"
                 wordBreak="break-all"
               >
                 {displayUrl}
@@ -216,7 +216,7 @@ export function BookingQRModal({
               </Button>
             </HStack>
 
-            <Text fontSize="xs" color="gray.500" textAlign="center" px={4}>
+            <Text fontSize="xs" color="text.muted" textAlign="center" px={4}>
               Print this QR code to display in your shop or share on social
               media
             </Text>

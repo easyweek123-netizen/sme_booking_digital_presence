@@ -81,11 +81,11 @@ export function BookingPageV2({
   // Loading state
   if (isLoading && !businessProp) {
     return (
-      <Box minH={isPreview ? '200px' : '100vh'} bg="white">
+      <Box minH={isPreview ? '200px' : '100vh'} bg="surface.card">
         <Center h={isPreview ? '200px' : '100vh'}>
           <VStack spacing={4}>
-            <Spinner size="xl" color="brand.500" thickness="4px" />
-            <Text color="gray.500" fontSize="sm">Loading...</Text>
+            <Spinner size="xl" color="accent.primary" thickness="4px" />
+            <Text color="text.muted" fontSize="sm">Loading...</Text>
           </VStack>
         </Center>
       </Box>
@@ -95,7 +95,7 @@ export function BookingPageV2({
   // Error state
   if ((error && !businessProp) || !business) {
     return (
-      <Box minH={isPreview ? '200px' : '100vh'} bg="white" py={isPreview ? 4 : 20}>
+      <Box minH={isPreview ? '200px' : '100vh'} bg="surface.card" py={isPreview ? 4 : 20}>
         <Container maxW="lg">
           <Alert
             status={isPreview ? 'info' : 'error'}
@@ -111,7 +111,7 @@ export function BookingPageV2({
             <Heading size="md" mb={2}>
               {isPreview ? 'No Preview Available' : 'Page Not Found'}
             </Heading>
-            <Text color="gray.600">
+            <Text color="text.secondary">
               {isPreview
                 ? 'Complete your business setup to see a preview.'
                 : "The page you're looking for doesn't exist or has been removed."}
@@ -134,7 +134,7 @@ export function BookingPageV2({
   ];
 
   return (
-    <Box minH={isPreview ? 'auto' : '100vh'} bg="white" style={brandColorStyles}>
+    <Box minH={isPreview ? 'auto' : '100vh'} bg="surface.card" style={brandColorStyles}>
       {/* Floating Navigation */}
       {!isPreview && <FloatingNav items={navItems} />}
 
@@ -161,10 +161,10 @@ export function BookingPageV2({
 
       {/* Footer */}
       {!isPreview && (
-        <Box py={6} textAlign="center" borderTop="1px" borderColor="gray.100">
-          <Text fontSize="xs" color="gray.400">
+        <Box py={6} textAlign="center" borderTop="1px" borderColor="border.subtle">
+          <Text fontSize="xs" color="text.faint">
             Powered by{' '}
-            <Link href="/" fontWeight="600" color="gray.400" _hover={{ color: 'brand.500' }}>
+            <Link href="/" fontWeight="600" color="text.faint" _hover={{ color: 'accent.primary' }}>
               BookEasy
             </Link>
           </Text>

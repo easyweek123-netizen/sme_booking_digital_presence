@@ -40,19 +40,19 @@ export function CanvasActionsContainer({
     <Flex
       direction="column"
       h="full"
-      bg="white"
+      bg="surface.card"
       borderRadius="sm"
       overflow="hidden"
       border="1px"
-      borderColor="gray.100"
+      borderColor="border.subtle"
     >
       {/* Header */}
-      <Box p={4} borderBottom="1px" borderColor="gray.100" flexShrink={0}>
-        <Heading size="sm" color="gray.800">
+      <Box p={4} borderBottom="1px" borderColor="border.subtle" flexShrink={0}>
+        <Heading size="sm" color="text.primary">
           {title}
         </Heading>
         {description && (
-          <Text fontSize="sm" color="gray.500" mt={1}>
+          <Text fontSize="sm" color="text.muted" mt={1}>
             {description}
           </Text>
         )}
@@ -68,8 +68,8 @@ export function CanvasActionsContainer({
         <HStack
           p={4}
           borderTop="1px"
-          borderColor="gray.100"
-          bg="gray.50"
+          borderColor="border.subtle"
+          bg="surface.alt"
           flexShrink={0}
         >
           <Button

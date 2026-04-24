@@ -30,18 +30,18 @@ export function ContactSection({ business }: ContactSectionProps) {
   if (!hasContactInfo && !hasWorkingHours) return null;
 
   return (
-    <Box as="section" id="contact" py={6} bg="gray.50">
+    <Box as="section" id="contact" py={6} bg="surface.alt">
 
       <Container maxW="600px" px={6}>
-        <Heading size="lg" color="gray.900" mb={6} letterSpacing="-0.02em">
+        <Heading size="lg" color="text.heading" mb={6} letterSpacing="-0.02em">
           Contact & Hours
         </Heading>
 
         <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4}>
           {/* Contact Card */}
           {hasContactInfo && (
-            <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={5}>
-              <Text fontWeight="600" color="gray.900" fontSize="sm" mb={4} textTransform="uppercase" letterSpacing="wider">
+            <Box bg="surface.card" borderRadius="xl" border="1px" borderColor="border.subtle" p={5}>
+              <Text fontWeight="600" color="text.heading" fontSize="sm" mb={4} textTransform="uppercase" letterSpacing="wider">
                 Get in touch
               </Text>
               <VStack spacing={3} align="stretch">
@@ -89,10 +89,10 @@ export function ContactSection({ business }: ContactSectionProps) {
 
           {/* Working Hours Card */}
           {hasWorkingHours && (
-            <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={5}>
+            <Box bg="surface.card" borderRadius="xl" border="1px" borderColor="border.subtle" p={5}>
               <HStack spacing={2} mb={4}>
                 <ClockIcon size={16} />
-                <Text fontWeight="600" color="gray.900" fontSize="sm" textTransform="uppercase" letterSpacing="wider">
+                <Text fontWeight="600" color="text.heading" fontSize="sm" textTransform="uppercase" letterSpacing="wider">
                   Working Hours
                 </Text>
               </HStack>
@@ -147,8 +147,8 @@ function ContactLink({
   isExternal?: boolean;
 }) {
   const content = (
-    <HStack spacing={3} color="gray.600" fontSize="sm">
-      <Box color="gray.400" flexShrink={0}>{icon}</Box>
+    <HStack spacing={3} color="text.secondary" fontSize="sm">
+      <Box color="text.faint" flexShrink={0}>{icon}</Box>
       <Text>{label}</Text>
     </HStack>
   );
@@ -160,7 +160,7 @@ function ContactLink({
       href={href}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      _hover={{ textDecoration: 'none', color: 'brand.600' }}
+      _hover={{ textDecoration: 'none', color: 'accent.hover' }}
       transition="color 0.2s"
     >
       {content}

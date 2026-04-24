@@ -10,6 +10,7 @@ import {
   Heading,
   InputGroup,
   InputLeftAddon,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { PhoneIcon } from '../icons';
 
@@ -38,16 +39,10 @@ export function BusinessProfileFields({
     onChange(e.target.name, e.target.value);
   };
 
-  // console.log('values', values);
   return (
     <VStack spacing={6} align="stretch">
-      <Box>
-        <Heading size="xs" color="gray.700" textTransform="uppercase" letterSpacing="wider" mb={3}>
-          Basic info
-        </Heading>
-        <VStack spacing={4} align="stretch">
           <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
+            <FormLabel>
               Business name
             </FormLabel>
             <Input
@@ -59,7 +54,7 @@ export function BusinessProfileFields({
           </FormControl>
 
           <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
+            <FormLabel>
               Description
             </FormLabel>
             <Textarea
@@ -73,22 +68,16 @@ export function BusinessProfileFields({
               Plain text is best here; use the About section for longer formatted content.
             </FormHelperText>
           </FormControl>
-        </VStack>
-      </Box>
 
       <Divider />
 
-      <Box>
-        <Heading size="xs" color="gray.700" textTransform="uppercase" letterSpacing="wider" mb={3}>
-          Contact
-        </Heading>
-        <VStack spacing={4} align="stretch">
+
           <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
+            <FormLabel>
               Phone
             </FormLabel>
             <InputGroup size="sm">
-              <InputLeftAddon bg="gray.50" borderColor="gray.200" px={3}>
+              <InputLeftAddon bg="surface.alt" borderColor="border.subtle" px={3}>
                 <PhoneIcon size={18} />
               </InputLeftAddon>
               <Input
@@ -105,7 +94,7 @@ export function BusinessProfileFields({
           </FormControl>
 
           <FormControl>
-                <FormLabel fontSize="sm" fontWeight="500">
+                <FormLabel>
                   Address
                 </FormLabel>
                 <Input
@@ -119,7 +108,7 @@ export function BusinessProfileFields({
           </FormControl>
           
           <FormControl>
-                <FormLabel fontSize="sm" fontWeight="500">
+                <FormLabel>
                   City
                 </FormLabel>
                 <Input
@@ -131,18 +120,17 @@ export function BusinessProfileFields({
                 />
             <FormHelperText>Helps customers find your location.</FormHelperText>
           </FormControl>
-        </VStack>
-      </Box>
+
 
       <Divider />
 
-      {/* <Box>
-        <Heading size="xs" color="gray.700" textTransform="uppercase" letterSpacing="wider" mb={3}>
+      <Box>
+        <Heading size="xs" color="text.strong" textTransform="uppercase" letterSpacing="wider" mb={3}>
           Online presence
         </Heading>
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
           <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
+            <FormLabel>
               Website
             </FormLabel>
             <Input
@@ -156,7 +144,7 @@ export function BusinessProfileFields({
           </FormControl>
 
           <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500">
+            <FormLabel>
               Instagram
             </FormLabel>
             <Input
@@ -168,7 +156,7 @@ export function BusinessProfileFields({
             <FormHelperText>@handle or full URL.</FormHelperText>
           </FormControl>
         </SimpleGrid>
-      </Box> */}
+      </Box>
     </VStack>
   );
 }

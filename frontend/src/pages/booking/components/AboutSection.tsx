@@ -12,14 +12,14 @@ export function AboutSection({ content, brandColor }: AboutSectionProps) {
   return (
     <Box as="section" id="about" py={6}>
       <Container maxW="600px" px={6}>
-        <Heading size="lg" color="gray.900" mb={6} letterSpacing="-0.02em">
+        <Heading size="lg" color="text.heading" mb={6} letterSpacing="-0.02em">
           About
         </Heading>
         <Box
-          bg="white"
+          bg="surface.card"
           borderRadius="xl"
           border="1px"
-          borderColor="gray.100"
+          borderColor="border.subtle"
           p={6}
         >
           <AboutTab content={content} brandColor={brandColor} />

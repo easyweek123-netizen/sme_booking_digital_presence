@@ -51,7 +51,7 @@ export function CanvasPanel() {
       <Flex
         px={4}
         py={3}
-        bg="white"
+        bg="surface.card"
         borderBottom="1px"
         borderColor="gray.200"
         flexShrink={0}
@@ -61,7 +61,7 @@ export function CanvasPanel() {
         <ButtonGroup
           isAttached
           size="sm"
-          bg="gray.100"
+          bg="surface.page"
           borderRadius="md"
           p="2px"
         >
@@ -77,7 +77,7 @@ export function CanvasPanel() {
             boxShadow={isPreview ? 'sm' : 'none'}
             _hover={{
               bg: isPreview ? 'white' : 'gray.50',
-              color: 'gray.900',
+              color: 'text.heading',
             }}
             transition="all 0.2s"
           >
@@ -95,7 +95,7 @@ export function CanvasPanel() {
             boxShadow={isActions ? 'sm' : 'none'}
             _hover={{
               bg: isActions ? 'white' : 'gray.50',
-              color: 'gray.900',
+              color: 'text.heading',
             }}
             transition="all 0.2s"
             position="relative"

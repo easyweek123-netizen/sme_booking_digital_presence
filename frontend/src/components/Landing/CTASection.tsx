@@ -68,15 +68,15 @@ export function CTASection() {
             </Text>
             <Button
               size="lg"
-              bg="white"
-              color="brand.500"
+              bg="surface.card"
+              color="accent.primary"
               colorScheme="whiteAlpha"
               px={{ base: 8, md: 10 }}
               py={6}
               fontWeight="600"
               fontSize={{ base: 'md', md: 'lg' }}
               _hover={{
-                bg: 'gray.100',
+                bg: 'surface.page',
                 transform: 'translateY(-2px)',
               }}
               _active={{ bg: 'gray.200', transform: 'translateY(0)' }}

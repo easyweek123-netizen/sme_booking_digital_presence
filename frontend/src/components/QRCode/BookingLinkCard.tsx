@@ -51,20 +51,20 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
   return (
     <div>
       <Box
-        bg="white"
+        bg="surface.card"
         border="1px"
-        borderColor="gray.200"
+        borderColor="border.subtle"
         borderRadius="xl"
         p={4}
       >
         <Flex gap={4} align="flex-start">
           <Tooltip label="Click to open QR code" placement="top" hasArrow>
             <Box
-              bg="white"
+              bg="surface.card"
               p={2}
               borderRadius="lg"
               border="1px"
-              borderColor="gray.200"
+              borderColor="border.subtle"
               cursor="pointer"
               // onClick={onOpen}
               transition="all 0.2s"
@@ -88,7 +88,7 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
           </Tooltip>
 
           <Box flex={1} minW={0}>
-            <Text fontSize="xs" color="gray.500" mb={1}>
+            <Text fontSize="xs" color="text.muted" mb={1}>
               Your booking page
             </Text>
             <Text
@@ -98,7 +98,7 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
               rel="noopener noreferrer"
               fontSize="sm"
               fontWeight="600"
-              color="brand.600"
+              color="accent.hover"
               wordBreak="break-all"
               _hover={{ textDecoration: 'underline', color: 'brand.700' }}
               cursor="pointer"

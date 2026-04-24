@@ -102,8 +102,7 @@ export function ChatPanel() {
         flexShrink={0}
         justify="space-between"
         align="center"
-        px={4}
-        py={3}
+        p={4}
         borderBottom="1px"
         borderColor="border.subtle"
         bg="surface.card"
@@ -165,7 +164,7 @@ export function ChatPanel() {
       </Box>
 
       {/* Input area */}
-      <Box flexShrink={0} px={4} py={4} borderTop="1px" borderColor="border.subtle">
+      <Box flexShrink={0} px={4} py={2}>
         <ChatInput
           placeholder="Ask me anything..."
           onSubmit={handleSubmit}

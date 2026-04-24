@@ -14,6 +14,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { MenuIcon } from '../icons';
 import { Sidebar } from './Sidebar';
 import { ROUTES } from '../../config/routes';
+import { Logo } from '../ui';
 
 // Get current page title based on route
 function getPageTitle(pathname: string): string {
@@ -69,25 +70,7 @@ export function MobileNav({ businessName }: MobileNavProps) {
               </Text>
             )}
           </Box>
-
-          <Button
-            aria-label="Go to home"
-            w="36px"
-            h="36px"
-            minW="36px"
-            p={0}
-            bg="brand.500"
-            borderRadius="md"
-            onClick={() => navigate(ROUTES.HOME)}
-            _hover={{ bg: 'brand.600' }}
-            _active={{ transform: 'scale(0.95)' }}
-            transition="all 0.15s"
-            color="white"
-            fontWeight="bold"
-            fontSize="md"
-          >
-            B
-          </Button>
+          <Logo size="md" showHeading={false} onClick={() => navigate(ROUTES.HOME)} />
         </Flex>
       </Box>
 

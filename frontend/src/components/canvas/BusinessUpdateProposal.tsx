@@ -48,9 +48,6 @@ export function BusinessUpdateProposal({
     <VStack spacing={6} align="stretch">
       {showProfile && (
         <VStack spacing={3} align="stretch">
-          <Heading size="xs" color="text.secondary">
-            Business Profile
-          </Heading>
           <BusinessProfileFields
             values={{
               name: values.name,
@@ -97,9 +94,6 @@ export function BusinessUpdateProposal({
 
       {showWorkingHours && (
         <VStack spacing={3} align="stretch">
-          <Heading size="xs" color="text.secondary">
-            Working Hours
-          </Heading>
           <WorkingHoursEditor
             value={workingHours}
             onChange={setWorkingHours}

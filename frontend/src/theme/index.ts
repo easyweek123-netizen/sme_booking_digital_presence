@@ -716,6 +716,7 @@ const styles = {
       bg: 'surface.page',
       color: 'text.primary',
       fontFeatureSettings: '"cv11", "ss01"', // Geist stylistic sets
+      fontSize: '16px',
     },
     '*:focus': { outline: 'none' },
     '*:focus-visible': { outline: 'none', boxShadow: 'outline' },
@@ -740,7 +741,7 @@ export const theme = extendTheme({
   radii,
   shadows,
   space,
-  sizes,
+  // sizes,
   semanticTokens,
   components,
   styles,

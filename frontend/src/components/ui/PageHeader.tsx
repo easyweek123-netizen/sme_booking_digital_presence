@@ -13,7 +13,7 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions, backHref, children }: PageHeaderProps) {
   return (
-    <Box as="header" mb={{ base: 6, md: 8 }}>
+    <Box as="header" mb={{ base: 4 }}>
       <Flex align="center" justify="space-between" gap={4} flexWrap="wrap">
         <VStack align="start" spacing={1}>
           {backHref && (

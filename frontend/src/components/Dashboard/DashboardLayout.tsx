@@ -41,12 +41,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         transition="margin-left 200ms ease"
       >
         {/* Mobile Navigation — always mounted on mobile via CSS so Drawer state survives breakpoint rerenders */}
-        <Box display={{ base: 'block', md: 'none' }}>
+        <Box display={{ base: 'block', lg: 'none' }}>
           <MobileNav businessName={business?.name} />
         </Box>
 
         {/* Page content - fills remaining space */}
-        <Box flex={1} position="relative" p={{ base: 4, md: 6, lg: 8 }}>
+        <Box flex={1} position="relative" px={{ base: 4, md: 6, lg: 8 }} 
+          py={{ base: 4 }}>
           {children}
         </Box>
       </Flex>

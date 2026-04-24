@@ -49,14 +49,14 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
   };
 
   return (
-    <div>
-      <Box
-        bg="surface.card"
-        border="1px"
-        borderColor="border.subtle"
-        borderRadius="xl"
-        p={4}
-      >
+    <Box
+      bg="surface.card"
+      borderWidth={1}
+      borderStyle="solid"
+      borderColor="border.subtle"
+      borderRadius="xl"
+      p={4}
+    >
         <Flex gap={4} align="flex-start">
           <Tooltip label="Click to open QR code" placement="top" hasArrow>
             <Box
@@ -128,17 +128,16 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
             </HStack>
           </Box>
         </Flex>
-      </Box>
 
-      {/* {isOpen && (
-        <BookingQRModal
-          isOpen
-          onClose={onClose}
-          bookingUrl={bookingUrl}
-          displayUrl={displayUrl}
-          slug={slug}
-        />
-      )} */}
-    </div>
+        {/* {isOpen && (
+          <BookingQRModal
+            isOpen
+            onClose={onClose}
+            bookingUrl={bookingUrl}
+            displayUrl={displayUrl}
+            slug={slug}
+          />
+        )} */}
+    </Box>
   );
 }

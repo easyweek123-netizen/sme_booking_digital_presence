@@ -95,10 +95,9 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
     >
       {/* Header: Logo + Toggle */}
       <Flex
-        p={isCollapsed ? 3 : 4}
+        p={3}
         align="center"
         justify={isCollapsed ? 'center' : 'space-between'}
-        minH="64px"
       >
         {isCollapsed ? (
           <Tooltip
@@ -118,8 +117,7 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
               onClick={toggle}
               variant="ghost"
               size="md"
-              w="40px"
-              h="40px"
+              h="36px"
               borderRadius="lg"
               color="text.muted"
               bg="surface.muted"

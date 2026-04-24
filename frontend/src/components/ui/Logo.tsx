@@ -9,6 +9,7 @@ interface LogoProps {
   showTagline?: boolean;
   iconOnly?: boolean;
   onClick?: () => void;
+  showHeading?: boolean;
 }
 
 const sizeConfig = {
@@ -48,6 +49,7 @@ export function Logo({
   size = 'md',
   colorScheme = 'light',
   onClick,
+  showHeading = true,
 }: LogoProps) {
   const sizeStyles = sizeConfig[size];
   const colorStyles = colorConfig[colorScheme];
@@ -81,13 +83,13 @@ export function Logo({
       role={isClickable ? 'group' : undefined}
     >
       {logoBox}
-      <Heading
+      {showHeading && <Heading
         size={sizeStyles.headingSize}
         color={colorStyles.text}
         fontWeight="700"
       >
         BookEasy
-      </Heading>
+      </Heading>}
     </HStack>
   );
 }

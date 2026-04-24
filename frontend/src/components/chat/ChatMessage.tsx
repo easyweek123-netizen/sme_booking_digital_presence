@@ -58,7 +58,7 @@ export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
             {message.content}
           </ReactMarkdown>
         ) : (
-          <Text color="surface.card" lineHeight="tall" whiteSpace="pre-wrap">
+          <Text color="surface.card" fontSize="sm">
             {message.content}
           </Text>
         )}

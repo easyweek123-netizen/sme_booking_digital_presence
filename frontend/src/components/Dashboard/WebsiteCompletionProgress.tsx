@@ -158,38 +158,6 @@ export function WebsiteCompletionProgress(
 
   return (
     <VStack align="stretch" spacing={4}>
-      <Box>
-        <Heading size="sm" color="text.heading" mb={1}>
-          Website progress
-        </Heading>
-        <Flex
-          justify="space-between"
-          align="center"
-          wrap="wrap"
-          gap={2}
-        >
-          <Text fontSize="sm" color="text.muted">
-            {completed} of {TOTAL_ITEMS} complete
-          </Text>
-          {allComplete && bookingUrl && (
-            <Link
-              href={bookingUrl}
-              isExternal
-              fontSize="sm"
-              fontWeight="600"
-              color="accent.hover"
-              display="inline-flex"
-              alignItems="center"
-              gap={1}
-              onClick={(e) => e.stopPropagation()}
-            >
-              Preview website
-              <ExternalLinkIcon size={16} />
-            </Link>
-          )}
-        </Flex>
-      </Box>
-
       <MotionBox
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -198,8 +166,39 @@ export function WebsiteCompletionProgress(
         borderRadius="md"
         border="1px"
         borderColor="border.subtle"
-        p={6}
+        p={4}
       >
+        <Box>
+          <Heading size="sm" color="text.heading" mb={1}>
+            Completion Progress
+          </Heading>
+          <Flex
+            justify="space-between"
+            align="center"
+            wrap="wrap"
+            gap={2}
+          >
+            <Text fontSize="sm" color="text.muted">
+              {completed} of {TOTAL_ITEMS} complete
+            </Text>
+            {allComplete && bookingUrl && (
+              <Link
+                href={bookingUrl}
+                isExternal
+                fontSize="sm"
+                fontWeight="600"
+                color="accent.hover"
+                display="inline-flex"
+                alignItems="center"
+                gap={1}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Preview website
+                <ExternalLinkIcon size={16} />
+              </Link>
+            )}
+          </Flex>
+        </Box>
         <VStack align="stretch" spacing={4}>
           <Flex align="center" gap={2}>
             <Box flex={1} minW={0}>

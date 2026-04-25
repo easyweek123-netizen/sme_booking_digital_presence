@@ -1,7 +1,5 @@
 import { Flex, Box, VStack, HStack, Spinner, Text, Container } from '@chakra-ui/react';
-import { SplitLayout } from '../Layout';
 import { AllMessages, ChatInput, TypingIndicator } from '../chat';
-import { OnboardingSteps } from './OnboardingSteps';
 import { GoogleButton } from '../../lib/auth';
 import type { Message } from '../../types/chat.types';
 import type { Step } from './onboardingReducer';
@@ -25,7 +23,6 @@ interface ConversationalOnboardingProps {
 
 export function ConversationalOnboarding({
   messages,
-  currentStep,
   onboardingComplete,
   isTyping,
   placeholder,
@@ -36,8 +33,6 @@ export function ConversationalOnboarding({
   isError,
   handleAuthError,
 }: ConversationalOnboardingProps) {
-  // Step indicator: 0=name, 1=category, 2=complete/auth
-  const stepIndex = currentStep ? (currentStep.id === 'name' ? 0 : 1) : 2;
   return (
     <Flex direction="column" minH="100vh" bg="surface.page">
 
@@ -89,7 +84,7 @@ export function ConversationalOnboarding({
         </Box>
       </Container>
     </Flex>
-  )
+  );
   // return (
   //   <SplitLayout leftPanel={<OnboardingSteps currentStep={stepIndex} />}>
   //     <Flex direction="column" w="full" maxW="lg" h="full" py={8}>

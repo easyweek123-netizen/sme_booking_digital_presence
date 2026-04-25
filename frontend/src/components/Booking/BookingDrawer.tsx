@@ -255,6 +255,7 @@ export function BookingDrawer({ isOpen, onClose, service, business }: BookingDra
                           onVerified={handleVerified}
                           onError={handleVerificationError}
                           businessName={business.name}
+                          isPreview={false}
                         />
 
                         {isCreating && (

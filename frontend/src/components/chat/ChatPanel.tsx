@@ -20,7 +20,7 @@ import type { Message } from '../../types/chat.types';
  * Chat panel for CanvasChat layout.
  * Dispatches proposals to canvas slice when AI returns action proposals.
  */
-export function ChatPanel() {
+export function ChatPanel({ isActive = false }: { isActive: boolean }) {
   const dispatch = useAppDispatch();
   const { messages, initialized } = useAppSelector((state) => state.chat);
   const business = useBusiness();
@@ -47,8 +47,9 @@ export function ChatPanel() {
 
   // Scroll to bottom when messages change
   useEffect(() => {
+    console.log('isActive', isActive);
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isSending]);
+  }, [messages.length, isSending, isActive]);
 
   const handleSubmit = async (text: string) => {
     const userMessage: Message = { role: 'user', content: text };

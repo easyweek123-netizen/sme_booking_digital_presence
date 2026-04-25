@@ -21,11 +21,8 @@ export function CanvasChat() {
   if (!isDesktop) {
     return (
       <Box
-        position="fixed"
-        top="60px"
-        left={0}
-        right={0}
-        bottom={0}
+        h="100%" 
+        w="100%"
         bg="surface.card"
       >
         <MobileChatTabs />
@@ -45,7 +42,7 @@ export function CanvasChat() {
           style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
           <Box h="full" bg="surface.card" overflow="hidden">
-            <ChatPanel />
+            <ChatPanel isActive={true} />
           </Box>
         </Panel>
 

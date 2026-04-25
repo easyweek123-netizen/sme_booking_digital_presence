@@ -11,6 +11,7 @@ import { useAppSelector } from '../../store/hooks';
 import { ChatPanel } from './ChatPanel';
 import { CanvasPanel } from '../canvas/CanvasPanel';
 import { MessageSquareIcon, SparkleIcon } from '../icons';
+import { useState } from 'react';
 
 /**
  * Mobile layout for CanvasChat.
@@ -18,7 +19,8 @@ import { MessageSquareIcon, SparkleIcon } from '../icons';
  */
 export function MobileChatTabs() {
   const { proposals } = useAppSelector((state) => state.canvas);
-
+  const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
+  
   return (
     <Flex direction="column" h="100%" w="100%">
       <Tabs
@@ -28,11 +30,14 @@ export function MobileChatTabs() {
         minH={0}
         display="flex"
         flexDirection="column"
+        onChange={(index) => {
+          setActiveTabIndex(index);
+        }}
       >
         {/* Tab panels - main content */}
         <TabPanels flex={1} minH={0} overflow="hidden">
           <TabPanel p={0} h="100%">
-            <ChatPanel />
+            <ChatPanel isActive={activeTabIndex === 0}/>
           </TabPanel>
           <TabPanel p={0} h="100%">
             <CanvasPanel />

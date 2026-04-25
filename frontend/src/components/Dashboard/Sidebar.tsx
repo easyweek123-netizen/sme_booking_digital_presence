@@ -60,8 +60,8 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
   const pendingCount = pendingData?.count || 0;
 
   const handleNavigate = (path: string) => {
-    navigate(path);
     onClose?.();
+    navigate(path);
   };
 
   const handleLogout = () => {

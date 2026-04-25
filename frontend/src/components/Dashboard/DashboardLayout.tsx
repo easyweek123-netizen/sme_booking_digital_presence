@@ -16,7 +16,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
 
   return (
-    <Flex minH="100vh" bg="surface.page">
+    <Flex h="100dvh" bg="surface.page" overflow="hidden">
       {/* Desktop Sidebar - Fixed */}
       <Box
         display={{ base: 'none', lg: 'block' }}
@@ -37,17 +37,20 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         direction="column"
         flex={1}
         ml={{ base: 0, lg: sidebarWidth }}
-        minH="100vh"
+        h="100dvh"
         transition="margin-left 200ms ease"
       >
         {/* Mobile Navigation — always mounted on mobile via CSS so Drawer state survives breakpoint rerenders */}
-        <Box display={{ base: 'block', lg: 'none' }}>
+        <Box position="relative" display={{ base: 'block', lg: 'none' }}>
           <MobileNav businessName={business?.name} />
         </Box>
 
         {/* Page content - fills remaining space */}
-        <Box flex={1} position="relative" px={{ base: 4, md: 6, lg: 8 }} 
-          py={{ base: 4 }}>
+        <Box
+          flex={1}
+          position="relative"
+          overflow="hidden"
+        >
           {children}
         </Box>
       </Flex>

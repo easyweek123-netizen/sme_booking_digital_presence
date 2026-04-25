@@ -226,7 +226,6 @@ export function Header() {
       <Drawer isOpen={isOpen} placement="right" onClose={onClose} size="xs">
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
         <DrawerContent bg="surface.card" maxW="300px">
-          {/* Custom Close Button */}
           <Box position="absolute" top={4} right={4} zIndex={1}>
             <IconButton
               aria-label="Close menu"

@@ -52,7 +52,7 @@ export function CanvasPreview({ children }: CanvasPreviewProps) {
       h="full"
       overflow="auto"
       bg="surface.alt"
-      p={4}
+      px={4}
     >
       {childWithProps}
     </Box>

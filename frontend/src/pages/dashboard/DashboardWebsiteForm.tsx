@@ -14,6 +14,7 @@ import {
   TabPanel,
   Tab,
   Badge,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useUpdateBusinessMutation } from '../../store/api/businessApi';
 import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
@@ -107,10 +108,14 @@ function filled(v?: string | null): boolean {
 
 interface DashboardWebsiteFormProps {
   business: BusinessWithServices;
+  /** When provided (canvas preview), layout follows panel width; otherwise uses `lg` viewport breakpoint. */
+  isDesktop?: boolean;
 }
 
-export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
+export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFormProps) {
   const toast = useToast();
+  const viewportLgUp = useBreakpointValue({ base: false, lg: true }, { ssr: false }) ?? false;
+  const desktopLayout = typeof isDesktop === 'boolean' ? isDesktop : viewportLgUp;
   const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
 
   const [activeTab, setActiveTab] = useState<TabKey>('profile');
@@ -192,9 +197,6 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
     setActiveTab(TABS[index]?.key ?? 'profile');
   };
 
-  const unsavedLabel =
-    dirtyCount === 1 ? '1 unsaved change' : `${dirtyCount} unsaved changes`;
-
   const sectionCardProps = {
     bg: 'surface.card' as const,
     borderRadius: 'xl' as const,
@@ -245,8 +247,8 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
       </Box>
 
       <Tabs
-        variant="soft-rounded"
-        colorScheme="brand"
+        variant="enclosed"
+        borderColor="border.strong"
         index={tabIndex}
         onChange={handleTabsChange}
       >
@@ -291,8 +293,12 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
           })}
         </TabList>
         
-        <SimpleGrid columns={{ base: 1, lg: 12 }} spacing={{ base: 4 }} alignItems="start">
-          <GridItem colSpan={{ base: 1, lg: 8 }}>
+        <SimpleGrid
+          columns={desktopLayout ? 12 : 1}
+          spacing={{ base: 4 }}
+          alignItems="start"
+        >
+          <GridItem colSpan={desktopLayout ? 8 : 12}>
             <TabPanels>
               <TabPanel px={0}>
                 <Box
@@ -360,12 +366,12 @@ export function DashboardWebsiteForm({ business }: DashboardWebsiteFormProps) {
               </TabPanel>
             </TabPanels>
           </GridItem>
-          <GridItem colSpan={{ base: 1, lg: 4 }}>
+          <GridItem colSpan={desktopLayout ? 4 : 12}>
             <VStack
               spacing="space.stack.lg"
               align="stretch"
-              position={{ lg: 'sticky' }}
-              top="space.stack.lg"
+              position={desktopLayout ? 'sticky' : 'static'}
+              top={desktopLayout ? 'space.stack.lg' : undefined}
               py={4}
             >
               <BookingLinkCard slug={business.slug} />

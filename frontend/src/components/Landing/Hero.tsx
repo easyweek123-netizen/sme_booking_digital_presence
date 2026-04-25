@@ -11,9 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircleIcon } from '../icons';
+import demoBookingPage from '@/assets/images/hero/hero-demo-booking-page.png';
+import demoBookingPageTime from '@/assets/images/hero/hero-demo-booking-page-time.png';
 import { ROUTES } from '../../config/routes';
 import { useAppSelector } from '../../store/hooks';
+import { HeroCarousel } from './HeroCarousel';
 
 const MotionBox = motion.create(Box);
 
@@ -101,7 +103,7 @@ export function Hero() {
   };
 
   return (
-    <Box bg="surface.page" py={{ base: 10, lg: 28 }} overflow="hidden">
+    <Box bg="surface.page" py={{ base: 10, lg: 16 }} overflow="hidden">
       <Container maxW="container.xl">
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
@@ -176,8 +178,8 @@ export function Hero() {
             />
             <Box position="relative" zIndex={1}>
               <BrowserFrame>
-                <Image
-                  src="/demo-booking-page.png"
+                {/* <Image
+                  src={demoBookingPage}
                   alt="BookEasy booking page preview showing services, time slots and customer booking flow"
                   w="100%"
                   display="block"
@@ -188,7 +190,11 @@ export function Hero() {
                       </Text>
                     </Box>
                   }
-                />
+                /> */}
+                <HeroCarousel slides={[
+                  {src: demoBookingPage, alt: 'BookEasy booking page preview'},
+                  {src: demoBookingPageTime, alt: 'BookEasy booking page time selection'},
+                ]} />
               </BrowserFrame>
             </Box>
           </MotionBox>

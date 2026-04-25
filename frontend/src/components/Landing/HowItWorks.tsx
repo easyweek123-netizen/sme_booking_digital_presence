@@ -22,26 +22,26 @@ interface Step {
 const steps: Step[] = [
   {
     id: 1,
-    title: 'Add Business Info',
-    description: 'Enter your name, hours, and location',
+    title: 'Signup',
+    description: 'Tell us briefly about your business name and create an account',
     color: 'accent.primary',
   },
   {
     id: 2,
-    title: 'Add Services',
-    description: 'Set your services, prices, and durations',
+    title: 'Setup',
+    description: 'Chat with AI to setup your services, pricing and business profile',
     color: 'accent.primary',
   },
   {
     id: 3,
-    title: 'Create Account',
-    description: 'Sign up with Google to save your page',
+    title: 'Share',
+    description: 'Share your booking website with your customers',
     color: 'accent.primary',
   },
   {
     id: 4,
-    title: 'Share & Grow',
-    description: 'Get your link and start accepting bookings',
+    title: 'Get Bookings',
+    description: 'Chat with AI to learn who is booking and when, and get notified',
     color: 'accent.primary',
   },
 ];
@@ -175,7 +175,7 @@ export function HowItWorks() {
                 {index < steps.length - 1 && (
                   <>
                     <HStack justify="center" display={{ base: 'none', md: 'flex' }}>
-                      <ConnectorLine />
+                      {/* <ConnectorLine /> */}
                     </HStack>
                     <MobileConnector />
                   </>

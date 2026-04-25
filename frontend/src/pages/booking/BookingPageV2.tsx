@@ -8,48 +8,86 @@ import {
   Center,
   Alert,
   AlertIcon,
-  useDisclosure,
   Link,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
-import { useState, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
+import type { CSSProperties } from 'react';
 import { useGetBusinessBySlugQuery } from '../../store/api/businessApi';
-import { BookingDrawer } from '../../components/Booking';
-import {
-  HeroSection,
-  ServicesSection,
-  AboutSection,
-  ContactSection,
-  BookingStatusSection,
-  FloatingNav,
-} from './components';
-import type { Service, BusinessWithServices } from '../../types';
+import { BookingHeader, BookingWizard, BusinessInfoFooter } from './components';
+import type { BusinessWithServices } from '../../types';
 import { generateBrandColorCss, isValidHexColor } from '../../utils/brandColor';
+import { MobileBookingFooter } from './components/wizard/MobileBookingFooter';
+import { useBookingWizard } from './components/wizard/useBookingWizard';
 
 interface BookingPageV2Props {
   /** Optional business data — if provided, skips slug lookup */
   business?: BusinessWithServices | null;
-  /** Preview mode — disables booking drawer */
+  /** Preview mode — hides public header/footer; wizard still renders */
   isPreview?: boolean;
+  /** Set by canvas preview (`CanvasPreview`); when set, layout follows preview width instead of viewport. */
+  isDesktop?: boolean;
+}
+
+function BookingPageContent({
+  business,
+  isPreview,
+  brandColorStyles,
+  isDesktop,
+}: {
+  business: BusinessWithServices;
+  isPreview: boolean;
+  brandColorStyles: CSSProperties;
+  isDesktop?: boolean;
+}) {
+  const wizard = useBookingWizard(business);
+  const viewportLgUp = useBreakpointValue({ base: false, lg: true }, { ssr: false }) ?? false;
+  const desktopLayout = typeof isDesktop === 'boolean' ? isDesktop : viewportLgUp;
+
+  return (
+    <Box minH={isPreview ? 'auto' : '100vh'} bg="surface.page" style={brandColorStyles}>
+      {!isPreview && <BookingHeader business={business} />}
+      <BookingWizard business={business} wizard={wizard} desktopLayout={desktopLayout} />
+
+      <BusinessInfoFooter business={business} desktopLayout={desktopLayout} />
+
+      {!isPreview && (
+        <Box py={6} textAlign="center" borderTop="1px" borderColor="border.subtle">
+          <Text fontSize="xs" color="text.faint">
+            Powered by{' '}
+            <Link href="/" fontWeight="600" color="text.faint" _hover={{ color: 'accent.primary' }}>
+              BookEasy
+            </Link>
+          </Text>
+        </Box>
+      )}
+
+      {wizard.selectedService && !desktopLayout && (
+        <MobileBookingFooter
+          selectedService={wizard.selectedService}
+          canContinue={wizard.canContinue}
+          onContinue={wizard.handleContinue}
+          label={wizard.continueLabel}
+        />
+      )}
+    </Box>
+  );
 }
 
 export function BookingPageV2({
   business: businessProp,
   isPreview = false,
+  isDesktop,
 }: BookingPageV2Props) {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data: fetchedBusiness, isLoading, error } = useGetBusinessBySlugQuery(
-    slug || '',
-    { skip: !!businessProp },
-  );
+  const { data: fetchedBusiness, isLoading, error } = useGetBusinessBySlugQuery(slug || '', {
+    skip: !!businessProp,
+  });
 
   const business = businessProp ?? fetchedBusiness;
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const { isOpen: isDrawerOpen, onOpen: openDrawer, onClose: closeDrawer } = useDisclosure();
-  const servicesRef = useRef<HTMLDivElement>(null);
 
-  // Brand color CSS variables
   const brandColor = business?.brandColor;
   const brandColorStyles = useMemo(() => {
     if (brandColor && isValidHexColor(brandColor)) {
@@ -58,41 +96,21 @@ export function BookingPageV2({
     return {};
   }, [brandColor]);
 
-  const handleBookService = (service: Service) => {
-    if (isPreview) return;
-    setSelectedService(service);
-    openDrawer();
-  };
-
-  const handleDrawerClose = () => {
-    closeDrawer();
-    setSelectedService(null);
-  };
-
-  const scrollToServices = () => {
-    const el = document.getElementById('services');
-    if (el) {
-      const offset = 80;
-      const top = el.getBoundingClientRect().top + window.scrollY - offset;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }
-  };
-
-  // Loading state
   if (isLoading && !businessProp) {
     return (
       <Box minH={isPreview ? '200px' : '100vh'} bg="surface.card">
         <Center h={isPreview ? '200px' : '100vh'}>
           <VStack spacing={4}>
             <Spinner size="xl" color="accent.primary" thickness="4px" />
-            <Text color="text.muted" fontSize="sm">Loading...</Text>
+            <Text color="text.muted" fontSize="sm">
+              Loading...
+            </Text>
           </VStack>
         </Center>
       </Box>
     );
   }
 
-  // Error state
   if ((error && !businessProp) || !business) {
     return (
       <Box minH={isPreview ? '200px' : '100vh'} bg="surface.card" py={isPreview ? 4 : 20}>
@@ -122,64 +140,12 @@ export function BookingPageV2({
     );
   }
 
-  const activeServices = business.services?.filter((s) => s.isActive) || [];
-
-  // Build nav items from available sections
-  const navItems = [
-    { id: 'services', label: 'Services' },
-    ...(business.aboutContent ? [{ id: 'about', label: 'About' }] : []),
-    ...(business.phone || business.address || business.workingHours
-      ? [{ id: 'contact', label: 'Contact' }]
-      : []),
-  ];
-
   return (
-    <Box minH={isPreview ? 'auto' : '100vh'} bg="surface.card" style={brandColorStyles}>
-      {/* Floating Navigation */}
-      {!isPreview && <FloatingNav items={navItems} />}
-
-      {/* Hero */}
-      <HeroSection business={business} onBookNow={scrollToServices} />
-
-      {/* Services */}
-      <Box ref={servicesRef}>
-        <ServicesSection
-          services={activeServices}
-          brandColor={business.brandColor}
-          onBookService={handleBookService}
-        />
-      </Box>
-
-      {/* About */}
-      <AboutSection content={business.aboutContent} brandColor={business.brandColor} />
-
-      {/* Contact & Hours */}
-      <ContactSection business={business} />
-
-      {/* Booking Status */}
-      <BookingStatusSection />
-
-      {/* Footer */}
-      {!isPreview && (
-        <Box py={6} textAlign="center" borderTop="1px" borderColor="border.subtle">
-          <Text fontSize="xs" color="text.faint">
-            Powered by{' '}
-            <Link href="/" fontWeight="600" color="text.faint" _hover={{ color: 'accent.primary' }}>
-              BookEasy
-            </Link>
-          </Text>
-        </Box>
-      )}
-
-      {/* Booking Drawer — reused as-is */}
-      {!isPreview && selectedService && business && (
-        <BookingDrawer
-          isOpen={isDrawerOpen}
-          onClose={handleDrawerClose}
-          service={selectedService}
-          business={business}
-        />
-      )}
-    </Box>
+    <BookingPageContent
+      business={business}
+      isPreview={isPreview}
+      brandColorStyles={brandColorStyles}
+      isDesktop={isDesktop}
+    />
   );
 }

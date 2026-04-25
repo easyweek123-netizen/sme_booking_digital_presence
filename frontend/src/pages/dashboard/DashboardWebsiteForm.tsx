@@ -233,7 +233,6 @@ export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFo
       <Box
         position="sticky"
         top={0}
-        zIndex={1}
         bg="surface.page"
         mb={{ base: 4, md: 6 }}
         borderBottom="1px solid"

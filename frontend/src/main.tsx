@@ -25,10 +25,10 @@ import { PersistLoader } from './components/PersistLoader';
 import App from './App';
 
 import './index.css';
-// import { StrictMode } from 'react';
+import { StrictMode } from 'react';
 
 createRoot(document.getElementById('root')!).render(
-  // <StrictMode>
+  <StrictMode>
     <ErrorBoundary>
       <Provider store={store}>
         <PersistGate loading={<PersistLoader />} persistor={persistor}>
@@ -43,5 +43,5 @@ createRoot(document.getElementById('root')!).render(
         </PersistGate>
       </Provider>
     </ErrorBoundary>
-  // </StrictMode>,
+  </StrictMode>,
 );

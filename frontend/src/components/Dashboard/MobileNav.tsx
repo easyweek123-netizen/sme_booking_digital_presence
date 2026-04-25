@@ -36,11 +36,11 @@ export function MobileNav({ businessName }: MobileNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const pageTitle = getPageTitle(location.pathname);
+
   return (
     <>
       <Box
-        position="sticky"
-        top={0}
+        position="relative"
         bg="surface.card"
         borderBottom="1px"
         borderColor="border.subtle"
@@ -54,9 +54,6 @@ export function MobileNav({ businessName }: MobileNavProps) {
             size="md"
             onClick={onOpen}
             color="text.secondary"
-            borderRadius="sm"
-            _hover={{ bg: 'surface.alt' }}
-            zIndex={3}
           />
 
           <Box textAlign="center">
@@ -73,7 +70,9 @@ export function MobileNav({ businessName }: MobileNavProps) {
         </Flex>
       </Box>
 
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+      <Drawer id="mobile-nav-drawer" isOpen={isOpen} placement="left" onClose={onClose}
+        // @ts-expect-error Chakra v2 omits motionPreset from DrawerProps but Modal forwards it at runtime.
+        motionPreset={'none'}>
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
         <DrawerContent maxW="240px" bg="surface.card">
           <DrawerBody p={0}>

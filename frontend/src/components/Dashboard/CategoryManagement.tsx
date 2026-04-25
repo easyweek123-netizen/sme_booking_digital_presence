@@ -126,16 +126,16 @@ export function CategoryManagement({ businessId }: CategoryManagementProps) {
 
   if (isLoading) {
     return (
-      <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" p={4}>
+      <Box bg="surface.card" borderRadius="xl" border="1px" borderColor="border.subtle" p={4}>
         <Flex justify="center" py={4}>
-          <Spinner size="sm" color="brand.500" />
+          <Spinner size="sm" color="accent.primary" />
         </Flex>
       </Box>
     );
   }
 
   return (
-    <Box bg="white" borderRadius="xl" border="1px" borderColor="gray.100" overflow="hidden">
+    <Box bg="surface.card" borderRadius="xl" border="1px" borderColor="border.subtle" overflow="hidden">
       {/* Header - Collapsible Toggle */}
       <Button
         variant="ghost"
@@ -144,25 +144,25 @@ export function CategoryManagement({ businessId }: CategoryManagementProps) {
         px={5}
         py={4}
         h="auto"
-        borderRadius={0}
+        borderRadius="none"
         onClick={() => setIsExpanded(!isExpanded)}
-        _hover={{ bg: 'gray.50' }}
+        _hover={{ bg: 'surface.alt' }}
       >
         <HStack spacing={3}>
-          <Box color="brand.500">
+          <Box color="accent.primary">
             <TagIcon size={18} />
           </Box>
-          <Text fontWeight="600" color="gray.800">
+          <Text fontWeight="600" color="text.primary">
             Service Categories
           </Text>
-          <Text fontSize="sm" color="gray.400">
+          <Text fontSize="sm" color="text.faint">
             ({categories.length})
           </Text>
         </HStack>
         <Box
           transform={isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'}
           transition="transform 0.2s"
-          color="gray.400"
+          color="text.faint"
         >
           <ChevronDownIcon size={20} />
         </Box>
@@ -170,7 +170,7 @@ export function CategoryManagement({ businessId }: CategoryManagementProps) {
 
       {/* Expanded Content */}
       <Collapse in={isExpanded}>
-        <Box px={5} pb={4} borderTop="1px" borderColor="gray.100">
+        <Box px={5} pb={4} borderTop="1px" borderColor="border.subtle">
           <VStack spacing={2} align="stretch" mt={3}>
             <AnimatePresence mode="popLayout">
               {categories.map((category) => (
@@ -217,12 +217,12 @@ export function CategoryManagement({ businessId }: CategoryManagementProps) {
                       justify="space-between"
                       py={2}
                       px={3}
-                      bg="gray.50"
+                      bg="surface.alt"
                       borderRadius="md"
-                      _hover={{ bg: 'gray.100' }}
+                      _hover={{ bg: 'surface.page' }}
                       transition="background 0.2s"
                     >
-                      <Text fontSize="sm" color="gray.700">
+                      <Text fontSize="sm" color="text.strong">
                         {category.name}
                       </Text>
                       <HStack spacing={0}>

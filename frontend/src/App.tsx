@@ -20,7 +20,7 @@ const Impressum = lazy(() => import('./pages/legal').then(m => ({ default: m.Imp
 function PageLoader() {
   return (
     <Center h="100vh">
-      <Spinner size="xl" color="brand.500" thickness="4px" />
+      <Spinner size="xl" color="accent.primary" thickness="4px" />
     </Center>
   );
 }

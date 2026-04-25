@@ -13,12 +13,14 @@ interface BookerVerificationProps {
   onVerified: (user: User, name: string) => void;
   onError?: (error: Error) => void;
   businessName: string;
+  isPreview: boolean;
 }
 
 export function BookerVerification({
   onVerified,
   onError,
   businessName,
+  isPreview,
 }: BookerVerificationProps) {
   const [name, setName] = useState('');
 
@@ -31,16 +33,16 @@ export function BookerVerification({
   return (
     <VStack spacing={6} w="full" p={4}>
       <VStack spacing={1} textAlign="center">
-        <Text fontSize="lg" fontWeight="600" color="gray.900">
+        <Text fontSize="lg" fontWeight="600" color="text.heading">
           Complete your booking
         </Text>
-        <Text color="gray.600" fontSize="sm">
+        <Text color="text.secondary" fontSize="sm">
           at {businessName}
         </Text>
       </VStack>
 
       <FormControl>
-        <FormLabel color="gray.700" fontSize="sm">
+        <FormLabel color="text.strong" fontSize="sm">
           Your name (optional)
         </FormLabel>
         <Input
@@ -48,7 +50,7 @@ export function BookerVerification({
           onChange={(e) => setName(e.target.value)}
           placeholder="John Smith"
           size="lg"
-          borderRadius="lg"
+          borderRadius="sm"
           _focus={{
             borderColor: 'brand.500',
             boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
@@ -56,17 +58,19 @@ export function BookerVerification({
         />
       </FormControl>
 
-      <VStack spacing={3} w="full">
+      {!isPreview ? <VStack spacing={3} w="full">
         <GoogleButton
           onSuccess={handleGoogleSuccess}
           onError={onError}
           text="Continue with Google"
-        />
+        /> 
 
-        <Text color="gray.500" fontSize="xs" textAlign="center" pt={2}>
+        <Text color="text.muted" fontSize="xs" textAlign="center" pt={2}>
           Sign in to complete your booking
         </Text>
-      </VStack>
+      </VStack> : <Text color="text.muted" fontSize="xs" textAlign="center" pt={2}>
+          Customer Login
+        </Text>}
     </VStack>
   );
 }

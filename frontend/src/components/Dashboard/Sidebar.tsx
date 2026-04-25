@@ -1,4 +1,4 @@
-import { Box, VStack, Text, Flex, Divider, Badge, Tooltip, IconButton } from '@chakra-ui/react';
+import { Box, VStack, Text, Flex, Divider, Badge, Tooltip, IconButton, Button } from '@chakra-ui/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import {
@@ -16,44 +16,44 @@ import {
 import { ROUTES } from '../../config/routes';
 import { useAppDispatch } from '../../store/hooks';
 import { resetStore } from '../../store/actions';
-import { useGetMyBusinessQuery } from '../../store/api/businessApi';
+import { useBusinessOptional } from '../../contexts/useBusiness';
 import { useGetPendingCountQuery } from '../../store/api/bookingsApi';
 import { useSidebarCollapsed } from '../../hooks';
-
-// Sidebar width constants
-const SIDEBAR_EXPANDED_WIDTH = '240px';
-const SIDEBAR_COLLAPSED_WIDTH = '68px';
+import { SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './constants';
 
 interface NavItem {
   label: string;
   icon: React.ReactNode;
   path: string;
   badgeKey?: 'pending';
-  tourId?: string;
 }
 
 const navItems: NavItem[] = [
   // { label: 'AI Chat', icon: <MessageSquareIcon size={20} />, path: ROUTES.DASHBOARD.CHAT },
   { label: 'AI Canvas', icon: <SparkleIcon size={20} />, path: ROUTES.DASHBOARD.CANVAS },
   { label: 'Overview', icon: <HomeIcon size={20} />, path: ROUTES.DASHBOARD.ROOT },
-  { label: 'Bookings', icon: <CalendarIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/bookings`, badgeKey: 'pending', tourId: 'tour-bookings-nav' },
-  { label: 'Clients', icon: <UsersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/clients` },
-  { label: 'Services', icon: <LayersIcon size={20} />, path: `${ROUTES.DASHBOARD.ROOT}/services`, tourId: 'tour-services-nav' },
-  { label: 'Website', icon: <GlobeIcon size={20} />, path: ROUTES.DASHBOARD.WEBSITE, tourId: 'tour-website-nav' },
+  { label: 'Bookings', icon: <CalendarIcon size={20} />, path: ROUTES.DASHBOARD.BOOKINGS, badgeKey: 'pending' },
+  { label: 'Clients', icon: <UsersIcon size={20} />, path: ROUTES.DASHBOARD.CLIENTS },
+  { label: 'Services', icon: <LayersIcon size={20} />, path: ROUTES.DASHBOARD.SERVICES },
+  { label: 'Website', icon: <GlobeIcon size={20} />, path: ROUTES.DASHBOARD.WEBSITE },
 ];
 
 interface SidebarProps {
   onClose?: () => void;
+  /** When true (MobileNav drawer), use mobile collapse semantics instead of desktop localStorage. */
+  isInDrawer?: boolean;
 }
 
-export function Sidebar({ onClose }: SidebarProps) {
+export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const { isCollapsed, toggle } = useSidebarCollapsed();
 
-  // Get pending count for badge
-  const { data: business } = useGetMyBusinessQuery();
+  const { toggle, isCollapsed } = useSidebarCollapsed({
+    isMobile: !!isInDrawer,
+  });
+
+  const { business } = useBusinessOptional();
   const { data: pendingData } = useGetPendingCountQuery(business?.id || 0, {
     skip: !business?.id,
   });
@@ -86,28 +86,26 @@ export function Sidebar({ onClose }: SidebarProps) {
     <Flex
       direction="column"
       h="full"
-      bg="white"
+      bg="surface.card"
       borderRight="1px"
-      borderColor="gray.100"
+      borderColor="border.subtle"
       w={isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH}
       transition="width 200ms ease"
       overflow="hidden"
     >
       {/* Header: Logo + Toggle */}
       <Flex
-        p={isCollapsed ? 3 : 4}
+        p={3}
         align="center"
         justify={isCollapsed ? 'center' : 'space-between'}
-        minH="64px"
       >
         {isCollapsed ? (
-          // Collapsed: Toggle button only (with logo styling)
           <Tooltip
             label="Expand sidebar"
             placement="right"
             hasArrow
-            bg="gray.800"
-            color="white"
+            bg="surface.inverted"
+            color="text.inverted"
             fontSize="sm"
             borderRadius="md"
             px={3}
@@ -119,17 +117,15 @@ export function Sidebar({ onClose }: SidebarProps) {
               onClick={toggle}
               variant="ghost"
               size="md"
-              w="40px"
-              h="40px"
+              h="36px"
               borderRadius="lg"
-              color="gray.500"
-              bg="gray.50"
-              _hover={{ bg: 'brand.50', color: 'brand.600' }}
+              color="text.muted"
+              bg="surface.muted"
+              _hover={{ bg: 'brand.50', color: 'accent.hover' }}
               transition="all 200ms ease"
             />
           </Tooltip>
         ) : (
-          // Expanded: Logo + Brand name + Toggle button
           <>
             <Flex
               align="center"
@@ -139,32 +135,23 @@ export function Sidebar({ onClose }: SidebarProps) {
               transition="opacity 200ms ease"
             >
               <Logo size="md" iconOnly />
-              <Text
-                ml={3}
-                fontWeight="700"
-                fontSize="md"
-                color="gray.900"
-                whiteSpace="nowrap"
-              >
-                BookEasy
-              </Text>
             </Flex>
             <IconButton
               aria-label="Collapse sidebar"
               icon={<ChevronsLeftIcon size={16} />}
-              onClick={toggle}
+              onClick={() => {toggle(); onClose?.();}}
               variant="ghost"
               size="sm"
               borderRadius="md"
-              color="gray.400"
-              _hover={{ bg: 'gray.100', color: 'gray.600' }}
+              color="text.muted"
+              _hover={{ bg: 'surface.muted', color: 'text.secondary' }}
               transition="all 200ms ease"
             />
           </>
         )}
       </Flex>
 
-      <Divider borderColor="gray.100" />
+      <Divider borderColor="border.subtle" />
 
       {/* Navigation */}
       <VStack spacing={1} align="stretch" flex={1} p={isCollapsed ? 2 : 4}>
@@ -173,31 +160,30 @@ export function Sidebar({ onClose }: SidebarProps) {
           const badgeCount = getBadgeCount(item.badgeKey);
 
           const navButton = (
-            <Box
+            <Button
               key={item.path}
-              data-tour-id={item.tourId}
-              as="button"
-              display="flex"
-              alignItems="center"
-              justifyContent={isCollapsed ? 'center' : 'space-between'}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              variant="ghost"
               w="full"
+              h="auto"
               py={3}
               px={3}
-              borderRadius="xl"
+              borderRadius="md"
               bg={active ? 'brand.50' : 'transparent'}
-              color={active ? 'brand.600' : 'gray.600'}
+              color={active ? 'brand.600' : 'text.secondary'}
               fontWeight={active ? '600' : '500'}
               fontSize="sm"
               transition="all 0.2s"
               _hover={{
-                bg: active ? 'brand.50' : 'gray.50',
-                color: active ? 'brand.600' : 'gray.900',
+                bg: active ? 'brand.50' : 'surface.muted',
+                color: active ? 'brand.600' : 'text.primary',
               }}
               onClick={() => handleNavigate(item.path)}
               position="relative"
+              justifyContent={isCollapsed ? 'center' : 'space-between'}
             >
               {isCollapsed ? (
-                // Collapsed: Icon only with badge overlay
                 <Box position="relative">
                   <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
                   {badgeCount > 0 && (
@@ -205,7 +191,7 @@ export function Sidebar({ onClose }: SidebarProps) {
                       position="absolute"
                       top="-6px"
                       right="-8px"
-                      colorScheme="red"
+                      colorScheme="alert"
                       borderRadius="full"
                       fontSize="2xs"
                       minW="16px"
@@ -219,26 +205,25 @@ export function Sidebar({ onClose }: SidebarProps) {
                   )}
                 </Box>
               ) : (
-                // Expanded: Icon + label + badge
                 <>
-              <Flex align="center" gap={3}>
-                <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
+                  <Flex align="center" gap={3}>
+                    <Box opacity={active ? 1 : 0.7}>{item.icon}</Box>
                     <Text whiteSpace="nowrap">{item.label}</Text>
-              </Flex>
-              {badgeCount > 0 && (
-                <Badge
-                  colorScheme="red"
-                  borderRadius="full"
-                  fontSize="xs"
-                  minW="20px"
-                  textAlign="center"
-                >
-                  {badgeCount}
-                </Badge>
+                  </Flex>
+                  {badgeCount > 0 && (
+                    <Badge
+                      colorScheme="alert"
+                      borderRadius="full"
+                      fontSize="xs"
+                      minW="20px"
+                      textAlign="center"
+                    >
+                      {badgeCount}
+                    </Badge>
                   )}
                 </>
               )}
-            </Box>
+            </Button>
           );
 
           // Wrap in Tooltip when collapsed
@@ -248,8 +233,8 @@ export function Sidebar({ onClose }: SidebarProps) {
               label={item.label}
               placement="right"
               hasArrow
-              bg="gray.800"
-              color="white"
+              bg="surface.inverted"
+              color="text.inverted"
               fontSize="sm"
               borderRadius="md"
               px={3}
@@ -264,43 +249,42 @@ export function Sidebar({ onClose }: SidebarProps) {
       </VStack>
 
       {/* Logout */}
-      <Box p={isCollapsed ? 2 : 4} borderTop="1px" borderColor="gray.100">
+      <Box p={isCollapsed ? 2 : 4} borderTop="1px" borderColor="border.subtle">
         <Tooltip
           label="Log out"
           placement="right"
           hasArrow
           isDisabled={!isCollapsed}
-          bg="gray.800"
-          color="white"
+          bg="surface.inverted"
+          color="text.inverted"
           fontSize="sm"
           borderRadius="md"
           px={3}
           py={2}
         >
-        <Box
-          as="button"
-          display="flex"
-          alignItems="center"
+          <Button
+            aria-label="Log out"
+            variant="ghost"
+            w="full"
+            h="auto"
+            py={3}
+            px={3}
+            borderRadius="md"
+            color="text.muted"
+            fontWeight="500"
+            fontSize="sm"
+            transition="all 0.2s"
+            _hover={{ bg: 'alert.50', color: 'alert.500' }}
+            onClick={handleLogout}
             justifyContent={isCollapsed ? 'center' : 'flex-start'}
-          gap={3}
-          w="full"
-          py={3}
-          px={3}
-          borderRadius="xl"
-          color="gray.500"
-          fontWeight="500"
-          fontSize="sm"
-          transition="all 0.2s"
-          _hover={{ bg: 'red.50', color: 'red.500' }}
-          onClick={handleLogout}
-        >
-          <LogOutIcon size={20} />
-            {!isCollapsed && <Text whiteSpace="nowrap">Log out</Text>}
-        </Box>
+          >
+            <Flex align="center" gap={3}>
+              <LogOutIcon size={20} />
+              {!isCollapsed && <Text whiteSpace="nowrap">Log out</Text>}
+            </Flex>
+          </Button>
         </Tooltip>
       </Box>
     </Flex>
   );
 }
-
-export { SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH };

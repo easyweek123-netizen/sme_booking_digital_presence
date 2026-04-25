@@ -6,26 +6,27 @@ import { MobileChatTabs } from '../../components/chat/MobileChatTabs';
 
 /**
  * Canvas Chat page - resizable split layout on desktop, tabbed on mobile.
- * 
+ *
  * Desktop: Chat panel on left, Canvas panel on right with draggable divider
  * Mobile: Bottom tabs to switch between Chat and Canvas
+ *
+ * Only one layout mounts at a time (`useBreakpointValue` branch). Keeping the
+ * desktop tree off mobile avoids react-resizable-panels + duplicate CanvasPanel
+ * previews interfering with Chakra Drawer portals. `MobileNav` stays mounted in
+ * `DashboardLayout`, so branching here does not reset drawer state.
  */
 export function CanvasChat() {
-  const isDesktop = useBreakpointValue({ base: false, lg: true });
+  const isDesktop = useBreakpointValue({ base: false, md: true }, { ssr: false });
 
   if (!isDesktop) {
     return (
-      // Fixed to viewport below the sticky MobileNav (60px).
-      // Escapes DashboardLayout's padded, unbounded parent so the tab footer
-      // stays pinned to the bottom of the screen regardless of content length.
       <Box
         position="fixed"
         top="60px"
         left={0}
         right={0}
         bottom={0}
-        bg="white"
-        zIndex={1}
+        bg="surface.card"
       >
         <MobileChatTabs />
       </Box>
@@ -33,23 +34,21 @@ export function CanvasChat() {
   }
 
   return (
-    <Box position="absolute" inset={0} overflow="hidden" bg="gray.50">
-      <Group 
-        orientation="horizontal" 
+    <Box position="absolute" inset={0} overflow="hidden" bg="surface.alt">
+      <Group
+        orientation="horizontal"
         id="canvas-chat-layout"
         style={{ height: '100%', width: '100%' }}
       >
-        {/* Chat Panel - Left */}
         <Panel
           id="chat-panel"
           style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
-          <Box h="full" bg="white" overflow="hidden">
+          <Box h="full" bg="surface.card" overflow="hidden">
             <ChatPanel />
           </Box>
         </Panel>
 
-        {/* Resize Handle */}
         <Separator id="resize-handle">
           <Box
             w="8px"
@@ -59,7 +58,7 @@ export function CanvasChat() {
             justifyContent="center"
             cursor="col-resize"
             bg="transparent"
-            _hover={{ bg: 'gray.100' }}
+            _hover={{ bg: 'surface.page' }}
             transition="background 0.15s"
           >
             <Box
@@ -82,7 +81,6 @@ export function CanvasChat() {
           </Box>
         </Separator>
 
-        {/* Canvas Panel - Right */}
         <Panel
           id="canvas-panel"
           style={{ display: 'flex', flexDirection: 'column', height: '100%' }}

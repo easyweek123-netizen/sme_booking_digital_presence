@@ -84,10 +84,10 @@ export function ServicesStep() {
       <VStack spacing={5} align="stretch">
         {/* Header */}
         <Box textAlign="center" mb={2}>
-          <Heading size="lg" color="gray.900" mb={2}>
+          <Heading size="lg" color="text.heading" mb={2}>
             Your Services
           </Heading>
-          <Text color="gray.600">
+          <Text color="text.secondary">
             Add services you offer, or skip for now and add them later
           </Text>
         </Box>

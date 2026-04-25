@@ -50,12 +50,12 @@ export function CookieConsent() {
             maxW="container.xl"
             mx="auto"
           >
-            <Text color="gray.300" fontSize="sm" lineHeight="1.6">
+            <Text color="text.inverted" fontSize="sm" lineHeight="1.6">
               We use cookies to keep you signed in. By continuing, you agree to our{' '}
               <Link
                 as={RouterLink}
                 to={ROUTES.PRIVACY}
-                color="brand.500"
+                color="accent.primary"
                 _hover={{ color: 'brand.400' }}
                 transition="color 0.2s"
               >
@@ -65,7 +65,7 @@ export function CookieConsent() {
               <Link
                 as={RouterLink}
                 to={ROUTES.IMPRESSUM}
-                color="brand.500"
+                color="accent.primary"
                 _hover={{ color: 'brand.400' }}
                 transition="color 0.2s"
               >
@@ -77,7 +77,7 @@ export function CookieConsent() {
               <Button
                 size="sm"
                 variant="ghost"
-                color="gray.400"
+                color="text.faint"
                 _hover={{ color: 'white', bg: 'gray.700' }}
                 onClick={handleDecline}
               >

@@ -3,13 +3,16 @@ import {
   Delete,
   Get,
   Param,
+  Query,
   Headers,
   UnauthorizedException,
   NotFoundException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OwnerService } from '../owner/owner.service';
 import { BusinessService } from '../business/business.service';
+import { BookingsService } from '../bookings/bookings.service';
 
 @Controller('admin')
 export class AdminController {
@@ -19,6 +22,7 @@ export class AdminController {
     private readonly configService: ConfigService,
     private readonly ownerService: OwnerService,
     private readonly businessService: BusinessService,
+    private readonly bookingsService: BookingsService,
   ) {
     this.adminSecret = this.configService.get<string>('ADMIN_SECRET') || '';
     if (!this.adminSecret) {
@@ -79,6 +83,20 @@ export class AdminController {
       deletedOwnerId: owner.id,
       deletedBusinessId: business?.id || null,
     };
+  }
+
+  /**
+   * Hard-delete a booking by id. Optional ?reference= must match row (safety).
+   * Usage: curl -X DELETE -H "x-admin-secret: SECRET" "http://localhost:3000/api/admin/bookings/27?reference=BK-NQCG"
+   */
+  @Delete('bookings/:id')
+  async deleteBooking(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('reference') reference: string | undefined,
+    @Headers('x-admin-secret') secret: string,
+  ) {
+    this.checkSecret(secret);
+    return this.bookingsService.removeByIdAdmin(id, reference);
   }
 }
 

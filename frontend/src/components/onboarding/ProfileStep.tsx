@@ -49,11 +49,6 @@ export function ProfileStep() {
   );
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // Sync local color when brandColor changes externally
-  useEffect(() => {
-    setLocalColor(brandColor || DEFAULT_BRAND_COLOR);
-  }, [brandColor]);
-
   const handleColorBlur = () => {
     if (localColor !== (brandColor || DEFAULT_BRAND_COLOR)) {
       setBrandColor(localColor === DEFAULT_BRAND_COLOR ? '' : localColor);
@@ -75,13 +70,6 @@ export function ProfileStep() {
     dispatch(updateBusinessProfile(profile));
   }, [name, phone, description, address, city, logoUrl, brandColor, workingHours, dispatch]);
 
-  // Validate name field
-  useEffect(() => {
-    if (name.trim()) {
-      setErrors((prev) => ({ ...prev, name: undefined }));
-    }
-  }, [name]);
-
   return (
     <MotionBox
       initial={{ opacity: 0, x: 20 }}
@@ -92,10 +80,10 @@ export function ProfileStep() {
       <VStack spacing={5} align="stretch">
         {/* Header */}
         <Box textAlign="center" mb={2}>
-          <Heading size="lg" color="gray.900" mb={2}>
+          <Heading size="lg" color="text.heading" mb={2}>
             Business Profile
           </Heading>
-          <Text color="gray.600">
+          <Text color="text.secondary">
             Tell us about your business
           </Text>
         </Box>
@@ -104,12 +92,18 @@ export function ProfileStep() {
         <VStack spacing={3} align="stretch">
           {/* Business Name */}
           <FormControl isInvalid={!!errors.name} isRequired>
-            <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+            <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
               Business Name
             </FormLabel>
             <Input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setName(val);
+                if (val.trim() && errors.name) {
+                  setErrors((prev) => ({ ...prev, name: undefined }));
+                }
+              }}
               placeholder="e.g., Sarah's Salon"
               size="lg"
               borderRadius="lg"
@@ -123,7 +117,7 @@ export function ProfileStep() {
 
           {/* Brand Color - Simple inline picker */}
           <FormControl>
-            <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+            <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
               Brand Color
             </FormLabel>
             <HStack spacing={3}>
@@ -135,8 +129,8 @@ export function ProfileStep() {
                 bg={localColor}
                 cursor="pointer"
                 border="2px"
-                borderColor={brandColor ? 'gray.300' : 'gray.200'}
-                _hover={{ transform: 'scale(1.03)', borderColor: 'gray.400' }}
+                borderColor="border.subtle"
+                _hover={{ transform: 'scale(1.03)', borderColor: 'border.strong' }}
                 transition="all 0.15s"
                 position="relative"
                 overflow="hidden"
@@ -193,14 +187,14 @@ export function ProfileStep() {
               </Box>
             }
             onClick={toggleMore}
-            color="gray.600"
-            _hover={{ bg: 'transparent', color: 'brand.500' }}
+            color="text.secondary"
+            _hover={{ bg: 'transparent', color: 'accent.primary' }}
             fontWeight="500"
             fontSize="sm"
           >
             <Box textAlign="center">
               <Text as="span" display="block">Add logo, hours & more</Text>
-              <Text as="span" display="block" fontSize="xs" color="gray.400" fontWeight="400">
+              <Text as="span" display="block" fontSize="xs" color="text.faint" fontWeight="400">
                 You can do this later
               </Text>
             </Box>
@@ -212,7 +206,7 @@ export function ProfileStep() {
           <VStack spacing={5} align="stretch" pt={2}>
             {/* Logo URL */}
             <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+              <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
                 Logo URL
               </FormLabel>
               <Input
@@ -236,7 +230,7 @@ export function ProfileStep() {
 
             {/* Phone */}
             <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+              <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
                 Phone Number
               </FormLabel>
               <Input
@@ -255,7 +249,7 @@ export function ProfileStep() {
 
             {/* Description */}
             <FormControl>
-              <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+              <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
                 Description
               </FormLabel>
               <Textarea
@@ -276,7 +270,7 @@ export function ProfileStep() {
             {/* Location (Address + City) */}
             <HStack spacing={4} align="start">
               <FormControl flex={2}>
-                <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
                   Address
                 </FormLabel>
                 <Input
@@ -293,7 +287,7 @@ export function ProfileStep() {
               </FormControl>
 
               <FormControl flex={1}>
-                <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
+                <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
                   City
                 </FormLabel>
                 <Input

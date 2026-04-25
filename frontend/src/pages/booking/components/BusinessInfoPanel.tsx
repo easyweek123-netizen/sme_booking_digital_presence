@@ -31,10 +31,10 @@ export function BusinessInfoPanel({ business }: BusinessInfoPanelProps) {
             minH="60px"
             borderRadius="xl"
             overflow="hidden"
-            bg="white"
+            bg="surface.card"
             flexShrink={0}
             border="1px"
-            borderColor="gray.200"
+            borderColor="border.subtle"
             boxShadow="sm"
             display="flex"
             alignItems="center"
@@ -74,11 +74,11 @@ export function BusinessInfoPanel({ business }: BusinessInfoPanelProps) {
         )}
 
         <Box flex={1}>
-          <Heading size="lg" color="gray.900" mb={1}>
+          <Heading size="lg" color="text.heading" mb={1}>
             {business.name}
           </Heading>
           {business.description && (
-            <Text color="gray.600" fontSize="sm" noOfLines={2}>
+            <Text color="text.secondary" fontSize="sm" noOfLines={2}>
               {business.description}
             </Text>
           )}
@@ -88,7 +88,7 @@ export function BusinessInfoPanel({ business }: BusinessInfoPanelProps) {
       {/* Contact & Social Info */}
       <HStack spacing={4} flexWrap="wrap">
         {business.city && (
-          <HStack spacing={1.5} color="gray.600" fontSize="sm">
+          <HStack spacing={1.5} color="text.secondary" fontSize="sm">
             <MapPinIcon size={15} />
             <Text>{business.city}</Text>
           </HStack>
@@ -98,9 +98,9 @@ export function BusinessInfoPanel({ business }: BusinessInfoPanelProps) {
             as="a"
             href={`tel:${business.phone}`}
             spacing={1.5}
-            color="gray.600"
+            color="text.secondary"
             fontSize="sm"
-            _hover={{ color: 'brand.600' }}
+            _hover={{ color: 'accent.hover' }}
             transition="color 0.2s"
           >
             <PhoneIcon size={15} />
@@ -114,9 +114,9 @@ export function BusinessInfoPanel({ business }: BusinessInfoPanelProps) {
             target="_blank"
             rel="noopener noreferrer"
             spacing={1.5}
-            color="gray.600"
+            color="text.secondary"
             fontSize="sm"
-            _hover={{ color: 'brand.600' }}
+            _hover={{ color: 'accent.hover' }}
             transition="color 0.2s"
           >
             <InstagramIcon size={15} />
@@ -130,9 +130,9 @@ export function BusinessInfoPanel({ business }: BusinessInfoPanelProps) {
             target="_blank"
             rel="noopener noreferrer"
             spacing={1.5}
-            color="gray.600"
+            color="text.secondary"
             fontSize="sm"
-            _hover={{ color: 'brand.600' }}
+            _hover={{ color: 'accent.hover' }}
             transition="color 0.2s"
           >
             <GlobeIcon size={15} />

@@ -65,14 +65,14 @@ export function ClientDetailDrawer({
                 <VStack align="stretch" spacing={2}>
                   {customer.email && (
                     <HStack>
-                      <Text fontSize="sm" color="gray.500" minW="60px">
+                      <Text fontSize="sm" color="text.muted" minW="60px">
                         Email:
                       </Text>
                       <Text fontSize="sm">{customer.email}</Text>
                     </HStack>
                   )}
                   <HStack>
-                    <Text fontSize="sm" color="gray.500" minW="60px">
+                    <Text fontSize="sm" color="text.muted" minW="60px">
                       Joined:
                     </Text>
                     <Text fontSize="sm">
@@ -119,7 +119,7 @@ export function ClientDetailDrawer({
                     ))}
                   </VStack>
                 ) : (
-                  <Text fontSize="sm" color="gray.500" py={2}>
+                  <Text fontSize="sm" color="text.muted" py={2}>
                     No bookings yet
                   </Text>
                 )}
@@ -127,7 +127,7 @@ export function ClientDetailDrawer({
             </VStack>
           ) : (
             <Center py={12}>
-              <Text color="gray.500">Customer not found</Text>
+              <Text color="text.muted">Customer not found</Text>
             </Center>
           )}
         </DrawerBody>

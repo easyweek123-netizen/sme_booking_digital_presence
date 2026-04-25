@@ -126,7 +126,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
 
   if (notes.length === 0) {
     return (
-      <Text fontSize="sm" color="gray.500" py={2}>
+      <Text fontSize="sm" color="text.muted" py={2}>
         No notes yet
       </Text>
     );
@@ -143,10 +143,10 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
           <Box
             key={note.id}
             p={3}
-            bg="gray.50"
-            borderRadius="md"
+            bg="surface.alt"
+            borderRadius="sm"
             border="1px"
-            borderColor="gray.200"
+            borderColor="border.subtle"
           >
             {editingNoteId === note.id ? (
               <VStack spacing={2} align="stretch">
@@ -159,7 +159,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
                 <HStack spacing={2}>
                   <Button
                     size="sm"
-                    colorScheme="blue"
+                    colorScheme="brand"
                     onClick={() => handleUpdate(note.id)}
                     isLoading={isUpdating}
                   >
@@ -173,7 +173,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
             ) : (
               <>
                 <Flex justify="space-between" align="start" mb={1}>
-                  <Text fontSize="xs" color="gray.400">
+                  <Text fontSize="xs" color="text.faint">
                     {new Date(note.createdAt).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -219,7 +219,7 @@ export function NotesList({ customerId, bookingId }: NotesListProps) {
                     <Link
                       as="button"
                       fontSize="xs"
-                      color="blue.500"
+                      color="accent.primary"
                       mt={1}
                       onClick={() => toggleExpanded(note.id)}
                       _hover={{ textDecoration: 'underline' }}

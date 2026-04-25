@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -10,7 +9,7 @@ import {
   HStack,
   Badge,
 } from '@chakra-ui/react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { StatsCard } from '../../components/Dashboard';
 import {
   CalendarIcon,
@@ -20,47 +19,23 @@ import {
   GlobeIcon,
 } from '../../components/icons';
 import { BookingLinkCard } from '../../components/QRCode';
-import { useGetMyBusinessQuery } from '../../store/api/businessApi';
+import { useBusiness } from '../../contexts/useBusiness';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
 import { ROUTES } from '../../config/routes';
-import { useTour } from '../../contexts/TourContext';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { EmptyState } from '../../components/ui/states';
 
 export function DashboardOverview() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { startTour, hasCompletedTour } = useTour();
+
+  const business = useBusiness();
+  const { data: stats } = useGetBookingStatsQuery(business.id);
+
+  const servicesCount = business.services?.filter((s) => s.isActive).length || 0;
   
-  const { data: business } = useGetMyBusinessQuery();
-  const { data: stats } = useGetBookingStatsQuery(business?.id || 0, {
-    skip: !business?.id,
-  });
-
-  // Check if user just completed onboarding and should see the tour
-  const justOnboarded = location.state?.fromOnboarding === true;
-
-  useEffect(() => {
-    if (justOnboarded && business && !hasCompletedTour) {
-      // Small delay to let the page render first
-      const timer = setTimeout(() => {
-        startTour(business.slug);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [justOnboarded, business, hasCompletedTour, startTour]);
-
-  if (!business) return null;
-
-  const servicesCount = business.services?.filter(s => s.isActive).length || 0;
-
   return (
     <VStack spacing={8} align="stretch">
-        {/* Header */}
-        <Box>
-          <Heading size="lg" color="gray.900" mb={1}>
-            Welcome back!
-          </Heading>
-          <Text color="gray.500">{business.name}</Text>
-        </Box>
+      <PageHeader title="Welcome back" description={business.name} />
 
       {/* Booking Link Card with QR */}
       <BookingLinkCard slug={business.slug} />
@@ -71,7 +46,7 @@ export function DashboardOverview() {
           label="Total Bookings"
           value={stats?.total || 0}
           icon={<CalendarIcon size={24} />}
-          color="brand.500"
+          color="accent.primary"
           index={0}
           to={ROUTES.DASHBOARD.BOOKINGS}
         />
@@ -79,7 +54,7 @@ export function DashboardOverview() {
           label="Today's Bookings"
           value={stats?.today || 0}
           icon={<UsersIcon size={24} />}
-          color="blue.500"
+          color="accent.primary"
           index={1}
           to={ROUTES.DASHBOARD.BOOKINGS}
         />
@@ -87,20 +62,20 @@ export function DashboardOverview() {
           label="Active Services"
           value={servicesCount}
           icon={<LayersIcon size={24} />}
-          color="purple.500"
+          color="accent.primary"
           index={2}
           to={ROUTES.DASHBOARD.SERVICES}
         />
       </SimpleGrid>
 
       {/* Today's Schedule */}
-      <Box bg="white" borderRadius="2xl" border="1px" borderColor="gray.100" p={6}>
+      <Box bg="surface.card" borderRadius="sm" border="1px" borderColor="border.subtle" p={6}>
         <Flex justify="space-between" align="center" mb={4}>
           <Box>
-            <Heading size="md" color="gray.900" mb={1}>
+            <Heading size="md" mb={1}>
               Today's Schedule
             </Heading>
-            <Text fontSize="sm" color="gray.500">
+            <Text fontSize="sm">
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
@@ -114,26 +89,13 @@ export function DashboardOverview() {
           </Badge>
         </Flex>
 
-        {/* Empty state */}
         {(stats?.today || 0) === 0 ? (
-          <Box
-            py={12}
-            textAlign="center"
-            bg="gray.50"
-            borderRadius="xl"
-            border="1px dashed"
-            borderColor="gray.200"
-          >
-            <Box color="gray.300" display="inline-block">
-              <CalendarIcon size={40} />
-            </Box>
-            <Text color="gray.500" mt={3} fontSize="sm">
-              No appointments scheduled for today
-            </Text>
-            <Text color="gray.400" fontSize="xs" mt={1}>
-              Share your booking link to start receiving appointments
-            </Text>
-          </Box>
+          <EmptyState
+            icon={<CalendarIcon size={28} />}
+            title="No appointments scheduled for today"
+            description="Share your booking link to start receiving appointments"
+            size="sm"
+          />
         ) : (
           <Button
             variant="outline"
@@ -147,47 +109,47 @@ export function DashboardOverview() {
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <Box
-          bg="white"
-          borderRadius="2xl"
+          bg="surface.card"
+          borderRadius="sm"
           border="1px"
-          borderColor="gray.100"
+          borderColor="border.subtle"
           p={6}
           _hover={{ borderColor: 'brand.200', cursor: 'pointer' }}
           transition="all 0.2s"
           onClick={() => navigate(ROUTES.DASHBOARD.SERVICES)}
         >
           <HStack spacing={3} mb={2}>
-            <Box color="brand.500">
+            <Box color="accent.primary">
               <LayersIcon size={24} />
             </Box>
-            <Heading size="sm" color="gray.900">
+            <Heading size="sm">
               Manage Services
             </Heading>
           </HStack>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm">
             Add, edit, or remove services from your catalog
           </Text>
         </Box>
 
         <Box
-          bg="white"
-          borderRadius="2xl"
+          bg="surface.card"
+          borderRadius="sm"
           border="1px"
-          borderColor="gray.100"
+          borderColor="border.subtle"
           p={6}
           _hover={{ borderColor: 'brand.200', cursor: 'pointer' }}
           transition="all 0.2s"
           onClick={() => navigate(ROUTES.DASHBOARD.WEBSITE)}
         >
           <HStack spacing={3} mb={2}>
-            <Box color="brand.500">
+            <Box color="accent.primary">
               <GlobeIcon size={24} />
             </Box>
-            <Heading size="sm" color="gray.900">
+            <Heading size="sm">
               Website
             </Heading>
           </HStack>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm">
             Customize your booking page, branding, hours, and about section
           </Text>
         </Box>
@@ -195,12 +157,12 @@ export function DashboardOverview() {
 
       {/* Feedback Card */}
       <Box
-        bgGradient="linear(to-br, purple.50, indigo.50)"
-        borderRadius="2xl"
+        bg="brand.50"
+        borderRadius="sm"
         border="1px"
-        borderColor="purple.100"
+        borderColor="brand.100"
         p={6}
-        _hover={{ borderColor: 'purple.200', cursor: 'pointer', transform: 'translateY(-2px)' }}
+        _hover={{ borderColor: 'brand.200', cursor: 'pointer', transform: 'translateY(-2px)' }}
         transition="all 0.2s"
         onClick={() => navigate(ROUTES.PRICING)}
       >
@@ -208,28 +170,28 @@ export function DashboardOverview() {
           <Box
             w="48px"
             h="48px"
-            borderRadius="xl"
-            bg="purple.100"
+            borderRadius="sm"
+            bg="brand.100"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            color="purple.600"
+            color="accent.hover"
           >
             <HeartIcon size={24} />
           </Box>
           <Box flex={1}>
-            <Heading size="sm" color="gray.900" mb={1}>
+            <Heading size="sm" mb={1}>
               Help Us Improve
             </Heading>
-            <Text fontSize="sm" color="gray.600">
+            <Text fontSize="sm" color="text.secondary">
               Share your feedback and feature requests. We'd love to hear from you!
             </Text>
           </Box>
           <Badge
-            colorScheme="purple"
+            colorScheme="brand"
             px={3}
             py={1}
-            borderRadius="full"
+            borderRadius="sm"
             fontSize="xs"
             fontWeight="600"
           >
@@ -240,4 +202,3 @@ export function DashboardOverview() {
     </VStack>
   );
 }
-

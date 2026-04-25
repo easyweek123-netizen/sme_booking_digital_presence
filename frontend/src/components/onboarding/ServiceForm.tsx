@@ -6,23 +6,21 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  FormHelperText,
-  Input,
   Select,
   Checkbox,
   CheckboxGroup,
   Button,
-  InputGroup,
-  InputLeftElement,
   Text,
   Flex,
   Wrap,
   WrapItem,
-  Textarea,
   Image,
   Collapse,
 } from '@chakra-ui/react';
+import { useForm, FormProvider, Controller, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
+import { serviceFormSchema, type ServiceFormValues } from './serviceFormSchema';
 import {
   SERVICE_DURATIONS,
   DAYS_OF_WEEK,
@@ -32,10 +30,10 @@ import {
 import { useGetServiceCategoriesQuery } from '../../store/api/servicesApi';
 import { ChevronDownIcon } from '../icons';
 import type { WorkingHours } from '../../types';
+import { TextField, TextAreaField, CurrencyField, SubmitButton } from '../ui/form';
 
 const MotionBox = motion.create(Box);
 
-// Default working hours - all days open 9-5
 const defaultWorkingHours: WorkingHours = {
   monday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
   tuesday: { isOpen: true, openTime: '09:00', closeTime: '17:00' },
@@ -73,92 +71,73 @@ interface ServiceFormProps {
   onCancel: () => void;
   /** Start with "More options" section expanded. Default: false */
   moreOptionsExpanded?: boolean;
-
   /** Is loading */
   isLoading?: boolean;
-}
-
-interface FormErrors {
-  name?: string;
-  durationMinutes?: string;
-  price?: string;
 }
 
 export function ServiceForm({
   initialValues,
   businessId,
   workingHours = defaultWorkingHours,
-  onSubmit,
+  onSubmit: onSubmitProp,
   onCancel,
   moreOptionsExpanded = false,
   isLoading = false,
 }: ServiceFormProps) {
-  // Derive isEditing from initialValues
   const isEditing = initialValues != null;
 
-  // Form state
-  const [name, setName] = useState(initialValues?.name || '');
-  const [description, setDescription] = useState(initialValues?.description || '');
-  const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl || '');
-  const [categoryId, setCategoryId] = useState<number | null>(initialValues?.categoryId ?? null);
-  const [durationMinutes, setDurationMinutes] = useState(
-    initialValues?.durationMinutes || 30
-  );
-  const [price, setPrice] = useState(initialValues?.price?.toString() || '');
+  // UX state — not form-field state
   const [useAllDays, setUseAllDays] = useState(
     !initialValues?.availableDays || initialValues.availableDays.length === 0
   );
   const [selectedDays, setSelectedDays] = useState<string[]>(
     initialValues?.availableDays || []
   );
-  const [errors, setErrors] = useState<FormErrors>({});
   const [imageError, setImageError] = useState(false);
   const [showMoreOptions, setShowMoreOptions] = useState(moreOptionsExpanded);
 
-  // Fetch categories if businessId is provided
   const { data: categories = [] } = useGetServiceCategoriesQuery(businessId || 0, {
     skip: !businessId,
   });
 
-  // Get open days from working hours
   const openDays = DAYS_OF_WEEK.filter((day) => workingHours[day]?.isOpen);
 
+  const methods = useForm<ServiceFormValues>({
+    resolver: zodResolver(serviceFormSchema),
+    defaultValues: {
+      name: initialValues?.name || '',
+      durationMinutes: initialValues?.durationMinutes || 30,
+      price: initialValues?.price ?? 0,
+      description: initialValues?.description || '',
+      imageUrl: initialValues?.imageUrl || '',
+      categoryId: initialValues?.categoryId ?? null,
+      availableDays: initialValues?.availableDays ?? null,
+    },
+  });
+
+  const {
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = methods;
+
+  const imageUrl = useWatch({ control, name: 'imageUrl' });
+
+  // Keep availableDays form value in sync with UX state
   useEffect(() => {
-    if (useAllDays) {
-      setSelectedDays([]);
-    }
-  }, [useAllDays]);
+    setValue('availableDays', useAllDays ? null : selectedDays, { shouldValidate: false });
+  }, [useAllDays, selectedDays, setValue]);
 
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!name.trim()) {
-      newErrors.name = 'Service name is required';
-    }
-
-    if (!durationMinutes) {
-      newErrors.durationMinutes = 'Duration is required';
-    }
-
-    if (!price || parseFloat(price) < 0) {
-      newErrors.price = 'Please enter a valid price';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!validate()) return;
-
-    onSubmit({
+  const onSubmit = (data: ServiceFormValues) => {
+    onSubmitProp({
       id: initialValues?.id,
-      name: name.trim(),
-      description: description.trim() || undefined,
-      imageUrl: imageUrl.trim() || undefined,
-      categoryId: categoryId || null,
-      durationMinutes,
-      price: parseFloat(price),
+      name: data.name,
+      description: data.description || undefined,
+      imageUrl: data.imageUrl || undefined,
+      categoryId: data.categoryId ?? null,
+      durationMinutes: data.durationMinutes,
+      price: data.price,
       availableDays: useAllDays ? null : selectedDays,
     });
   };
@@ -172,286 +151,219 @@ export function ServiceForm({
       overflow="hidden"
     >
       <Box
-        bg="gray.50"
+        bg="surface.muted"
         border="1px"
-        borderColor="gray.200"
+        borderColor="border.subtle"
         borderRadius="xl"
         p={5}
       >
-        <VStack spacing={4} align="stretch">
-          {/* Service Name */}
-          <FormControl isInvalid={!!errors.name}>
-            <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-              Service Name
-            </FormLabel>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Haircut, Massage, Consultation"
-              size="md"
-              bg="white"
-              borderRadius="lg"
-              _focus={{
-                borderColor: 'brand.500',
-                boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-              }}
-            />
-            <FormErrorMessage>{errors.name}</FormErrorMessage>
-          </FormControl>
-
-          {/* Duration and Price */}
-          <HStack spacing={4} align="flex-start">
-            <FormControl isInvalid={!!errors.durationMinutes} flex={1}>
-              <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                Duration
-              </FormLabel>
-              <Select
-                value={durationMinutes}
-                onChange={(e) => setDurationMinutes(parseInt(e.target.value))}
-                size="md"
-                bg="white"
-                borderRadius="lg"
-                _focus={{
-                  borderColor: 'brand.500',
-                  boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                }}
-              >
-                {SERVICE_DURATIONS.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>{errors.durationMinutes}</FormErrorMessage>
-            </FormControl>
-
-            <FormControl isInvalid={!!errors.price} flex={1}>
-              <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                Price
-              </FormLabel>
-              <InputGroup>
-                <InputLeftElement
-                  pointerEvents="none"
-                  color="gray.400"
-                  fontSize="md"
-                >
-                  $
-                </InputLeftElement>
-                <Input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0.00"
-                  min={0}
-                  step={0.01}
-                  bg="white"
-                  borderRadius="lg"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                />
-              </InputGroup>
-              <FormErrorMessage>{errors.price}</FormErrorMessage>
-            </FormControl>
-          </HStack>
-
-          {/* Availability */}
-          <Box>
-            <FormLabel fontSize="sm" fontWeight="500" color="gray.700" mb={2}>
-              Availability
-            </FormLabel>
-            <Checkbox
-              isChecked={useAllDays}
-              onChange={(e) => setUseAllDays(e.target.checked)}
-              colorScheme="brand"
-              mb={3}
-            >
-              <Text fontSize="sm">Available all open days</Text>
-            </Checkbox>
-
-            {!useAllDays && (
-              <MotionBox
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <CheckboxGroup
-                  value={selectedDays}
-                  onChange={(values) => setSelectedDays(values as string[])}
-                >
-                  <Wrap spacing={2}>
-                    {DAYS_OF_WEEK.map((day) => {
-                      const isOpen = openDays.includes(day);
-                      return (
-                        <WrapItem key={day}>
-                          <Checkbox
-                            value={day}
-                            isDisabled={!isOpen}
-                            colorScheme="brand"
-                            size="md"
-                          >
-                            <Text
-                              fontSize="sm"
-                              color={isOpen ? 'gray.700' : 'gray.400'}
-                            >
-                              {DAY_SHORT_LABELS[day as DayOfWeek]}
-                            </Text>
-                          </Checkbox>
-                        </WrapItem>
-                      );
-                    })}
-                  </Wrap>
-                </CheckboxGroup>
-                {selectedDays.length === 0 && !useAllDays && (
-                  <Text fontSize="xs" color="orange.500" mt={2}>
-                    Please select at least one day
-                  </Text>
-                )}
-              </MotionBox>
-            )}
-          </Box>
-
-          {/* More Options - Always show toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowMoreOptions(!showMoreOptions)}
-            rightIcon={
-              <Box
-                transform={showMoreOptions ? 'rotate(180deg)' : 'rotate(0deg)'}
-                transition="transform 0.2s"
-              >
-                <ChevronDownIcon size={16} />
-              </Box>
-            }
-            color="gray.500"
-            fontWeight="500"
-            px={0}
-            _hover={{ bg: 'transparent', color: 'gray.700' }}
-          >
-            {showMoreOptions ? 'Less options' : 'More options'}
-          </Button>
-
-          <Collapse in={showMoreOptions}>
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} align="stretch">
-              {/* Category Selection */}
-              {categories.length > 0 && (
-                <FormControl>
-                  <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                    Category
-                  </FormLabel>
-                  <Select
-                    value={categoryId || ''}
-                    onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
-                    size="md"
-                    bg="white"
-                    borderRadius="lg"
-                    placeholder="Select a category (optional)"
-                    _focus={{
-                      borderColor: 'brand.500',
-                      boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                    }}
+              {/* Service Name */}
+              <TextField<ServiceFormValues>
+                name="name"
+                label="Service Name"
+                placeholder="e.g., Haircut, Massage, Consultation"
+              />
+
+              {/* Duration and Price */}
+              <HStack spacing={4} align="flex-start">
+                <Box flex={1}>
+                  <Controller
+                    name="durationMinutes"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <FormControl isInvalid={!!fieldState.error}>
+                        <FormLabel>Duration</FormLabel>
+                        <Select
+                          value={field.value ?? ''}
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
+                        >
+                          {SERVICE_DURATIONS.map((d) => (
+                            <option key={d.value} value={d.value}>
+                              {d.label}
+                            </option>
+                          ))}
+                        </Select>
+                        {fieldState.error && (
+                          <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </Box>
+                <Box flex={1}>
+                  <CurrencyField<ServiceFormValues> name="price" label="Price" currency="€" />
+                </Box>
+              </HStack>
+
+              {/* Availability */}
+              <Box>
+                <FormLabel mb={2}>Availability</FormLabel>
+                <Checkbox
+                  isChecked={useAllDays}
+                  onChange={(e) => setUseAllDays(e.target.checked)}
+                  colorScheme="brand"
+                  mb={3}
+                >
+                  <Text fontSize="sm">Available all open days</Text>
+                </Checkbox>
+
+                {!useAllDays && (
+                  <MotionBox
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
+                    <CheckboxGroup
+                      value={selectedDays}
+                      onChange={(values) => setSelectedDays(values as string[])}
+                    >
+                      <Wrap spacing={2}>
+                        {DAYS_OF_WEEK.map((day) => {
+                          const isOpen = openDays.includes(day);
+                          return (
+                            <WrapItem key={day}>
+                              <Checkbox
+                                value={day}
+                                isDisabled={!isOpen}
+                                colorScheme="brand"
+                                size="md"
+                              >
+                                <Text
+                                  fontSize="sm"
+                                  color={isOpen ? 'text.primary' : 'text.muted'}
+                                >
+                                  {DAY_SHORT_LABELS[day as DayOfWeek]}
+                                </Text>
+                              </Checkbox>
+                            </WrapItem>
+                          );
+                        })}
+                      </Wrap>
+                    </CheckboxGroup>
+                    {errors.availableDays && (
+                      <Text fontSize="xs" color="danger.primary" mt={2}>
+                        {errors.availableDays.message}
+                      </Text>
+                    )}
+                  </MotionBox>
+                )}
+              </Box>
 
-              {/* Description */}
-              <FormControl>
-                <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                  Description
-                </FormLabel>
-                <Textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe this service..."
-                  size="md"
-                  bg="white"
-                  borderRadius="lg"
-                  rows={2}
-                  maxLength={500}
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                />
-                <FormHelperText fontSize="xs">
-                  {description.length}/500 characters
-                </FormHelperText>
-              </FormControl>
-
-              {/* Image URL */}
-              <FormControl>
-                <FormLabel fontSize="sm" fontWeight="500" color="gray.700">
-                  Image URL
-                </FormLabel>
-                <Input
-                  value={imageUrl}
-                  onChange={(e) => {
-                    setImageUrl(e.target.value);
-                    setImageError(false);
-                  }}
-                  placeholder="https://example.com/service-image.jpg"
-                  size="md"
-                  bg="white"
-                  borderRadius="lg"
-                  _focus={{
-                    borderColor: 'brand.500',
-                    boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
-                  }}
-                />
-                <FormHelperText fontSize="xs">
-                  Optional: Add an image for this service
-                </FormHelperText>
-                {imageUrl && !imageError && (
-                  <Box mt={2} borderRadius="lg" overflow="hidden" maxH="100px">
-                    <Image
-                      src={imageUrl}
-                      alt="Service preview"
-                      maxH="100px"
-                      objectFit="cover"
-                      onError={() => setImageError(true)}
-                    />
+              {/* More Options toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMoreOptions(!showMoreOptions)}
+                rightIcon={
+                  <Box
+                    transform={showMoreOptions ? 'rotate(180deg)' : 'rotate(0deg)'}
+                    transition="transform 0.2s"
+                  >
+                    <ChevronDownIcon size={16} />
                   </Box>
-                )}
-                {imageError && (
-                  <Text fontSize="xs" color="orange.500" mt={1}>
-                    Unable to load image preview
-                  </Text>
-                )}
-              </FormControl>
-            </VStack>
-          </Collapse>
+                }
+                color="text.muted"
+                fontWeight="500"
+                px={0}
+                _hover={{ bg: 'transparent', color: 'text.primary' }}
+              >
+                {showMoreOptions ? 'Less options' : 'More options'}
+              </Button>
 
-          {/* Actions */}
-          <Flex justify="flex-end" gap={2} pt={2}>
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={onCancel}
-              borderRadius="lg"
-              isDisabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorScheme="brand"
-              size="md"
-              onClick={handleSubmit}
-              borderRadius="lg"
-              isDisabled={isLoading || (!useAllDays && selectedDays.length === 0)}
-            >
-              {isEditing ? 'Update' : 'Add Service'}
-            </Button>
-          </Flex>
-        </VStack>
+              <Collapse in={showMoreOptions}>
+                <VStack spacing={4} align="stretch">
+                  {/* Category Selection */}
+                  {categories.length > 0 && (
+                    <Controller
+                      name="categoryId"
+                      control={control}
+                      render={({ field }) => (
+                        <FormControl>
+                          <FormLabel>Category</FormLabel>
+                          <Select
+                            value={field.value ?? ''}
+                            onChange={(e) =>
+                              field.onChange(e.target.value ? Number(e.target.value) : null)
+                            }
+                            onBlur={field.onBlur}
+                            name={field.name}
+                            ref={field.ref}
+                            placeholder="Select a category (optional)"
+                          >
+                            {categories.map((cat) => (
+                              <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                              </option>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
+                    />
+                  )}
+
+                  {/* Description */}
+                  <TextAreaField<ServiceFormValues>
+                    name="description"
+                    label="Description"
+                    placeholder="Describe this service..."
+                    rows={2}
+                    maxLength={500}
+                    showCount
+                  />
+
+                  {/* Image URL */}
+                  <Box>
+                    <TextField<ServiceFormValues>
+                      name="imageUrl"
+                      label="Image URL"
+                      placeholder="https://example.com/service-image.jpg"
+                      helperText="Optional: Add an image for this service"
+                      type="url"
+                    />
+                    {imageUrl && !imageError && (
+                      <Box mt={2} borderRadius="lg" overflow="hidden" maxH="100px">
+                        <Image
+                          src={imageUrl}
+                          alt="Service preview"
+                          maxH="100px"
+                          objectFit="cover"
+                          onError={() => setImageError(true)}
+                        />
+                      </Box>
+                    )}
+                    {imageError && (
+                      <Text fontSize="xs" color="text.muted" mt={1}>
+                        Unable to load image preview
+                      </Text>
+                    )}
+                  </Box>
+                </VStack>
+              </Collapse>
+
+              {/* Actions */}
+              <Flex justify="flex-end" gap={2} pt={2}>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  onClick={onCancel}
+                  isDisabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <SubmitButton isLoading={isLoading} size="md">
+                  {isEditing ? 'Update' : 'Add Service'}
+                </SubmitButton>
+              </Flex>
+            </VStack>
+          </form>
+        </FormProvider>
       </Box>
     </MotionBox>
   );

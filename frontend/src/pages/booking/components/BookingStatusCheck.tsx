@@ -48,20 +48,20 @@ export function BookingStatusCheck() {
           </Box>
         }
         onClick={onToggle}
-        color="gray.600"
+        color="text.secondary"
         px={0}
-        _hover={{ bg: 'transparent', color: 'gray.900' }}
+        _hover={{ bg: 'transparent', color: 'text.heading' }}
       >
         Check Booking Status
       </Button>
       <Collapse in={isOpen}>
-        <Box mt={2} p={4} bg="gray.50" borderRadius="lg">
+        <Box mt={2} p={4} bg="surface.alt" borderRadius="lg">
           <HStack spacing={2} mb={3}>
             <InputGroup size="sm">
               <InputLeftAddon
-                bg="white"
-                borderColor="gray.200"
-                color="gray.500"
+                bg="surface.card"
+                borderColor="border.subtle"
+                color="text.muted"
                 fontWeight="500"
                 fontSize="xs"
               >
@@ -72,8 +72,8 @@ export function BookingStatusCheck() {
                 value={referenceCode.replace('BK-', '')}
                 onChange={(e) => setReferenceCode(e.target.value.toUpperCase())}
                 maxLength={4}
-                bg="white"
-                borderColor="gray.200"
+                bg="surface.card"
+                borderColor="border.subtle"
                 textTransform="uppercase"
                 letterSpacing="wide"
                 _focus={{ borderColor: 'brand.500' }}
@@ -92,8 +92,8 @@ export function BookingStatusCheck() {
           </HStack>
 
           {searchError && (
-            <Box p={4} bg="red.50" borderRadius="lg" textAlign="center">
-              <Text color="red.600" fontSize="sm">
+            <Box p={4} bg="alert.50" borderRadius="lg" textAlign="center">
+              <Text color="alert.600" fontSize="sm">
                 Booking not found. Please check your reference code.
               </Text>
             </Box>
@@ -123,16 +123,16 @@ function BookingStatusCard({ booking }: BookingStatusCardProps) {
 
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       p={4}
       borderRadius="lg"
       border="1px"
-      borderColor="gray.200"
+      borderColor="border.subtle"
       borderLeftWidth="4px"
       borderLeftColor={statusConfig.color}
     >
       <Flex justify="space-between" align="center" mb={3}>
-        <Text fontSize="xs" color="gray.400" fontWeight="500">
+        <Text fontSize="xs" color="text.faint" fontWeight="500">
           {booking.reference}
         </Text>
         <Badge
@@ -150,16 +150,16 @@ function BookingStatusCard({ booking }: BookingStatusCardProps) {
 
       {booking.service && (
         <Box mb={3}>
-          <Text fontWeight="600" color="gray.900">
+          <Text fontWeight="600" color="text.heading">
             {booking.service.name}
           </Text>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="text.muted">
             {booking.service.durationMinutes} min · {formatPrice(Number(booking.service.price))}
           </Text>
         </Box>
       )}
 
-      <HStack spacing={4} fontSize="sm" color="gray.600" mb={3}>
+      <HStack spacing={4} fontSize="sm" color="text.secondary" mb={3}>
         <HStack spacing={1}>
           <ClockIcon size={14} />
           <Text>

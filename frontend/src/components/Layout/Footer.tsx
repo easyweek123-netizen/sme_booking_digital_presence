@@ -24,7 +24,7 @@ function FooterLink({ to, children, isExternal }: FooterLinkProps) {
     return (
       <Link
         href={to}
-        color="gray.400"
+        color="text.faint"
         fontSize="sm"
         _hover={{ color: 'white' }}
         transition="color 0.2s"
@@ -38,7 +38,7 @@ function FooterLink({ to, children, isExternal }: FooterLinkProps) {
     <Link
       as={RouterLink}
       to={to}
-      color="gray.400"
+      color="text.faint"
       fontSize="sm"
       _hover={{ color: 'white' }}
       transition="color 0.2s"
@@ -75,7 +75,7 @@ export function Footer() {
           {/* Brand Section */}
           <VStack align={{ base: 'center', sm: 'start' }} spacing={4} gridColumn={{ base: '1', sm: '1 / -1', md: '1' }}>
             <Logo size="sm" colorScheme="dark" />
-            <Text color="gray.400" fontSize="sm" lineHeight="1.7" maxW="280px" textAlign={{ base: 'center', sm: 'left' }}>
+            <Text color="text.faint" fontSize="sm" lineHeight="1.7" maxW="280px" textAlign={{ base: 'center', sm: 'left' }}>
               Your professional booking page, free forever. 
               Accept appointments 24/7 and grow your business.
             </Text>
@@ -97,7 +97,7 @@ export function Footer() {
 
           {/* Contact */}
           <FooterSection title="Contact">
-            <HStack spacing={2} color="gray.400" justify={{ base: 'center', sm: 'flex-start' }}>
+            <HStack spacing={2} color="text.faint" justify={{ base: 'center', sm: 'flex-start' }}>
               <MailIcon size={16} />
               <Link
                 href="mailto:easyweek123@gmail.com"
@@ -118,16 +118,16 @@ export function Footer() {
           pt={{ base: 6, md: 8 }}
           display={{ base: 'flex', md: 'none' }}
         >
-          <Text color="gray.500" fontSize="sm" textAlign="center">
+          <Text color="text.muted" fontSize="sm" textAlign="center">
             © {currentYear} BookEasy. All rights reserved.
           </Text>
-          <Text color="gray.500" fontSize="xs" textAlign="center">
+          <Text color="text.muted" fontSize="xs" textAlign="center">
             Built by{' '}
             <Link
               as={RouterLink}
               to={ROUTES.PRICING}
-              color="gray.500"
-              _hover={{ color: 'brand.500' }}
+              color="text.muted"
+              _hover={{ color: 'accent.primary' }}
               transition="color 0.2s"
               fontWeight="500"
             >
@@ -141,16 +141,16 @@ export function Footer() {
           pt={8}
           display={{ base: 'none', md: 'flex' }}
         >
-          <Text color="gray.500" fontSize="sm">
+          <Text color="text.muted" fontSize="sm">
             © {currentYear} BookEasy. All rights reserved.
           </Text>
-          <Text color="gray.500" fontSize="xs">
+          <Text color="text.muted" fontSize="xs">
             Built by{' '}
             <Link
               as={RouterLink}
               to={ROUTES.PRICING}
-              color="gray.500"
-              _hover={{ color: 'brand.500' }}
+              color="text.muted"
+              _hover={{ color: 'accent.primary' }}
               transition="color 0.2s"
               fontWeight="500"
             >

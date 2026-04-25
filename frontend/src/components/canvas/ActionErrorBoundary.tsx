@@ -45,7 +45,7 @@ export class ActionErrorBoundary extends Component<Props, State> {
         <Box
           p={6}
           bg="red.50"
-          borderRadius="lg"
+          borderRadius="md"
           border="1px"
           borderColor="red.200"
         >

@@ -1,22 +1,14 @@
-import { useState, useRef } from 'react';
+import { useMemo } from 'react';
 import {
   Box,
   Text,
   Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  VStack,
-  HStack,
   Flex,
-  useDisclosure,
+  HStack,
   useToast,
   Tooltip,
 } from '@chakra-ui/react';
-import { QRCodeCanvas } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { CopyIcon, DownloadIcon } from '../icons';
 import { TOAST_DURATION } from '../../constants';
 
@@ -25,13 +17,16 @@ interface BookingLinkCardProps {
 }
 
 export function BookingLinkCard({ slug }: BookingLinkCardProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
-  const qrRef = useRef<HTMLDivElement>(null);
-  const [isDownloading, setIsDownloading] = useState(false);
 
-  const bookingUrl = `${window.location.origin}/book/${slug}`;
-  const displayUrl = `${window.location.host}/book/${slug}`;
+  const { bookingUrl, displayUrl } = useMemo(
+    () => ({
+      bookingUrl: `${window.location.origin}/book/${slug}`,
+      displayUrl: `${window.location.host}/book/${slug}`,
+    }),
+    [slug],
+  );
 
   const copyLink = async () => {
     try {
@@ -53,94 +48,25 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
     }
   };
 
-  const downloadQR = async () => {
-    setIsDownloading(true);
-    try {
-      const canvas = qrRef.current?.querySelector('canvas');
-      if (!canvas) {
-        throw new Error('QR code canvas not found');
-      }
-
-      // Create a higher resolution canvas for better print quality
-      const scale = 4;
-      const size = 256 * scale;
-      const padding = 32 * scale;
-      const totalSize = size + padding * 2;
-
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = totalSize;
-      exportCanvas.height = totalSize;
-      const ctx = exportCanvas.getContext('2d');
-
-      if (!ctx) {
-        throw new Error('Could not get canvas context');
-      }
-
-      // White background
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, totalSize, totalSize);
-
-      // Draw QR code centered with padding
-      ctx.drawImage(canvas, padding, padding, size, size);
-
-      // Convert to blob and download
-      exportCanvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            throw new Error('Could not create image');
-          }
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = `${slug}-qr-code.png`;
-          link.href = url;
-          link.click();
-          URL.revokeObjectURL(url);
-
-          toast({
-            title: 'QR code downloaded!',
-            description: 'Your QR code is ready for printing.',
-            status: 'success',
-            duration: TOAST_DURATION.SHORT,
-            isClosable: true,
-          });
-        },
-        'image/png',
-        1.0
-      );
-    } catch {
-      toast({
-        title: 'Download failed',
-        description: 'Could not download QR code. Please try again.',
-        status: 'error',
-        duration: TOAST_DURATION.MEDIUM,
-      });
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   return (
-    <>
-      {/* Card with QR Prominence */}
-      <Box
-        data-tour-id="tour-booking-card"
-        bg="white"
-        border="1px"
-        borderColor="gray.200"
-        borderRadius="xl"
-        p={4}
-      >
+    <Box
+      bg="surface.card"
+      borderWidth={1}
+      borderStyle="solid"
+      borderColor="border.subtle"
+      borderRadius="xl"
+      p={4}
+    >
         <Flex gap={4} align="flex-start">
-          {/* QR Code Preview - Clickable */}
-          <Tooltip label="Click to enlarge & download" placement="top" hasArrow>
+          <Tooltip label="Click to open QR code" placement="top" hasArrow>
             <Box
-              bg="white"
+              bg="surface.card"
               p={2}
               borderRadius="lg"
               border="1px"
-              borderColor="gray.200"
+              borderColor="border.subtle"
               cursor="pointer"
-              onClick={onOpen}
+              // onClick={onOpen}
               transition="all 0.2s"
               _hover={{
                 borderColor: 'brand.300',
@@ -150,7 +76,7 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
               flexShrink={0}
               lineHeight={0}
             >
-              <QRCodeCanvas
+              <QRCodeSVG
                 value={bookingUrl}
                 size={64}
                 bgColor="#FFFFFF"
@@ -161,9 +87,8 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
             </Box>
           </Tooltip>
 
-          {/* Link Info & Actions */}
           <Box flex={1} minW={0}>
-            <Text fontSize="xs" color="gray.500" mb={1}>
+            <Text fontSize="xs" color="text.muted" mb={1}>
               Your booking page
             </Text>
             <Text
@@ -173,7 +98,7 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
               rel="noopener noreferrer"
               fontSize="sm"
               fontWeight="600"
-              color="brand.600"
+              color="accent.hover"
               wordBreak="break-all"
               _hover={{ textDecoration: 'underline', color: 'brand.700' }}
               cursor="pointer"
@@ -181,7 +106,6 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
               {displayUrl}
             </Text>
 
-            {/* Action Buttons */}
             <HStack spacing={2} flexWrap="wrap">
               <Button
                 size="sm"
@@ -197,107 +121,23 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
                 variant="ghost"
                 colorScheme="gray"
                 leftIcon={<DownloadIcon size={14} />}
-                onClick={onOpen}
+                // onClick={onOpen}
               >
-                Download QR
+                Open QR code
               </Button>
             </HStack>
           </Box>
         </Flex>
-      </Box>
 
-      {/* Full QR Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered size="sm">
-        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
-        <ModalContent borderRadius="2xl" mx={4} overflow="hidden">
-          <ModalHeader
-            bg="gray.50"
-            borderBottom="1px"
-            borderColor="gray.100"
-            py={4}
-          >
-            <Text fontSize="lg" fontWeight="600" color="gray.900">
-              Share Your Booking Page
-            </Text>
-          </ModalHeader>
-          <ModalCloseButton top={4} right={4} />
-
-          <ModalBody py={6}>
-            <VStack spacing={5}>
-              {/* Large QR Code */}
-              <Box
-                ref={qrRef}
-                bg="white"
-                p={4}
-                borderRadius="xl"
-                border="2px"
-                borderColor="gray.100"
-                boxShadow="sm"
-              >
-                <QRCodeCanvas
-                  value={bookingUrl}
-                  size={200}
-                  bgColor="#FFFFFF"
-                  fgColor="#1E293B"
-                  level="H"
-                  includeMargin={false}
-                />
-              </Box>
-
-              {/* URL Display */}
-              <Box
-                bg="gray.50"
-                px={4}
-                py={2}
-                borderRadius="lg"
-                w="full"
-                textAlign="center"
-              >
-                <Text
-                  fontSize="sm"
-                  fontWeight="500"
-                  color="brand.600"
-                  wordBreak="break-all"
-                >
-                  {displayUrl}
-                </Text>
-              </Box>
-
-              {/* Action Buttons */}
-              <HStack spacing={3} w="full">
-                <Button
-                  flex={1}
-                  variant="outline"
-                  colorScheme="gray"
-                  leftIcon={<CopyIcon size={16} />}
-                  onClick={copyLink}
-                  size="md"
-                >
-                  Copy Link
-                </Button>
-                <Button
-                  flex={1}
-                  colorScheme="brand"
-                  leftIcon={<DownloadIcon size={16} />}
-                  onClick={downloadQR}
-                  isLoading={isDownloading}
-                  loadingText="Saving..."
-                  size="md"
-                >
-                  Download QR
-                </Button>
-              </HStack>
-
-              {/* Helper Text */}
-              <Text fontSize="xs" color="gray.500" textAlign="center" px={4}>
-                Print this QR code to display in your shop or share on social
-                media
-              </Text>
-            </VStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+        {/* {isOpen && (
+          <BookingQRModal
+            isOpen
+            onClose={onClose}
+            bookingUrl={bookingUrl}
+            displayUrl={displayUrl}
+            slug={slug}
+          />
+        )} */}
+    </Box>
   );
 }
-

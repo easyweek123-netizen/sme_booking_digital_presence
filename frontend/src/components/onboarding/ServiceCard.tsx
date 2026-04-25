@@ -50,24 +50,24 @@ export function ServiceCard({ service, onEdit, onDelete, index }: ServiceCardPro
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      bg="white"
+      bg="surface.card"
       border="1px"
-      borderColor="gray.200"
+      borderColor="border.subtle"
       borderRadius="xl"
       p={4}
       _hover={{ borderColor: 'brand.200', boxShadow: 'sm', transition: 'all 0.2s' }}
     >
       <Flex justify="space-between" align="flex-start">
         <Box flex={1}>
-          <Text fontWeight="600" fontSize="md" color="gray.900" mb={1}>
+          <Text fontWeight="600" fontSize="md" color="text.heading" mb={1}>
             {service.name}
           </Text>
           <HStack spacing={3} mb={2}>
-            <Flex align="center" gap={1} color="gray.500">
+            <Flex align="center" gap={1} color="text.muted">
               <ClockIcon size={14} />
               <Text fontSize="sm">{durationLabel}</Text>
             </Flex>
-            <Text fontSize="lg" fontWeight="700" color="brand.500">
+            <Text fontSize="lg" fontWeight="700" color="accent.primary">
               {formatPrice(service.price)}
             </Text>
           </HStack>
@@ -90,16 +90,16 @@ export function ServiceCard({ service, onEdit, onDelete, index }: ServiceCardPro
             variant="ghost"
             colorScheme="gray"
             onClick={onEdit}
-            _hover={{ bg: 'gray.100' }}
+            _hover={{ bg: 'surface.page' }}
           />
           <IconButton
             aria-label="Delete service"
             icon={<TrashIcon size={16} />}
             size="sm"
             variant="ghost"
-            colorScheme="red"
+            colorScheme="alert"
             onClick={onDelete}
-            _hover={{ bg: 'red.50' }}
+            _hover={{ bg: 'alert.50' }}
           />
         </HStack>
       </Flex>

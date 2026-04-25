@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { setActiveTab } from '../../store/slices/canvasSlice';
-import { useGetMyBusinessQuery } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { CanvasPreview } from './CanvasPreview';
 import { ActionsRenderer } from './ActionsRenderer';
 import { BookingPage } from '../../pages/booking';
@@ -15,7 +15,7 @@ import { DashboardServices } from '../../pages/dashboard/DashboardServices';
 import { DashboardBookings } from '../../pages/dashboard/DashboardBookings';
 import { DashboardClients } from '../../pages/dashboard/DashboardClients';
 import type { PreviewContext } from '@shared';
-import { WebsitePage } from '../../pages/dashboard/WebsitePage';
+import { DashboardWebsite } from '../../pages/dashboard/DashboardWebsite';
 
 /**
  * Canvas panel with Preview and Actions tabs.
@@ -25,7 +25,7 @@ import { WebsitePage } from '../../pages/dashboard/WebsitePage';
 export function CanvasPanel() {
   const dispatch = useAppDispatch();
   const { activeTab, proposals, previewContext } = useAppSelector((state) => state.canvas);
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
 
   /**
    * Render preview content based on previewContext
@@ -33,7 +33,7 @@ export function CanvasPanel() {
   const renderPreviewContent = () => {
     const previewMap: Record<PreviewContext, React.ReactNode> = {
       booking_page: <BookingPage business={business} isPreview />,
-      business_profile: <WebsitePage />,
+      business_profile: <DashboardWebsite />,
       services: <DashboardServices />,
       bookings: <DashboardBookings />,
       clients: <DashboardClients />,
@@ -51,7 +51,7 @@ export function CanvasPanel() {
       <Flex
         px={4}
         py={3}
-        bg="white"
+        bg="surface.card"
         borderBottom="1px"
         borderColor="gray.200"
         flexShrink={0}
@@ -61,8 +61,8 @@ export function CanvasPanel() {
         <ButtonGroup
           isAttached
           size="sm"
-          bg="gray.100"
-          borderRadius="lg"
+          bg="surface.page"
+          borderRadius="md"
           p="2px"
         >
           <Button
@@ -77,7 +77,7 @@ export function CanvasPanel() {
             boxShadow={isPreview ? 'sm' : 'none'}
             _hover={{
               bg: isPreview ? 'white' : 'gray.50',
-              color: 'gray.900',
+              color: 'text.heading',
             }}
             transition="all 0.2s"
           >
@@ -95,7 +95,7 @@ export function CanvasPanel() {
             boxShadow={isActions ? 'sm' : 'none'}
             _hover={{
               bg: isActions ? 'white' : 'gray.50',
-              color: 'gray.900',
+              color: 'text.heading',
             }}
             transition="all 0.2s"
             position="relative"
@@ -104,7 +104,7 @@ export function CanvasPanel() {
             {proposals.length > 0 && (
               <Badge
                 colorScheme="alert"
-                borderRadius="full"
+                borderRadius="md"
                 ml={1.5}
                 fontSize="2xs"
                 minW="18px"

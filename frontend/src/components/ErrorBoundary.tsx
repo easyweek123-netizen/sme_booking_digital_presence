@@ -37,9 +37,9 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <Center minH="100vh" bg="gray.50" p={4}>
+        <Center minH="100vh" bg="surface.alt" p={4}>
           <Box
-            bg="white"
+            bg="surface.card"
             p={8}
             borderRadius="2xl"
             shadow="lg"
@@ -48,10 +48,10 @@ export class ErrorBoundary extends Component<Props, State> {
           >
             <VStack spacing={4}>
               <Text fontSize="4xl">😕</Text>
-              <Heading size="lg" color="gray.900">
+              <Heading size="lg" color="text.heading">
                 Something went wrong
               </Heading>
-              <Text color="gray.600">
+              <Text color="text.secondary">
                 We're sorry, but something unexpected happened. Please try again.
               </Text>
               <Button

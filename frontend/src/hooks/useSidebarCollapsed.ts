@@ -7,8 +7,8 @@ const TOGGLE_EVENT = 'sidebar-toggle';
  * Hook for managing sidebar collapsed state with localStorage persistence.
  * Syncs state across components via custom events (same tab) and storage events (cross-tab).
  */
-export function useSidebarCollapsed() {
-  const [isCollapsed, setIsCollapsed] = useState(() => 
+export function useSidebarCollapsed({ isMobile }: { isMobile: boolean }) {
+  const [isCollapsed, setIsCollapsed] = useState(() => isMobile ? false : 
     localStorage.getItem(STORAGE_KEY) === 'true'
   );
 

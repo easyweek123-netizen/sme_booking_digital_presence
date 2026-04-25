@@ -68,7 +68,7 @@ export function DashboardBookingStatusAction({
   if (isLoading) {
     return (
       <Center py={8}>
-        <Spinner color="brand.500" />
+        <Spinner color="accent.primary" />
       </Center>
     );
   }
@@ -76,7 +76,7 @@ export function DashboardBookingStatusAction({
   if (isError || !booking) {
     return (
       <VStack spacing={3} align="stretch">
-        <Text color="gray.600">Could not load this booking.</Text>
+        <Text color="text.secondary">Could not load this booking.</Text>
         <Button onClick={onCancel}>Close</Button>
       </VStack>
     );
@@ -86,7 +86,7 @@ export function DashboardBookingStatusAction({
   if (!allowed) {
     return (
       <VStack spacing={3} align="stretch">
-        <Text color="gray.600">
+        <Text color="text.secondary">
           This status change isn&apos;t available for the current booking state.
         </Text>
         <Button onClick={onCancel}>Close</Button>

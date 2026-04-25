@@ -41,15 +41,15 @@ export function MobileChatTabs() {
 
         {/* Bottom tab bar — stays pinned; safe-area padding for iPhone home indicator */}
         <TabList
-          bg="white"
+          bg="surface.card"
           borderTop="1px"
-          borderColor="gray.200"
+          borderColor="border.subtle"
           flexShrink={0}
           pb="env(safe-area-inset-bottom)"
         >
           <Tab
             py={3}
-            _selected={{ color: 'brand.500', borderTopColor: 'brand.500' }}
+            _selected={{ color: 'accent.primary', borderTopColor: 'brand.500' }}
           >
             <Flex align="center" gap={2}>
               <MessageSquareIcon size={18} />
@@ -58,7 +58,7 @@ export function MobileChatTabs() {
           </Tab>
           <Tab
             py={3}
-            _selected={{ color: 'brand.500', borderTopColor: 'brand.500' }}
+            _selected={{ color: 'accent.primary', borderTopColor: 'brand.500' }}
           >
             <Flex align="center" gap={2}>
               <SparkleIcon size={18} />

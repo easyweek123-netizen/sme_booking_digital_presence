@@ -93,7 +93,7 @@ export function BookingDetailDrawer({
                   fontSize="sm"
                   px={2}
                   py={0.5}
-                  borderRadius="full"
+                  borderRadius="lg"
                 >
                   {statusConfig.label}
                 </Badge>
@@ -102,7 +102,7 @@ export function BookingDetailDrawer({
               {/* Booking Info Grid */}
               <VStack align="stretch" spacing={2}>
                 <HStack>
-                  <Text fontSize="sm" color="gray.500" minW="100px">
+                  <Text fontSize="sm" color="text.muted" minW="100px">
                     Reference:
                   </Text>
                   <Text fontSize="sm" fontWeight="medium" fontFamily="mono">
@@ -111,7 +111,7 @@ export function BookingDetailDrawer({
                 </HStack>
 
                 <HStack>
-                  <Text fontSize="sm" color="gray.500" minW="100px">
+                  <Text fontSize="sm" color="text.muted" minW="100px">
                     Date & Time:
                   </Text>
                   <Text fontSize="sm">
@@ -121,14 +121,14 @@ export function BookingDetailDrawer({
                 </HStack>
 
                 <HStack>
-                  <Text fontSize="sm" color="gray.500" minW="100px">
+                  <Text fontSize="sm" color="text.muted" minW="100px">
                     Customer:
                   </Text>
                   <Text fontSize="sm">{booking.customerName}</Text>
                 </HStack>
 
                 <HStack>
-                  <Text fontSize="sm" color="gray.500" minW="100px">
+                  <Text fontSize="sm" color="text.muted" minW="100px">
                     Email:
                   </Text>
                   <Text fontSize="sm">{booking.customerEmail}</Text>
@@ -137,7 +137,7 @@ export function BookingDetailDrawer({
                 {booking.service && (
                   <>
                     <HStack>
-                      <Text fontSize="sm" color="gray.500" minW="100px">
+                      <Text fontSize="sm" color="text.muted" minW="100px">
                         Duration:
                       </Text>
                       <Text fontSize="sm">
@@ -146,7 +146,7 @@ export function BookingDetailDrawer({
                     </HStack>
 
                     <HStack>
-                      <Text fontSize="sm" color="gray.500" minW="100px">
+                      <Text fontSize="sm" color="text.muted" minW="100px">
                         Price:
                       </Text>
                       <Text fontSize="sm" fontWeight="medium">
@@ -157,7 +157,7 @@ export function BookingDetailDrawer({
                 )}
 
                 <HStack>
-                  <Text fontSize="sm" color="gray.500" minW="100px">
+                  <Text fontSize="sm" color="text.muted" minW="100px">
                     Created:
                   </Text>
                   <Text fontSize="sm">
@@ -177,7 +177,7 @@ export function BookingDetailDrawer({
 
             {/* Quick Add Note - Always visible */}
             <Box>
-              <Text fontSize="sm" fontWeight="600" color="gray.700" mb={2}>
+              <Text fontSize="sm" fontWeight="600" color="text.strong" mb={2}>
                 Add Session Note
               </Text>
               <Textarea
@@ -190,7 +190,7 @@ export function BookingDetailDrawer({
               />
               <Button
                 size="sm"
-                colorScheme="blue"
+                colorScheme="brand"
                 onClick={handleAddNote}
                 isLoading={isCreating}
                 isDisabled={!noteContent.trim()}

@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Flex,
   IconButton,
   Text,
@@ -10,9 +11,10 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MenuIcon, CloseIcon } from '../icons';
+import { MenuIcon } from '../icons';
 import { Sidebar } from './Sidebar';
 import { ROUTES } from '../../config/routes';
+import { Logo } from '../ui';
 
 // Get current page title based on route
 function getPageTitle(pathname: string): string {
@@ -35,17 +37,15 @@ export function MobileNav({ businessName }: MobileNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const pageTitle = getPageTitle(location.pathname);
-
   return (
     <>
       <Box
-        display={{ base: 'block', lg: 'none' }}
         position="sticky"
         top={0}
-        zIndex={10}
-        bg="white"
+        bg="surface.card"
         borderBottom="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
+        zIndex={2}
       >
         <Flex h="60px" align="center" justify="space-between" px={4}>
           <IconButton
@@ -54,69 +54,34 @@ export function MobileNav({ businessName }: MobileNavProps) {
             variant="ghost"
             size="md"
             onClick={onOpen}
-            color="gray.600"
-            borderRadius="lg"
-            _hover={{ bg: 'gray.50' }}
+            color="text.secondary"
+            borderRadius="sm"
+            _hover={{ bg: 'surface.alt' }}
+            zIndex={3}
           />
 
           <Box textAlign="center">
-            <Text fontSize="sm" fontWeight="600" color="gray.900">
+            <Text fontSize="sm" fontWeight="600" color="text.primary">
               {pageTitle}
             </Text>
             {businessName && (
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="text.muted">
                 {businessName}
               </Text>
             )}
           </Box>
-
-          {/* Logo icon - navigates home */}
-          <Box
-            as="button"
-            w="36px"
-            h="36px"
-            bg="brand.500"
-            borderRadius="lg"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            onClick={() => navigate(ROUTES.HOME)}
-            _hover={{ bg: 'brand.600' }}
-            _active={{ transform: 'scale(0.95)' }}
-            transition="all 0.15s"
-            aria-label="Go to home"
-          >
-            <Text color="white" fontWeight="bold" fontSize="md">
-              B
-            </Text>
-          </Box>
+          <Logo size="md" showHeading={false} onClick={() => navigate(ROUTES.HOME)} />
         </Flex>
       </Box>
 
-      {/* Mobile drawer */}
       <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
         <DrawerOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
-        <DrawerContent maxW="280px" bg="white">
-          {/* Close button */}
-          <Box position="absolute" top={4} right={4} zIndex={1}>
-            <IconButton
-              aria-label="Close menu"
-              icon={<CloseIcon />}
-              variant="ghost"
-              size="sm"
-              color="gray.500"
-              _hover={{ bg: 'gray.100' }}
-              onClick={onClose}
-              borderRadius="full"
-            />
-          </Box>
-
+        <DrawerContent maxW="240px" bg="surface.card">
           <DrawerBody p={0}>
-            <Sidebar onClose={onClose} />
+            <Sidebar onClose={onClose} isInDrawer />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
     </>
   );
 }
-

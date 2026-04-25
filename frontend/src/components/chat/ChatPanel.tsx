@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Box, Flex, VStack, Text, HStack } from '@chakra-ui/react';
-import { useInitChatQuery, useSendMessageMutation, useGetMyBusinessQuery } from '../../store/api';
+import { useInitChatQuery, useSendMessageMutation } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { addMessage, setInitialized, clearChat } from '../../store/slices/chatSlice';
 import {
@@ -22,14 +23,14 @@ import type { Message } from '../../types/chat.types';
 export function ChatPanel() {
   const dispatch = useAppDispatch();
   const { messages, initialized } = useAppSelector((state) => state.chat);
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const { data: initData, isLoading: isInitLoading, refetch } = useInitChatQuery(undefined, {
     skip: initialized,
   });
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const businessName = business?.name || 'Your';
+  const businessName = business.name;
 
   // Handle initial chat message
   useEffect(() => {
@@ -79,7 +80,7 @@ export function ChatPanel() {
     }
   };
 
-  const handleSuggestionSelect = (value: string, _label: string) => {
+  const handleSuggestionSelect = (value: string) => {
     handleSubmit(value);
   };
 
@@ -94,24 +95,23 @@ export function ChatPanel() {
       direction="column"
       h="full"
       overflow="hidden"
-      bg="linear-gradient(180deg, rgba(46, 182, 125, 0.03) 0%, transparent 50%)"
+      bg="surface.page"
     >
       {/* Header */}
       <HStack
         flexShrink={0}
         justify="space-between"
         align="center"
-        px={4}
-        py={3}
+        p={4}
         borderBottom="1px"
-        borderColor="gray.100"
-        bg="white"
+        borderColor="border.subtle"
+        bg="surface.card"
       >
         <HStack spacing={2}>
-          <Box p={1.5} borderRadius="lg" bg="brand.50" color="brand.500">
+          <Box p={1.5} borderRadius="sm" bg="brand.50" color="accent.primary">
             <SparkleIcon size={16} />
           </Box>
-          <Text fontWeight="600" color="gray.700" fontSize="sm">
+          <Text fontWeight="600" color="text.strong" fontSize="sm">
             {businessName}'s AI Assistant
           </Text>
         </HStack>
@@ -120,13 +120,13 @@ export function ChatPanel() {
           <Text
             as="button"
             fontSize="xs"
-            color="gray.400"
+            color="text.faint"
             cursor="pointer"
             onClick={handleClearChat}
             px={2}
             py={1}
-            borderRadius="md"
-            _hover={{ color: 'gray.600', bg: 'gray.50' }}
+            borderRadius="sm"
+            _hover={{ color: 'text.secondary', bg: 'surface.alt' }}
             transition="all 0.2s"
           >
             New chat
@@ -143,15 +143,15 @@ export function ChatPanel() {
               align="center"
               justify="center"
               py={16}
-              color="gray.400"
+              color="text.faint"
             >
-              <Box p={4} borderRadius="2xl" bg="gray.50" color="gray.300" mb={4}>
+              <Box p={4} borderRadius="sm" bg="surface.alt" color="accent.primary" mb={4}>
                 <SparkleIcon size={32} />
               </Box>
-              <Text fontSize="lg" fontWeight="500" color="gray.500">
+              <Text fontSize="lg" fontWeight="500" color="text.muted">
                 How can I help you today?
               </Text>
-              <Text fontSize="sm" color="gray.400" mt={1}>
+              <Text fontSize="sm" color="text.faint" mt={1}>
                 Ask me anything about your business
               </Text>
             </Flex>
@@ -164,7 +164,7 @@ export function ChatPanel() {
       </Box>
 
       {/* Input area */}
-      <Box flexShrink={0} px={4} py={4} borderTop="1px" borderColor="gray.100">
+      <Box flexShrink={0} px={4} py={2}>
         <ChatInput
           placeholder="Ask me anything..."
           onSubmit={handleSubmit}

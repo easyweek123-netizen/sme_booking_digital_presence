@@ -9,7 +9,6 @@ import {
   Circle,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { SECTION_PADDING } from '../../constants';
 
 const MotionBox = motion.create(Box);
 
@@ -23,27 +22,27 @@ interface Step {
 const steps: Step[] = [
   {
     id: 1,
-    title: 'Add Business Info',
-    description: 'Enter your name, hours, and location',
-    color: '#8B5CF6', // Purple
+    title: 'Signup',
+    description: 'Tell us briefly about your business name and create an account',
+    color: 'accent.primary',
   },
   {
     id: 2,
-    title: 'Add Services',
-    description: 'Set your services, prices, and durations',
-    color: '#14B8A6', // Teal
+    title: 'Setup',
+    description: 'Chat with AI to setup your services, pricing and business profile',
+    color: 'accent.primary',
   },
   {
     id: 3,
-    title: 'Create Account',
-    description: 'Sign up with Google to save your page',
-    color: '#F97316', // Orange
+    title: 'Share',
+    description: 'Share your booking website with your customers',
+    color: 'accent.primary',
   },
   {
     id: 4,
-    title: 'Share & Grow',
-    description: 'Get your link and start accepting bookings',
-    color: '#3B82F6', // Blue
+    title: 'Get Bookings',
+    description: 'Chat with AI to learn who is booking and when, and get notified',
+    color: 'accent.primary',
   },
 ];
 
@@ -63,16 +62,16 @@ function StepCard({ step, index }: { step: Step; index: number }) {
         <Box position="relative">
           <Circle
             size={{ base: '80px', md: '100px' }}
-            bg={`${step.color}15`}
+            bg="brand.50"
             position="relative"
           >
             <Circle
               size={{ base: '60px', md: '72px' }}
-              bg={step.color}
+              bg="brand.500"
               color="white"
               fontSize={{ base: 'xl', md: '2xl' }}
               fontWeight="bold"
-              boxShadow={`0 8px 24px ${step.color}40`}
+              boxShadow="card"
             >
               {step.id}
             </Circle>
@@ -85,12 +84,10 @@ function StepCard({ step, index }: { step: Step; index: number }) {
             as="h3"
             fontSize={{ base: 'lg', md: 'xl' }}
             fontWeight="600"
-            color="gray.900"
           >
             {step.title}
           </Heading>
           <Text
-            color="gray.500"
             fontSize={{ base: 'sm', md: 'md' }}
             maxW="200px"
           >
@@ -109,14 +106,10 @@ function ConnectorLine() {
       flex="0 0 auto"
       w="60px"
       h="2px"
-      bg="gray.200"
+      bg="border.subtle"
       borderRadius="full"
       position="relative"
       top="-20px"
-      sx={{
-        backgroundImage: 'linear-gradient(90deg, transparent 50%, gray.200 50%)',
-        backgroundSize: '8px 2px',
-      }}
     />
   );
 }
@@ -127,7 +120,7 @@ function MobileConnector() {
       display={{ base: 'flex', md: 'none' }}
       w="2px"
       h="40px"
-      bg="gray.200"
+      bg="border.subtle"
       mx="auto"
       borderRadius="full"
     />
@@ -136,7 +129,7 @@ function MobileConnector() {
 
 export function HowItWorks() {
   return (
-    <Box id="how-it-works" py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }} bg="white">
+    <Box id="how-it-works" py={{ base: 16, md: 24 }} bg="surface.page">
       <Container maxW="container.xl">
         <VStack spacing={{ base: 12, md: 16 }}>
           {/* Section header */}
@@ -150,7 +143,6 @@ export function HowItWorks() {
                 as="h2"
                 fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
                 fontWeight="700"
-                color="gray.900"
               >
                 How It Works
               </Heading>
@@ -161,7 +153,7 @@ export function HowItWorks() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Text color="gray.500" fontSize={{ base: 'md', md: 'lg' }}>
+              <Text fontSize={{ base: 'md', md: 'lg' }}>
                 Get your professional booking page up and running in minutes
               </Text>
             </MotionBox>
@@ -183,7 +175,7 @@ export function HowItWorks() {
                 {index < steps.length - 1 && (
                   <>
                     <HStack justify="center" display={{ base: 'none', md: 'flex' }}>
-                      <ConnectorLine />
+                      {/* <ConnectorLine /> */}
                     </HStack>
                     <MobileConnector />
                   </>

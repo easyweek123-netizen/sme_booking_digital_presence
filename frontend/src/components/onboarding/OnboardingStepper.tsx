@@ -34,14 +34,14 @@ export function OnboardingStepper({
       <Box w="full" mb={6}>
         {/* Mobile: Progress bar with step indicator */}
         <Flex align="center" justify="space-between" mb={2}>
-          <Text fontSize="sm" fontWeight="500" color="gray.600">
+          <Text fontSize="sm" fontWeight="500" color="text.secondary">
             Step {currentStep} of {steps.length}
           </Text>
-          <Text fontSize="sm" fontWeight="600" color="brand.500">
+          <Text fontSize="sm" fontWeight="600" color="accent.primary">
             {steps[currentStep - 1]?.label}
           </Text>
         </Flex>
-        <Box bg="gray.100" h="2" borderRadius="full" overflow="hidden">
+        <Box bg="surface.page" h="2" borderRadius="full" overflow="hidden">
           <MotionBox
             bg="brand.500"
             h="full"

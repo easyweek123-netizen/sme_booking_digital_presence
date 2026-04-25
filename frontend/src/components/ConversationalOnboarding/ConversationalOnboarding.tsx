@@ -1,4 +1,4 @@
-import { Flex, Box, VStack, HStack, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Box, VStack, HStack, Spinner, Text, Container } from '@chakra-ui/react';
 import { SplitLayout } from '../Layout';
 import { AllMessages, ChatInput, TypingIndicator } from '../chat';
 import { OnboardingSteps } from './OnboardingSteps';
@@ -20,7 +20,7 @@ interface ConversationalOnboardingProps {
   isAuthenticated: boolean;
   isCreating: boolean;
   isError: boolean;
-  handleAuthError: (error: any) => void;
+  handleAuthError: (error: unknown) => void;
 }
 
 export function ConversationalOnboarding({
@@ -38,40 +38,91 @@ export function ConversationalOnboarding({
 }: ConversationalOnboardingProps) {
   // Step indicator: 0=name, 1=category, 2=complete/auth
   const stepIndex = currentStep ? (currentStep.id === 'name' ? 0 : 1) : 2;
-
   return (
-    <SplitLayout leftPanel={<OnboardingSteps currentStep={stepIndex} />}>
-      <Flex direction="column" w="full" maxW="lg" h="full" py={8}>
-        {/* Messages */}
-        <Flex flex={3} direction="column" justify="flex-end" overflow="hidden">
-          <VStack spacing={4} align="stretch" w="full">
-            <AllMessages
-              messages={messages}
-              onSuggestionSelect={onSuggestionSelect}
-            />
+    <Flex direction="column" minH="100vh" bg="surface.page">
+
+      <Container maxW="container.md" px={{ base: 4 }} py={{ base: 6, md: 10 }} flex={1}>
+
+        <Box
+          p={{ base: 4, md: 6 }}
+          maxW="lg"
+          mx="auto"
+        >
+          {/* Conversation */}
+          <VStack
+            spacing={4}
+            align="stretch"
+            minH={{ base: '320px', md: '380px' }}
+            justify="flex-end"
+            mb={4}
+          >
+            <AllMessages messages={messages} onSuggestionSelect={onSuggestionSelect} />
             {isTyping && <TypingIndicator />}
           </VStack>
-        </Flex>
 
-        {/* Input area */}
-        <Box mt={6} flexShrink={0} flex={2}>
-          {onboardingComplete ? (
-            isAuthenticated && !isError ? (
-              <HStack justify="center" spacing={3} py={4}>
-                <Spinner size="sm" color="brand.500" />
-                <Text color="gray.500">Creating your practice...</Text>
-              </HStack>
+          {/* Action area: input or auth or spinner */}
+          <Box>
+            {onboardingComplete ? (
+              isAuthenticated && !isError ? (
+                <HStack justify="center" spacing={3} py={4}>
+                  <Spinner size="sm" color="accent.primary" />
+                  <Text color="text.muted" fontSize="sm">
+                    Creating your practice...
+                  </Text>
+                </HStack>
+              ) : (
+                <VStack spacing={3} align="stretch">
+                  <Text fontSize="sm" color="text.muted" textAlign="center">
+                    Sign in to finish setting up your booking page.
+                  </Text>
+                  <GoogleButton
+                    onError={handleAuthError}
+                    onSuccess={() => {}}
+                    isDisabled={isCreating}
+                  />
+                </VStack>
+              )
             ) : (
-              <GoogleButton 
-                onError={handleAuthError} 
-                onSuccess={() => {}}
-                isDisabled={isCreating} />
-            )
-          ) : (
-            <ChatInput placeholder={placeholder} onSubmit={onSubmit} />
-          )}
+              <ChatInput placeholder={placeholder} onSubmit={onSubmit} />
+            )}
+          </Box>
         </Box>
-      </Flex>
-    </SplitLayout>
-  );
+      </Container>
+    </Flex>
+  )
+  // return (
+  //   <SplitLayout leftPanel={<OnboardingSteps currentStep={stepIndex} />}>
+  //     <Flex direction="column" w="full" maxW="lg" h="full" py={8}>
+  //       {/* Messages */}
+  //       <Flex flex={3} direction="column" justify="flex-end" overflow="hidden">
+  //         <VStack spacing={4} align="stretch" w="full">
+  //           <AllMessages
+  //             messages={messages}
+  //             onSuggestionSelect={onSuggestionSelect}
+  //           />
+  //           {isTyping && <TypingIndicator />}
+  //         </VStack>
+  //       </Flex>
+
+  //       {/* Input area */}
+  //       <Box mt={6} flexShrink={0} flex={2}>
+  //         {onboardingComplete ? (
+  //           isAuthenticated && !isError ? (
+  //             <HStack justify="center" spacing={3} py={4}>
+  //               <Spinner size="sm" color="accent.primary" />
+  //               <Text color="text.muted">Creating your practice...</Text>
+  //             </HStack>
+  //           ) : (
+  //             <GoogleButton 
+  //               onError={handleAuthError} 
+  //               onSuccess={() => {}}
+  //               isDisabled={isCreating} />
+  //           )
+  //         ) : (
+  //           <ChatInput placeholder={placeholder} onSubmit={onSubmit} />
+  //         )}
+  //       </Box>
+  //     </Flex>
+  //   </SplitLayout>
+  // );
 }

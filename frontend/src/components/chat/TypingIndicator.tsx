@@ -29,7 +29,7 @@ export function TypingIndicator() {
           h={7}
           borderRadius="lg"
           bg="brand.50"
-          color="brand.500"
+          color="accent.primary"
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -39,14 +39,14 @@ export function TypingIndicator() {
         </Box>
         
         <Box
-          bg="white"
+          bg="surface.card"
           px={4}
           py={3}
           borderRadius="2xl"
           borderTopLeftRadius="lg"
           boxShadow="sm"
           border="1px solid"
-          borderColor="gray.100"
+          borderColor="border.subtle"
         >
           <HStack spacing={1.5}>
             {[0, 1, 2].map((i) => (

@@ -17,7 +17,7 @@ export function DemoPreview() {
     <Box
       id="demo"
       py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }}
-      bg="gray.50"
+      bg="surface.alt"
     >
       <Container maxW="container.lg">
         <MotionBox
@@ -32,14 +32,14 @@ export function DemoPreview() {
               <Heading
                 fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
                 fontWeight="800"
-                color="gray.900"
+                color="text.heading"
                 letterSpacing="-0.02em"
               >
                 See What Your Customers See
               </Heading>
               <Text
                 fontSize={{ base: 'md', md: 'lg' }}
-                color="gray.500"
+                color="text.muted"
                 maxW="520px"
               >
                 A clean, professional booking page — ready to share in minutes
@@ -53,36 +53,36 @@ export function DemoPreview() {
               mx="auto"
               borderRadius="xl"
               overflow="hidden"
-              boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.15)"
+              boxShadow="modal"
               border="1px solid"
-              borderColor="gray.200"
+              borderColor="border.subtle"
             >
               {/* Browser Chrome */}
               <HStack
-                bg="gray.100"
+                bg="surface.page"
                 px={4}
                 py={3}
                 borderBottom="1px solid"
-                borderColor="gray.200"
+                borderColor="border.subtle"
                 spacing={3}
               >
                 {/* Traffic lights */}
                 <HStack spacing={2}>
-                  <Box w="12px" h="12px" borderRadius="full" bg="red.300" />
-                  <Box w="12px" h="12px" borderRadius="full" bg="yellow.300" />
-                  <Box w="12px" h="12px" borderRadius="full" bg="green.300" />
+                  <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+                  <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
+                  <Box w="12px" h="12px" borderRadius="full" bg="gray.300" />
                 </HStack>
                 {/* Address bar */}
                 <Box
                   flex={1}
-                  bg="white"
+                  bg="surface.card"
                   borderRadius="md"
                   px={3}
                   py={1.5}
                   fontSize="xs"
-                  color="gray.500"
+                  color="text.muted"
                   border="1px solid"
-                  borderColor="gray.200"
+                  borderColor="border.subtle"
                 >
                   bookeasy.app/your-business
                 </Box>
@@ -96,11 +96,11 @@ export function DemoPreview() {
                 display="block"
                 fallback={
                   <Box
-                    bg="white"
+                    bg="surface.card"
                     py={20}
                     textAlign="center"
                   >
-                    <Text color="gray.400" fontSize="sm">
+                    <Text color="text.faint" fontSize="sm">
                       Booking page preview
                     </Text>
                   </Box>

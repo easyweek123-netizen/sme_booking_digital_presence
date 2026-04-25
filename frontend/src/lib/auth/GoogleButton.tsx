@@ -41,7 +41,7 @@ export function GoogleButton({
       w="full"
       borderRadius="lg"
       fontWeight="500"
-      _hover={{ bg: 'gray.50' }}
+      _hover={{ bg: 'surface.alt' }}
     >
       {text}
     </Button>

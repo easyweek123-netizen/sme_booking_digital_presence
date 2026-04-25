@@ -20,21 +20,21 @@ export function PrimaryButton({
 
   return (
     <Button
-      bg={isLight ? 'white' : 'brand.500'}
-      color={color ? color : isLight ? 'gray.900' : 'white'}
+      bg={isLight ? 'surface.card' : 'gray.800'}
+      color={color ? color : isLight ? 'text.heading' : 'white'}
       fontWeight="600"
       px={props.size === 'lg' ? 8 : 6}
       _hover={{
-        bg: isLight ? 'gray.100' : 'brand.600',
+        bg: isLight ? 'surface.page' : 'brand.600',
         transform: 'translateY(-2px)',
       }}
       _active={{
-        bg: isLight ? 'gray.200' : 'brand.700',
+        bg: isLight ? 'surface.muted' : 'brand.700',
         transform: 'translateY(0)',
       }}
       transition="all 0.2s"
       rightIcon={showArrow ? <ArrowRightIcon size={20} /> : undefined}
-      borderRadius="lg"
+      borderRadius="sm"
       {...props}
     >
       {children}

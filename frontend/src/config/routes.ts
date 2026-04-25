@@ -8,9 +8,9 @@ export const ROUTES = {
   IMPRESSUM: '/impressum',
   DASHBOARD: {
     ROOT: '/dashboard',
-    CHAT: '/dashboard/chat',
     CANVAS: '/dashboard/canvas',
     BOOKINGS: '/dashboard/bookings',
+    CLIENTS: '/dashboard/clients',
     SERVICES: '/dashboard/services',
     WEBSITE: '/dashboard/website',
   },

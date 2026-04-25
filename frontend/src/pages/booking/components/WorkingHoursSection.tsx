@@ -33,9 +33,9 @@ export function WorkingHoursSection({ workingHours }: WorkingHoursSectionProps) 
           </Box>
         }
         onClick={onToggle}
-        color="gray.600"
+        color="text.secondary"
         px={0}
-        _hover={{ bg: 'transparent', color: 'gray.900' }}
+        _hover={{ bg: 'transparent', color: 'text.heading' }}
       >
         Working Hours
       </Button>
@@ -45,7 +45,7 @@ export function WorkingHoursSection({ workingHours }: WorkingHoursSectionProps) 
           spacing={1}
           mt={2}
           p={4}
-          bg="gray.50"
+          bg="surface.alt"
           borderRadius="lg"
           fontSize="sm"
         >
@@ -53,7 +53,7 @@ export function WorkingHoursSection({ workingHours }: WorkingHoursSectionProps) 
             const schedule = workingHours[day];
             return (
               <Flex key={day} justify="space-between">
-                <Text color="gray.600" fontWeight="500">
+                <Text color="text.secondary" fontWeight="500">
                   {DAY_LABELS[day]}
                 </Text>
                 <Text color={schedule?.isOpen ? 'gray.900' : 'gray.400'}>

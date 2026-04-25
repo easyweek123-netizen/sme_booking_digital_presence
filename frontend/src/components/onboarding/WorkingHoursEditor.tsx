@@ -79,9 +79,9 @@ export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }:
           </Box>
         }
         onClick={onToggle}
-        color="gray.600"
+        color="text.secondary"
         px={0}
-        _hover={{ bg: 'transparent', color: 'gray.900' }}
+        _hover={{ bg: 'transparent', color: 'text.heading' }}
         fontWeight="500"
         fontSize="sm"
       >
@@ -108,7 +108,7 @@ export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }:
                 bg={schedule.isOpen ? 'white' : 'gray.50'}
                 borderRadius="lg"
                 border="1px"
-                borderColor={schedule.isOpen ? 'gray.200' : 'gray.100'}
+                borderColor="border.subtle"
                 transition="all 0.2s"
                 gap={3}
               >
@@ -146,7 +146,7 @@ export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }:
                           size="sm"
                           w={{ base: '90px', md: '110px' }}
                           borderRadius="md"
-                          bg="white"
+                          bg="surface.card"
                           _focus={{
                             borderColor: 'brand.500',
                             boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
@@ -158,7 +158,7 @@ export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }:
                             </option>
                           ))}
                         </Select>
-                        <Text color="gray.400" fontSize="sm">
+                        <Text color="text.faint" fontSize="sm">
                           to
                         </Text>
                         <Select
@@ -167,7 +167,7 @@ export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }:
                           size="sm"
                           w={{ base: '90px', md: '110px' }}
                           borderRadius="md"
-                          bg="white"
+                          bg="surface.card"
                           _focus={{
                             borderColor: 'brand.500',
                             boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
@@ -188,7 +188,7 @@ export function WorkingHoursEditor({ value, onChange, defaultExpanded = false }:
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Text color="gray.400" fontSize="sm" fontStyle="italic">
+                      <Text color="text.faint" fontSize="sm" fontStyle="italic">
                         Closed
                       </Text>
                     </MotionBox>

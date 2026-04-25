@@ -5,18 +5,18 @@ export function BookingStatusSection() {
   return (
     <Box as="section" id="booking-status" py={10}>
       <Container maxW="600px" px={6}>
-        <Heading size="md" color="gray.900" mb={1} letterSpacing="-0.02em">
+        <Heading size="md" color="text.heading" mb={1} letterSpacing="-0.02em">
           Check Booking Status
         </Heading>
-        <Text color="gray.500" fontSize="sm" mb={4}>
+        <Text color="text.muted" fontSize="sm" mb={4}>
           Enter your reference code to check your booking
         </Text>
         {/* Reuse existing BookingStatusCheck but render it expanded by default */}
         <Box
-          bg="white"
+          bg="surface.card"
           borderRadius="xl"
           border="1px"
-          borderColor="gray.100"
+          borderColor="border.subtle"
           p={5}
         >
           <BookingStatusCheckInline />

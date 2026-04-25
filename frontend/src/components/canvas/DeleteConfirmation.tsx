@@ -23,7 +23,7 @@ export function DeleteConfirmation({
 }: DeleteConfirmationProps) {
   return (
     <VStack spacing={4} align="stretch">
-      <Text color="gray.600">
+      <Text color="text.secondary">
         Are you sure you want to delete "{name}"? This action cannot be undone.
       </Text>
       <HStack spacing={3}>

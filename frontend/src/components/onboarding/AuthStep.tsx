@@ -29,11 +29,11 @@ export function AuthStep({ onAuthSuccess, onAuthError, isCreating }: AuthStepPro
         <VStack spacing={6} py={12}>
           <Spinner
             size="xl"
-            color="brand.500"
+            color="accent.primary"
             thickness="4px"
             speed="0.8s"
           />
-          <Text color="gray.600" fontSize="lg">
+          <Text color="text.secondary" fontSize="lg">
             Creating your booking page...
           </Text>
         </VStack>
@@ -51,10 +51,10 @@ export function AuthStep({ onAuthSuccess, onAuthError, isCreating }: AuthStepPro
       <VStack spacing={6} align="stretch">
         {/* Header */}
         <Box textAlign="center" mb={2}>
-          <Heading size="lg" color="gray.900" mb={2}>
+          <Heading size="lg" color="text.heading" mb={2}>
             Create Your Account
           </Heading>
-          <Text color="gray.600">
+          <Text color="text.secondary">
             You're almost done! Sign in with Google to save your business.
           </Text>
         </Box>
@@ -62,11 +62,11 @@ export function AuthStep({ onAuthSuccess, onAuthError, isCreating }: AuthStepPro
         {/* Auth Options */}
         <VStack
           spacing={5}
-          bg="white"
+          bg="surface.card"
           p={6}
           borderRadius="xl"
           border="1px"
-          borderColor="gray.100"
+          borderColor="border.subtle"
         >
           <GoogleButton
             onSuccess={onAuthSuccess}

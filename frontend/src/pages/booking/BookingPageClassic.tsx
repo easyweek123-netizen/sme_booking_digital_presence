@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/preserve-manual-memoization, react-hooks/static-components -- legacy page scheduled for removal */
 import {
   Box,
   Container,
@@ -84,11 +85,11 @@ export function BookingPageClassic({
   // Loading state (skip if using prop)
   if (isLoading && !businessProp) {
     return (
-      <Box minH={isPreview ? "200px" : "100vh"} bg="gray.50">
+      <Box minH={isPreview ? "200px" : "100vh"} bg="surface.alt">
         <Center h={isPreview ? "200px" : "100vh"}>
           <VStack spacing={4}>
-            <Spinner size="xl" color="brand.500" thickness="4px" />
-            <Text color="gray.500">Loading...</Text>
+            <Spinner size="xl" color="accent.primary" thickness="4px" />
+            <Text color="text.muted">Loading...</Text>
           </VStack>
         </Center>
       </Box>
@@ -98,7 +99,7 @@ export function BookingPageClassic({
   // Error state
   if ((error && !businessProp) || !business) {
     return (
-      <Box minH={isPreview ? "200px" : "100vh"} bg="gray.50" py={isPreview ? 4 : 20}>
+      <Box minH={isPreview ? "200px" : "100vh"} bg="surface.alt" py={isPreview ? 4 : 20}>
         <Container maxW="lg">
           <Alert
             status={isPreview ? "info" : "error"}
@@ -114,7 +115,7 @@ export function BookingPageClassic({
             <Heading size="md" mb={2}>
               {isPreview ? "No Preview Available" : "Business Not Found"}
             </Heading>
-            <Text color="gray.600">
+            <Text color="text.secondary">
               {isPreview 
                 ? "Complete your business setup to see a preview."
                 : "The booking page you're looking for doesn't exist or has been removed."
@@ -154,10 +155,10 @@ export function BookingPageClassic({
   );
 
   return (
-    <Box minH={isPreview ? "auto" : "100vh"} bg="gray.50" style={brandColorStyles}>
+    <Box minH={isPreview ? "auto" : "100vh"} bg="surface.alt" style={brandColorStyles}>
       {/* Header - hide in preview mode */}
       {!isPreview && (
-      <Box bg="white" borderBottom="1px" borderColor="gray.100" py={3}>
+      <Box bg="surface.card" borderBottom="1px" borderColor="border.subtle" py={3}>
         <Container maxW="6xl">
           <Logo size="sm" onClick={() => navigate(ROUTES.HOME)} />
         </Container>
@@ -173,10 +174,10 @@ export function BookingPageClassic({
               <Box
                 position="sticky"
                 top={6}
-                bg="white"
+                bg="surface.card"
                 borderRadius="xl"
                 border="1px"
-                borderColor="gray.100"
+                borderColor="border.subtle"
                 overflow="hidden"
               >
                 {/* Cover Image / Gradient */}
@@ -209,10 +210,10 @@ export function BookingPageClassic({
             {/* Right Panel - Tabs + Content */}
             <Box flex={1} minW={0}>
               <Box
-                bg="white"
+                bg="surface.card"
                 borderRadius="xl"
                 border="1px"
-                borderColor="gray.100"
+                borderColor="border.subtle"
                 overflow="hidden"
               >
                 {/* Tabs - only show if there's about content */}
@@ -227,14 +228,14 @@ export function BookingPageClassic({
                 {/* Tab Content */}
                 <Box p={5}>
                   {!hasAboutContent && (
-                    <Heading size="md" color="gray.900" mb={4}>
+                    <Heading size="md" color="text.heading" mb={4}>
                       Select a Service
                     </Heading>
                   )}
 
                   {activeServices.length === 0 && activeTab === 'services' ? (
-                    <Box p={8} textAlign="center" borderRadius="lg" bg="gray.50">
-                      <Text color="gray.500">No services available at the moment.</Text>
+                    <Box p={8} textAlign="center" borderRadius="lg" bg="surface.alt">
+                      <Text color="text.muted">No services available at the moment.</Text>
                     </Box>
                   ) : (
                     <TabContent />
@@ -251,7 +252,7 @@ export function BookingPageClassic({
           <Box h="160px" bg={coverBackground} bgSize="cover" bgPosition="center" />
 
           {/* Business Info */}
-          <Box pb={4} pt={4} px={4} borderBottom="1px" borderColor="gray.100" bg="white">
+          <Box pb={4} pt={4} px={4} borderBottom="1px" borderColor="border.subtle" bg="surface.card">
             <Container maxW="lg" px={0}>
               <BusinessInfoPanel business={business} />
             </Container>
@@ -269,21 +270,21 @@ export function BookingPageClassic({
           {/* Tab Content */}
           <Container maxW="lg" py={4}>
             {!hasAboutContent && (
-              <Heading size="md" color="gray.900" mb={4}>
+              <Heading size="md" color="text.heading" mb={4}>
                 Select a Service
               </Heading>
             )}
 
             {activeServices.length === 0 && activeTab === 'services' ? (
               <Box
-                bg="white"
+                bg="surface.card"
                 p={8}
                 borderRadius="xl"
                 textAlign="center"
                 border="1px"
-                borderColor="gray.100"
+                borderColor="border.subtle"
               >
-                <Text color="gray.500">No services available at the moment.</Text>
+                <Text color="text.muted">No services available at the moment.</Text>
               </Box>
             ) : (
               <TabContent />
@@ -302,13 +303,13 @@ export function BookingPageClassic({
         right={0}
         py={3}
         textAlign="center"
-        bg="white"
+        bg="surface.card"
         borderTop="1px"
-        borderColor="gray.100"
-        zIndex={5}
+        borderColor="border.subtle"
+        // zIndex={5}
         boxShadow="0 -2px 10px rgba(0,0,0,0.04)"
       >
-        <Text fontSize="xs" color="gray.400">
+        <Text fontSize="xs" color="text.faint">
           Powered by{' '}
           <a href="/" style={{ color: 'inherit', fontWeight: 600 }}>
             BookEasy

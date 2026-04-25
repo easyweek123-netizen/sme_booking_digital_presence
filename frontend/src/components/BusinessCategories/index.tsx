@@ -63,7 +63,7 @@ export function BusinessCategories() {
   }
 
   return (
-    <Box bg="gray.50" py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }}>
+    <Box bg="surface.alt" py={{ base: SECTION_PADDING.base, md: SECTION_PADDING.md }}>
       <Container maxW="container.xl">
         <VStack spacing={{ base: 10, md: 14 }}>
           {/* Section Header - Centered */}
@@ -77,7 +77,7 @@ export function BusinessCategories() {
                 as="h2"
                 fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
                 fontWeight="700"
-                color="gray.900"
+                color="text.heading"
               >
                 Quick Solutions for Your Business
               </Heading>
@@ -88,7 +88,7 @@ export function BusinessCategories() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Text color="gray.500" fontSize={{ base: 'md', md: 'lg' }}>
+              <Text color="text.muted" fontSize={{ base: 'md', md: 'lg' }}>
                 Select your business area to receive a tailored option for your industry
               </Text>
             </MotionBox>
@@ -116,10 +116,10 @@ export function BusinessCategories() {
                 variant="solid"
                 borderRadius="full"
                 size="lg"
-                bg="white"
-                color="gray.600"
-                boxShadow="0 4px 12px rgba(0,0,0,0.1)"
-                _hover={{ bg: 'gray.50' }}
+                bg="surface.card"
+                color="text.secondary"
+                boxShadow="popover"
+                _hover={{ bg: 'surface.alt' }}
                 isDisabled={activeIndex === 0}
                 pointerEvents="auto"
                 opacity={activeIndex === 0 ? 0.5 : 1}
@@ -131,10 +131,10 @@ export function BusinessCategories() {
                 variant="solid"
                 borderRadius="full"
                 size="lg"
-                bg="white"
-                color="gray.600"
-                boxShadow="0 4px 12px rgba(0,0,0,0.1)"
-                _hover={{ bg: 'gray.50' }}
+                bg="surface.card"
+                color="text.secondary"
+                boxShadow="popover"
+                _hover={{ bg: 'surface.alt' }}
                 isDisabled={activeIndex >= (categories?.length || 1) - 1}
                 pointerEvents="auto"
                 opacity={activeIndex >= (categories?.length || 1) - 1 ? 0.5 : 1}

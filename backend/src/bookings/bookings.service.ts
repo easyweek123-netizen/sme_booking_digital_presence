@@ -300,6 +300,30 @@ export class BookingsService {
   }
 
   /**
+   * Hard-delete a booking (admin / support only). Optional reference must match id when provided.
+   */
+  async removeByIdAdmin(
+    id: number,
+    expectedReference?: string,
+  ): Promise<{ deletedId: number; reference: string }> {
+    const booking = await this.bookingRepository.findOne({ where: { id } });
+    if (!booking) {
+      throw new NotFoundException(`Booking ${id} not found`);
+    }
+    if (
+      expectedReference !== undefined &&
+      expectedReference.trim().length > 0 &&
+      booking.reference.toUpperCase() !== expectedReference.trim().toUpperCase()
+    ) {
+      throw new BadRequestException(
+        `Reference mismatch: booking ${id} has reference ${booking.reference}`,
+      );
+    }
+    await this.bookingRepository.remove(booking);
+    return { deletedId: id, reference: booking.reference };
+  }
+
+  /**
    * Find a booking for the authenticated owner of a business.
    * Verifies business ownership first, then loads by id (preferred) or reference within that business.
    */

@@ -28,7 +28,7 @@ export function NoteProposal({
     <VStack spacing={4} align="stretch">
       {customerName && (
         <HStack spacing={2}>
-          <Text fontSize="sm" color="gray.500">
+          <Text fontSize="sm" color="text.muted">
             {isUpdate ? 'Update note for' : 'Note for'}
           </Text>
           <Badge colorScheme="blue" fontSize="sm" px={2} borderRadius="md">

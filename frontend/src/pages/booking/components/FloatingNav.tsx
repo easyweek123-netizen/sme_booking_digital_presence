@@ -59,11 +59,11 @@ export function FloatingNav({ items }: FloatingNavProps) {
     >
       <HStack
         spacing={1}
-        bg="white"
+        bg="surface.card"
         borderRadius="full"
         boxShadow="lg"
         border="1px"
-        borderColor="gray.100"
+        borderColor="border.subtle"
         px={2}
         py={1.5}
       >
@@ -77,7 +77,7 @@ export function FloatingNav({ items }: FloatingNavProps) {
             fontWeight={activeSection === item.id ? '600' : '400'}
             color={activeSection === item.id ? 'brand.600' : 'gray.500'}
             bg={activeSection === item.id ? 'brand.50' : 'transparent'}
-            _hover={{ bg: 'gray.50' }}
+            _hover={{ bg: 'surface.alt' }}
             onClick={() => scrollTo(item.id)}
             px={3}
           >

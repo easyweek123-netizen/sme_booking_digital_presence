@@ -1,7 +1,7 @@
 import { Text, Center, VStack, Box, HStack } from '@chakra-ui/react';
 import { useAppDispatch } from '../../store/hooks';
 import { setActiveTab, clearProposals, removeProposal } from '../../store/slices/canvasSlice';
-import { useGetMyBusinessQuery } from '../../store/api';
+import { useBusiness } from '../../contexts/useBusiness';
 import { useProposalExecution } from '../../hooks';
 import { CanvasActionsContainer } from './CanvasActionsContainer';
 import { ActionErrorBoundary } from './ActionErrorBoundary';
@@ -20,7 +20,7 @@ interface ProposalCardProps {
 }
 
 function ProposalCard({ proposal }: ProposalCardProps) {
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const { execute, cancel, registry, loadingProposalId } = useProposalExecution();
 
   const isLoading = loadingProposalId === proposal.proposalId;
@@ -28,7 +28,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
   const config = registry[proposal.type];
   if (!config) {
     return (
-      <Center p={4} color="gray.400">
+      <Center p={4} color="text.faint">
         <Text>Unknown action: {proposal.type}</Text>
       </Center>
     );
@@ -36,7 +36,7 @@ function ProposalCard({ proposal }: ProposalCardProps) {
 
   // Build props from proposal data
   const componentProps = config.getProps(proposal, {
-    business: business ?? undefined,
+    business,
   });
 
   const handleSubmit = async (formData: Record<string, unknown>) => {
@@ -76,7 +76,7 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
 
   if (proposals.length === 0) {
     return (
-      <Center h="full" color="gray.400">
+      <Center h="full" color="text.faint">
         <VStack spacing={2}>
           <Text fontSize="lg">No active actions</Text>
           <Text fontSize="sm">Ask the AI to help you manage your business</Text>
@@ -92,10 +92,10 @@ export function ActionsRenderer({ proposals }: ActionsRendererProps) {
           <Text
             as="button"
             fontSize="xs"
-            color="gray.400"
+            color="text.faint"
             cursor="pointer"
             onClick={handleClearAll}
-            _hover={{ color: 'gray.600' }}
+            _hover={{ color: 'text.secondary' }}
           >
             Clear all
           </Text>

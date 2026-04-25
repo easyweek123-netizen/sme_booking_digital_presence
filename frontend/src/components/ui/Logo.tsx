@@ -1,4 +1,4 @@
-import { Box, Heading, Text, HStack, VStack } from '@chakra-ui/react';
+import { Box, Heading, Text, HStack } from '@chakra-ui/react';
 
 type LogoSize = 'sm' | 'md' | 'lg';
 type LogoColorScheme = 'light' | 'dark';
@@ -9,6 +9,7 @@ interface LogoProps {
   showTagline?: boolean;
   iconOnly?: boolean;
   onClick?: () => void;
+  showHeading?: boolean;
 }
 
 const sizeConfig = {
@@ -16,42 +17,39 @@ const sizeConfig = {
     box: '28px',
     fontSize: 'sm',
     headingSize: 'sm',
-    borderRadius: 'md',
+    borderRadius: 'xs',
     spacing: 2,
   },
   md: {
     box: '36px',
     fontSize: 'lg',
     headingSize: 'md',
-    borderRadius: 'lg',
-    spacing: 3,
+    borderRadius: 'xs',
+    spacing: 2,
   },
   lg: {
     box: '40px',
     fontSize: 'lg',
     headingSize: 'md',
-    borderRadius: 'xl',
+    borderRadius: 'xs',
     spacing: 3,
   },
 };
 
 const colorConfig = {
   light: {
-    text: 'gray.900',
-    tagline: 'gray.400',
+    text: 'gray.800'
   },
   dark: {
-    text: 'white',
-    tagline: 'gray.400',
+    text: 'gray.50',
   },
 };
 
 export function Logo({
   size = 'md',
   colorScheme = 'light',
-  showTagline = false,
-  iconOnly = false,
   onClick,
+  showHeading = true,
 }: LogoProps) {
   const sizeStyles = sizeConfig[size];
   const colorStyles = colorConfig[colorScheme];
@@ -61,12 +59,11 @@ export function Logo({
     <Box
       w={sizeStyles.box}
       h={sizeStyles.box}
-      bg="brand.500"
+      bg="gray.800"
       borderRadius={sizeStyles.borderRadius}
       display="flex"
       alignItems="center"
       justifyContent="center"
-      boxShadow={size === 'lg' ? '0 2px 8px color-mix(in srgb, var(--chakra-colors-brand-500) 30%, transparent)' : undefined}
       transition="box-shadow 0.2s ease"
       _groupHover={isClickable ? { 
         boxShadow: '0 4px 12px color-mix(in srgb, var(--chakra-colors-brand-500) 40%, transparent)' 
@@ -78,19 +75,6 @@ export function Logo({
     </Box>
   );
 
-  // Icon only mode - just return the logo box
-  if (iconOnly) {
-    return (
-      <Box
-        cursor={isClickable ? 'pointer' : 'default'}
-        onClick={onClick}
-        role={isClickable ? 'group' : undefined}
-      >
-        {logoBox}
-      </Box>
-    );
-  }
-
   return (
     <HStack
       spacing={sizeStyles.spacing}
@@ -99,28 +83,13 @@ export function Logo({
       role={isClickable ? 'group' : undefined}
     >
       {logoBox}
-      {showTagline ? (
-        <VStack align="start" spacing={0}>
-          <Heading
-            size={sizeStyles.headingSize}
-            color={colorStyles.text}
-            fontWeight="700"
-          >
-            BookEasy
-          </Heading>
-          <Text fontSize="xs" color={colorStyles.tagline}>
-            Booking made simple
-          </Text>
-        </VStack>
-      ) : (
-        <Heading
-          size={sizeStyles.headingSize}
-          color={colorStyles.text}
-          fontWeight="700"
-        >
-          BookEasy
-        </Heading>
-      )}
+      {showHeading && <Heading
+        size={sizeStyles.headingSize}
+        color={colorStyles.text}
+        fontWeight="700"
+      >
+        BookEasy
+      </Heading>}
     </HStack>
   );
 }

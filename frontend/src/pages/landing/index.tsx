@@ -1,16 +1,15 @@
 import { Box } from '@chakra-ui/react';
 import { Footer } from '../../components/Layout';
-import { HeroCarousel, HowItWorks, DemoPreview, Testimonials, FAQ, CTASection } from '../../components/Landing';
+import { Hero, HowItWorks, Testimonials, FAQ, CTASection } from '../../components/Landing';
 
 export function LandingPage() {
   return (
-    <Box bg="white">
-      <HeroCarousel />
-      <HowItWorks />
-      <DemoPreview />
+    <Box bg="surface.page">
+      <Hero />
       <Testimonials />
-      <FAQ />
+      <HowItWorks />
       <CTASection />
+      <FAQ />
       <Footer />
     </Box>
   );

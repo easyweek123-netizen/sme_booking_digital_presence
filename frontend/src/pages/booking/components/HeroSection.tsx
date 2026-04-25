@@ -1,4 +1,4 @@
-import { Box, Container, Heading, Text, Image, HStack, Button } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, Image, HStack, Button, useToken } from '@chakra-ui/react';
 import { useState } from 'react';
 import { ClockIcon, MapPinIcon } from '../../../components/icons';
 import type { BusinessWithServices, WorkingHours } from '../../../types';
@@ -25,7 +25,8 @@ function getTodayStatus(workingHours: WorkingHours | null): string {
 export function HeroSection({ business, onBookNow }: HeroSectionProps) {
   const [coverError, setCoverError] = useState(false);
   const hasCoverImage = business.coverImageUrl && !coverError;
-  const brandColor = business.brandColor || '#2EB67D';
+  const [defaultBrandColor] = useToken('colors', ['brand.500']);
+  const brandColor = business.brandColor || defaultBrandColor;
 
   const todayStatus = getTodayStatus(business.workingHours);
 
@@ -46,9 +47,8 @@ export function HeroSection({ business, onBookNow }: HeroSectionProps) {
           content: '""',
           position: 'absolute',
           inset: 0,
-          bg: hasCoverImage
-            ? 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)'
-            : 'none',
+          bgGradient: hasCoverImage ? 'linear(to-b, blackAlpha.300, blackAlpha.600)' : undefined,
+          display: hasCoverImage ? 'block' : 'none',
         }}
       >
         {hasCoverImage && (
@@ -76,7 +76,7 @@ export function HeroSection({ business, onBookNow }: HeroSectionProps) {
               h="80px"
               borderRadius="2xl"
               overflow="hidden"
-              bg="white"
+              bg="surface.card"
               boxShadow="lg"
               display="flex"
               alignItems="center"
@@ -162,12 +162,12 @@ export function HeroSection({ business, onBookNow }: HeroSectionProps) {
           {/* CTA */}
           <Button
             size="lg"
-            bg="white"
-            color="gray.900"
+            bg="surface.card"
+            color="text.heading"
             fontWeight="600"
             borderRadius="full"
             px={8}
-            _hover={{ bg: 'gray.100', transform: 'translateY(-1px)' }}
+            _hover={{ bg: 'surface.page', transform: 'translateY(-1px)' }}
             _active={{ bg: 'gray.200' }}
             transition="all 0.2s"
             boxShadow="md"

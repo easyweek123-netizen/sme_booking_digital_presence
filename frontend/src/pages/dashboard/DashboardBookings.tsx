@@ -1,10 +1,6 @@
 import {
   Box,
   VStack,
-  Heading,
-  Text,
-  Spinner,
-  Center,
   Badge,
   Button,
   ButtonGroup,
@@ -12,8 +8,8 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useRef } from 'react';
-import { useGetMyBusinessQuery } from '../../store/api/businessApi';
+import { useState, useRef, type ReactNode } from 'react';
+import { useBusiness } from '../../contexts/useBusiness';
 import {
   useGetBookingsQuery,
   useUpdateBookingStatusMutation,
@@ -28,6 +24,14 @@ import {
 import { TOAST_DURATION } from '../../constants';
 import { getTodayString } from '../../utils/format';
 import type { Booking, BookingStatus } from '../../types';
+import { PageHeader } from '../../components/ui/PageHeader';
+import { SkeletonList, EmptyState } from '../../components/ui/states';
+import {
+  CalendarIcon,
+  CheckCircleIcon,
+  ActivityIcon,
+  CloseIcon,
+} from '../../components/icons';
 
 const MotionBox = motion.create(Box);
 
@@ -40,34 +44,52 @@ const FILTER_OPTIONS = [
 
 type FilterKey = (typeof FILTER_OPTIONS)[number]['key'];
 
+const emptyConfig: Record<FilterKey, { icon: ReactNode; title: string; description: string }> = {
+  requests: {
+    icon: <CheckCircleIcon size={28} />,
+    title: 'All caught up',
+    description: 'No pending booking requests right now.',
+  },
+  upcoming: {
+    icon: <CalendarIcon size={28} />,
+    title: 'No upcoming bookings',
+    description: 'Share your booking link to get started.',
+  },
+  completed: {
+    icon: <ActivityIcon size={28} />,
+    title: 'No completed bookings yet',
+    description: 'Completed bookings will appear here.',
+  },
+  cancelled: {
+    icon: <CloseIcon size={28} />,
+    title: 'No cancelled bookings',
+    description: 'Cancelled bookings will appear here.',
+  },
+};
+
 export function DashboardBookings() {
-  const { data: business } = useGetMyBusinessQuery();
+  const business = useBusiness();
   const [activeFilter, setActiveFilter] = useState<FilterKey>('requests');
 
-  const { data: pendingData } = useGetPendingCountQuery(business?.id || 0, {
-    skip: !business?.id,
-  });
+  const { data: pendingData } = useGetPendingCountQuery(business.id);
   const pendingCount = pendingData?.count || 0;
 
   const today = getTodayString();
 
   const currentFilter = FILTER_OPTIONS.find((f) => f.key === activeFilter)!;
 
-  const { data: bookings, isLoading } = useGetBookingsQuery(
-    {
-      businessId: business?.id || 0,
-      status: currentFilter.status,
-      from: activeFilter === 'upcoming' ? today : undefined,
-    },
-    { skip: !business?.id },
-  );
+  const { data: bookings, isLoading } = useGetBookingsQuery({
+    businessId: business.id,
+    status: currentFilter.status,
+    from: activeFilter === 'upcoming' ? today : undefined,
+  });
 
   const { data: noShowBookings } = useGetBookingsQuery(
     {
-      businessId: business?.id || 0,
+      businessId: business.id,
       status: 'NO_SHOW',
     },
-    { skip: !business?.id || activeFilter !== 'completed' },
+    { skip: activeFilter !== 'completed' },
   );
 
   const displayBookings =
@@ -75,16 +97,9 @@ export function DashboardBookings() {
       ? [...(bookings || []), ...(noShowBookings || [])]
       : (bookings || []);
 
-  if (!business) return null;
-
   return (
     <VStack spacing={6} align="stretch">
-      <Box>
-        <Heading size="lg" color="gray.900" mb={1}>
-          Bookings
-        </Heading>
-        <Text color="gray.500">Manage your appointments</Text>
-      </Box>
+      <PageHeader title="Bookings" description="Manage your appointments" />
 
       <Box
         overflowX="auto"
@@ -96,7 +111,7 @@ export function DashboardBookings() {
           scrollbarWidth: 'none',
         }}
       >
-        <ButtonGroup isAttached size="sm" bg="gray.100" borderRadius="lg" p="2px">
+        <ButtonGroup isAttached size="sm" bg="surface.muted" borderRadius="lg" p="2px">
           {FILTER_OPTIONS.map((option) => {
             const isActive = activeFilter === option.key;
             const isRequests = option.key === 'requests';
@@ -106,7 +121,7 @@ export function DashboardBookings() {
                 key={option.key}
                 onClick={() => setActiveFilter(option.key)}
                 bg={isActive ? 'white' : 'transparent'}
-                color={isActive ? 'gray.900' : 'gray.500'}
+                color={isActive ? 'text.primary' : 'text.secondary'}
                 fontWeight={isActive ? '600' : '500'}
                 fontSize={{ base: 'xs', md: 'sm' }}
                 px={{ base: 3, md: 4 }}
@@ -114,8 +129,8 @@ export function DashboardBookings() {
                 borderRadius="md"
                 boxShadow={isActive ? 'sm' : 'none'}
                 _hover={{
-                  bg: isActive ? 'white' : 'gray.50',
-                  color: 'gray.900',
+                  bg: isActive ? 'white' : 'surface.muted',
+                  color: 'text.primary',
                 }}
                 transition="all 0.2s"
                 position="relative"
@@ -123,7 +138,7 @@ export function DashboardBookings() {
                 {option.label}
                 {isRequests && pendingCount > 0 && (
                   <Badge
-                    colorScheme="red"
+                    colorScheme="alert"
                     borderRadius="full"
                     ml={1.5}
                     fontSize="2xs"
@@ -252,42 +267,16 @@ function BookingsList({ bookings, isLoading, type }: BookingsListProps) {
     actionType === 'accept' ? 'cancel' : actionType;
 
   if (isLoading) {
-    return (
-      <Center py={12}>
-        <Spinner size="lg" color="brand.500" />
-      </Center>
-    );
+    return <SkeletonList count={4} />;
   }
 
   if (bookings.length === 0) {
-    const emptyMessages = {
-      requests: { icon: '✓', title: 'All caught up!', subtitle: 'No pending booking requests' },
-      upcoming: { icon: '📅', title: 'No upcoming bookings', subtitle: 'Share your booking link to get started' },
-      completed: { icon: '✨', title: 'No completed bookings yet', subtitle: 'Completed bookings will appear here' },
-      cancelled: { icon: '🚫', title: 'No cancelled bookings', subtitle: 'Cancelled bookings will appear here' },
-    };
-
-    const msg = emptyMessages[type];
-
     return (
-      <Box
-        py={12}
-        textAlign="center"
-        bg="white"
-        borderRadius="xl"
-        border="1px"
-        borderColor="gray.100"
-      >
-        <Text fontSize="3xl" mb={2}>
-          {msg.icon}
-        </Text>
-        <Text fontWeight="600" color="gray.700" mb={1}>
-          {msg.title}
-        </Text>
-        <Text color="gray.500" fontSize="sm">
-          {msg.subtitle}
-        </Text>
-      </Box>
+      <EmptyState
+        icon={emptyConfig[type].icon}
+        title={emptyConfig[type].title}
+        description={emptyConfig[type].description}
+      />
     );
   }
 

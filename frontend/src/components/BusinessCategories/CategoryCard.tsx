@@ -24,18 +24,18 @@ export function CategoryCard({ category, onTypeClick }: CategoryCardProps) {
 
   return (
     <MotionBox
-      bg="white"
+      bg="surface.card"
       borderRadius="2xl"
       border="1px solid"
-      borderColor="gray.100"
+      borderColor="border.subtle"
       p={6}
       minW={{ base: '280px', md: '320px' }}
       maxW={{ base: '280px', md: '320px' }}
       h="auto"
-      boxShadow="0 1px 3px rgba(0,0,0,0.04)"
+      boxShadow="card"
       whileHover={{
         y: -4,
-        boxShadow: '0 12px 24px rgba(0,0,0,0.08)',
+        boxShadow: 'cardHover',
       }}
       transition={{ duration: 0.2 }}
       flexShrink={0}
@@ -73,7 +73,7 @@ export function CategoryCard({ category, onTypeClick }: CategoryCardProps) {
             <Text
               key={type.id}
               fontSize="md"
-              color="gray.700"
+              color="text.strong"
               cursor="pointer"
               py={1}
               w="full"

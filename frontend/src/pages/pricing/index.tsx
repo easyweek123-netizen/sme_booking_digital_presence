@@ -83,7 +83,7 @@ export function PricingPage() {
   };
 
   return (
-    <Box minH="100vh" bg="white">
+    <Box minH="100vh" bg="surface.card">
       {/* Hero Section */}
       <Box
         py={{ base: 16, md: 24 }}
@@ -116,18 +116,18 @@ export function PricingPage() {
               as="h1"
               fontSize={{ base: '3xl', md: '4xl', lg: '5xl' }}
               fontWeight="800"
-              color="gray.900"
+              color="text.heading"
               lineHeight="1.1"
               letterSpacing="-0.02em"
             >
               Simple, Transparent{' '}
-              <Text as="span" color="brand.500">
+              <Text as="span" color="accent.primary">
                 Pricing
               </Text>
             </Heading>
             <Text
               fontSize={{ base: 'lg', md: 'xl' }}
-              color="gray.600"
+              color="text.secondary"
               maxW="560px"
               lineHeight="1.7"
             >

@@ -34,10 +34,10 @@ export function StatsCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
-      bg="white"
-      borderRadius="2xl"
+      bg="surface.card"
+      borderRadius="sm"
       border="1px"
-      borderColor="gray.100"
+      borderColor="border.subtle"
       p={5}
       cursor={to ? 'pointer' : 'default'}
       onClick={handleClick}
@@ -46,7 +46,7 @@ export function StatsCard({
         boxShadow: 'md',
         transform: 'translateY(-3px)',
       } : {
-        borderColor: 'gray.200',
+        borderColor: 'border.subtle',
       }}
       transitionProperty="all"
       transitionDuration="0.2s"
@@ -56,7 +56,7 @@ export function StatsCard({
           <Text
             fontSize="sm"
             fontWeight="500"
-            color="gray.500"
+            color="text.muted"
             mb={1}
           >
             {label}
@@ -64,7 +64,7 @@ export function StatsCard({
           <Text
             fontSize="3xl"
             fontWeight="700"
-            color="gray.900"
+            color="text.heading"
             lineHeight="1"
           >
             {value}
@@ -75,7 +75,7 @@ export function StatsCard({
           h="44px"
           align="center"
           justify="center"
-          borderRadius="xl"
+          borderRadius="sm"
           bg={`${color.split('.')[0]}.50`}
           color={color}
         >

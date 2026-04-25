@@ -174,7 +174,7 @@ export function NotesEditor({ customerId, bookingId, compact = false }: NotesEdi
             size="xs"
             variant="ghost"
             leftIcon={<PlusIcon size={12} />}
-            color="gray.500"
+            color="text.muted"
             justifyContent="flex-start"
             px={0}
             _hover={{ color: 'blue.500' }}
@@ -237,7 +237,7 @@ export function NotesEditor({ customerId, bookingId, compact = false }: NotesEdi
         ))}
 
         {notes.length === 0 && !showAddForm && (
-          <Text fontSize="xs" color="gray.400" py={1}>
+          <Text fontSize="xs" color="text.faint" py={1}>
             No notes
           </Text>
         )}
@@ -295,7 +295,7 @@ export function NotesEditor({ customerId, bookingId, compact = false }: NotesEdi
       )}
 
       {notes.length === 0 && (
-        <Text fontSize="sm" color="gray.500" textAlign="center" py={4}>
+        <Text fontSize="sm" color="text.muted" textAlign="center" py={4}>
           No notes yet
         </Text>
       )}
@@ -342,10 +342,10 @@ function NoteItem({
   return (
     <Box
       p={padding}
-      bg="gray.50"
+      bg="surface.alt"
       borderRadius="md"
       border="1px"
-      borderColor="gray.200"
+      borderColor="border.subtle"
     >
       {isEditing ? (
         // Edit mode
@@ -374,7 +374,7 @@ function NoteItem({
         // View mode
         <>
           <Flex justify="space-between" align="start" mb={1}>
-            <Text fontSize={compact ? '2xs' : 'xs'} color="gray.400">
+            <Text fontSize={compact ? '2xs' : 'xs'} color="text.faint">
               {new Date(note.createdAt).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',

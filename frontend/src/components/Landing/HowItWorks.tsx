@@ -99,21 +99,6 @@ function StepCard({ step, index }: { step: Step; index: number }) {
   );
 }
 
-function ConnectorLine() {
-  return (
-    <Box
-      display={{ base: 'none', md: 'block' }}
-      flex="0 0 auto"
-      w="60px"
-      h="2px"
-      bg="border.subtle"
-      borderRadius="full"
-      position="relative"
-      top="-20px"
-    />
-  );
-}
-
 function MobileConnector() {
   return (
     <Box

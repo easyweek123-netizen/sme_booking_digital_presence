@@ -1,14 +1,11 @@
 import { Box, VStack, HStack, Text, Button, Divider } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { CalendarIcon, UserIcon, ShieldIcon } from '../../../../components/icons';
+import { CalendarIcon, UserIcon } from '../../../../components/icons';
 import { formatDuration, formatPrice, formatDateDisplay } from '../../../../utils/format';
 import { formatTime } from '../../../../constants';
 import type { BusinessWithServices, Service } from '../../../../types';
 
 const MotionBox = motion.create(Box);
-
-const DEFAULT_CANCELLATION_COPY =
-  'Cancel or reschedule up to 12 hours before your appointment — no charge.';
 
 interface Props {
   business: BusinessWithServices;
@@ -25,8 +22,7 @@ interface Props {
 function continueLabel(step: 1 | 2 | 3 | 4): string {
   if (step === 1) return 'Continue to date & time  →';
   if (step === 2) return 'Continue to your details  →';
-  if (step === 3) return 'Confirm booking  →';
-  return 'Done';
+  return 'Confirm booking  →';
 }
 
 const rowMotion = {
@@ -41,8 +37,7 @@ export function BookingSummarySidebar(p: Props) {
   const showDateTime = !!p.selectedService && !!p.selectedTime;
   const showDetails = !!(p.customerName || p.customerEmail);
   const showTotal = !!p.selectedService;
-  const showContinueCta =
-    p.step < 4 && p.step !== 3 && !(p.step === 1 && !p.selectedService);
+  const showContinueCta = p.step !== 3 && !(p.step === 1 && !p.selectedService);
 
   return (
     <VStack

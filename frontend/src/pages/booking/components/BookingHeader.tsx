@@ -29,7 +29,7 @@ const BOOKING_HEADER_H_VAR = '--booking-header-h';
 export function BookingHeader({ business }: { business: BusinessWithServices }) {
   const [imgErr, setImgErr] = useState(false);
   const stickyHeaderRef = useRef<HTMLElement | null>(null);
-  // const [coverErr, setCoverErr] = useState(false);
+  const [coverErr, setCoverErr] = useState(false);
   const hasLogo = business.logoUrl && !imgErr;
   const status = getTodayStatus(business.workingHours);
 
@@ -47,11 +47,11 @@ export function BookingHeader({ business }: { business: BusinessWithServices }) 
       document.documentElement.style.removeProperty(BOOKING_HEADER_H_VAR);
     };
   }, [business.name, business.description, business.phone, business.city]);
-  // const showCover = business.coverImageUrl && !coverErr;
+  const showCover = business.coverImageUrl && !coverErr;
 
   return (
     <Box>
-      {/* {showCover && (
+      {showCover && (
         <Box position="relative" h="160px" w="100%" overflow="hidden" aria-hidden>
           <Image
             src={business.coverImageUrl!}
@@ -68,7 +68,7 @@ export function BookingHeader({ business }: { business: BusinessWithServices }) 
             pointerEvents="none"
           />
         </Box>
-      )} */}
+      )}
 
       <Box
         ref={stickyHeaderRef}
@@ -81,7 +81,7 @@ export function BookingHeader({ business }: { business: BusinessWithServices }) 
         zIndex={10}
       >
         <Container maxW="container.xl" px={{ base: 4 }} py={{ base: 4 }}>
-          <Flex justify="space-between" align="center" gap={4} flexWrap="wrap">
+          <Flex justify="space-between" align="center" gap={4}>
             <HStack spacing={3} align="center" minW={0}>
               <Box
                 w="48px"

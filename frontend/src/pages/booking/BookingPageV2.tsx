@@ -47,8 +47,8 @@ function BookingPageContent({
 
   return (
     <Box minH={isPreview ? 'auto' : '100vh'} bg="surface.page" style={brandColorStyles}>
-      {!isPreview && <BookingHeader business={business} />}
-      <BookingWizard business={business} wizard={wizard} desktopLayout={desktopLayout} />
+      <BookingHeader business={business} />
+      <BookingWizard business={business} wizard={wizard} desktopLayout={desktopLayout} isPreview={isPreview}/>
 
       <BusinessInfoFooter business={business} desktopLayout={desktopLayout} />
 
@@ -65,6 +65,7 @@ function BookingPageContent({
 
       {wizard.selectedService && !desktopLayout && (
         <MobileBookingFooter
+          step={wizard.step}
           selectedService={wizard.selectedService}
           canContinue={wizard.canContinue}
           onContinue={wizard.handleContinue}

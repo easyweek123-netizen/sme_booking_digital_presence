@@ -53,7 +53,6 @@ export function useBookingWizard(business: BusinessWithServices): BookingWizardS
     if (n === 1) return true;
     if (n === 2) return !!selectedService;
     if (n === 3) return !!selectedService && !!selectedTime;
-    if (n === 4) return !!createdBooking;
     return false;
   };
 
@@ -127,9 +126,14 @@ export function useBookingWizard(business: BusinessWithServices): BookingWizardS
   };
 
   const handleBookAnother = () => {
-    setCreatedBooking(null);
-    setSelectedTime(null);
     setStep(1);
+    setSelectedService(null);
+    setSelectedCategoryId(null);
+    setSelectedDate(getTodayString());
+    setSelectedTime(null);
+    setCustomerName('');
+    setCustomerEmail('');
+    setCreatedBooking(null);
   };
 
   return {

@@ -13,12 +13,14 @@ interface BookerVerificationProps {
   onVerified: (user: User, name: string) => void;
   onError?: (error: Error) => void;
   businessName: string;
+  isPreview: boolean;
 }
 
 export function BookerVerification({
   onVerified,
   onError,
   businessName,
+  isPreview,
 }: BookerVerificationProps) {
   const [name, setName] = useState('');
 
@@ -56,17 +58,19 @@ export function BookerVerification({
         />
       </FormControl>
 
-      <VStack spacing={3} w="full">
+      {!isPreview ? <VStack spacing={3} w="full">
         <GoogleButton
           onSuccess={handleGoogleSuccess}
           onError={onError}
           text="Continue with Google"
-        />
+        /> 
 
         <Text color="text.muted" fontSize="xs" textAlign="center" pt={2}>
           Sign in to complete your booking
         </Text>
-      </VStack>
+      </VStack> : <Text color="text.muted" fontSize="xs" textAlign="center" pt={2}>
+          Customer Login
+        </Text>}
     </VStack>
   );
 }

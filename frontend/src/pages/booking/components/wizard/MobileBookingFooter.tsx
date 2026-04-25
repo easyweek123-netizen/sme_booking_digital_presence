@@ -7,9 +7,10 @@ interface Props {
   canContinue: boolean;
   onContinue: () => void;
   label: string;
+  step: number;
 }
 
-export function MobileBookingFooter({ selectedService, canContinue, onContinue, label }: Props) {
+export function MobileBookingFooter({ selectedService, canContinue, onContinue, label, step }: Props) {
   return (
     <Box
       display="block"
@@ -39,7 +40,7 @@ export function MobileBookingFooter({ selectedService, canContinue, onContinue, 
               : 'No service selected'}
           </Text>
         </VStack>
-        <Button
+        {step <=2 && <Button
           bg="brand.500"
           color="white"
           _hover={{ bg: 'brand.600' }}
@@ -52,7 +53,7 @@ export function MobileBookingFooter({ selectedService, canContinue, onContinue, 
           flexShrink={0}
         >
           {label}
-        </Button>
+        </Button>}
       </HStack>
     </Box>
   );

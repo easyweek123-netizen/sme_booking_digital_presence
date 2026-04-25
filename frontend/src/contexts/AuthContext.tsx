@@ -38,13 +38,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
               token,
             }),
           );
-        } catch {
+        } catch(e: unknown) {
+          debugger;
           await logOut();
           dispatch(resetStore());
           toast({
-            title: 'Email not verified',
-            description:
-              'Please check your inbox and verify your email before signing in.',
+            title: 'Authorisation',
+            description: 'Failed to authorise',
             status: 'warning',
             duration: 8000,
             isClosable: true,

@@ -6,7 +6,6 @@ const STEPS = [
   { n: 1, label: 'Service' },
   { n: 2, label: 'Date & time' },
   { n: 3, label: 'Your details' },
-  { n: 4, label: 'Confirm' },
 ] as const;
 
 interface Props {
@@ -24,7 +23,7 @@ export function WizardStepIndicator({ currentStep, onStepClick, canGoTo }: Props
         {STEPS.map((s, idx) => {
           const isCompleted = s.n < currentStep;
           const isActive = s.n === currentStep;
-          const clickable = canGoTo(s.n as 1 | 2 | 3 | 4);
+          const clickable = canGoTo(s.n);
           const segmentToLeftIsProgress = idx > 0 && currentStep > STEPS[idx - 1].n;
 
           return (
@@ -45,13 +44,13 @@ export function WizardStepIndicator({ currentStep, onStepClick, canGoTo }: Props
                 alignItems="center"
                 gap={2}
                 flexShrink={0}
-                onClick={() => clickable && onStepClick(s.n as 1 | 2 | 3 | 4)}
+                onClick={() => clickable && onStepClick(s.n as 1 | 2 | 3)}
                 cursor={clickable ? 'pointer' : 'default'}
                 opacity={clickable || isActive || isCompleted ? 1 : 0.6}
                 h="auto"
                 p={0}
                 aria-current={isActive ? 'step' : undefined}
-                aria-label={`${s.label}, step ${s.n} of 4`}
+                aria-label={`${s.label}, step ${s.n} of 3`}
               >
                 <Box
                   w="28px"
@@ -94,7 +93,7 @@ export function WizardStepIndicator({ currentStep, onStepClick, canGoTo }: Props
         fontWeight="500"
         aria-live="polite"
       >
-        Step {currentStep} of 4 · {activeSummary}
+        Step {currentStep} of 3 · {activeSummary}
       </Text>
     </Box>
   );

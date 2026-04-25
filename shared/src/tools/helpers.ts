@@ -91,6 +91,16 @@ export const ToolResult = {
   },
 
   /**
+   * Success with preview switch
+   */
+    withPreview(
+      message: string,
+      previewContext?: PreviewContext
+    ): ToolResultSuccess {
+      return { success: true, message, previewContext };
+    },
+
+  /**
    * Error result
    */
   error(error: string): ToolResultError {

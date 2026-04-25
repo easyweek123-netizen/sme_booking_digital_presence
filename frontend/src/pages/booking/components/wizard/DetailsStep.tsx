@@ -7,9 +7,10 @@ interface Props {
   isSubmitting: boolean;
   onVerified: (firebaseUser: User, name: string) => void;
   onError: (error: Error) => void;
+  isPreview: boolean;
 }
 
-export function DetailsStep({ businessName, isSubmitting, onVerified, onError }: Props) {
+export function DetailsStep({ businessName, isSubmitting, onVerified, onError, isPreview }: Props) {
   return (
     <VStack align="stretch" spacing={0}>
       <Heading size="lg" color="text.heading" mb={2}>
@@ -26,6 +27,7 @@ export function DetailsStep({ businessName, isSubmitting, onVerified, onError }:
         p={{ base: 4 }}
       >
         <BookerVerification
+          isPreview={isPreview}
           onVerified={onVerified}
           onError={onError}
           businessName={businessName}

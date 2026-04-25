@@ -6,6 +6,5 @@ export { BookingServiceCard } from './BookingServiceCard';
 export { ServiceStep } from './ServiceStep';
 export { DateTimeStep } from './DateTimeStep';
 export { DetailsStep } from './DetailsStep';
-export { ConfirmStep } from './ConfirmStep';
 export { BookingSummarySidebar } from './BookingSummarySidebar';
 export { MobileBookingFooter } from './MobileBookingFooter';

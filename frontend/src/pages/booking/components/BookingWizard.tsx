@@ -3,8 +3,8 @@ import { WizardStepIndicator } from './wizard/WizardStepIndicator';
 import { ServiceStep } from './wizard/ServiceStep';
 import { DateTimeStep } from './wizard/DateTimeStep';
 import { DetailsStep } from './wizard/DetailsStep';
-import { ConfirmStep } from './wizard/ConfirmStep';
 import { BookingSummarySidebar } from './wizard/BookingSummarySidebar';
+import { BookingSuccess } from '../../../components/Booking/BookingSuccess';
 import type { BusinessWithServices } from '../../../types';
 import type { BookingWizardState } from './wizard/useBookingWizard';
 
@@ -13,9 +13,10 @@ interface Props {
   wizard: BookingWizardState;
   /** From viewport `lg` or canvas preview container width. */
   desktopLayout: boolean;
+  isPreview: boolean;
 }
 
-export function BookingWizard({ business, wizard, desktopLayout }: Props) {
+export function BookingWizard({ business, wizard, desktopLayout, isPreview }: Props) {
   const services = (business.services || []).filter((s) => s.isActive);
 
   return (
@@ -26,7 +27,15 @@ export function BookingWizard({ business, wizard, desktopLayout }: Props) {
           onStepClick={wizard.setStep}
           canGoTo={wizard.canGoTo}
         />
-
+        {wizard.createdBooking && wizard.selectedService &&
+        <BookingSuccess
+                    booking={wizard.createdBooking}
+                    service={wizard.selectedService}
+                    business={business}
+                    onBookAnother={wizard.handleBookAnother}
+                    onClose={wizard.handleBookAnother}
+                  />
+        }
         <SimpleGrid
           columns={desktopLayout ? 12 : 1}
           spacing={{ base: 4, lg: 8 }}
@@ -58,17 +67,17 @@ export function BookingWizard({ business, wizard, desktopLayout }: Props) {
                 isSubmitting={wizard.isCreating}
                 onVerified={wizard.handleVerified}
                 onError={wizard.handleVerificationError}
+                isPreview={isPreview}
               />
             )}
-            {wizard.step === 4 && wizard.createdBooking && wizard.selectedService && (
-              <ConfirmStep
+            {/* {wizard.step === 4 && wizard.createdBooking && wizard.selectedService && (
+              <BookingSuccess
                 booking={wizard.createdBooking}
                 service={wizard.selectedService}
                 business={business}
                 onBookAnother={wizard.handleBookAnother}
                 onClose={wizard.handleBookAnother}
-              />
-            )}
+              /> */}
           </GridItem>
 
           <GridItem colSpan={desktopLayout ? 4 : 12} display={desktopLayout ? 'block' : 'none'}>

@@ -10,7 +10,7 @@ import {
   Badge,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { StatsCard } from '../../components/Dashboard';
+import { StatsCard, DashboardContentShell } from '../../components/Dashboard';
 import {
   CalendarIcon,
   LayersIcon,
@@ -22,7 +22,6 @@ import { BookingLinkCard } from '../../components/QRCode';
 import { useBusiness } from '../../contexts/useBusiness';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
 import { ROUTES } from '../../config/routes';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { EmptyState } from '../../components/ui/states';
 
 export function DashboardOverview() {
@@ -34,9 +33,8 @@ export function DashboardOverview() {
   const servicesCount = business.services?.filter((s) => s.isActive).length || 0;
   
   return (
-    <VStack spacing={8} align="stretch">
-      <PageHeader title="Welcome back" description={business.name} />
-
+    <DashboardContentShell title="Welcome back" description={business.name}>
+      <VStack spacing={8} align="stretch">
       {/* Booking Link Card with QR */}
       <BookingLinkCard slug={business.slug} />
 
@@ -199,6 +197,7 @@ export function DashboardOverview() {
           </Badge>
         </HStack>
       </Box>
-    </VStack>
+      </VStack>
+    </DashboardContentShell>
   );
 }

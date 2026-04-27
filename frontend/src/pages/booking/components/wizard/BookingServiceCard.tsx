@@ -65,7 +65,7 @@ export function BookingServiceCard({ service, isSelected, onSelect }: Props) {
         </Box>
 
         <Box flex={1} minW={0}>
-          <Flex justify="space-between" align="start" gap={4} mb={2}>
+          <Flex justify="space-between" align="start" gap={2} mb={2}>
             <Text fontWeight="600" fontSize="md" color="text.heading" noOfLines={1}>
               {service.name}
             </Text>

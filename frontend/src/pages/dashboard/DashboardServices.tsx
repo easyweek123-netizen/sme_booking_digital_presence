@@ -26,10 +26,9 @@ import {
 } from '../../store/api/servicesApi';
 import { PlusIcon, LayersIcon } from '../../components/icons';
 import { ServiceForm, type ServiceFormData } from '../../components/onboarding/ServiceForm';
-import { CategoryManagement, ServiceCard } from '../../components/Dashboard';
+import { CategoryManagement, ServiceCard, DashboardContentShell } from '../../components/Dashboard';
 import { TOAST_DURATION } from '../../constants';
 import type { Service } from '../../types';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { EmptyState } from '../../components/ui/states';
 
 export function DashboardServices() {
@@ -154,17 +153,16 @@ export function DashboardServices() {
   const services = business.services || [];
 
   return (
+    <DashboardContentShell
+      title="Services"
+      description="Manage your service catalog"
+      actions={
+        <Button leftIcon={<PlusIcon size={18} />} onClick={handleAddService}>
+          Add Service
+        </Button>
+      }
+    >
     <VStack spacing={6} align="stretch">
-      <PageHeader
-        title="Services"
-        description="Manage your service catalog"
-        actions={
-          <Button leftIcon={<PlusIcon size={18} />} onClick={handleAddService}>
-            Add Service
-          </Button>
-        }
-      />
-
       {/* Category Management */}
       <CategoryManagement businessId={business.id} />
 
@@ -261,5 +259,6 @@ export function DashboardServices() {
         </AlertDialogOverlay>
       </AlertDialog>
     </VStack>
+    </DashboardContentShell>
   );
 }

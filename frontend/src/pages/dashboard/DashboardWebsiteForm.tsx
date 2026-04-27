@@ -26,7 +26,7 @@ import {
 } from '../../components/Dashboard';
 import { BookingLinkCard } from '../../components/QRCode';
 import { CheckIcon } from '../../components/icons';
-import { PageHeader } from '../../components/ui/PageHeader';
+import { DashboardContentShell } from '../../components/Dashboard';
 import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours, BusinessWithServices } from '../../types';
 
@@ -229,22 +229,11 @@ export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFo
   );
 
   return (
-    <Box mx="auto">
-      <Box
-        position="sticky"
-        top={0}
-        bg="surface.page"
-        mb={{ base: 4, md: 6 }}
-        borderBottom="1px solid"
-        borderColor="border.subtle"
-      >
-        <PageHeader
-          title="Website"
-          description="Build and customize your booking page"
-          actions={headerActions}
-        />
-      </Box>
-
+    <DashboardContentShell
+      title="Website"
+      description="Build and customize your booking page"
+      actions={headerActions}
+    >
       <Tabs
         variant="enclosed"
         borderColor="border.strong"
@@ -382,6 +371,6 @@ export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFo
           </GridItem>
         </SimpleGrid>
       </Tabs>
-    </Box>
+    </DashboardContentShell>
   );
 }

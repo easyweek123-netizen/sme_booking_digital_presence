@@ -14,7 +14,7 @@ import { SearchIcon, UsersIcon } from '../../components/icons';
 import { useGetCustomersQuery } from '../../store/api';
 import { ClientDetailDrawer } from '../../components/ClientDetailDrawer';
 import type { Customer } from '../../types';
-import { PageHeader } from '../../components/ui/PageHeader';
+import { DashboardContentShell } from '../../components/Dashboard';
 import { SkeletonList, EmptyState } from '../../components/ui/states';
 
 export function DashboardClients() {
@@ -47,12 +47,11 @@ export function DashboardClients() {
 
   return (
     <>
+      <DashboardContentShell
+        title="Clients"
+        description="Manage your clients and their booking history"
+      >
       <VStack spacing={6} align="stretch">
-        <PageHeader
-          title="Clients"
-          description="Manage your clients and their booking history"
-        />
-
         {/* Search */}
         <InputGroup maxW="400px">
           <InputLeftElement pointerEvents="none" color="text.muted">
@@ -125,6 +124,7 @@ export function DashboardClients() {
           </Text>
         )}
       </VStack>
+      </DashboardContentShell>
 
       {/* Client Detail Drawer */}
       {selectedCustomer && (

@@ -24,7 +24,7 @@ import {
 import { TOAST_DURATION } from '../../constants';
 import { getTodayString } from '../../utils/format';
 import type { Booking, BookingStatus } from '../../types';
-import { PageHeader } from '../../components/ui/PageHeader';
+import { DashboardContentShell } from '../../components/Dashboard';
 import { SkeletonList, EmptyState } from '../../components/ui/states';
 import {
   CalendarIcon,
@@ -98,9 +98,8 @@ export function DashboardBookings() {
       : (bookings || []);
 
   return (
+    <DashboardContentShell title="Bookings" description="Manage your appointments">
     <VStack spacing={6} align="stretch">
-      <PageHeader title="Bookings" description="Manage your appointments" />
-
       <Box
         overflowX="auto"
         pb={2}
@@ -159,6 +158,7 @@ export function DashboardBookings() {
 
       <BookingsList bookings={displayBookings} isLoading={isLoading} type={activeFilter} />
     </VStack>
+    </DashboardContentShell>
   );
 }
 

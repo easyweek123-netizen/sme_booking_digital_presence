@@ -17,4 +17,3 @@ export class UpdateServiceCategoryDto {
   @Min(0)
   displayOrder?: number;
 }
-

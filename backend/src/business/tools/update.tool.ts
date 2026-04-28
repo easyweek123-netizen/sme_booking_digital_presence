@@ -28,7 +28,10 @@ export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
     super();
   }
 
-  async execute(args: BusinessUpdateArgs, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    args: BusinessUpdateArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const business = await this.businessService.findByOwnerId(ctx.ownerId);
 
     if (!business) {
@@ -38,8 +41,16 @@ export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
     }
 
     const {
-      id, ownerId, slug, createdAt, updatedAt,
-      owner, services, bookings, businessType, businessTypeId,
+      id,
+      ownerId,
+      slug,
+      createdAt,
+      updatedAt,
+      owner,
+      services,
+      bookings,
+      businessType,
+      businessTypeId,
       ...currentProfile
     } = business;
 

@@ -10,26 +10,17 @@ import {
   Alert,
   AlertIcon,
 } from '@chakra-ui/react';
-import { useForm, FormProvider, useWatch } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { feedbackFormSchema, type FeedbackFormValues } from './feedbackFormSchema';
 import { useSubmitFeedbackMutation } from '../../store/api/feedbackApi';
 import { TOAST_DURATION } from '../../constants';
-import { SelectField, TextField, TextAreaField, SubmitButton } from '../ui/form';
+import { TextField, TextAreaField, SubmitButton } from '../ui/form';
 
 const MotionBox = motion.create(Box);
 
-const TOPIC_OPTIONS = [
-  { value: 'Product Feedback', label: 'Product Feedback' },
-  { value: 'IT Services Inquiry', label: 'IT Services Inquiry' },
-];
-
-interface FeedbackFormProps {
-  initialTopic?: 'Product Feedback' | 'IT Services Inquiry';
-}
-
-export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackFormProps) {
+export function FeedbackForm() {
   const toast = useToast();
   const [submitFeedback, { isLoading }] = useSubmitFeedbackMutation();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -37,14 +28,12 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
   const methods = useForm<FeedbackFormValues>({
     resolver: zodResolver(feedbackFormSchema),
     defaultValues: {
-      topic: initialTopic,
       email: '',
       message: '',
     },
   });
 
-  const { handleSubmit, control, reset } = methods;
-  const topic = useWatch({ control, name: 'topic' });
+  const { handleSubmit, reset } = methods;
 
   const onSubmit = async (data: FeedbackFormValues) => {
     try {
@@ -52,21 +41,20 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
         email: data.email,
         message: data.message,
         source: 'pricing_page',
-        topic: data.topic,
       }).unwrap();
 
       setIsSubmitted(true);
-      reset({ topic: 'Product Feedback', email: '', message: '' });
+      reset({ email: '', message: '' });
 
       toast({
-        title: 'Thank you for your feedback!',
-        description: "We'll review your suggestions carefully.",
+        title: "You're on the list!",
+        description: "We'll reach out when paid plans launch.",
         status: 'success',
         duration: TOAST_DURATION.LONG,
       });
     } catch {
       toast({
-        title: 'Error submitting feedback',
+        title: 'Something went wrong',
         description: 'Please try again later.',
         status: 'error',
         duration: TOAST_DURATION.MEDIUM,
@@ -81,7 +69,7 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
       position="relative"
       overflow="hidden"
     >
-      {/* Decorative background blobs */}
+      {/* Decorative blobs */}
       <Box
         position="absolute"
         top="-100px"
@@ -120,11 +108,11 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
                 fontWeight="700"
                 mb={3}
               >
-                Help Us Build Premium
+                Be first when paid plans launch
               </Heading>
-              <Text fontSize={{ base: 'md', md: 'lg' }} maxW="500px" mx="auto">
-                What features matter most to you? Share your feedback and help shape
-                the future of BookEasy.
+              <Text fontSize={{ base: 'md', md: 'lg' }} color="text.secondary" maxW="500px" mx="auto">
+                Drop your email — we'll let you know when Pro and Growth go live,
+                and use your input to shape what ships.
               </Text>
             </Box>
           </VStack>
@@ -145,10 +133,10 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
             >
               <AlertIcon boxSize="40px" mr={0} mb={4} />
               <Heading size="md" mb={2}>
-                Thank you for your feedback!
+                You're on the list!
               </Heading>
-              <Text>
-                We appreciate you taking the time to share your thoughts.
+              <Text color="text.secondary">
+                We'll be in touch when paid plans launch.
               </Text>
               <Button
                 mt={6}
@@ -171,13 +159,6 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
               <FormProvider {...methods}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <VStack spacing={5}>
-                    <SelectField<FeedbackFormValues>
-                      name="topic"
-                      label="Topic"
-                      options={TOPIC_OPTIONS}
-                      size="lg"
-                    />
-
                     <TextField<FeedbackFormValues>
                       name="email"
                       label="Email Address"
@@ -190,14 +171,9 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
 
                     <TextAreaField<FeedbackFormValues>
                       name="message"
-                      label="Your Feedback"
-                      placeholder={
-                        topic === 'IT Services Inquiry'
-                          ? 'Tell us about your project — what are you looking to build?'
-                          : "Tell us what features you'd love to see, any suggestions to improve BookEasy, or feedback on your experience..."
-                      }
-                      isRequired
-                      rows={5}
+                      label="What feature would matter most to you?"
+                      placeholder="Persistent AI memory? WhatsApp inbox? Custom domain? Tell us what would tip you over."
+                      rows={4}
                       size="lg"
                     />
 
@@ -206,7 +182,7 @@ export function FeedbackForm({ initialTopic = 'Product Feedback' }: FeedbackForm
                       loadingText="Submitting..."
                       w="full"
                     >
-                      Submit Feedback
+                      Notify me
                     </SubmitButton>
                   </VStack>
                 </form>

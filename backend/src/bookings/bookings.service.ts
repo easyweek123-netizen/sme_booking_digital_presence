@@ -169,12 +169,12 @@ export class BookingsService {
     // 9. Filter out past slots if the date is today
     const today = new Date();
     const todayStr = this.getLocalDateString(today);
-    
+
     if (date === todayStr) {
       const currentMinutes = today.getHours() * 60 + today.getMinutes();
       // Add a buffer of 30 minutes - can't book slots that start within 30 min
       const minBookableTime = currentMinutes + 30;
-      
+
       return {
         slots: availableSlots.filter(
           (slot) => this.timeToMinutes(slot) >= minBookableTime,
@@ -188,7 +188,10 @@ export class BookingsService {
   /**
    * Create a new booking
    */
-  async create(createBookingDto: CreateBookingDto, customerId: number): Promise<Booking> {
+  async create(
+    createBookingDto: CreateBookingDto,
+    customerId: number,
+  ): Promise<Booking> {
     const { businessId, serviceId, date, startTime } = createBookingDto;
 
     // 1. Verify business exists
@@ -210,8 +213,12 @@ export class BookingsService {
     }
 
     // 3. Check slot is still available (prevent double-booking)
-    const availability = await this.getAvailability(businessId, date, serviceId);
-    
+    const availability = await this.getAvailability(
+      businessId,
+      date,
+      serviceId,
+    );
+
     if (!availability.slots.includes(startTime)) {
       throw new BadRequestException(
         'This time slot is no longer available. Please choose another time.',
@@ -260,8 +267,14 @@ export class BookingsService {
 
     if (businessWithOwner?.owner) {
       this.emailService
-        .sendNewBookingAlert(fullBooking, businessWithOwner, businessWithOwner.owner)
-        .catch((err) => this.logger.error('Failed to send new booking alert', err));
+        .sendNewBookingAlert(
+          fullBooking,
+          businessWithOwner,
+          businessWithOwner.owner,
+        )
+        .catch((err) =>
+          this.logger.error('Failed to send new booking alert', err),
+        );
     }
 
     return fullBooking;
@@ -427,7 +440,11 @@ export class BookingsService {
       throw new NotFoundException('Booking not found');
     }
 
-    await verifyBusinessOwnership(this.businessRepository, booking.businessId, ownerId);
+    await verifyBusinessOwnership(
+      this.businessRepository,
+      booking.businessId,
+      ownerId,
+    );
 
     const previousStatus = booking.status;
     booking.status = status;
@@ -442,8 +459,9 @@ export class BookingsService {
       });
 
       if (business) {
-        this.sendStatusChangeEmail(updatedBooking, business, status)
-          .catch((err) => this.logger.error(`Failed to send ${status} email`, err));
+        this.sendStatusChangeEmail(updatedBooking, business, status).catch(
+          (err) => this.logger.error(`Failed to send ${status} email`, err),
+        );
       }
     }
 

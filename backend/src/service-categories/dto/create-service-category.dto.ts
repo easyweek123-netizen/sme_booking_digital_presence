@@ -23,4 +23,3 @@ export class CreateServiceCategoryDto {
   @Min(0)
   displayOrder?: number;
 }
-

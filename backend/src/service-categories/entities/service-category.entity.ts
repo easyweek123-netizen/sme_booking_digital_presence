@@ -34,4 +34,3 @@ export class ServiceCategory {
   @CreateDateColumn()
   createdAt: Date;
 }
-

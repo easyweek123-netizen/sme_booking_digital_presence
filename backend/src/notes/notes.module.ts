@@ -14,4 +14,3 @@ import { CustomersModule } from '../customers/customers.module';
   exports: [NotesService],
 })
 export class NotesModule {}
-

@@ -5,12 +5,18 @@ interface FeedbackNotificationParams {
   timestamp: string;
 }
 
-export function feedbackNotificationTemplate(params: FeedbackNotificationParams): string {
+export function feedbackNotificationTemplate(
+  params: FeedbackNotificationParams,
+): string {
   const { email, message, source, timestamp } = params;
 
   // Format source for display
-  const sourceDisplay = source === 'pricing_page' ? 'Pricing Page' : 
-                        source === 'dashboard' ? 'Dashboard' : source;
+  const sourceDisplay =
+    source === 'pricing_page'
+      ? 'Pricing Page'
+      : source === 'dashboard'
+        ? 'Dashboard'
+        : source;
 
   return `
 <!DOCTYPE html>
@@ -99,4 +105,3 @@ export function feedbackNotificationTemplate(params: FeedbackNotificationParams)
 </html>
   `.trim();
 }
-

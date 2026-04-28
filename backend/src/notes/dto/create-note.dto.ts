@@ -12,4 +12,3 @@ export class CreateNoteDto {
   @IsInt()
   bookingId?: number;
 }
-

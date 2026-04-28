@@ -151,8 +151,8 @@ export function PricingCard({
         <Button
           size="lg"
           w="full"
-          colorScheme="brand"
-          variant={isPremium ? 'outline' : 'solid'}
+          colorScheme="gray"
+          variant={isPremium ? 'solid' : 'outline'}
           onClick={onButtonClick}
           fontWeight="600"
           py={6}

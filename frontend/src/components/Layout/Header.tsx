@@ -31,8 +31,9 @@ import { resetStore } from '../../store/actions';
 // Navigation links for landing page
 const navLinks = [
   { label: 'How It Works', href: '#how-it-works', isPage: false },
-  { label: 'FAQ', href: '#faq', isPage: false },
   { label: 'Pricing', href: ROUTES.PRICING, isPage: true },
+  { label: 'FAQ', href: '#faq', isPage: false },
+  { label: 'Custom Software', href: ROUTES.SERVICES, isPage: true },
 ];
 
 export function Header() {

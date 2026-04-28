@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { Business } from '../../business/entities/business.entity';
 import { Booking } from '../../bookings/entities/booking.entity';
 import { ServiceCategory } from '../../service-categories/entities/service-category.entity';
@@ -38,11 +46,16 @@ export class Service {
   @Column({ type: 'int', default: 0 })
   displayOrder: number;
 
-  @ManyToOne(() => Business, (business) => business.services, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Business, (business) => business.services, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'businessId' })
   business: Business;
 
-  @ManyToOne(() => ServiceCategory, (category) => category.services, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => ServiceCategory, (category) => category.services, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'categoryId' })
   category: ServiceCategory | null;
 

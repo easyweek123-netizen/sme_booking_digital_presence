@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Service } from './entities/service.entity';
@@ -137,7 +134,11 @@ export class ServicesService {
       throw new NotFoundException('Service not found');
     }
 
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
+    await verifyBusinessOwnership(
+      this.businessRepository,
+      service.businessId,
+      ownerId,
+    );
 
     // Update fields
     if (updateServiceDto.categoryId !== undefined) {
@@ -186,7 +187,11 @@ export class ServicesService {
       throw new NotFoundException('Service not found');
     }
 
-    await verifyBusinessOwnership(this.businessRepository, service.businessId, ownerId);
+    await verifyBusinessOwnership(
+      this.businessRepository,
+      service.businessId,
+      ownerId,
+    );
 
     if (service.bookings && service.bookings.length > 0) {
       // Disable instead of deleting — preserves booking history
@@ -197,5 +202,4 @@ export class ServicesService {
 
     await this.serviceRepository.remove(service);
   }
-
 }

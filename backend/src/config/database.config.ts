@@ -73,8 +73,7 @@ export default registerAs('database', () => {
     username: requireEnv('DB_USERNAME'),
     password: requireEnv('DB_PASSWORD'),
     database: requireEnv('DB_DATABASE'),
-    ssl:
-      process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     // Never auto-sync in production
     synchronize: !isProduction,
     // Only log in development

@@ -49,7 +49,10 @@ export class CreateNoteTool extends BaseToolHandler<NotesCreateArgs> {
         );
         resolvedCustomerName = customer.name;
       } catch {
-        return ToolResultHelpers.notFound('Customer', `ID ${resolvedCustomerId}`);
+        return ToolResultHelpers.notFound(
+          'Customer',
+          `ID ${resolvedCustomerId}`,
+        );
       }
     }
 

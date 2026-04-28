@@ -10,6 +10,9 @@ import { bookingConfirmedTemplate } from './templates/booking-confirmed';
 import { bookingCancelledTemplate } from './templates/booking-cancelled';
 import { bookingCompletedTemplate } from './templates/booking-completed';
 import { feedbackNotificationTemplate } from './templates/feedback-notification';
+import { Inquiry } from '../inquiries/entities/inquiry.entity';
+import { inquiryNotificationTemplate } from './templates/inquiry-notification';
+import { inquiryAcknowledgementTemplate } from './templates/inquiry-acknowledgement';
 
 interface EmailParams {
   to: string;
@@ -26,7 +29,7 @@ export class EmailService {
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('RESEND_API_KEY');
-    
+
     if (apiKey) {
       this.resend = new Resend(apiKey);
       this.logger.log('Email service initialized with Resend');
@@ -36,8 +39,10 @@ export class EmailService {
     }
 
     // Use Resend's default for testing, or custom domain later
-    this.fromEmail = this.configService.get<string>('EMAIL_FROM') || 'email@bookeasy.com';
-    this.adminEmail = this.configService.get<string>('ADMIN_EMAIL') || 'easyweek123@gmail.com';
+    this.fromEmail =
+      this.configService.get<string>('EMAIL_FROM') || 'email@bookeasy.com';
+    this.adminEmail =
+      this.configService.get<string>('ADMIN_EMAIL') || 'easyweek123@gmail.com';
   }
 
   /**
@@ -49,7 +54,7 @@ export class EmailService {
     owner: Owner,
   ): Promise<void> {
     const subject = `New booking request: ${booking.service?.name || 'Service'}`;
-    
+
     const html = newBookingAlertTemplate({
       businessName: business.name,
       customerName: booking.customerName,
@@ -75,18 +80,26 @@ export class EmailService {
     business: Business,
   ): Promise<void> {
     const customerEmail = booking.customerEmail;
-    
+
     if (!customerEmail) {
-      this.logger.warn(`No email for customer ${booking.customerId}, skipping confirmation`);
+      this.logger.warn(
+        `No email for customer ${booking.customerId}, skipping confirmation`,
+      );
       return;
     }
 
     const subject = `Booking Confirmed - ${business.name}`;
-    
+
     // Generate Google Calendar link
-    const bookingDateTime = this.combineDateTime(booking.date, booking.startTime);
-    const durationMinutes = this.calculateDuration(booking.startTime, booking.endTime);
-    
+    const bookingDateTime = this.combineDateTime(
+      booking.date,
+      booking.startTime,
+    );
+    const durationMinutes = this.calculateDuration(
+      booking.startTime,
+      booking.endTime,
+    );
+
     const calendarLink = generateGoogleCalendarLink({
       title: `${booking.service?.name || 'Appointment'} at ${business.name}`,
       start: bookingDateTime,
@@ -122,14 +135,16 @@ export class EmailService {
     business: Business,
   ): Promise<void> {
     const customerEmail = booking.customerEmail;
-    
+
     if (!customerEmail) {
-      this.logger.warn(`No email for customer ${booking.customerId}, skipping cancellation`);
+      this.logger.warn(
+        `No email for customer ${booking.customerId}, skipping cancellation`,
+      );
       return;
     }
 
     const subject = `Booking Cancelled - ${business.name}`;
-    
+
     const html = bookingCancelledTemplate({
       businessName: business.name,
       customerName: booking.customerName,
@@ -154,14 +169,16 @@ export class EmailService {
     business: Business,
   ): Promise<void> {
     const customerEmail = booking.customerEmail;
-    
+
     if (!customerEmail) {
-      this.logger.warn(`No email for customer ${booking.customerId}, skipping completion`);
+      this.logger.warn(
+        `No email for customer ${booking.customerId}, skipping completion`,
+      );
       return;
     }
 
     const subject = `Thank you for visiting ${business.name}!`;
-    
+
     const html = bookingCompletedTemplate({
       businessName: business.name,
       customerName: booking.customerName,
@@ -186,7 +203,7 @@ export class EmailService {
     source: string,
   ): Promise<void> {
     const subject = `New Feedback from BookEasy - ${email}`;
-    
+
     const timestamp = new Date().toLocaleString('en-US', {
       weekday: 'short',
       year: 'numeric',
@@ -212,6 +229,34 @@ export class EmailService {
   }
 
   /**
+   * Send inquiry notification to admin (easyweek123@gmail.com)
+   */
+  async sendInquiryNotification(inquiry: Inquiry): Promise<void> {
+    const subject = `New services inquiry: ${inquiry.name}${inquiry.company ? ` (${inquiry.company})` : ''}`;
+    const html = inquiryNotificationTemplate(inquiry);
+
+    await this.send({
+      to: this.adminEmail,
+      subject,
+      html,
+    });
+  }
+
+  /**
+   * Send acknowledgement to the person who submitted the inquiry
+   */
+  async sendInquiryAcknowledgement(inquiry: Inquiry): Promise<void> {
+    const subject = 'We received your inquiry — BookEasy';
+    const html = inquiryAcknowledgementTemplate({ name: inquiry.name });
+
+    await this.send({
+      to: inquiry.email,
+      subject,
+      html,
+    });
+  }
+
+  /**
    * Core send method with fire-and-forget pattern
    */
   private async send(params: EmailParams): Promise<void> {
@@ -231,12 +276,16 @@ export class EmailService {
       });
 
       if (result.error) {
-        this.logger.error(`Failed to send email to ${to}: ${result.error.message}`);
+        this.logger.error(
+          `Failed to send email to ${to}: ${result.error.message}`,
+        );
       } else {
         this.logger.log(`Email sent to ${to}: ${result.data?.id}`);
       }
     } catch (error) {
-      this.logger.error(`Email send error: ${error instanceof Error ? error.message : error}`);
+      this.logger.error(
+        `Email send error: ${error instanceof Error ? error.message : error}`,
+      );
     }
   }
 
@@ -261,7 +310,6 @@ export class EmailService {
   private calculateDuration(startTime: string, endTime: string): number {
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
-    return (endH * 60 + endM) - (startH * 60 + startM);
+    return endH * 60 + endM - (startH * 60 + startM);
   }
 }
-

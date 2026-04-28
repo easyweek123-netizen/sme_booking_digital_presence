@@ -30,7 +30,10 @@ export class ListServicesTool extends BaseToolHandler<ListServicesArgs> {
     super();
   }
 
-  async execute(_args: ListServicesArgs, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    _args: ListServicesArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const services = await this.servicesService.findByBusiness(ctx.businessId);
 
     if (services.length === 0) {

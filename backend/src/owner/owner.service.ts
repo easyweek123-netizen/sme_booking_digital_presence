@@ -33,7 +33,9 @@ export class OwnerService {
   async findByCanonicalEmail(canonicalEmail: string): Promise<Owner | null> {
     return this.ownerRepository
       .createQueryBuilder('owner')
-      .where('LOWER(TRIM(owner.email)) = :canonical', { canonical: canonicalEmail })
+      .where('LOWER(TRIM(owner.email)) = :canonical', {
+        canonical: canonicalEmail,
+      })
       .getOne();
   }
 
@@ -41,7 +43,10 @@ export class OwnerService {
     return this.ownerRepository.findOne({ where: { firebaseUid } });
   }
 
-  async update(id: number, updateOwnerDto: UpdateOwnerDto): Promise<Owner | null> {
+  async update(
+    id: number,
+    updateOwnerDto: UpdateOwnerDto,
+  ): Promise<Owner | null> {
     await this.ownerRepository.update(id, updateOwnerDto);
     return this.findOne(id);
   }

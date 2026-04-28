@@ -28,11 +28,7 @@ const UpdateServiceArgsSchema = z
       .optional()
       .describe('Service name (fallback if ID not available)'),
     // Update fields - partial ServiceInputSchema with newName for renaming
-    newName: z
-      .string()
-      .min(1)
-      .optional()
-      .describe('New name for the service'),
+    newName: z.string().min(1).optional().describe('New name for the service'),
     price: ServiceInputSchema.shape.price.optional(),
     durationMinutes: ServiceInputSchema.shape.durationMinutes.optional(),
     description: ServiceInputSchema.shape.description,
@@ -62,7 +58,10 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
     super();
   }
 
-  async execute(args: UpdateServiceArgs, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    args: UpdateServiceArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const { id, name, newName, price, durationMinutes, description, imageUrl } =
       args;
 
@@ -102,7 +101,8 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
 
     // Build change summary
     const changes: string[] = [];
-    if (newName && newName !== service.name) changes.push(`name → "${newName}"`);
+    if (newName && newName !== service.name)
+      changes.push(`name → "${newName}"`);
     if (price !== undefined && price !== Number(service.price))
       changes.push(`price → $${price}`);
     if (

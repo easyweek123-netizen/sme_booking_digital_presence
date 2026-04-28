@@ -244,8 +244,7 @@ export class ChatService {
           next.content,
           history,
         );
-        response.proposals =
-          allProposals.length > 0 ? allProposals : undefined;
+        response.proposals = allProposals.length > 0 ? allProposals : undefined;
         response.previewContext = previewContext;
         return response;
       } catch (error) {

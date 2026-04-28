@@ -35,9 +35,8 @@ export class ListNotesTool extends BaseToolHandler<NotesListFilters> {
 
     const preview = notes
       .map((n) => {
-        const snippet = n.content.length > 60
-          ? n.content.slice(0, 60) + '...'
-          : n.content;
+        const snippet =
+          n.content.length > 60 ? n.content.slice(0, 60) + '...' : n.content;
         return `[${n.id}] ${snippet}`;
       })
       .join('; ');

@@ -7,15 +7,11 @@ interface BookingCancelledParams {
   reference: string;
 }
 
-export function bookingCancelledTemplate(params: BookingCancelledParams): string {
-  const {
-    businessName,
-    customerName,
-    serviceName,
-    date,
-    time,
-    reference,
-  } = params;
+export function bookingCancelledTemplate(
+  params: BookingCancelledParams,
+): string {
+  const { businessName, customerName, serviceName, date, time, reference } =
+    params;
 
   return `
 <!DOCTYPE html>
@@ -104,4 +100,3 @@ export function bookingCancelledTemplate(params: BookingCancelledParams): string
 </html>
   `.trim();
 }
-

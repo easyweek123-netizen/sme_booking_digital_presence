@@ -6,14 +6,10 @@ interface BookingCompletedParams {
   reference: string;
 }
 
-export function bookingCompletedTemplate(params: BookingCompletedParams): string {
-  const {
-    businessName,
-    customerName,
-    serviceName,
-    date,
-    reference,
-  } = params;
+export function bookingCompletedTemplate(
+  params: BookingCompletedParams,
+): string {
+  const { businessName, customerName, serviceName, date, reference } = params;
 
   return `
 <!DOCTYPE html>
@@ -101,4 +97,3 @@ export function bookingCompletedTemplate(params: BookingCompletedParams): string
 </html>
   `.trim();
 }
-

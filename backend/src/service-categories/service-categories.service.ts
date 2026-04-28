@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ServiceCategory } from './entities/service-category.entity';
@@ -90,7 +87,11 @@ export class ServiceCategoriesService {
       throw new NotFoundException('Service category not found');
     }
 
-    await verifyBusinessOwnership(this.businessRepository, category.businessId, ownerId);
+    await verifyBusinessOwnership(
+      this.businessRepository,
+      category.businessId,
+      ownerId,
+    );
 
     // Update fields
     if (updateCategoryDto.name !== undefined) {
@@ -115,10 +116,13 @@ export class ServiceCategoriesService {
       throw new NotFoundException('Service category not found');
     }
 
-    await verifyBusinessOwnership(this.businessRepository, category.businessId, ownerId);
+    await verifyBusinessOwnership(
+      this.businessRepository,
+      category.businessId,
+      ownerId,
+    );
 
     // Delete category - services will have categoryId set to null (onDelete: 'SET NULL')
     await this.categoryRepository.remove(category);
   }
 }
-

@@ -62,8 +62,7 @@ function mergeFreshSystemPreservingSummaryArchive(
   if (!previous || previous.role !== 'system') {
     return fresh;
   }
-  const prevStr =
-    typeof previous.content === 'string' ? previous.content : '';
+  const prevStr = typeof previous.content === 'string' ? previous.content : '';
   const idx = prevStr.indexOf(SUMMARY_SECTION_MARKER);
   if (idx === -1) {
     return fresh;
@@ -104,10 +103,7 @@ export class ConversationStore {
       history = [system];
       this.histories.set(ownerId, history);
     } else {
-      history[0] = mergeFreshSystemPreservingSummaryArchive(
-        history[0],
-        system,
-      );
+      history[0] = mergeFreshSystemPreservingSummaryArchive(history[0], system);
     }
     return history;
   }
@@ -145,9 +141,7 @@ export class ConversationStore {
     const serialized = window
       .map((m) => {
         const c =
-          typeof m.content === 'string'
-            ? m.content
-            : JSON.stringify(m.content);
+          typeof m.content === 'string' ? m.content : JSON.stringify(m.content);
         return `${m.role}: ${c}`;
       })
       .join('\n---\n');

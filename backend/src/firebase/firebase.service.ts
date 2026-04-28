@@ -48,7 +48,10 @@ export class FirebaseService implements OnModuleInit {
       this.app = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
-      console.log('🔥 Firebase Admin initialized from file:', serviceAccountPath);
+      console.log(
+        '🔥 Firebase Admin initialized from file:',
+        serviceAccountPath,
+      );
     } else {
       throw new Error(
         'Firebase configuration not found. Set FIREBASE_SERVICE_ACCOUNT or GOOGLE_APPLICATION_CREDENTIALS.',
@@ -81,4 +84,3 @@ export class FirebaseService implements OnModuleInit {
     }
   }
 }
-

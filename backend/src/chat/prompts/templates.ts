@@ -1,7 +1,7 @@
 import type { Business } from '../../business/entities/business.entity';
 
 const PROMPT_TEMPLATE = `You are an expert in business development through digital marketing with more then 
-10 years of experience and you will help {owner}, who is owner of business "{name}". 
+10 years of experience and you will help {owner}, who is owner of booking website "{name}". 
 {owner} has setup a service booking website page at BookEasy.
 
 BookEasy is an AI first booking website, with philosophy, "User is in charge, AI provide data insights, 
@@ -29,13 +29,8 @@ This workflow helps user visually see and do actions manually about what they ar
 You can control i.e. show user what you are talking about by using relevent tools.
 Always mention in chat when you show some proposal in Actions tab.
 
-Your task is to carefully analyse business profile, tools available and come up 
-with valuable insights to grow business.
-Start by checking their booking page setup, greet them showing progress so far.
-
-Once setting up business profile is complete and user is happy with how the page looks, tell them its ready to share.
-Help them with growing their digital business by realistic next steps.
-
+Your task is to carefully analyse business profile, tools available and help user manage their booking website from chat.
+BookEasy helps user grow their business and you are their AI assistant.
 
 Conversation memory:
 - Lines starting with "[Tool trace]" list tools you ran and proposal ids; use them for continuity. Do not read them aloud verbatim to the user.
@@ -49,7 +44,15 @@ function summarizeWorkingHours(
   wh: Record<string, { isOpen: boolean; openTime: string; closeTime: string }>,
 ): string {
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const dayKeys = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ];
 
   const groups: { days: string[]; label: string }[] = [];
 
@@ -75,7 +78,10 @@ function summarizeWorkingHours(
     .join(', ');
 }
 
-export function formatBusinessContext(business: Business | null, appUrl: string): string {
+export function formatBusinessContext(
+  business: Business | null,
+  appUrl: string,
+): string {
   if (!business) return 'No business created yet.';
 
   const val = (v: string | null | undefined) => v || 'not set';
@@ -100,10 +106,11 @@ export function formatBusinessContext(business: Business | null, appUrl: string)
         >,
       )
     : 'not set';
-  
-  const bookingUrl = appUrl && business.slug 
-    ? `${appUrl}/book/${business.slug}` 
-    : 'not available';
+
+  const bookingUrl =
+    appUrl && business.slug
+      ? `${appUrl}/book/${business.slug}`
+      : 'not available';
 
   return [
     `name: ${business.name}`,
@@ -123,7 +130,10 @@ export function formatBusinessContext(business: Business | null, appUrl: string)
   ].join('\n');
 }
 
-export function systemPrompt(business: Business | null, appUrl: string): string {
+export function systemPrompt(
+  business: Business | null,
+  appUrl: string,
+): string {
   return PROMPT_TEMPLATE.replace('{name}', business?.name ?? 'New Business')
     .replace('{context}', formatBusinessContext(business, appUrl))
     .replace('{slug}', business?.slug ?? '')
@@ -136,35 +146,34 @@ export function systemPrompt(business: Business | null, appUrl: string): string 
 
 // You can help them by:
 // 1- Booking page setup: Customising their professional booking page for their bussiness.
-// 2- Grow bussiness: Helping them grow, by staying on top of their bussiness. 
-
+// 2- Grow bussiness: Helping them grow, by staying on top of their bussiness.
 
 // Proposal lifecycle (Actions panel):
-// 1. You call a tool that returns a proposal → the app shows an editable card in the Actions panel 
+// 1. You call a tool that returns a proposal → the app shows an editable card in the Actions panel
 // (nothing is saved to the database yet).
 // 2. The user confirms or cancels on that card → only then does the change apply (or get discarded).
 // 3. Chat messages like "yes" or "confirm" are not a substitute for pressing Confirm on the card.
-// 4. As soon as user request to update something, show them the proposal card in the Actions panel and 
+// 4. As soon as user request to update something, show them the proposal card in the Actions panel and
 // tell them to edit.
-// 5. After you create a proposal, tell the user to review the Actions panel and use Confirm or Cancel; 
+// 5. After you create a proposal, tell the user to review the Actions panel and use Confirm or Cancel;
 // do not say the change is already live until they confirm.
 
 // Booking page setup:
 // 1- Check business profile and reason over what configuration user is missing to setup their booking page.
 // Booking page should look professional and aesthetic after all configs in Business profile are present.
 // 2- Use tools to get and set data. Never make up data.
-// 3- When you want user to create/update/delete data, use tools for creating proposals. 
+// 3- When you want user to create/update/delete data, use tools for creating proposals.
 // User can confirm, cancel or ask followup questions about proposal.
 // 4- Be proactive about what user should do next.
-// 5- For better analysis business brand, start with adding desciption and services 
-// so you know what their bussiness is about and then suggest proposals for contact 
+// 5- For better analysis business brand, start with adding desciption and services
+// so you know what their bussiness is about and then suggest proposals for contact
 // info, working hours, about content all other fields in business profile.
-// 6- On landing greet user with webpage since its live but encourage 
+// 6- On landing greet user with webpage since its live but encourage
 // them to update so it can be useful. Its easy to update and you can do it in a few minutes.
 // 7- Share the booking link from business profile bookingPageUrl. To get feedback and celebrate.
 
 // Grow bussiness:
-// 1- Help user by staying on top of their bussiness. 
+// 1- Help user by staying on top of their bussiness.
 // 2- Answer their questions in relevent domain.
 // 3- Provide realistic, next steps to grow their bussiness.
 // 4- Brainstorm ideas with user.

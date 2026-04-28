@@ -20,7 +20,9 @@ import { ServiceCategory } from './entities/service-category.entity';
 
 @Controller('service-categories')
 export class ServiceCategoriesController {
-  constructor(private readonly serviceCategoriesService: ServiceCategoriesService) {}
+  constructor(
+    private readonly serviceCategoriesService: ServiceCategoriesService,
+  ) {}
 
   /**
    * Create a new service category
@@ -53,7 +55,9 @@ export class ServiceCategoriesController {
    * GET /api/service-categories/:id
    */
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<ServiceCategory> {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ServiceCategory> {
     return this.serviceCategoriesService.findOne(id);
   }
 
@@ -87,4 +91,3 @@ export class ServiceCategoriesController {
     return this.serviceCategoriesService.remove(id, ownerId);
   }
 }
-

@@ -45,7 +45,10 @@ export class UpdateNoteTool extends BaseToolHandler<NotesUpdateArgs> {
         );
         customerName = customer.name;
       } catch (error) {
-        this.logger.warn(`Could not resolve customer ${note.customerId} for display`, error);
+        this.logger.warn(
+          `Could not resolve customer ${note.customerId} for display`,
+          error,
+        );
       }
     }
 

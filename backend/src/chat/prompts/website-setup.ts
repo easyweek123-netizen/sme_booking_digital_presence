@@ -41,85 +41,103 @@ Website Current State:
 `;
 
 function summarizeWorkingHours(
-    wh: Record<string, { isOpen: boolean; openTime: string; closeTime: string }>,
-  ): string {
-    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  
-    const groups: { days: string[]; label: string }[] = [];
-  
-    for (let i = 0; i < dayKeys.length; i++) {
-      const d = wh[dayKeys[i]];
-      const label = d?.isOpen ? `${d.openTime}-${d.closeTime}` : 'closed';
-      const last = groups[groups.length - 1];
-      if (last && last.label === label) {
-        last.days.push(dayNames[i]);
-      } else {
-        groups.push({ days: [dayNames[i]], label });
-      }
+  wh: Record<string, { isOpen: boolean; openTime: string; closeTime: string }>,
+): string {
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayKeys = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ];
+
+  const groups: { days: string[]; label: string }[] = [];
+
+  for (let i = 0; i < dayKeys.length; i++) {
+    const d = wh[dayKeys[i]];
+    const label = d?.isOpen ? `${d.openTime}-${d.closeTime}` : 'closed';
+    const last = groups[groups.length - 1];
+    if (last && last.label === label) {
+      last.days.push(dayNames[i]);
+    } else {
+      groups.push({ days: [dayNames[i]], label });
     }
-  
-    return groups
-      .map((g) => {
-        const range =
-          g.days.length > 1
-            ? `${g.days[0]}-${g.days[g.days.length - 1]}`
-            : g.days[0];
-        return `${range} ${g.label}`;
-      })
-      .join(', ');
-}
-  
-export function formatBusinessContext(business: Business | null, appUrl: string): string {
-    if (!business) return 'No business created yet.';
+  }
 
-    const val = (v: string | null | undefined) => v || 'not set';
-
-    const services = business.services ?? [];
-    const svc =
-        services.length === 0
-        ? 'none'
-        : services
-            .map((s) => `${s.name} ($${s.price}, ${s.durationMinutes}min)`)
-            .join(', ');
-
-    const about = business.aboutContent
-        ? `set (${business.aboutContent.length} chars)`
-        : 'not set';
-
-    const hours = business.workingHours
-        ? summarizeWorkingHours(
-            business.workingHours as unknown as Record<
-            string,
-            { isOpen: boolean; openTime: string; closeTime: string }
-            >,
-        )
-        : 'not set';
-
-    const bookingUrl = appUrl && business.slug 
-        ? `${appUrl}/book/${business.slug}` 
-        : 'not available';
-
-    return [
-        `name: ${business.name}`,
-        `type: ${business.businessType?.name ?? 'not set'}`,
-        `slug: ${business.slug}`,
-        `services: ${svc}`,
-        `phone: ${val(business.phone)}`,
-        `address: ${val(business.address)}`,
-        `city: ${val(business.city)}`,
-        `workingHours: ${hours}`,
-        `description: ${val(business.description)}`,
-        `aboutContent: ${about}`,
-        `website: ${val(business.website)}`,
-        `instagram: ${val(business.instagram)}`,
-        `brandColor: ${val(business.brandColor)}`,
-        `bookingPageUrl: ${bookingUrl}`,
-    ].join('\n');
+  return groups
+    .map((g) => {
+      const range =
+        g.days.length > 1
+          ? `${g.days[0]}-${g.days[g.days.length - 1]}`
+          : g.days[0];
+      return `${range} ${g.label}`;
+    })
+    .join(', ');
 }
 
-export function systemPrompt(business: Business | null, appUrl: string): string {
-    return PROMPT_TEMPLATE.replace('{businessName}', business?.name ?? 'New Business')
-        .replace('{context}', formatBusinessContext(business, appUrl))
-        .replace('{owner}', business?.owner?.name ?? 'the owner');
+export function formatBusinessContext(
+  business: Business | null,
+  appUrl: string,
+): string {
+  if (!business) return 'No business created yet.';
+
+  const val = (v: string | null | undefined) => v || 'not set';
+
+  const services = business.services ?? [];
+  const svc =
+    services.length === 0
+      ? 'none'
+      : services
+          .map((s) => `${s.name} ($${s.price}, ${s.durationMinutes}min)`)
+          .join(', ');
+
+  const about = business.aboutContent
+    ? `set (${business.aboutContent.length} chars)`
+    : 'not set';
+
+  const hours = business.workingHours
+    ? summarizeWorkingHours(
+        business.workingHours as unknown as Record<
+          string,
+          { isOpen: boolean; openTime: string; closeTime: string }
+        >,
+      )
+    : 'not set';
+
+  const bookingUrl =
+    appUrl && business.slug
+      ? `${appUrl}/book/${business.slug}`
+      : 'not available';
+
+  return [
+    `name: ${business.name}`,
+    `type: ${business.businessType?.name ?? 'not set'}`,
+    `slug: ${business.slug}`,
+    `services: ${svc}`,
+    `phone: ${val(business.phone)}`,
+    `address: ${val(business.address)}`,
+    `city: ${val(business.city)}`,
+    `workingHours: ${hours}`,
+    `description: ${val(business.description)}`,
+    `aboutContent: ${about}`,
+    `website: ${val(business.website)}`,
+    `instagram: ${val(business.instagram)}`,
+    `brandColor: ${val(business.brandColor)}`,
+    `bookingPageUrl: ${bookingUrl}`,
+  ].join('\n');
+}
+
+export function systemPrompt(
+  business: Business | null,
+  appUrl: string,
+): string {
+  return PROMPT_TEMPLATE.replace(
+    '{businessName}',
+    business?.name ?? 'New Business',
+  )
+    .replace('{context}', formatBusinessContext(business, appUrl))
+    .replace('{owner}', business?.owner?.name ?? 'the owner');
 }

@@ -1,6 +1,12 @@
-
 import { Throttle } from '@nestjs/throttler';
-import { Controller, Post, Body, Get, Headers, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Headers,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -15,7 +21,9 @@ export class FeedbackController {
   ) {
     this.adminSecret = this.configService.get<string>('ADMIN_SECRET') || '';
     if (!this.adminSecret) {
-      throw new Error('ADMIN_SECRET environment variable is required. Set it in your .env file.');
+      throw new Error(
+        'ADMIN_SECRET environment variable is required. Set it in your .env file.',
+      );
     }
   }
 
@@ -33,4 +41,3 @@ export class FeedbackController {
     return this.feedbackService.findAll();
   }
 }
-

@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateFeedbackDto {
   @IsEmail()
@@ -19,4 +25,3 @@ export class CreateFeedbackDto {
   @MaxLength(100)
   topic?: string;
 }
-

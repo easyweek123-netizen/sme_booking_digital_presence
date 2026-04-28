@@ -53,9 +53,10 @@ export class GetBusinessTool extends BaseToolHandler<GetBusinessArgs> {
       .filter(([key, val]) => val === null && key !== 'businessType')
       .map(([key]) => key);
 
-    const summary = missing.length > 0
-      ? `Business "${business.name}" — missing fields: ${missing.join(', ')}`
-      : `Business "${business.name}" — profile is complete`;
+    const summary =
+      missing.length > 0
+        ? `Business "${business.name}" — missing fields: ${missing.join(', ')}`
+        : `Business "${business.name}" — profile is complete`;
 
     return ToolResultHelpers.withData(summary, { profile }, 'business_profile');
   }

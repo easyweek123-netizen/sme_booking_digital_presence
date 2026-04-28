@@ -1,30 +1,28 @@
-import { Button } from '@chakra-ui/react';
+import { Button, type ButtonProps } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
-interface SubmitButtonProps {
+type SubmitButtonProps = Omit<ButtonProps, 'type'> & {
   children: ReactNode;
-  isLoading?: boolean;
   loadingText?: string;
-  size?: 'sm' | 'md' | 'lg';
-  w?: string | number;
-}
+};
 
 export function SubmitButton({
   children,
   isLoading,
   loadingText,
   size = 'lg',
-  w,
+  isDisabled,
+  ...rest
 }: SubmitButtonProps) {
   return (
     <Button
       type="submit"
       colorScheme="brand"
       size={size}
-      w={w}
       isLoading={isLoading}
       loadingText={loadingText}
-      isDisabled={isLoading}
+      isDisabled={isLoading || isDisabled}
+      {...rest}
     >
       {children}
     </Button>

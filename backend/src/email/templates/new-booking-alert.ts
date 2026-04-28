@@ -110,4 +110,3 @@ export function newBookingAlertTemplate(params: NewBookingAlertParams): string {
 </html>
   `.trim();
 }
-

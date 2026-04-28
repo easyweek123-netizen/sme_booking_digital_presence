@@ -1,6 +1,6 @@
 /**
  * Service Tool Handlers
- * 
+ *
  * Each tool is auto-discovered via @ToolHandler decorator.
  * Just add to providers in ServicesModule - no manual registration needed.
  */

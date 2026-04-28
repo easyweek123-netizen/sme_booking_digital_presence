@@ -45,13 +45,17 @@ export class DeleteNoteTool extends BaseToolHandler<NotesDeleteArgs> {
         );
         customerName = customer.name;
       } catch (error) {
-        this.logger.warn(`Could not resolve customer ${note.customerId} for display`, error);
+        this.logger.warn(
+          `Could not resolve customer ${note.customerId} for display`,
+          error,
+        );
       }
     }
 
-    const contentPreview = note.content.length > 80
-      ? note.content.slice(0, 80) + '...'
-      : note.content;
+    const contentPreview =
+      note.content.length > 80
+        ? note.content.slice(0, 80) + '...'
+        : note.content;
 
     const proposal = createProposal('note:delete', {
       resolvedId: note.id,

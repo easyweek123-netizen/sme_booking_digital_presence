@@ -12,6 +12,7 @@ const OnboardingPage = lazy(() => import('./pages/onboarding').then(m => ({ defa
 const DashboardPage = lazy(() => import('./pages/dashboard').then(m => ({ default: m.DashboardPage })));
 const BookingPage = lazy(() => import('./pages/booking').then(m => ({ default: m.BookingPage })));
 const PricingPage = lazy(() => import('./pages/pricing').then(m => ({ default: m.PricingPage })));
+const ServicesPage = lazy(() => import('./pages/services').then(m => ({ default: m.ServicesPage })));
 const PrivacyPolicy = lazy(() => import('./pages/legal').then(m => ({ default: m.PrivacyPolicy })));
 const TermsOfService = lazy(() => import('./pages/legal').then(m => ({ default: m.TermsOfService })));
 const Impressum = lazy(() => import('./pages/legal').then(m => ({ default: m.Impressum })));
@@ -36,6 +37,7 @@ function App() {
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
           <Route path={ROUTES.PRICING} element={<PricingPage />} />
+          <Route path={ROUTES.SERVICES} element={<ServicesPage />} />
           <Route path={ROUTES.PRIVACY} element={<PrivacyPolicy />} />
           <Route path={ROUTES.TERMS} element={<TermsOfService />} />
           <Route path={ROUTES.IMPRESSUM} element={<Impressum />} />

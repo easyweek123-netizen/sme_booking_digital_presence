@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import { ToolHandler, BaseToolHandler } from '../../common/tools';
-import { createProposal, ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
+import {
+  createProposal,
+  ToolResultHelpers,
+  type ToolResult,
+} from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
 import { buildProposalToolMessage } from '../../common/tools';
@@ -44,7 +48,10 @@ export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
     super();
   }
 
-  async execute(args: DeleteServiceArgs, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    args: DeleteServiceArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const { id, name } = args;
 
     // Resolve service: prefer ID, fallback to name
@@ -73,10 +80,7 @@ export class DeleteServiceTool extends BaseToolHandler<DeleteServiceArgs> {
 
     return ToolResultHelpers.withProposal(
       proposal,
-      buildProposalToolMessage(
-        `delete service "${service.name}"`,
-        [proposal],
-      ),
+      buildProposalToolMessage(`delete service "${service.name}"`, [proposal]),
     );
   }
 }

@@ -29,7 +29,7 @@ const steps: Step[] = [
   {
     id: 2,
     title: 'Setup',
-    description: 'Chat with AI to setup your services, pricing and business profile',
+    description: 'Setup your services, pricing and business profile with chat assistant.',
     color: 'accent.primary',
   },
   {

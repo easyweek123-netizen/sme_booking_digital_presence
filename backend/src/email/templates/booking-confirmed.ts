@@ -10,7 +10,9 @@ interface BookingConfirmedParams {
   calendarLink: string;
 }
 
-export function bookingConfirmedTemplate(params: BookingConfirmedParams): string {
+export function bookingConfirmedTemplate(
+  params: BookingConfirmedParams,
+): string {
   const {
     businessName,
     customerName,
@@ -23,7 +25,9 @@ export function bookingConfirmedTemplate(params: BookingConfirmedParams): string
     calendarLink,
   } = params;
 
-  const contactSection = (address || phone) ? `
+  const contactSection =
+    address || phone
+      ? `
     <tr>
       <td style="padding: 8px 0; border-top: 1px solid #e5e7eb;">
         <span style="color: #6b7280; font-size: 14px;">Contact</span><br>
@@ -31,7 +35,8 @@ export function bookingConfirmedTemplate(params: BookingConfirmedParams): string
         ${phone ? `<a href="tel:${phone}" style="color: #059669; font-size: 14px;">📞 ${phone}</a>` : ''}
       </td>
     </tr>
-  ` : '';
+  `
+      : '';
 
   return `
 <!DOCTYPE html>
@@ -132,4 +137,3 @@ export function bookingConfirmedTemplate(params: BookingConfirmedParams): string
 </html>
   `.trim();
 }
-

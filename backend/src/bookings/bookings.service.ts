@@ -371,10 +371,7 @@ export class BookingsService {
   /**
    * Get count of pending bookings for a business
    */
-  async getPendingCount(
-    businessId: number,
-    ownerId: number,
-  ): Promise<number> {
+  async getPendingCount(businessId: number, ownerId: number): Promise<number> {
     await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     return this.bookingRepository.count({

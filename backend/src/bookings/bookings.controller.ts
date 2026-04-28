@@ -101,7 +101,9 @@ export class BookingsController {
    */
   @Get('status/:reference')
   @Throttle({ default: { ttl: 60000, limit: 20 } })
-  async findByReference(@Param('reference') reference: string): Promise<Booking> {
+  async findByReference(
+    @Param('reference') reference: string,
+  ): Promise<Booking> {
     return this.bookingsService.findByReference(reference);
   }
 
@@ -117,7 +119,10 @@ export class BookingsController {
     @OwnerId() ownerId: number,
     @Param('businessId', ParseIntPipe) businessId: number,
   ): Promise<{ count: number }> {
-    const count = await this.bookingsService.getPendingCount(businessId, ownerId);
+    const count = await this.bookingsService.getPendingCount(
+      businessId,
+      ownerId,
+    );
     return { count };
   }
 

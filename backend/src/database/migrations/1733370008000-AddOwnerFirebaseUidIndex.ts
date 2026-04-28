@@ -16,4 +16,3 @@ export class AddOwnerFirebaseUidIndex1733370008000 implements MigrationInterface
     console.log('Dropped index on owners.firebaseUid');
   }
 }
-

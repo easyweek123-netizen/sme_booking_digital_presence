@@ -10,7 +10,11 @@ export class AppController {
   ) {}
 
   @Get('health')
-  async getHealth(): Promise<{ status: string; timestamp: string; environment: string }> {
+  async getHealth(): Promise<{
+    status: string;
+    timestamp: string;
+    environment: string;
+  }> {
     try {
       await this.dataSource.query('SELECT 1');
     } catch {

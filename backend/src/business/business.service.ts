@@ -47,7 +47,6 @@ export class BusinessService {
     ownerId: number,
     createBusinessDto: CreateBusinessDto,
   ): Promise<Business> {
-
     // Check if owner already has a business
     const existingBusiness = await this.businessRepository.findOne({
       where: { ownerId },
@@ -74,7 +73,8 @@ export class BusinessService {
       business.city = createBusinessDto.city || null;
       business.logoUrl = createBusinessDto.logoUrl || null;
       business.brandColor = createBusinessDto.brandColor || null;
-      business.workingHours = createBusinessDto.workingHours || DEFAULT_WORKING_HOURS;
+      business.workingHours =
+        createBusinessDto.workingHours || DEFAULT_WORKING_HOURS;
       business.businessTypeId = createBusinessDto.businessTypeId ?? null;
 
       const savedBusiness = await queryRunner.manager.save(business);
@@ -105,7 +105,7 @@ export class BusinessService {
         error.code === 'ER_DUP_ENTRY' ||
         error.code === '23505' ||
         error.constraint?.includes('slug');
-      
+
       if (isDuplicateError) {
         throw new ConflictException(
           'Business with this name already exists. Please choose a different name.',

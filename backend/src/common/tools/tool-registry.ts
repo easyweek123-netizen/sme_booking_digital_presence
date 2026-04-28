@@ -5,7 +5,7 @@ import type { BaseToolHandler } from './base-tool.handler';
 
 /**
  * Simple Tool Registry
- * 
+ *
  * Manages tool handlers with explicit registration.
  * No auto-discovery magic - handlers are injected directly via useFactory.
  */
@@ -83,4 +83,3 @@ export class ToolRegistry {
     return Array.from(this.handlers.keys());
   }
 }
-

@@ -10,11 +10,7 @@ import { GetBusinessTool, UpdateBusinessTool } from './tools';
 @Module({
   imports: [TypeOrmModule.forFeature([Business, Service]), AuthModule],
   controllers: [BusinessController],
-  providers: [
-    BusinessService,
-    GetBusinessTool,
-    UpdateBusinessTool,
-  ],
+  providers: [BusinessService, GetBusinessTool, UpdateBusinessTool],
   exports: [BusinessService],
 })
 export class BusinessModule {}

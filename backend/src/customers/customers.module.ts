@@ -10,7 +10,11 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Customer]), AuthModule],
   controllers: [CustomersController],
-  providers: [CustomersService, CustomerResolverInterceptor, ...CustomerToolHandlers],
+  providers: [
+    CustomersService,
+    CustomerResolverInterceptor,
+    ...CustomerToolHandlers,
+  ],
   exports: [CustomersService, CustomerResolverInterceptor],
 })
 export class CustomersModule {}

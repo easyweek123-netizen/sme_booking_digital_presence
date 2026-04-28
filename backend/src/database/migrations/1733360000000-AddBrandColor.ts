@@ -15,4 +15,3 @@ export class AddBrandColor1733360000000 implements MigrationInterface {
     );
   }
 }
-

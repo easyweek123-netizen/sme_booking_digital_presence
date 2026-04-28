@@ -15,7 +15,9 @@ export interface ServerClockSnapshot {
   isoTimestamp: string;
 }
 
-export function getServerClockSnapshot(now: Date = new Date()): ServerClockSnapshot {
+export function getServerClockSnapshot(
+  now: Date = new Date(),
+): ServerClockSnapshot {
   return {
     dateIso: formatLocalYmd(now),
     dateDisplay: now.toLocaleDateString('en-US', {

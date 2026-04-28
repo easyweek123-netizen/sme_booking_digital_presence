@@ -14,7 +14,7 @@ import { Service } from '../../services/entities/service.entity';
 import { Booking } from '../../bookings/entities/booking.entity';
 import { WorkingHours } from '../../common/types';
 
-@Entity('businesses')
+@Entity('business')
 export class Business {
   @PrimaryGeneratedColumn()
   id: number;

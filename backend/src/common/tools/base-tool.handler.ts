@@ -12,12 +12,12 @@ import { zodToOpenAISchema } from './schema-utils';
  * - Zod validation of arguments
  * - Error handling and logging
  * - Tool definition generation
- * 
+ *
  * Subclasses must:
  * 1. Use @ToolHandler decorator with name, description, parameters
  * 2. Define a `schema` property for argument validation
  * 3. Implement `execute()` method
- * 
+ *
  * @example
  * ```typescript
  * @ToolHandler({
@@ -28,7 +28,7 @@ import { zodToOpenAISchema } from './schema-utils';
  * @Injectable()
  * export class CreateServiceTool extends BaseToolHandler<CreateArgs> {
  *   schema = CreateArgsSchema;
- *   
+ *
  *   async execute(args: CreateArgs, ctx: ToolContext) {
  *     return ToolResult.withProposal(...);
  *   }
@@ -50,7 +50,9 @@ export abstract class BaseToolHandler<TArgs = unknown> {
   get toolName(): string {
     const options = getToolOptions(this.constructor);
     if (!options) {
-      throw new Error(`${this.constructor.name} is missing @ToolHandler decorator`);
+      throw new Error(
+        `${this.constructor.name} is missing @ToolHandler decorator`,
+      );
     }
     return options.name;
   }
@@ -74,7 +76,9 @@ export abstract class BaseToolHandler<TArgs = unknown> {
   } {
     const options = getToolOptions(this.constructor);
     if (!options) {
-      throw new Error(`${this.constructor.name} is missing @ToolHandler decorator`);
+      throw new Error(
+        `${this.constructor.name} is missing @ToolHandler decorator`,
+      );
     }
 
     return {
@@ -82,7 +86,7 @@ export abstract class BaseToolHandler<TArgs = unknown> {
       function: {
         name: options.name,
         description: options.description,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         parameters: zodToOpenAISchema(this.schema as any),
       },
     };
@@ -92,7 +96,10 @@ export abstract class BaseToolHandler<TArgs = unknown> {
    * Handle a tool call: validate arguments, execute, handle errors.
    * This is the main entry point called by ToolRegistry.
    */
-  async handle(args: Record<string, unknown>, ctx: ToolContext): Promise<ToolResult> {
+  async handle(
+    args: Record<string, unknown>,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     // Normalize null/undefined args to empty object (LLMs often send null for no-arg tools)
     const normalizedArgs = args ?? {};
 
@@ -120,4 +127,3 @@ export abstract class BaseToolHandler<TArgs = unknown> {
     }
   }
 }
-

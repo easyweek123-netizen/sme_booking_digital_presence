@@ -9,4 +9,3 @@ import { BookingsModule } from '../bookings/bookings.module';
   controllers: [AdminController],
 })
 export class AdminModule {}
-

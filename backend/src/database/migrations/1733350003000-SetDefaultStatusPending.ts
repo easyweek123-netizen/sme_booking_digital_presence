@@ -9,12 +9,15 @@ export class SetDefaultStatusPending1733350003000 implements MigrationInterface 
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Change default status to PENDING
-    await queryRunner.query(`ALTER TABLE "bookings" ALTER COLUMN "status" SET DEFAULT 'PENDING'`);
+    await queryRunner.query(
+      `ALTER TABLE "bookings" ALTER COLUMN "status" SET DEFAULT 'PENDING'`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Revert to CONFIRMED as default
-    await queryRunner.query(`ALTER TABLE "bookings" ALTER COLUMN "status" SET DEFAULT 'CONFIRMED'`);
+    await queryRunner.query(
+      `ALTER TABLE "bookings" ALTER COLUMN "status" SET DEFAULT 'CONFIRMED'`,
+    );
   }
 }
-

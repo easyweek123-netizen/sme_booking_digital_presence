@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { BusinessCategory } from './business-category.entity';
 import { Business } from '../../business/entities/business.entity';
 
@@ -29,4 +37,3 @@ export class BusinessType {
   @CreateDateColumn()
   createdAt: Date;
 }
-

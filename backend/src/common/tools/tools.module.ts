@@ -29,7 +29,12 @@ export const TOOL_HANDLERS = Symbol('TOOL_HANDLERS');
 @Global()
 @Module({
   imports: [DiscoveryModule],
-  providers: [ToolRegistry, ToolDiscoveryService, ServerClockTool, BookingPagePreviewTool],
+  providers: [
+    ToolRegistry,
+    ToolDiscoveryService,
+    ServerClockTool,
+    BookingPagePreviewTool,
+  ],
   exports: [ToolRegistry],
 })
 export class ToolsModule {}

@@ -1,14 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { Business } from '../../business/entities/business.entity';
 import { Service } from '../../services/entities/service.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 
 export enum BookingStatus {
-  PENDING = 'PENDING',       // New booking, awaiting owner confirmation
-  CONFIRMED = 'CONFIRMED',   // Owner confirmed the booking
-  CANCELLED = 'CANCELLED',   // Cancelled by owner or customer
-  COMPLETED = 'COMPLETED',   // Service was delivered
-  NO_SHOW = 'NO_SHOW',       // Customer didn't show up
+  PENDING = 'PENDING', // New booking, awaiting owner confirmation
+  CONFIRMED = 'CONFIRMED', // Owner confirmed the booking
+  CANCELLED = 'CANCELLED', // Cancelled by owner or customer
+  COMPLETED = 'COMPLETED', // Service was delivered
+  NO_SHOW = 'NO_SHOW', // Customer didn't show up
 }
 
 // Partial unique index UQ_booking_slot on (businessId, date, startTime) WHERE status != 'CANCELLED'

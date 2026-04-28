@@ -26,7 +26,9 @@ export class AdminController {
   ) {
     this.adminSecret = this.configService.get<string>('ADMIN_SECRET') || '';
     if (!this.adminSecret) {
-      throw new Error('ADMIN_SECRET environment variable is required. Set it in your .env file.');
+      throw new Error(
+        'ADMIN_SECRET environment variable is required. Set it in your .env file.',
+      );
     }
   }
 
@@ -99,4 +101,3 @@ export class AdminController {
     return this.bookingsService.removeByIdAdmin(id, reference);
   }
 }
-

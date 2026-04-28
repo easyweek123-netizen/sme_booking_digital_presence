@@ -39,4 +39,3 @@ export function assertBusinessOwnership(
     throw new ForbiddenException('You do not own this business');
   }
 }
-

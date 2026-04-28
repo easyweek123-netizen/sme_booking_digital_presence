@@ -43,7 +43,9 @@ export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatu
 
     if (!booking) {
       const id =
-        args.id !== undefined ? `ID ${args.id}` : `reference "${args.reference}"`;
+        args.id !== undefined
+          ? `ID ${args.id}`
+          : `reference "${args.reference}"`;
       return ToolResultHelpers.notFound('Booking', id);
     }
 

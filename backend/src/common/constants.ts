@@ -44,4 +44,3 @@ export const DEFAULT_WORKING_HOURS: WorkingHours = {
   saturday: { ...closedDaySchedule },
   sunday: { ...closedDaySchedule },
 };
-

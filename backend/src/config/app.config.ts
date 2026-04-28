@@ -7,4 +7,3 @@ export default registerAs('app', () => ({
     origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   },
 }));
-

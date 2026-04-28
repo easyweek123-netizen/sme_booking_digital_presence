@@ -13,7 +13,7 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
       FROM information_schema.columns 
       WHERE table_name = 'owners' AND column_name = 'firebaseUid'
     `);
-    
+
     if (firebaseUidExists.length === 0) {
       await queryRunner.query(
         `ALTER TABLE "owners" ADD COLUMN "firebaseUid" VARCHAR(128) UNIQUE`,
@@ -27,7 +27,7 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
       FROM information_schema.columns 
       WHERE table_name = 'owners' AND column_name = 'passwordHash'
     `);
-    
+
     if (passwordHashExists.length > 0) {
       await queryRunner.query(
         `ALTER TABLE "owners" DROP COLUMN "passwordHash"`,
@@ -41,11 +41,9 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
       FROM information_schema.columns 
       WHERE table_name = 'owners' AND column_name = 'googleId'
     `);
-    
+
     if (googleIdExists.length > 0) {
-      await queryRunner.query(
-        `ALTER TABLE "owners" DROP COLUMN "googleId"`,
-      );
+      await queryRunner.query(`ALTER TABLE "owners" DROP COLUMN "googleId"`);
       console.log('Dropped googleId column from owners table.');
     }
   }
@@ -57,11 +55,9 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
       FROM information_schema.columns 
       WHERE table_name = 'owners' AND column_name = 'firebaseUid'
     `);
-    
+
     if (firebaseUidExists.length > 0) {
-      await queryRunner.query(
-        `ALTER TABLE "owners" DROP COLUMN "firebaseUid"`,
-      );
+      await queryRunner.query(`ALTER TABLE "owners" DROP COLUMN "firebaseUid"`);
     }
 
     const passwordHashExists = await queryRunner.query(`
@@ -69,7 +65,7 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
       FROM information_schema.columns 
       WHERE table_name = 'owners' AND column_name = 'passwordHash'
     `);
-    
+
     if (passwordHashExists.length === 0) {
       await queryRunner.query(
         `ALTER TABLE "owners" ADD COLUMN "passwordHash" VARCHAR(255)`,
@@ -81,7 +77,7 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
       FROM information_schema.columns 
       WHERE table_name = 'owners' AND column_name = 'googleId'
     `);
-    
+
     if (googleIdExists.length === 0) {
       await queryRunner.query(
         `ALTER TABLE "owners" ADD COLUMN "googleId" VARCHAR(255) UNIQUE`,
@@ -89,4 +85,3 @@ export class UpdateOwnerForFirebase1733370002000 implements MigrationInterface {
     }
   }
 }
-

@@ -1,4 +1,10 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableIndex,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateNotesTable1734350000000 implements MigrationInterface {
   name = 'CreateNotesTable1734350000000';
@@ -13,7 +19,7 @@ export class CreateNotesTable1734350000000 implements MigrationInterface {
   ): Promise<boolean> {
     const table = await queryRunner.getTable(tableName);
     if (!table) return false;
-    
+
     return table.foreignKeys.some((fk) => fk.columnNames.includes(columnName));
   }
 
@@ -27,14 +33,14 @@ export class CreateNotesTable1734350000000 implements MigrationInterface {
   ): Promise<boolean> {
     const table = await queryRunner.getTable(tableName);
     if (!table) return false;
-    
+
     return table.indices.some((idx) => idx.name === indexName);
   }
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if table already exists
     const tableExists = await queryRunner.hasTable('notes');
-    
+
     if (!tableExists) {
       await queryRunner.createTable(
         new Table({
@@ -136,7 +142,7 @@ export class CreateNotesTable1734350000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const tableExists = await queryRunner.hasTable('notes');
-    
+
     if (tableExists) {
       // Drop indexes (only if they exist)
       if (await this.hasIndex(queryRunner, 'notes', 'IDX_notes_customerId')) {
@@ -146,7 +152,7 @@ export class CreateNotesTable1734350000000 implements MigrationInterface {
           console.error('Error dropping index IDX_notes_customerId:', error);
         }
       }
-      
+
       if (await this.hasIndex(queryRunner, 'notes', 'IDX_notes_bookingId')) {
         try {
           await queryRunner.dropIndex('notes', 'IDX_notes_bookingId');

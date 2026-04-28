@@ -48,7 +48,9 @@ export class OpenAIChatProvider extends ChatCompletionProvider {
     const toolCalls: ToolCallSummary[] = (choice.message.tool_calls ?? [])
       .filter((tc) => tc.type === 'function')
       .map((tc) => {
-        const fn = (tc as { id: string; function: { name: string; arguments: string } }).function;
+        const fn = (
+          tc as { id: string; function: { name: string; arguments: string } }
+        ).function;
         return {
           id: tc.id,
           function: { name: fn.name, arguments: fn.arguments ?? '' },

@@ -46,4 +46,3 @@ export interface RequestWithFirebaseUser extends Request {
 export interface RequestWithCustomer extends Request {
   customerId: number;
 }
-

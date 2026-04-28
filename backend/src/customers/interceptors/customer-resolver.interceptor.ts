@@ -11,12 +11,12 @@ import { CustomersService } from '../customers.service';
 
 /**
  * Interceptor that resolves a Customer from a Firebase token.
- * 
+ *
  * - Extracts Firebase token from Authorization header
  * - Verifies token via FirebaseService
  * - Finds or creates Customer record
  * - Attaches customerId to request object
- * 
+ *
  * Use this interceptor on public booking endpoints that require
  * customer authentication.
  */
@@ -35,7 +35,9 @@ export class CustomerResolverInterceptor implements NestInterceptor {
     const token = this.extractToken(request);
 
     if (!token) {
-      throw new UnauthorizedException('Authentication required to make a booking');
+      throw new UnauthorizedException(
+        'Authentication required to make a booking',
+      );
     }
 
     try {
@@ -61,10 +63,11 @@ export class CustomerResolverInterceptor implements NestInterceptor {
     }
   }
 
-  private extractToken(request: { headers: { authorization?: string } }): string | null {
+  private extractToken(request: {
+    headers: { authorization?: string };
+  }): string | null {
     const auth = request.headers.authorization;
     if (!auth?.startsWith('Bearer ')) return null;
     return auth.slice(7);
   }
 }
-

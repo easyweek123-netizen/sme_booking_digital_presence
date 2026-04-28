@@ -10,7 +10,7 @@ export class CreateCustomersTable1733370003000 implements MigrationInterface {
       FROM information_schema.tables 
       WHERE table_name = 'customers' AND table_schema = 'public'
     `);
-    
+
     if (tableExists.length === 0) {
       await queryRunner.query(`
         CREATE TABLE "customers" (
@@ -22,7 +22,7 @@ export class CreateCustomersTable1733370003000 implements MigrationInterface {
           "createdAt" TIMESTAMP DEFAULT NOW()
         )
       `);
-      
+
       // Create indexes for faster lookups
       await queryRunner.query(`
         CREATE INDEX "IDX_customers_firebaseUid" ON "customers" ("firebaseUid")
@@ -33,7 +33,7 @@ export class CreateCustomersTable1733370003000 implements MigrationInterface {
       await queryRunner.query(`
         CREATE INDEX "IDX_customers_phone" ON "customers" ("phone")
       `);
-      
+
       console.log('Created customers table with indexes.');
     } else {
       console.log('Customers table already exists, skipping creation.');
@@ -45,11 +45,10 @@ export class CreateCustomersTable1733370003000 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_customers_firebaseUid"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_customers_email"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_customers_phone"`);
-    
+
     // Drop table
     await queryRunner.query(`DROP TABLE IF EXISTS "customers"`);
-    
+
     console.log('Dropped customers table.');
   }
 }
-

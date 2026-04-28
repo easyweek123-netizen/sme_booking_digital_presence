@@ -11,4 +11,3 @@ export const OwnerId = createParamDecorator(
     return request.ownerId;
   },
 );
-

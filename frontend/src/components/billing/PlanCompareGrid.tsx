@@ -6,7 +6,7 @@ import type { BillingCycle, Plan } from '../../types/billing.types';
 import { formatPrice } from '../../utils/format';
 import { PlanFeatureList } from './PlanFeatureList';
 import { PLAN_LABEL } from '../../utils/billingLabels';
-import { buildCheckoutRoute, isPaidPlan } from '../../pages/dashboard/settings/utils/checkoutRoute';
+import { buildCheckoutRoute } from '../../pages/dashboard/settings/utils/checkoutRoute';
 
 interface PlanCompareGridProps {
   cycle: BillingCycle;
@@ -68,8 +68,8 @@ export function PlanCompareGrid({ cycle, currentPlan }: PlanCompareGridProps) {
             w="full"
             colorScheme="brand"
             onClick={() => {
-              if (!isPaidPlan(plan)) return;
-              navigate(buildCheckoutRoute({ plan, cycle }));
+              if (plan === 'free') return;
+              navigate(buildCheckoutRoute());
             }}
           >
             Upgrade

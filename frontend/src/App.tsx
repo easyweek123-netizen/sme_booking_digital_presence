@@ -4,6 +4,7 @@ import { Spinner, Center } from '@chakra-ui/react';
 import { ROUTES } from './config/routes';
 import { ProtectedRoute } from './components/auth';
 import { PublicLayout, ScrollToTop } from './components/Layout';
+import { GlobalModals } from './components/GlobalModals';
 
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import('./pages/landing').then(m => ({ default: m.LandingPage })));
@@ -30,6 +31,7 @@ function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <ScrollToTop />
+      <GlobalModals />
       <Routes>
         {/* Public routes with consistent header */}
         <Route element={<PublicLayout />}>

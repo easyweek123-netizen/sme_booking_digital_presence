@@ -3,6 +3,8 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolk
 import { resetStore } from '../actions';
 import { toast } from '../../utils/toast';
 import type { RootState } from '../store';
+import { openUpgradePrompt } from '../slices/billingSlice';
+import type { Plan } from '../../types/billing.types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -29,6 +31,29 @@ export const baseQueryWithAuth: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
   const result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error?.status === 402) {
+    const data = result.error.data as
+      | {
+          code?: string;
+          requiredPlan?: Plan;
+          currentPlan?: Plan;
+          sourceFeature?: string;
+        }
+      | undefined;
+
+    if (data?.code === 'UPGRADE_REQUIRED') {
+      api.dispatch(
+        openUpgradePrompt({
+          requiredPlan: data.requiredPlan === 'free' ? undefined : data.requiredPlan,
+          currentPlan: data.currentPlan,
+          sourceFeature: data.sourceFeature,
+        }),
+      );
+    }
+
+    return result;
+  }
 
   if (result.error?.status === 401) {
     api.dispatch(resetStore());

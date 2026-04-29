@@ -4,17 +4,22 @@ import {
   Column,
   ManyToOne,
   OneToMany,
+  OneToOne,
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Owner } from '../../owner/entities/owner.entity';
 import { BusinessType } from '../../business-categories/entities/business-type.entity';
 import { Service } from '../../services/entities/service.entity';
 import { Booking } from '../../bookings/entities/booking.entity';
 import { WorkingHours } from '../../common/types';
+import { Plan } from '../../billing/types/enums';
+import { Subscription } from '../../billing/entities/subscription.entity';
 
 @Entity('business')
+@Index('IDX_business_plan', ['plan'])
 export class Business {
   @PrimaryGeneratedColumn()
   id: number;
@@ -63,6 +68,22 @@ export class Business {
 
   @Column({ type: 'text', nullable: true })
   aboutContent: string | null;
+
+  @Column({
+    type: 'enum',
+    enum: Plan,
+    enumName: 'plan_enum',
+    default: Plan.FREE,
+  })
+  plan: Plan;
+
+  @Column({ type: 'varchar', length: 120, nullable: true, unique: true })
+  providerCustomerId: string | null;
+
+  @OneToOne(() => Subscription, (subscription) => subscription.business, {
+    nullable: true,
+  })
+  subscription: Subscription | null;
 
   @ManyToOne(() => Owner, (owner) => owner.businesses)
   @JoinColumn({ name: 'ownerId' })

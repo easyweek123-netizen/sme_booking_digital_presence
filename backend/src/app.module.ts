@@ -17,6 +17,7 @@ import { AdminModule } from './admin/admin.module';
 import { ChatModule } from './chat/chat.module';
 import { NotesModule } from './notes/notes.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { BillingModule } from './billing/billing.module';
 import { databaseConfig, appConfig } from './config';
 
 @Module({
@@ -43,6 +44,7 @@ import { databaseConfig, appConfig } from './config';
     ChatModule,
     NotesModule,
     InquiriesModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [],

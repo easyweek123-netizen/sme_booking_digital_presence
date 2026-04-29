@@ -38,8 +38,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
               token,
             }),
           );
-        } catch(e: unknown) {
-          debugger;
+        } catch {
           await logOut();
           dispatch(resetStore());
           toast({

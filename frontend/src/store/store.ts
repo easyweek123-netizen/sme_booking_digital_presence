@@ -7,6 +7,7 @@ import {
 import {
   persistStore,
   persistReducer,
+  createTransform,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -20,6 +21,8 @@ import authReducer from './slices/authSlice';
 import onboardingReducer from './slices/onboardingSlice';
 import chatReducer from './slices/chatSlice';
 import canvasReducer from './slices/canvasSlice';
+import billingReducer from './slices/billingSlice';
+import type { BillingUiState } from './slices/billingSlice';
 import { baseApi } from './api/baseApi';
 import { RESET_STORE } from './actions';
 
@@ -32,6 +35,7 @@ const appReducer = combineReducers({
   onboarding: onboardingReducer,
   chat: chatReducer,
   canvas: canvasReducer,
+  billing: billingReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 
@@ -49,7 +53,26 @@ const persistConfig = {
   key: 'bookeasy',
   version: 1,
   storage,
-  whitelist: ['auth', 'onboarding', 'chat', 'canvas'],
+  whitelist: ['auth', 'onboarding', 'chat', 'canvas', 'billing'],
+  transforms: [
+    createTransform<BillingUiState, BillingUiState>(
+      (inboundState, key) => {
+        if (key !== 'billing') return inboundState;
+        return {
+          upgradePrompt: { open: false },
+          checkout: inboundState.checkout,
+        };
+      },
+      (outboundState, key) => {
+        if (key !== 'billing') return outboundState;
+        return {
+          upgradePrompt: { open: false },
+          checkout: outboundState.checkout,
+        };
+      },
+      { whitelist: ['billing'] },
+    ),
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

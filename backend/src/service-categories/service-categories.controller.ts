@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   UseGuards,
-  UseInterceptors,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -15,7 +14,7 @@ import {
 import { ServiceCategoriesService } from './service-categories.service';
 import { CreateServiceCategoryDto, UpdateServiceCategoryDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
-import { OwnerResolverInterceptor, OwnerId } from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { ServiceCategory } from './entities/service-category.entity';
 
 @Controller('service-categories')
@@ -29,8 +28,7 @@ export class ServiceCategoriesController {
    * POST /api/service-categories
    */
   @Post()
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
     @OwnerId() ownerId: number,
@@ -66,8 +64,7 @@ export class ServiceCategoriesController {
    * PATCH /api/service-categories/:id
    */
   @Patch(':id')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   async update(
     @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
@@ -81,8 +78,7 @@ export class ServiceCategoriesController {
    * DELETE /api/service-categories/:id
    */
   @Delete(':id')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @OwnerId() ownerId: number,

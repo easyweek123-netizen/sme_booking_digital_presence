@@ -13,6 +13,10 @@ import { Service } from '../services/entities/service.entity';
 import { AuthModule } from '../auth/auth.module';
 import { CustomersModule } from '../customers/customers.module';
 import { EmailModule } from '../email/email.module';
+import { MonthlyConfirmedBookingsCounter } from './counters/monthly-confirmed-bookings.counter';
+import { CounterKey } from '../entitlements/config/counter-keys';
+import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
+import { BillingModule } from 'src/billing/billing.module';
 
 @Module({
   imports: [
@@ -20,10 +24,16 @@ import { EmailModule } from '../email/email.module';
     AuthModule,
     CustomersModule,
     EmailModule,
+    BillingModule,
   ],
   controllers: [BookingsController],
   providers: [
     BookingsService,
+    MonthlyConfirmedBookingsCounter,
+    {
+      provide: COUNTER_TOKEN(CounterKey.MonthlyConfirmedBookings),
+      useExisting: MonthlyConfirmedBookingsCounter,
+    },
     ListBookingsTool,
     BookingStatsTool,
     UpdateBookingStatusTool,

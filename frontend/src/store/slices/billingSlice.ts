@@ -5,7 +5,7 @@ interface UpgradePromptState {
   open: boolean;
   requiredPlan?: Exclude<Plan, 'free'>;
   currentPlan?: Plan;
-  sourceFeature?: string;
+  feature?: string;
 }
 
 interface CheckoutUiState {

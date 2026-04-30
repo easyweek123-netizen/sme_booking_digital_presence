@@ -8,7 +8,6 @@ import {
   Param,
   Query,
   UseGuards,
-  UseInterceptors,
   Request,
   ParseIntPipe,
   HttpCode,
@@ -19,12 +18,11 @@ import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { FirebaseAuthGuard } from '../auth/guards';
 import { Note } from './entities/note.entity';
-import { OwnerResolverInterceptor } from '../common';
 import type { RequestWithOwner } from '../common';
+import { OwnerResolverGuard } from '../common';
 
 @Controller('notes')
-@UseGuards(FirebaseAuthGuard)
-@UseInterceptors(OwnerResolverInterceptor)
+@UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 

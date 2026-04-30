@@ -444,7 +444,20 @@ export class BookingsService {
     );
 
     const previousStatus = booking.status;
+
+    if (previousStatus === status) {
+      return this.findOne(id);
+    }
+
     booking.status = status;
+
+    if (
+      status === BookingStatus.CONFIRMED &&
+      previousStatus !== BookingStatus.CONFIRMED
+    ) {
+      booking.confirmedAt = new Date();
+    }
+
     await this.bookingRepository.save(booking);
 
     const updatedBooking = await this.findOne(id);

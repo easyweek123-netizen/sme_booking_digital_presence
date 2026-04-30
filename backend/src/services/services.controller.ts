@@ -7,7 +7,6 @@ import {
   Body,
   Param,
   UseGuards,
-  UseInterceptors,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -15,7 +14,8 @@ import {
 import { ServicesService } from './services.service';
 import { CreateServiceDto, UpdateServiceDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
-import { OwnerResolverInterceptor, OwnerId } from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
+import { Entitlement, EntitlementGuard } from '../entitlements';
 import { Service } from './entities/service.entity';
 
 @Controller('services')
@@ -27,8 +27,8 @@ export class ServicesController {
    * POST /api/services
    */
   @Post()
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, EntitlementGuard)
+  @Entitlement('service.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @OwnerId() ownerId: number,
@@ -62,8 +62,10 @@ export class ServicesController {
    * PATCH /api/services/:id
    */
   @Patch(':id')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, EntitlementGuard)
+  @Entitlement('service.create', {
+    when: (req) => (req.body as { isActive?: boolean } | undefined)?.isActive === true,
+  })
   async update(
     @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
@@ -77,8 +79,7 @@ export class ServicesController {
    * DELETE /api/services/:id
    */
   @Delete(':id')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
     @OwnerId() ownerId: number,

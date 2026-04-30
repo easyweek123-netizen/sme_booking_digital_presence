@@ -9,6 +9,16 @@ export function formatLocalYmd(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+/** Start of calendar month in server-local time (same semantics as formatLocalYmd). */
+export function startOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+/** Start of the month after `d` in server-local time. */
+export function startOfNextMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1);
+}
+
 export interface ServerClockSnapshot {
   dateIso: string;
   dateDisplay: string;

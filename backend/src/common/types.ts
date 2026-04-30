@@ -1,3 +1,5 @@
+import type { Request } from 'express';
+
 // Shared types for the application
 
 export interface DaySchedule {
@@ -45,4 +47,9 @@ export interface RequestWithFirebaseUser extends Request {
 // Customer request - used after CustomerResolverInterceptor
 export interface RequestWithCustomer extends Request {
   customerId: number;
+}
+
+/** Owner request — after FirebaseAuthGuard + OwnerResolverGuard */
+export interface RequestWithOwner extends RequestWithFirebaseUser {
+  ownerId: number;
 }

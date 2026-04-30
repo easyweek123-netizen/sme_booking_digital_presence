@@ -38,7 +38,7 @@ export const baseQueryWithAuth: BaseQueryFn<
           code?: string;
           requiredPlan?: Plan;
           currentPlan?: Plan;
-          sourceFeature?: string;
+          feature?: string;
         }
       | undefined;
 
@@ -47,7 +47,7 @@ export const baseQueryWithAuth: BaseQueryFn<
         openUpgradePrompt({
           requiredPlan: data.requiredPlan === 'free' ? undefined : data.requiredPlan,
           currentPlan: data.currentPlan,
-          sourceFeature: data.sourceFeature,
+          feature: data.feature,
         }),
       );
     }

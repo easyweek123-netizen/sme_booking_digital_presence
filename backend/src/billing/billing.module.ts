@@ -3,9 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { BusinessModule } from '../business/business.module';
+import { Business } from '../business/entities/business.entity';
 import { BillingEvent, Invoice, PricingPlan, Subscription } from './entities';
 import { BillingController } from './billing.controller';
 import { BillingService } from './services/billing.service';
+import { PlanResolverService } from './services/plan-resolver.service';
 import { BillingStateModule } from './billing-state.module';
 import { MockBillingModule } from './mock/mock-billing.module';
 import { StripeBillingModule } from './stripe/stripe-billing.module';
@@ -16,6 +18,7 @@ import { PAYMENT_PROVIDER } from './providers/payment-provider.token';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      Business,
       Subscription,
       Invoice,
       BillingEvent,
@@ -31,6 +34,7 @@ import { PAYMENT_PROVIDER } from './providers/payment-provider.token';
   controllers: [BillingController],
   providers: [
     BillingService,
+    PlanResolverService,
     {
       provide: PAYMENT_PROVIDER,
       inject: [MockBillingProvider, StripeBillingProvider, ConfigService],
@@ -46,6 +50,6 @@ import { PAYMENT_PROVIDER } from './providers/payment-provider.token';
       },
     },
   ],
-  exports: [BillingService, PAYMENT_PROVIDER],
+  exports: [BillingService, PlanResolverService, PAYMENT_PROVIDER],
 })
 export class BillingModule {}

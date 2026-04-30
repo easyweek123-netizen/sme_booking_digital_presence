@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { OwnerService } from '../owner/owner.service';
 import { BusinessService } from '../business/business.service';
 import { BookingsService } from '../bookings/bookings.service';
+import { AdminBillingCleanupService } from './admin-billing-cleanup.service';
 
 @Controller('admin')
 export class AdminController {
@@ -23,6 +24,7 @@ export class AdminController {
     private readonly ownerService: OwnerService,
     private readonly businessService: BusinessService,
     private readonly bookingsService: BookingsService,
+    private readonly adminBillingCleanup: AdminBillingCleanupService,
   ) {
     this.adminSecret = this.configService.get<string>('ADMIN_SECRET') || '';
     if (!this.adminSecret) {
@@ -99,5 +101,31 @@ export class AdminController {
   ) {
     this.checkSecret(secret);
     return this.bookingsService.removeByIdAdmin(id, reference);
+  }
+
+  /**
+   * Delete subscription and invoices for the owner’s business; reset business.plan to free.
+   * Usage: curl -X DELETE -H "x-admin-secret: SECRET" "http://localhost:3000/api/admin/billing/by-owner-email/user@example.com"
+   */
+  @Delete('billing/by-owner-email/:email')
+  async deleteBillingByOwnerEmail(
+    @Param('email') email: string,
+    @Headers('x-admin-secret') secret: string,
+  ) {
+    this.checkSecret(secret);
+    return this.adminBillingCleanup.cleanupByOwnerEmail(email);
+  }
+
+  /**
+   * Same cleanup by business id.
+   * Usage: curl -X DELETE -H "x-admin-secret: SECRET" "http://localhost:3000/api/admin/billing/by-business-id/42"
+   */
+  @Delete('billing/by-business-id/:businessId')
+  async deleteBillingByBusinessId(
+    @Param('businessId', ParseIntPipe) businessId: number,
+    @Headers('x-admin-secret') secret: string,
+  ) {
+    this.checkSecret(secret);
+    return this.adminBillingCleanup.cleanupForBusinessId(businessId);
   }
 }

@@ -1,13 +1,6 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../auth/guards/firebase-auth.guard';
-import { OwnerResolverInterceptor, OwnerId } from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { ChatService } from './chat.service';
 import {
   SendMessageDto,
@@ -16,8 +9,7 @@ import {
 } from './dto/chat.dto';
 
 @Controller('chat')
-@UseGuards(FirebaseAuthGuard)
-@UseInterceptors(OwnerResolverInterceptor)
+@UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 

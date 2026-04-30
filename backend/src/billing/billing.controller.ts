@@ -9,11 +9,9 @@ import {
   Post,
   Query,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { FirebaseAuthGuard } from '../auth/guards/firebase-auth.guard';
-import { OwnerId } from '../common/decorators/owner.decorator';
-import { OwnerResolverInterceptor } from '../common/interceptors/owner-resolver.interceptor';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { BillingService } from './services/billing.service';
 import { CheckoutIntentDto, ConfirmIntentDto } from './dto';
 import {
@@ -34,8 +32,7 @@ export class BillingController {
 
   // Authenticated: checkout
   @Post('checkout')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   startCheckout(
     @OwnerId() ownerId: number,
     @Body() dto: CheckoutIntentDto,
@@ -45,8 +42,7 @@ export class BillingController {
 
   // Authenticated: confirm checkout (mock-mode only — Stripe uses webhook)
   @Post('checkout/confirm')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async confirmCheckout(
     @OwnerId() ownerId: number,
@@ -57,8 +53,7 @@ export class BillingController {
 
   // Authenticated: read subscription
   @Get('subscription')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   getSubscription(
     @OwnerId() ownerId: number,
   ): Promise<SubscriptionSnapshot | null> {
@@ -67,8 +62,7 @@ export class BillingController {
 
   // Authenticated: list invoices
   @Get('invoices')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   listInvoices(
     @OwnerId() ownerId: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -78,8 +72,7 @@ export class BillingController {
 
   // Authenticated: cancel
   @Post('cancel')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async cancel(@OwnerId() ownerId: number): Promise<void> {
     await this.billing.cancel(ownerId);
@@ -87,8 +80,7 @@ export class BillingController {
 
   // Authenticated: resume
   @Post('resume')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async resume(@OwnerId() ownerId: number): Promise<void> {
     await this.billing.resume(ownerId);

@@ -54,6 +54,10 @@ export class Booking {
   @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;
 
+  /** Set once when status first becomes CONFIRMED; used for monthly quota counting. */
+  @Column({ type: 'timestamp', nullable: true })
+  confirmedAt: Date | null;
+
   @ManyToOne(() => Business, (business) => business.bookings)
   @JoinColumn({ name: 'businessId' })
   business: Business;

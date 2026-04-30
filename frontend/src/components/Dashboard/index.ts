@@ -2,6 +2,8 @@ export { CategoryManagement } from './CategoryManagement';
 export { BusinessGate } from './BusinessGate';
 export { DashboardLayout } from './DashboardLayout';
 export { DashboardContentShell } from './DashboardContentShell';
+export { DashboardTabs } from './DashboardTabs';
+export type { DashboardTabSpec } from './DashboardTabs';
 export { Sidebar } from './Sidebar';
 export { MobileNav } from './MobileNav';
 export { StatsCard } from './StatsCard';

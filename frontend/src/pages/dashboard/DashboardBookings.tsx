@@ -2,8 +2,6 @@ import {
   Box,
   VStack,
   Badge,
-  Button,
-  ButtonGroup,
   useToast,
   useDisclosure,
 } from '@chakra-ui/react';
@@ -24,7 +22,7 @@ import {
 import { TOAST_DURATION } from '../../constants';
 import { getTodayString } from '../../utils/format';
 import type { Booking, BookingStatus } from '../../types';
-import { DashboardContentShell } from '../../components/Dashboard';
+import { DashboardContentShell, DashboardTabs, type DashboardTabSpec } from '../../components/Dashboard';
 import { SkeletonList, EmptyState } from '../../components/ui/states';
 import {
   CalendarIcon,
@@ -97,67 +95,46 @@ export function DashboardBookings() {
       ? [...(bookings || []), ...(noShowBookings || [])]
       : (bookings || []);
 
+  const tabs: ReadonlyArray<DashboardTabSpec<FilterKey>> = [
+    {
+      key: 'requests',
+      label: 'Requests',
+      badge:
+        pendingCount > 0 ? (
+          <Badge
+            colorScheme="alert"
+            borderRadius="full"
+            fontSize="2xs"
+            minW="18px"
+            h="18px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            {pendingCount}
+          </Badge>
+        ) : undefined,
+    },
+    { key: 'upcoming', label: 'Upcoming' },
+    { key: 'completed', label: 'Completed' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
+
   return (
-    <DashboardContentShell title="Bookings" description="Manage your appointments">
-    <VStack spacing={6} align="stretch">
-      <Box
-        overflowX="auto"
-        pb={2}
-        mx={{ base: -4, md: 0 }}
-        px={{ base: 4, md: 0 }}
-        css={{
-          '&::-webkit-scrollbar': { display: 'none' },
-          scrollbarWidth: 'none',
-        }}
-      >
-        <ButtonGroup isAttached size="sm" bg="surface.muted" borderRadius="lg" p="2px">
-          {FILTER_OPTIONS.map((option) => {
-            const isActive = activeFilter === option.key;
-            const isRequests = option.key === 'requests';
-
-            return (
-              <Button
-                key={option.key}
-                onClick={() => setActiveFilter(option.key)}
-                bg={isActive ? 'white' : 'transparent'}
-                color={isActive ? 'text.primary' : 'text.secondary'}
-                fontWeight={isActive ? '600' : '500'}
-                fontSize={{ base: 'xs', md: 'sm' }}
-                px={{ base: 3, md: 4 }}
-                py={2}
-                borderRadius="md"
-                boxShadow={isActive ? 'sm' : 'none'}
-                _hover={{
-                  bg: isActive ? 'white' : 'surface.muted',
-                  color: 'text.primary',
-                }}
-                transition="all 0.2s"
-                position="relative"
-              >
-                {option.label}
-                {isRequests && pendingCount > 0 && (
-                  <Badge
-                    colorScheme="alert"
-                    borderRadius="full"
-                    ml={1.5}
-                    fontSize="2xs"
-                    minW="18px"
-                    h="18px"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    {pendingCount}
-                  </Badge>
-                )}
-              </Button>
-            );
-          })}
-        </ButtonGroup>
-      </Box>
-
-      <BookingsList bookings={displayBookings} isLoading={isLoading} type={activeFilter} />
-    </VStack>
+    <DashboardContentShell
+      title="Bookings"
+      description="Manage your appointments"
+      tabs={
+        <DashboardTabs
+          tabs={tabs}
+          activeKey={activeFilter}
+          onChange={setActiveFilter}
+        />
+      }
+    >
+      <VStack spacing={6} align="stretch">
+        <BookingsList bookings={displayBookings} isLoading={isLoading} type={activeFilter} />
+      </VStack>
     </DashboardContentShell>
   );
 }

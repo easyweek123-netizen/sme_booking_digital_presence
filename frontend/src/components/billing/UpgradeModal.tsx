@@ -19,7 +19,6 @@ import { PlanFeatureList } from './PlanFeatureList';
 import { useGetPricingQuery } from '../../store/api/billingApi';
 import { formatPrice } from '../../utils/format';
 import { planLabel } from '../../utils/billingLabels';
-import { SparkleIcon } from '../icons';
 import { copyForFeature } from './upgradeCopy';
 
 export function UpgradeModal() {

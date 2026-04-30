@@ -6,6 +6,7 @@ interface DashboardContentShellProps {
   title: string;
   description?: string;
   actions?: ReactNode;
+  tabs?: ReactNode;
   backHref?: string;
   /** When true, header stays pinned while body scrolls. Defaults to true. */
   stickyHeader?: boolean;
@@ -16,6 +17,7 @@ export function DashboardContentShell({
   title,
   description,
   actions,
+  tabs,
   backHref,
   stickyHeader = true,
   children,
@@ -39,6 +41,7 @@ export function DashboardContentShell({
           actions={actions}
           backHref={backHref}
         />
+        {tabs && <Box pt={2}>{tabs}</Box>}
       </Box>
 
       <Box

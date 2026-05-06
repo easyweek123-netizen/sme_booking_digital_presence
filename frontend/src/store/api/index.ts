@@ -6,7 +6,7 @@ export { useGetHealthQuery } from './healthApi';
 export type { HealthResponse } from './healthApi';
 
 // Auth
-export { useGetMeQuery } from './authApi';
+export { useGetMeQuery, useLogoutMutation } from './authApi';
 
 // Business Categories
 export { useGetBusinessCategoriesQuery } from './businessCategoriesApi';
@@ -38,10 +38,13 @@ export {
 } from './bookingsApi';
 
 // Chat
-export { 
-  useInitChatQuery, 
+export {
   useSendMessageMutation,
   useSendActionResultMutation,
+  useListConversationsQuery,
+  useCreateConversationMutation,
+  useDeleteConversationMutation,
+  useGetConversationMessagesQuery,
 } from './chatApi';
 
 // Notes

@@ -21,8 +21,9 @@ export type {
 } from '@bookeasy/shared';
 
 export class SendMessageDto {
+  @IsOptional()
   @IsString()
-  message: string;
+  message: string | null;
 }
 
 /**

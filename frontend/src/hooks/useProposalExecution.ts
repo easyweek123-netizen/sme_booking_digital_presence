@@ -1,7 +1,10 @@
 import { useToast } from '@chakra-ui/react';
-import { useAppDispatch } from '../store/hooks';
-import { addMessage } from '../store/slices/chatSlice';
-import { addProposals, removeProposal } from '../store/slices/canvasSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  addProposals,
+  removeProposal,
+  setPreviewContext,
+} from '../store/slices/canvasSlice';
 import { useSendActionResultMutation } from '../store/api';
 import { useActionRegistry } from '../config/actionRegistry';
 import type { ChatAction } from '@shared';
@@ -15,6 +18,7 @@ import { useState } from 'react';
  */
 export function useProposalExecution() {
   const dispatch = useAppDispatch();
+  const activeTabId = useAppSelector((s) => s.chat.activeTabId);
   const toast = useToast();
   const [sendActionResult] = useSendActionResultMutation();
   const registry = useActionRegistry();
@@ -23,31 +27,29 @@ export function useProposalExecution() {
   /**
    * Execute a proposal with the given form data
    */
-  const execute = async (proposal: ChatAction, formData?: Record<string, unknown>) => {
+  const execute = async (
+    proposal: ChatAction,
+    formData?: Record<string, unknown>,
+  ) => {
+    if (activeTabId === null) return;
     try {
-      // Get config from registry
       setLoadingProposalId(proposal.proposalId);
       const config = registry[proposal.type];
 
-      // Execute mutation if defined
       if (config?.execute) {
         await config.execute(proposal, formData);
       }
 
-      // Send confirmation to backend and get AI follow-up
-      const response = await sendActionResult({
+      const reply = await sendActionResult({
+        conversationId: activeTabId,
         proposalId: proposal.proposalId,
         status: 'confirmed',
         result: {},
       }).unwrap();
 
-      // Update UI
-      dispatch(addMessage(response));
       dispatch(removeProposal(proposal.proposalId));
-      if (response.proposals) {
-        dispatch(addProposals(response.proposals));
-      }
-
+      if (reply.proposals?.length) dispatch(addProposals(reply.proposals));
+      if (reply.previewContext) dispatch(setPreviewContext(reply.previewContext));
       toast({ title: 'Success', status: 'success', duration: 2000 });
     } catch (error) {
       console.error('Proposal execution failed:', error);
@@ -67,16 +69,14 @@ export function useProposalExecution() {
    * Cancel a proposal
    */
   const cancel = async (proposal: ChatAction) => {
+    if (activeTabId === null) return;
     try {
-      const response = await sendActionResult({
+      await sendActionResult({
+        conversationId: activeTabId,
         proposalId: proposal.proposalId,
         status: 'cancelled',
       }).unwrap();
-
-      dispatch(addMessage(response));
-      dispatch(removeProposal(proposal.proposalId));
-    } catch {
-      // Silently remove even if backend fails
+    } finally {
       dispatch(removeProposal(proposal.proposalId));
     }
   };

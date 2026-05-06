@@ -16,6 +16,8 @@ export const baseApi = createApi({
     'Billing',
     'Invoice',
     'Pricing',
+    'Conversation',
+    'ConversationMessages',
   ],
   endpoints: () => ({}),
 });

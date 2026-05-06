@@ -17,7 +17,15 @@ export interface Message {
  * Request to send action result to backend
  */
 export interface ActionResultRequest {
+  conversationId: number;
   proposalId: string;
   status: 'confirmed' | 'cancelled' | 'modified';
   result?: Record<string, unknown>;
+}
+
+export interface Conversation {
+  id: number;
+  title: string;
+  lastMessageAt: string | null;
+  createdAt: string;
 }

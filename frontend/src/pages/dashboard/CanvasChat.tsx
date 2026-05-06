@@ -42,7 +42,7 @@ export function CanvasChat() {
           style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
           <Box h="full" bg="surface.card" overflow="hidden">
-            <ChatPanel isActive={true} />
+            <ChatPanel  />
           </Box>
         </Panel>
 

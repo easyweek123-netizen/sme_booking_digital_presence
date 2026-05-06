@@ -10,7 +10,7 @@ import { TypingIndicator } from './TypingIndicator';
 import { SparkleIcon } from '../icons';
 import { useConversation } from './hooks/useConversation';
 
-export function ChatPanel({ isActive = false }: { isActive?: boolean }) {
+export function ChatPanel() {
   const dispatch = useAppDispatch();
   const business = useBusiness();
   const businessName = business.name;

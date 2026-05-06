@@ -33,7 +33,9 @@ export class FirebaseAuthGuard implements CanActivate {
     }
   }
 
-  private extractToken(request: { headers: { authorization?: string } }): string | null {
+  private extractToken(request: {
+    headers: { authorization?: string };
+  }): string | null {
     const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
       return null;

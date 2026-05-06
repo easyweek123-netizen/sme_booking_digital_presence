@@ -30,6 +30,8 @@ async function bootstrap() {
   await app.listen(port);
 
   const nodeEnv = configService.get<string>('app.nodeEnv');
-  console.log(`🚀 Backend running on http://localhost:${port}/api [${nodeEnv}]`);
+  console.log(
+    `🚀 Backend running on http://localhost:${port}/api [${nodeEnv}]`,
+  );
 }
 bootstrap();

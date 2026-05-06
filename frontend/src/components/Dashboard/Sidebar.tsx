@@ -9,6 +9,7 @@ import {
   UsersIcon,
   LayersIcon,
   GlobeIcon,
+  SettingsIcon,
   LogOutIcon,
   ChevronsLeftIcon,
   ChevronsRightIcon,
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
   { label: 'Clients', icon: <UsersIcon size={20} />, path: ROUTES.DASHBOARD.CLIENTS },
   { label: 'Services', icon: <LayersIcon size={20} />, path: ROUTES.DASHBOARD.SERVICES },
   { label: 'Website', icon: <GlobeIcon size={20} />, path: ROUTES.DASHBOARD.WEBSITE },
+  { label: 'Settings', icon: <SettingsIcon size={20} />, path: ROUTES.DASHBOARD.SETTINGS },
 ];
 
 interface SidebarProps {

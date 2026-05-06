@@ -17,6 +17,9 @@ import { AdminModule } from './admin/admin.module';
 import { ChatModule } from './chat/chat.module';
 import { NotesModule } from './notes/notes.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { BillingModule } from './billing/billing.module';
+import { EntitlementsModule } from './entitlements/entitlements.module';
+import { TimeModule } from './common/time/time.module';
 import { databaseConfig, appConfig } from './config';
 
 @Module({
@@ -27,6 +30,7 @@ import { databaseConfig, appConfig } from './config';
       load: [databaseConfig, appConfig],
       envFilePath: ['.env.local', '.env'], // Load .env.local first, then .env
     }),
+    TimeModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 30 }]),
     DatabaseModule,
     FirebaseModule,
@@ -43,6 +47,8 @@ import { databaseConfig, appConfig } from './config';
     ChatModule,
     NotesModule,
     InquiriesModule,
+    BillingModule,
+    EntitlementsModule,
   ],
   controllers: [AppController],
   providers: [],

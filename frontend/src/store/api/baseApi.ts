@@ -4,6 +4,20 @@ import { baseQueryWithAuth } from './baseQueryWithAuth';
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithAuth,
-  tagTypes: ['Owner', 'Business', 'Service', 'ServiceCategory', 'Booking', 'Category', 'Customer', 'Note'],
+  tagTypes: [
+    'Owner',
+    'Business',
+    'Service',
+    'ServiceCategory',
+    'Booking',
+    'Category',
+    'Customer',
+    'Note',
+    'Billing',
+    'Invoice',
+    'Pricing',
+    'Conversation',
+    'ConversationMessages',
+  ],
   endpoints: () => ({}),
 });

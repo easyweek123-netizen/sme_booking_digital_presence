@@ -7,7 +7,11 @@ export const authApi = baseApi.injectEndpoints({
       query: () => '/auth/me',
       providesTags: ['Owner'],
     }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
+    }),
   }),
 });
 
-export const { useGetMeQuery } = authApi;
+export const { useGetMeQuery, useLogoutMutation } = authApi;

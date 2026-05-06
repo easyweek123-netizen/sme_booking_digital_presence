@@ -371,10 +371,7 @@ export class BookingsService {
   /**
    * Get count of pending bookings for a business
    */
-  async getPendingCount(
-    businessId: number,
-    ownerId: number,
-  ): Promise<number> {
+  async getPendingCount(businessId: number, ownerId: number): Promise<number> {
     await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
 
     return this.bookingRepository.count({
@@ -447,7 +444,20 @@ export class BookingsService {
     );
 
     const previousStatus = booking.status;
+
+    if (previousStatus === status) {
+      return this.findOne(id);
+    }
+
     booking.status = status;
+
+    if (
+      status === BookingStatus.CONFIRMED &&
+      previousStatus !== BookingStatus.CONFIRMED
+    ) {
+      booking.confirmedAt = new Date();
+    }
+
     await this.bookingRepository.save(booking);
 
     const updatedBooking = await this.findOne(id);

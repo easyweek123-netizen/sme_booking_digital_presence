@@ -14,6 +14,9 @@ export const ROUTES = {
     CLIENTS: '/dashboard/clients',
     SERVICES: '/dashboard/services',
     WEBSITE: '/dashboard/website',
+    SETTINGS: '/dashboard/settings',
+    SETTINGS_BILLING: '/dashboard/settings/billing',
+    SETTINGS_CHECKOUT: '/dashboard/settings/checkout',
   },
   BOOKING: {
     PATTERN: '/book/:slug',

@@ -28,7 +28,10 @@ export class ListBookingsTool extends BaseToolHandler<BookingsListFilters> {
     super();
   }
 
-  async execute(args: BookingsListFilters, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    args: BookingsListFilters,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const bookings = await this.bookingsService.findByBusiness(
       ctx.businessId,
       ctx.ownerId,
@@ -40,9 +43,7 @@ export class ListBookingsTool extends BaseToolHandler<BookingsListFilters> {
     );
 
     if (bookings.length === 0) {
-      return ToolResultHelpers.success(
-        'No bookings match those filters.',
-      );
+      return ToolResultHelpers.success('No bookings match those filters.');
     }
 
     const summary = bookings

@@ -1,7 +1,7 @@
 /**
  * Generates a unique booking reference code
  * Format: BK-XXXX (4 alphanumeric characters)
- * 
+ *
  * Uses characters that are easy to read (excludes 0, O, 1, I, L)
  * Provides ~1.5 million combinations (34^4)
  */
@@ -20,4 +20,3 @@ export function generateBookingReference(): string {
 export function isValidBookingReference(reference: string): boolean {
   return /^BK-[A-HJ-NP-Z2-9]{4}$/.test(reference);
 }
-

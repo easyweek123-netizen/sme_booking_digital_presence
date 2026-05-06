@@ -18,7 +18,10 @@ type BookingPagePreviewArgs = z.infer<typeof BookingPagePreviewArgsSchema>;
 export class BookingPagePreviewTool extends BaseToolHandler<BookingPagePreviewArgs> {
   readonly schema = BookingPagePreviewArgsSchema;
 
-  async execute(_args: BookingPagePreviewArgs, _ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    _args: BookingPagePreviewArgs,
+    _ctx: ToolContext,
+  ): Promise<ToolResult> {
     return ToolResultHelpers.withPreview(
       `Showing booking page in preview tab.`,
       'booking_page',

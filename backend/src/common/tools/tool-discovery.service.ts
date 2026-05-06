@@ -6,8 +6,8 @@ import type { BaseToolHandler } from './base-tool.handler';
 
 /**
  * Auto-discovers all @ToolHandler decorated classes and registers them.
- * 
- * Tool handlers just need to be in a module's providers array - 
+ *
+ * Tool handlers just need to be in a module's providers array -
  * this service will find and register them automatically.
  */
 @Injectable()
@@ -32,10 +32,11 @@ export class ToolDiscoveryService implements OnModuleInit {
 
     if (handlers.length > 0) {
       this.registry.registerHandlers(handlers);
-      this.logger.log(`Discovered and registered ${handlers.length} tool handlers`);
+      this.logger.log(
+        `Discovered and registered ${handlers.length} tool handlers`,
+      );
     } else {
       this.logger.warn('No tool handlers discovered');
     }
   }
 }
-

@@ -26,14 +26,14 @@ export interface ToolDefinition {
 export interface ToolContext {
   /** Owner ID (from authenticated user) */
   ownerId: number;
-  
+
   /** Business ID (pre-resolved from owner) */
   businessId: number;
 }
 
 /**
  * Interface for AI tool handlers (legacy - use BaseToolHandler instead)
- * 
+ *
  * @deprecated Use BaseToolHandler abstract class with @ToolHandler decorator
  */
 export interface IToolHandler {
@@ -44,5 +44,8 @@ export interface IToolHandler {
   getDefinition(): ToolDefinition;
 
   /** Handle the tool call and return a result */
-  handle(args: Record<string, unknown>, context: ToolContext): Promise<ToolResult>;
+  handle(
+    args: Record<string, unknown>,
+    context: ToolContext,
+  ): Promise<ToolResult>;
 }

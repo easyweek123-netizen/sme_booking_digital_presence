@@ -52,7 +52,7 @@ function BookingPageContent({
 
       <BusinessInfoFooter business={business} desktopLayout={desktopLayout} />
 
-      {!isPreview && (
+      {!isPreview && business.plan === 'free' && (
         <Box py={6} textAlign="center" borderTop="1px" borderColor="border.subtle">
           <Text fontSize="xs" color="text.faint">
             Powered by{' '}

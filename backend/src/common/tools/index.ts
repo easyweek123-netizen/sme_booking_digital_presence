@@ -1,4 +1,8 @@
-export { ToolHandler, isToolHandler, getToolOptions } from './tool-handler.decorator';
+export {
+  ToolHandler,
+  isToolHandler,
+  getToolOptions,
+} from './tool-handler.decorator';
 export type { ToolHandlerOptions } from './tool-handler.decorator';
 export { BaseToolHandler } from './base-tool.handler';
 export { ToolRegistry } from './tool-registry';

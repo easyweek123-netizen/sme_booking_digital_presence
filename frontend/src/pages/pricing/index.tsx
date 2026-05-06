@@ -13,6 +13,8 @@ import { Footer } from '../../components/Layout';
 import { PricingCard, FeedbackForm } from '../../components/Pricing';
 import { ROUTES } from '../../config/routes';
 import { useAppSelector } from '../../store/hooks';
+import { useGetPricingQuery, useGetSubscriptionQuery } from '../../store/api/billingApi';
+import { formatPrice } from '../../utils/format';
 
 const MotionVStack = motion.create(VStack);
 
@@ -58,6 +60,11 @@ const GROWTH_FEATURES = [
 export function PricingPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { data: pricing } = useGetPricingQuery();
+  const { data: subscription } = useGetSubscriptionQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+  const currentPlan = subscription?.plan ?? 'free';
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
@@ -67,8 +74,23 @@ export function PricingPage() {
     }
   };
 
-  const scrollToNotify = () => {
-    document.getElementById('get-notified')?.scrollIntoView({ behavior: 'smooth' });
+
+  const proMonthly = (pricing ?? []).find((p) => p.plan === 'pro' && p.cycle === 'monthly');
+  const growthMonthly = (pricing ?? []).find((p) => p.plan === 'growth' && p.cycle === 'monthly');
+
+  const proPrice = proMonthly ? formatPrice(proMonthly.amountCents / 100, proMonthly.currency) : '—';
+  const growthPrice = growthMonthly ? formatPrice(growthMonthly.amountCents / 100, growthMonthly.currency) : '—';
+
+  const checkoutPath = (plan: 'pro' | 'growth') =>
+    `${ROUTES.DASHBOARD.SETTINGS_CHECKOUT}?plan=${plan}&cycle=monthly`;
+
+  const handleSubscribe = (plan: 'pro' | 'growth') => {
+    const target = checkoutPath(plan);
+    if (isAuthenticated) {
+      navigate(target);
+      return;
+    }
+    navigate(`${ROUTES.LOGIN}?next=${encodeURIComponent(target)}`);
   };
 
   return (
@@ -138,29 +160,29 @@ export function PricingPage() {
               features={FREE_FEATURES}
               buttonText={isAuthenticated ? 'Go to Dashboard' : 'Get Started Free'}
               onButtonClick={handleGetStarted}
-              badge={isAuthenticated ? 'Current Plan' : undefined}
+              badge={isAuthenticated && currentPlan === 'free' ? 'Current Plan' : undefined}
               delay={0}
             />
             <PricingCard
               title="Pro"
-              price="€19"
+              price={proPrice}
               priceSubtext="/ month"
               features={PRO_FEATURES}
-              buttonText="Get Notified"
-              onButtonClick={scrollToNotify}
-              badge="Coming Soon"
+              buttonText="Subscribe"
+              onButtonClick={() => handleSubscribe('pro')}
               isPremium
+              badge={isAuthenticated && currentPlan === 'pro' ? 'Current Plan' : undefined}
               delay={0.1}
             />
             <PricingCard
               title="Growth"
-              price="€49"
+              price={growthPrice}
               priceSubtext="/ month"
               features={GROWTH_FEATURES}
-              buttonText="Get Notified"
-              onButtonClick={scrollToNotify}
+              buttonText="Subscribe"
+              onButtonClick={() => handleSubscribe('growth')}
               isPremium
-              badge="Coming Soon"
+              badge={isAuthenticated && currentPlan === 'growth' ? 'Current Plan' : undefined}
               delay={0.2}
             />
           </SimpleGrid>

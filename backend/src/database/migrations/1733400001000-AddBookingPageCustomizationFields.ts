@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  TableColumn,
+  TableForeignKey,
+} from 'typeorm';
 
 export class AddBookingPageCustomizationFields1733400001000 implements MigrationInterface {
   name = 'AddBookingPageCustomizationFields1733400001000';
@@ -6,9 +11,13 @@ export class AddBookingPageCustomizationFields1733400001000 implements Migration
   /**
    * Helper to check if a column exists in a table
    */
-  private async hasColumn(queryRunner: QueryRunner, tableName: string, columnName: string): Promise<boolean> {
+  private async hasColumn(
+    queryRunner: QueryRunner,
+    tableName: string,
+    columnName: string,
+  ): Promise<boolean> {
     const table = await queryRunner.getTable(tableName);
-    return table?.columns.some(col => col.name === columnName) ?? false;
+    return table?.columns.some((col) => col.name === columnName) ?? false;
   }
 
   /**
@@ -24,7 +33,9 @@ export class AddBookingPageCustomizationFields1733400001000 implements Migration
       await queryRunner.addColumn(tableName, column);
       console.log(`✅ Added column ${tableName}.${column.name}`);
     } else {
-      console.log(`⏭️  Column ${tableName}.${column.name} already exists, skipping...`);
+      console.log(
+        `⏭️  Column ${tableName}.${column.name} already exists, skipping...`,
+      );
     }
   }
 
@@ -98,10 +109,11 @@ export class AddBookingPageCustomizationFields1733400001000 implements Migration
     const existingFk = servicesTable?.foreignKeys.find(
       (fk) => fk.columnNames.indexOf('categoryId') !== -1,
     );
-    
+
     if (!existingFk) {
       // Only add FK if service_categories table exists
-      const categoryTableExists = await queryRunner.hasTable('service_categories');
+      const categoryTableExists =
+        await queryRunner.hasTable('service_categories');
       if (categoryTableExists) {
         await queryRunner.createForeignKey(
           'services',
@@ -112,9 +124,13 @@ export class AddBookingPageCustomizationFields1733400001000 implements Migration
             onDelete: 'SET NULL',
           }),
         );
-        console.log('✅ Added foreign key services.categoryId -> service_categories.id');
+        console.log(
+          '✅ Added foreign key services.categoryId -> service_categories.id',
+        );
       } else {
-        console.log('⚠️  service_categories table not found, skipping FK creation');
+        console.log(
+          '⚠️  service_categories table not found, skipping FK creation',
+        );
       }
     } else {
       console.log('⏭️  Foreign key for categoryId already exists, skipping...');
@@ -133,7 +149,12 @@ export class AddBookingPageCustomizationFields1733400001000 implements Migration
     }
 
     // Remove columns from services table (if exist)
-    const serviceColumns = ['categoryId', 'description', 'imageUrl', 'displayOrder'];
+    const serviceColumns = [
+      'categoryId',
+      'description',
+      'imageUrl',
+      'displayOrder',
+    ];
     for (const colName of serviceColumns) {
       if (await this.hasColumn(queryRunner, 'services', colName)) {
         await queryRunner.dropColumn('services', colName);
@@ -151,4 +172,3 @@ export class AddBookingPageCustomizationFields1733400001000 implements Migration
     }
   }
 }
-

@@ -6,7 +6,7 @@ export class CreateFeedbackTable1733500000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if table already exists
     const tableExists = await queryRunner.hasTable('feedback');
-    
+
     if (!tableExists) {
       await queryRunner.createTable(
         new Table({
@@ -78,7 +78,7 @@ export class CreateFeedbackTable1733500000000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const tableExists = await queryRunner.hasTable('feedback');
-    
+
     if (tableExists) {
       // Drop indexes first
       try {
@@ -86,7 +86,7 @@ export class CreateFeedbackTable1733500000000 implements MigrationInterface {
       } catch {
         // Index might not exist
       }
-      
+
       try {
         await queryRunner.dropIndex('feedback', 'IDX_feedback_createdAt');
       } catch {
@@ -97,4 +97,3 @@ export class CreateFeedbackTable1733500000000 implements MigrationInterface {
     }
   }
 }
-

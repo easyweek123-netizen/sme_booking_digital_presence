@@ -26,7 +26,10 @@ export class BookingStatsTool extends BaseToolHandler<BookingsStatsArgs> {
     super();
   }
 
-  async execute(_args: BookingsStatsArgs, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    _args: BookingsStatsArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const stats = await this.bookingsService.getStats(
       ctx.businessId,
       ctx.ownerId,
@@ -35,11 +38,15 @@ export class BookingStatsTool extends BaseToolHandler<BookingsStatsArgs> {
     const { total, today, pending, byStatus } = stats;
     const summary = `You have ${total} active booking(s), ${today} scheduled for today, and ${pending} awaiting your confirmation.`;
 
-    return ToolResultHelpers.withData(summary, {
-      total,
-      today,
-      pending,
-      byStatus,
-    }, 'bookings');
+    return ToolResultHelpers.withData(
+      summary,
+      {
+        total,
+        today,
+        pending,
+        byStatus,
+      },
+      'bookings',
+    );
   }
 }

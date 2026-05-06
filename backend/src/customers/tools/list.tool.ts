@@ -24,7 +24,10 @@ export class ListCustomersTool extends BaseToolHandler<CustomersListArgs> {
     super();
   }
 
-  async execute(args: CustomersListArgs, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    args: CustomersListArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const customers = await this.customersService.findAllForOwner(
       ctx.ownerId,
       args.search,
@@ -33,7 +36,7 @@ export class ListCustomersTool extends BaseToolHandler<CustomersListArgs> {
     if (customers.length === 0) {
       const msg = args.search
         ? `No customers found matching "${args.search}".`
-        : 'You don\'t have any customers yet. Customers appear after they make their first booking.';
+        : "You don't have any customers yet. Customers appear after they make their first booking.";
       return ToolResultHelpers.success(msg);
     }
 
@@ -45,15 +48,17 @@ export class ListCustomersTool extends BaseToolHandler<CustomersListArgs> {
       .join(', ');
 
     const customerData = customers.map((c) => {
-      const bookings = (c.bookings ?? [])
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const bookings = (c.bookings ?? []).sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      );
 
       return {
         id: c.id,
         name: c.name,
         email: c.email,
         bookingCount: bookings.length,
-        lastBookingDate: bookings.length > 0 ? this.formatDate(bookings[0].date) : null,
+        lastBookingDate:
+          bookings.length > 0 ? this.formatDate(bookings[0].date) : null,
         bookings: bookings.map((b) => ({
           id: b.id,
           date: this.formatDate(b.date),

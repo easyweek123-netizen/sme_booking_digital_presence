@@ -1,4 +1,9 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+} from 'typeorm';
 
 export class CreateServiceCategoriesTable1733400000000 implements MigrationInterface {
   name = 'CreateServiceCategoriesTable1733400000000';
@@ -6,7 +11,7 @@ export class CreateServiceCategoriesTable1733400000000 implements MigrationInter
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Check if table already exists
     const tableExists = await queryRunner.hasTable('service_categories');
-    
+
     if (!tableExists) {
       // Create service_categories table
       await queryRunner.createTable(
@@ -56,7 +61,7 @@ export class CreateServiceCategoriesTable1733400000000 implements MigrationInter
           onDelete: 'CASCADE',
         }),
       );
-      
+
       console.log('✅ Created service_categories table');
     } else {
       console.log('⏭️  Table service_categories already exists, skipping...');
@@ -65,7 +70,7 @@ export class CreateServiceCategoriesTable1733400000000 implements MigrationInter
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const tableExists = await queryRunner.hasTable('service_categories');
-    
+
     if (tableExists) {
       // Drop foreign key first
       const table = await queryRunner.getTable('service_categories');
@@ -82,4 +87,3 @@ export class CreateServiceCategoriesTable1733400000000 implements MigrationInter
     }
   }
 }
-

@@ -1,9 +1,9 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { RequestWithOwner } from '../interceptors/owner-resolver.interceptor';
+import type { RequestWithOwner } from '../types';
 
 /**
  * Decorator to extract ownerId from request.
- * Must be used with OwnerResolverInterceptor.
+ * Must be used after FirebaseAuthGuard and OwnerResolverGuard.
  */
 export const OwnerId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): number => {
@@ -11,4 +11,3 @@ export const OwnerId = createParamDecorator(
     return request.ownerId;
   },
 );
-

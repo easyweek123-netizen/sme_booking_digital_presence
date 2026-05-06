@@ -105,7 +105,10 @@ export class CustomersService {
   /**
    * Find a customer by name for a specific owner (case-insensitive exact match)
    */
-  async findByNameForOwner(name: string, ownerId: number): Promise<Customer | null> {
+  async findByNameForOwner(
+    name: string,
+    ownerId: number,
+  ): Promise<Customer | null> {
     return this.customerRepository
       .createQueryBuilder('customer')
       .leftJoin('customer.bookings', 'booking')

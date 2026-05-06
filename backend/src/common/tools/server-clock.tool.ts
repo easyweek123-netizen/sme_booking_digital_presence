@@ -19,7 +19,10 @@ type ServerClockArgs = z.infer<typeof ServerClockArgsSchema>;
 export class ServerClockTool extends BaseToolHandler<ServerClockArgs> {
   readonly schema = ServerClockArgsSchema;
 
-  async execute(_args: ServerClockArgs, _ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    _args: ServerClockArgs,
+    _ctx: ToolContext,
+  ): Promise<ToolResult> {
     const snap = getServerClockSnapshot();
     return ToolResultHelpers.withData(
       `Server date: ${snap.dateDisplay} (${snap.dateIso}). Use dateIso for YYYY-MM-DD tool fields.`,

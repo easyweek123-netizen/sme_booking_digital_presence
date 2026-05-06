@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, type ReactNode } from 'react';
 import {
   Box,
   VStack,
@@ -8,11 +8,6 @@ import {
   HStack,
   SimpleGrid,
   GridItem,
-  Tabs,
-  TabList,
-  TabPanels,
-  TabPanel,
-  Tab,
   Badge,
   useBreakpointValue,
 } from '@chakra-ui/react';
@@ -23,10 +18,12 @@ import {
   AboutContentFields,
   BusinessProfileFields,
   WebsiteCompletionProgress,
+  DashboardContentShell,
+  DashboardTabs,
+  type DashboardTabSpec,
 } from '../../components/Dashboard';
 import { BookingLinkCard } from '../../components/QRCode';
 import { CheckIcon } from '../../components/icons';
-import { DashboardContentShell } from '../../components/Dashboard';
 import { TOAST_DURATION } from '../../constants';
 import type { WorkingHours, BusinessWithServices } from '../../types';
 
@@ -189,14 +186,6 @@ export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFo
     about: { done: filled(formData.aboutContent) ? 1 : 0, total: 1 },
   };
 
-  const isComplete = (k: TabKey) => tabStatus[k].done === tabStatus[k].total;
-
-  const tabIndex = Math.max(0, TABS.findIndex((t) => t.key === activeTab));
-
-  const handleTabsChange = (index: number) => {
-    setActiveTab(TABS[index]?.key ?? 'profile');
-  };
-
   const sectionCardProps = {
     bg: 'surface.card' as const,
     borderRadius: 'xl' as const,
@@ -228,149 +217,125 @@ export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFo
     </HStack>
   );
 
+  const buildBadge = (key: TabKey): ReactNode => {
+    const { done, total } = tabStatus[key];
+    const complete = done === total;
+    if (complete) {
+      return (
+        <Badge
+          bg="brand.50"
+          color="brand.700"
+          borderRadius="full"
+          px={2}
+          py={0.5}
+          display="inline-flex"
+          alignItems="center"
+          gap={1}
+          fontSize="2xs"
+          fontWeight="600"
+        >
+          <CheckIcon size={10} aria-hidden />
+          {total}/{total}
+        </Badge>
+      );
+    }
+    return (
+      <Badge
+        variant="subtle"
+        colorScheme="gray"
+        borderRadius="full"
+        fontSize="2xs"
+        fontWeight="600"
+        px={2}
+      >
+        {done}/{total}
+      </Badge>
+    );
+  };
+
+  const websiteTabs: ReadonlyArray<DashboardTabSpec<TabKey>> = TABS.map((t) => ({
+    key: t.key,
+    label: t.label,
+    badge: buildBadge(t.key),
+  }));
+
   return (
     <DashboardContentShell
       title="Website"
       description="Build and customize your booking page"
       actions={headerActions}
+      tabs={
+        <DashboardTabs
+          tabs={websiteTabs}
+          activeKey={activeTab}
+          onChange={setActiveTab}
+        />
+      }
     >
-      <Tabs
-        variant="enclosed"
-        borderColor="border.strong"
-        index={tabIndex}
-        onChange={handleTabsChange}
-      >
-        <TabList flexWrap="wrap" gap={2}>
-          {TABS.map((t) => {
-            const complete = isComplete(t.key);
-            const { done, total } = tabStatus[t.key];
-            return (
-              <Tab key={t.key} fontWeight="600">
-                <HStack spacing={2}>
-                  <Text as="span">{t.label}</Text>
-                  {complete ? (
-                    <Badge
-                      bg="brand.50"
-                      color="brand.700"
-                      borderRadius="full"
-                      px={2}
-                      py={0.5}
-                      display="inline-flex"
-                      alignItems="center"
-                      gap={1}
-                      fontSize="xs"
-                      fontWeight="600"
-                    >
-                      <CheckIcon size={12} aria-hidden />
-                      {total}/{total}
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="subtle"
-                      colorScheme="gray"
-                      borderRadius="full"
-                      fontSize="xs"
-                      fontWeight="600"
-                    >
-                      {done}/{total}
-                    </Badge>
-                  )}
-                </HStack>
-              </Tab>
-            );
-          })}
-        </TabList>
-        
-        <SimpleGrid
-          columns={desktopLayout ? 12 : 1}
-          spacing={{ base: 4 }}
-          alignItems="start"
-        >
-          <GridItem colSpan={desktopLayout ? 8 : 12}>
-            <TabPanels>
-              <TabPanel px={0}>
-                <Box
-                  {...sectionCardProps}
-                  p={{ base: 4 }}
-                >
-                  <BusinessProfileFields
-                    values={formData}
-                    onChange={(name, value) => {
-                      setFormData((prev) => ({ ...prev, [name]: value }));
-                    }}
-                  />
-                </Box>
-              </TabPanel>
-              <TabPanel px={0}>
-                <Box
-                  {...sectionCardProps}
-                  p={{ base: 4 }}
-                >
-                  <BrandingFields
-                    logoUrl={formData.logoUrl}
-                    brandColor={formData.brandColor}
-                    onLogoUrlChange={(url) => {
-                      setFormData((prev) => ({ ...prev, logoUrl: url }));
-                    }}
-                    onBrandColorChange={(color) => {
-                      setFormData((prev) => ({ ...prev, brandColor: color }));
-                    }}
-                    coverImageUrl={formData.coverImageUrl}
-                    onCoverImageUrlChange={(url) => {
-                      setFormData((prev) => ({ ...prev, coverImageUrl: url }));
-                    }}
-                  />
-                </Box>
-              </TabPanel>
-              <TabPanel px={0}>
-                <Box
-                  {...sectionCardProps}
-                  p={{ base: 4 }}
-                >
-                  {workingHours && (
-                    <WorkingHoursEditor defaultExpanded={true} value={workingHours} onChange={handleWorkingHoursChange} />
-                  )}
-                  {!workingHours && (
-                    <Text color="text.muted" fontSize="sm">
-                      Working hours are not configured yet.
-                    </Text>
-                  )}
-                </Box>
-              </TabPanel>
-              <TabPanel px={0}>
-                <Box
-                  {...sectionCardProps}
-                  p={{ base: 4 }}
-                >
-                  <AboutContentFields
-                    value={formData.aboutContent}
-                    onChange={(val) => {
-                      setFormData((prev) => ({ ...prev, aboutContent: val }));
-                    }}
-                    brandColor={formData.brandColor}
-                    businessName={formData.name}
-                  />
-                </Box>
-              </TabPanel>
-            </TabPanels>
-          </GridItem>
-          <GridItem colSpan={desktopLayout ? 4 : 12}>
-            <VStack
-              spacing="space.stack.lg"
-              align="stretch"
-              position={desktopLayout ? 'sticky' : 'static'}
-              top={desktopLayout ? 'space.stack.lg' : undefined}
-              py={4}
-            >
-              <BookingLinkCard slug={business.slug} />
-              <WebsiteCompletionProgress
-                business={business}
-                onScrollToSection={handleScrollToSection}
+      <SimpleGrid columns={desktopLayout ? 12 : 1} spacing={{ base: 4 }} alignItems="start">
+        <GridItem colSpan={desktopLayout ? 8 : 12}>
+          {activeTab === 'profile' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              <BusinessProfileFields
+                values={formData}
+                onChange={(name, value) => setFormData((prev) => ({ ...prev, [name]: value }))}
               />
-            </VStack>
-          </GridItem>
-        </SimpleGrid>
-      </Tabs>
+            </Box>
+          )}
+          {activeTab === 'branding' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              <BrandingFields
+                logoUrl={formData.logoUrl}
+                brandColor={formData.brandColor}
+                onLogoUrlChange={(url) => setFormData((prev) => ({ ...prev, logoUrl: url }))}
+                onBrandColorChange={(color) => setFormData((prev) => ({ ...prev, brandColor: color }))}
+                coverImageUrl={formData.coverImageUrl}
+                onCoverImageUrlChange={(url) => setFormData((prev) => ({ ...prev, coverImageUrl: url }))}
+              />
+            </Box>
+          )}
+          {activeTab === 'hours' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              {workingHours ? (
+                <WorkingHoursEditor
+                  defaultExpanded
+                  value={workingHours}
+                  onChange={handleWorkingHoursChange}
+                />
+              ) : (
+                <Text color="text.muted" fontSize="sm">
+                  Working hours are not configured yet.
+                </Text>
+              )}
+            </Box>
+          )}
+          {activeTab === 'about' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              <AboutContentFields
+                value={formData.aboutContent}
+                onChange={(val) => setFormData((prev) => ({ ...prev, aboutContent: val }))}
+                brandColor={formData.brandColor}
+                businessName={formData.name}
+              />
+            </Box>
+          )}
+        </GridItem>
+        <GridItem colSpan={desktopLayout ? 4 : 12}>
+          <VStack
+            spacing="space.stack.lg"
+            align="stretch"
+            position={desktopLayout ? 'sticky' : 'static'}
+            top={desktopLayout ? 'space.stack.lg' : undefined}
+            py={4}
+          >
+            <BookingLinkCard slug={business.slug} />
+            <WebsiteCompletionProgress
+              business={business}
+              onScrollToSection={handleScrollToSection}
+            />
+          </VStack>
+        </GridItem>
+      </SimpleGrid>
     </DashboardContentShell>
   );
 }

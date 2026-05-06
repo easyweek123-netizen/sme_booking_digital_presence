@@ -1,144 +1,78 @@
 import { useEffect, useRef } from 'react';
-import { Box, Flex, VStack, Text, HStack } from '@chakra-ui/react';
-import { useInitChatQuery, useSendMessageMutation } from '../../store/api';
+import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import { useBusiness } from '../../contexts/useBusiness';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
-import { addMessage, setInitialized, clearChat } from '../../store/slices/chatSlice';
-import {
-  setProposals,
-  addProposals,
-  setPreviewContext,
-  clearProposals,
-} from '../../store/slices/canvasSlice';
+import { useAppDispatch } from '../../store/hooks';
+import { addProposals, setPreviewContext } from '../../store/slices/canvasSlice';
 import { AllMessages } from './AllMessages';
 import { ChatInput } from './ChatInput';
+import { ChatTabStrip } from './ChatTabStrip';
 import { TypingIndicator } from './TypingIndicator';
 import { SparkleIcon } from '../icons';
-import type { Message } from '../../types/chat.types';
+import { useConversation } from './hooks/useConversation';
 
-/**
- * Chat panel for CanvasChat layout.
- * Dispatches proposals to canvas slice when AI returns action proposals.
- */
-export function ChatPanel({ isActive = false }: { isActive: boolean }) {
+export function ChatPanel({ isActive = false }: { isActive?: boolean }) {
   const dispatch = useAppDispatch();
-  const { messages, initialized } = useAppSelector((state) => state.chat);
   const business = useBusiness();
-  const { data: initData, isLoading: isInitLoading, refetch } = useInitChatQuery(undefined, {
-    skip: initialized,
-  });
-  const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const businessName = business.name;
 
-  // Handle initial chat message
-  useEffect(() => {
-    if (initData && !initialized) {
-      dispatch(addMessage(initData));
-      dispatch(setInitialized(true));
-      
-      // If init message has proposals, dispatch to canvas
-      if (initData.proposals && initData.proposals.length > 0) {
-        dispatch(setProposals(initData.proposals));
-      }
-    }
-  }, [initData, initialized, dispatch]);
+  const {
+    activeTabId,
+    openTabIds,
+    conversations,
+    isLoadingConversations,
+    messages,
+    isSendingMessage,
+    startChat,
+    sendText,
+  } = useConversation();
 
-  // Scroll to bottom when messages change
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-create first conversation (idempotent inside the hook)
   useEffect(() => {
-    console.log('isActive', isActive);
+    startChat();
+  }, [startChat]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, isSending, isActive]);
+  }, [messages.length, isSendingMessage, activeTabId]);
 
   const handleSubmit = async (text: string) => {
-    const userMessage: Message = { role: 'user', content: text };
-    dispatch(addMessage(userMessage));
-
+    if (activeTabId === null) return;
     try {
-      const response = await sendMessage({ message: text }).unwrap();
-      dispatch(addMessage(response));
-      
-      // Handle previewContext - switch preview tab content
-      if (response.previewContext) {
-        dispatch(setPreviewContext(response.previewContext));
-      }
-      
-      // Handle proposals - show in actions tab
-      if (response.proposals && response.proposals.length > 0) {
-        dispatch(addProposals(response.proposals));
-      }
-    } catch (err: unknown) {
-      // 401 is handled globally by baseQueryWithAuth (shows toast + redirects to login).
-      // Only surface a chat-level error for other failures.
-      const status = (err as { status?: number })?.status;
-      if (status !== 401) {
-        dispatch(addMessage({
-          role: 'bot',
-          content: 'Sorry, something went wrong. Please try again.',
-        }));
-      }
+      const reply = await sendText(text);
+      if (reply?.previewContext) dispatch(setPreviewContext(reply.previewContext));
+      if (reply?.proposals?.length) dispatch(addProposals(reply.proposals));
+    } catch {
+      console.log('error handleSubmit');
     }
   };
 
-  const handleSuggestionSelect = (value: string) => {
-    handleSubmit(value);
-  };
-
-  const handleClearChat = () => {
-    dispatch(clearChat());
-    dispatch(clearProposals());
-    refetch();
-  };
+  const isBusy = isSendingMessage || activeTabId === null;
+  const showEmptyState =
+    activeTabId !== null && messages.length === 0 && !isBusy;
 
   return (
-    <Flex
-      direction="column"
-      h="full"
-      overflow="hidden"
-      bg="surface.page"
-    >
-      {/* Header */}
+    <Flex direction="column" h="full" overflow="hidden" bg="surface.page">
       <HStack
         flexShrink={0}
-        justify="space-between"
         align="center"
-        p={4}
+        p={2}
         borderBottom="1px"
         borderColor="border.subtle"
         bg="surface.card"
       >
-        <HStack spacing={2}>
-          <Box p={1.5} borderRadius="sm" bg="brand.50" color="accent.primary">
-            <SparkleIcon size={16} />
-          </Box>
-          <Text fontWeight="600" color="text.strong" fontSize="sm">
-            {businessName}'s AI Assistant
-          </Text>
-        </HStack>
-
-        {messages.length > 0 && (
-          <Text
-            as="button"
-            fontSize="xs"
-            color="text.faint"
-            cursor="pointer"
-            onClick={handleClearChat}
-            px={2}
-            py={1}
-            borderRadius="sm"
-            _hover={{ color: 'text.secondary', bg: 'surface.alt' }}
-            transition="all 0.2s"
-          >
-            New chat
-          </Text>
-        )}
+        <ChatTabStrip
+          conversations={conversations}
+          activeTabId={activeTabId}
+          openTabIds={openTabIds}
+          isLoadingConversations={isLoadingConversations}
+        />
       </HStack>
 
-      {/* Messages area */}
       <Box flex={1} overflow="auto" px={4}>
         <VStack spacing={4} align="stretch" py={6}>
-          {messages.length === 0 && !isInitLoading && (
+          {showEmptyState && (
             <Flex
               direction="column"
               align="center"
@@ -146,33 +80,37 @@ export function ChatPanel({ isActive = false }: { isActive: boolean }) {
               py={16}
               color="text.faint"
             >
-              <Box p={4} borderRadius="sm" bg="surface.alt" color="accent.primary" mb={4}>
+              <Box
+                p={4}
+                borderRadius="sm"
+                bg="surface.alt"
+                color="accent.primary"
+                mb={4}
+              >
                 <SparkleIcon size={32} />
               </Box>
               <Text fontSize="lg" fontWeight="500" color="text.muted">
                 How can I help you today?
               </Text>
               <Text fontSize="sm" color="text.faint" mt={1}>
-                Ask me anything about your business
+                Ask {businessName} anything about your business
               </Text>
             </Flex>
           )}
 
-          <AllMessages messages={messages} onSuggestionSelect={handleSuggestionSelect} />
-          {(isSending || isInitLoading) && <TypingIndicator />}
+          <AllMessages messages={messages} onSuggestionSelect={handleSubmit} />
+          {isBusy && <TypingIndicator />}
           <div ref={messagesEndRef} />
         </VStack>
       </Box>
 
-      {/* Input area */}
       <Box flexShrink={0} px={4} py={2}>
         <ChatInput
           placeholder="Ask me anything..."
           onSubmit={handleSubmit}
-          disabled={isSending || isInitLoading}
+          disabled={isBusy}
         />
       </Box>
     </Flex>
   );
 }
-

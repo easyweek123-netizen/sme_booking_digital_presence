@@ -1,17 +1,34 @@
-import { IsString, IsUUID, IsEnum, IsOptional, IsObject } from 'class-validator';
-import type { ChatAction, PreviewContext, ActionResultStatus, Suggestion } from '@bookeasy/shared';
+import {
+  IsString,
+  IsUUID,
+  IsEnum,
+  IsOptional,
+  IsObject,
+} from 'class-validator';
+import type {
+  ChatAction,
+  PreviewContext,
+  ActionResultStatus,
+  Suggestion,
+} from '@bookeasy/shared';
 
 // Re-export types from shared for convenience
-export type { ChatAction, PreviewContext, ActionResult, ActionResultStatus } from '@bookeasy/shared';
+export type {
+  ChatAction,
+  PreviewContext,
+  ActionResult,
+  ActionResultStatus,
+} from '@bookeasy/shared';
 
 export class SendMessageDto {
+  @IsOptional()
   @IsString()
-  message: string;
+  message: string | null;
 }
 
 /**
  * Chat response from API
- * 
+ *
  * Response includes:
  * - content: The AI's text response
  * - proposals: Array of action proposals for frontend to render (optional)
@@ -20,10 +37,10 @@ export class SendMessageDto {
 export class ChatResponseDto {
   role: 'bot';
   content: string;
-  
+
   /** Action proposals for frontend to render in canvas */
   proposals?: ChatAction[];
-  
+
   /** Switch preview tab to specific context */
   previewContext?: PreviewContext;
 

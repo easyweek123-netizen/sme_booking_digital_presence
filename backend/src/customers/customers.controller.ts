@@ -11,12 +11,12 @@ import {
 import { CustomersService } from './customers.service';
 import { FirebaseAuthGuard } from '../auth/guards';
 import { Customer } from './entities/customer.entity';
-import { OwnerResolverInterceptor } from '../common';
 import type { RequestWithOwner } from '../common';
+import { OwnerResolverGuard } from '../common';
 
 @Controller('customers')
-@UseGuards(FirebaseAuthGuard)
-@UseInterceptors(OwnerResolverInterceptor, ClassSerializerInterceptor)
+@UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 

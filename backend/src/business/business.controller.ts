@@ -6,7 +6,6 @@ import {
   Body,
   Param,
   UseGuards,
-  UseInterceptors,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
@@ -14,7 +13,7 @@ import {
 import { BusinessService } from './business.service';
 import { CreateBusinessDto, UpdateBusinessDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
-import { OwnerResolverInterceptor, OwnerId } from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { Business } from './entities/business.entity';
 
 @Controller('business')
@@ -26,8 +25,7 @@ export class BusinessController {
    * POST /api/business
    */
   @Post()
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
     @OwnerId() ownerId: number,
@@ -41,8 +39,7 @@ export class BusinessController {
    * GET /api/business/me
    */
   @Get('me')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   async getMyBusiness(@OwnerId() ownerId: number): Promise<Business> {
     return this.businessService.findByOwner(ownerId);
   }
@@ -70,8 +67,7 @@ export class BusinessController {
    * PATCH /api/business/:id
    */
   @Patch(':id')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(OwnerResolverInterceptor)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   async update(
     @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,

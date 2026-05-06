@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsEmail, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateCustomerDto {
   @IsString()

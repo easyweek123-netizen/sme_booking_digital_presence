@@ -71,7 +71,8 @@ export class GetCustomerTool extends BaseToolHandler<CustomersGetArgs> {
         'clients',
       );
     } catch {
-      const identifier = args.id !== undefined ? `ID ${args.id}` : `"${args.name}"`;
+      const identifier =
+        args.id !== undefined ? `ID ${args.id}` : `"${args.name}"`;
       return ToolResultHelpers.notFound('Customer', identifier);
     }
   }

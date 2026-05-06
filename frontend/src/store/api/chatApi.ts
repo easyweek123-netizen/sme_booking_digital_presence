@@ -1,32 +1,152 @@
 import { baseApi } from './baseApi';
-import type { Message, ActionResultRequest } from '../../types/chat.types';
+import type {
+  Message,
+  ActionResultRequest,
+  Conversation,
+} from '../../types/chat.types';
+
+function actionStatusToUserMessage(
+  status: ActionResultRequest['status'],
+): string {
+  switch (status) {
+    case 'confirmed':
+      return '[Action confirmed] — changes applied.';
+    case 'cancelled':
+      return '[Action cancelled] — no changes were made.';
+    case 'modified':
+      return '[Action modified] — custom changes were applied.';
+    default:
+      return '[Action updated].';
+  }
+}
 
 export const chatApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    initChat: builder.query<Message, void>({
-      query: () => '/chat/init',
+    listConversations: builder.query<Conversation[], void>({
+      query: () => '/chat/conversations',
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({
+                type: 'Conversation' as const,
+                id,
+              })),
+              { type: 'Conversation' as const, id: 'LIST' },
+            ]
+          : [{ type: 'Conversation' as const, id: 'LIST' }],
     }),
-    sendMessage: builder.mutation<Message, { message: string }>({
-      query: (body) => ({
-        url: '/chat',
+
+    createConversation: builder.mutation<Conversation, void>({
+      query: () => ({ url: '/chat/conversations', method: 'POST' }),
+      invalidatesTags: [{ type: 'Conversation' as const, id: 'LIST' }],
+    }),
+
+    deleteConversation: builder.mutation<void, number>({
+      query: (id) => ({ url: `/chat/conversations/${id}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, id) => [
+        { type: 'Conversation' as const, id },
+        { type: 'Conversation' as const, id: 'LIST' },
+        { type: 'ConversationMessages' as const, id },
+      ],
+    }),
+
+    getConversationMessages: builder.query<Message[], number>({
+      query: (id) => `/chat/conversations/${id}/messages`,
+      providesTags: (_r, _e, id) => [
+        { type: 'ConversationMessages' as const, id },
+      ],
+    }),
+
+    sendMessage: builder.mutation<
+      Message,
+      { conversationId: number; message: string | null }
+    >({
+      query: ({ conversationId, message }) => ({
+        url: `/chat/conversations/${conversationId}/messages`,
         method: 'POST',
-        body,
+        body: { message },
       }),
+      async onQueryStarted(
+        { conversationId, message },
+        { dispatch, queryFulfilled },
+      ) {
+        const text = message?.trim();
+        const optimisticPatch =
+          text && text.length > 0
+            ? dispatch(
+                chatApi.util.updateQueryData(
+                  'getConversationMessages',
+                  conversationId,
+                  (draft) => {
+                    draft.push({ role: 'user', content: text });
+                  },
+                ),
+              )
+            : null;
+
+        try {
+          const { data: reply } = await queryFulfilled;
+          dispatch(
+            chatApi.util.updateQueryData(
+              'getConversationMessages',
+              conversationId,
+              (draft) => {
+                draft.push(reply);
+              },
+            ),
+          );
+        } catch {
+          optimisticPatch?.undo();
+        }
+      },
     }),
-    /** Send action result (confirm/cancel) and get AI follow-up */
+
     sendActionResult: builder.mutation<Message, ActionResultRequest>({
-      query: (body) => ({
-        url: '/chat/action-result',
+      query: ({ conversationId, ...body }) => ({
+        url: `/chat/conversations/${conversationId}/actions`,
         method: 'POST',
         body,
       }),
+      async onQueryStarted(
+        { conversationId, status },
+        { dispatch, queryFulfilled },
+      ) {
+        const optimisticUserMessage = actionStatusToUserMessage(status);
+
+        const optimisticPatch = dispatch(
+          chatApi.util.updateQueryData(
+            'getConversationMessages',
+            conversationId,
+            (draft) => {
+              draft.push({ role: 'user', content: optimisticUserMessage });
+            },
+          ),
+        );
+
+        try {
+          const { data: reply } = await queryFulfilled;
+          dispatch(
+            chatApi.util.updateQueryData(
+              'getConversationMessages',
+              conversationId,
+              (draft) => {
+                draft.push(reply);
+              },
+            ),
+          );
+        } catch {
+          optimisticPatch.undo();
+        }
+      },
     }),
   }),
 });
 
-export const { 
-  useInitChatQuery, 
+export const {
+  useListConversationsQuery,
+  useCreateConversationMutation,
+  useDeleteConversationMutation,
+  useGetConversationMessagesQuery,
   useSendMessageMutation,
   useSendActionResultMutation,
 } = chatApi;
-

@@ -5,7 +5,9 @@ import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOpti
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import type { DatabaseType } from '../config/database.config';
 
-type ConnectionOptions = Partial<MysqlConnectionOptions> | Partial<PostgresConnectionOptions>;
+type ConnectionOptions =
+  | Partial<MysqlConnectionOptions>
+  | Partial<PostgresConnectionOptions>;
 
 @Module({
   imports: [
@@ -22,7 +24,9 @@ type ConnectionOptions = Partial<MysqlConnectionOptions> | Partial<PostgresConne
         const logging = configService.get<boolean>('database.logging')!;
 
         const logger = new Logger('DatabaseModule');
-        logger.log(`Connecting to ${type} database at ${host}:${port}/${database}`);
+        logger.log(
+          `Connecting to ${type} database at ${host}:${port}/${database}`,
+        );
 
         const baseConfig = {
           host,
@@ -65,6 +69,8 @@ export class DatabaseModule implements OnModuleInit {
     const port = this.configService.get<number>('database.port');
     const database = this.configService.get<string>('database.database');
 
-    this.logger.log(`✅ Database connected: ${type}://${host}:${port}/${database}`);
+    this.logger.log(
+      `✅ Database connected: ${type}://${host}:${port}/${database}`,
+    );
   }
 }

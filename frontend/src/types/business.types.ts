@@ -100,6 +100,8 @@ export interface UpdateServiceCategoryRequest {
 export interface Business {
   id: number;
   slug: string;
+  /** Mirrors backend `plan_enum`; public booking page uses this for the footer. */
+  plan?: 'free' | 'pro' | 'growth';
   name: string;
   description: string | null;
   address: string | null;

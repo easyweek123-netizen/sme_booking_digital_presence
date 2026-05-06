@@ -18,7 +18,7 @@ export class AuthService {
 
   /**
    * Resolve Owner for this Firebase session: by UID, else merge by verified email, else insert.
-   * Used by GET /auth/me and OwnerResolverInterceptor so UID changes do not strand users.
+   * Used by GET /auth/me and OwnerResolverGuard so UID changes do not strand users.
    */
   async resolveRegisteredOwner(firebaseUser: FirebaseUser): Promise<Owner> {
     const byUid = await this.ownerService.findByFirebaseUid(firebaseUser.uid);

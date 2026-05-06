@@ -18,7 +18,7 @@ const TOOL_OPTIONS_METADATA = 'tool:options';
  * Decorator to mark a class as a tool handler.
  * The decorator stores metadata that is used by ToolDiscoveryService
  * to auto-register handlers.
- * 
+ *
  * @example
  * ```typescript
  * @ToolHandler({
@@ -54,4 +54,3 @@ export function isToolHandler(target: object): boolean {
 export function getToolOptions(target: object): ToolHandlerOptions | undefined {
   return Reflect.getMetadata(TOOL_OPTIONS_METADATA, target);
 }
-

@@ -9,6 +9,9 @@ import { DashboardBookings } from './DashboardBookings';
 import { DashboardClients } from './DashboardClients';
 import { DashboardServices } from './DashboardServices';
 import { DashboardWebsite } from './DashboardWebsite';
+import { SettingsLayout } from './settings';
+import { Billing } from './settings/Billing';
+import { Checkout } from './settings/Checkout';
 
 function DashboardRoutes() {
   return (
@@ -19,6 +22,11 @@ function DashboardRoutes() {
       <Route path="clients" element={<DashboardClients />} />
       <Route path="services" element={<DashboardServices />} />
       <Route path="website" element={<DashboardWebsite />} />
+      <Route path="settings" element={<SettingsLayout />}>
+        <Route index element={<Navigate to="billing" replace />} />
+        <Route path="billing" element={<Billing />} />
+        <Route path="checkout" element={<Checkout />} />
+      </Route>
       <Route path="*" element={<Navigate to={ROUTES.DASHBOARD.ROOT} replace />} />
     </Routes>
   );

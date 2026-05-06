@@ -98,10 +98,10 @@ export function DashboardServices() {
         });
       }
       closeModal();
-    } catch {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Something went wrong. Please try again.',
+        description: error.message || 'Something went wrong. Please try again.',
         status: 'error',
         duration: TOAST_DURATION.MEDIUM,
       });
@@ -119,13 +119,13 @@ export function DashboardServices() {
         duration: TOAST_DURATION.MEDIUM,
       });
       closeDelete();
-    } catch {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Something went wrong. Please try again.',
+        description: error.message || 'Something went wrong. Please try again.',
         status: 'error',
         duration: TOAST_DURATION.MEDIUM,
-      });
+      })
     }
   };
 

@@ -1,6 +1,6 @@
 /**
  * Generate a Google Calendar event link
- * 
+ *
  * When clicked, this opens Google Calendar with pre-filled event details
  */
 export function generateGoogleCalendarLink(params: {
@@ -46,4 +46,3 @@ export function generateGoogleCalendarLink(params: {
 
   return `https://calendar.google.com/calendar/render?${urlParams.toString()}`;
 }
-

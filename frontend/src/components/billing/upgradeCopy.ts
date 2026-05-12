@@ -38,10 +38,10 @@ export const UPGRADE_COPY: Record<string, UpgradeCopy> = {
     title: 'Cut no-shows with reminders',
     body: 'Automatic email and SMS reminders sent to your customers before each booking.',
   },
-  'ics.export': {
+  'calendar.sync': {
     eyebrow: 'Pro feature',
-    title: 'Sync to your calendar',
-    body: 'Export bookings as ICS to Google Calendar, Outlook, or Apple Calendar.',
+    title: 'Sync to Google Calendar',
+    body: 'Every confirmed booking lands on your Google Calendar automatically — cancellations and reschedules update in real time.',
   },
   'domain.customize': {
     eyebrow: 'Pro feature',

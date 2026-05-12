@@ -18,6 +18,7 @@ export const baseApi = createApi({
     'Pricing',
     'Conversation',
     'ConversationMessages',
+    'Calendar',
   ],
   endpoints: () => ({}),
 });

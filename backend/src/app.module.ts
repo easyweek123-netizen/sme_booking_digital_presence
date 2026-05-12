@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
@@ -18,18 +19,21 @@ import { ChatModule } from './chat/chat.module';
 import { NotesModule } from './notes/notes.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
 import { BillingModule } from './billing/billing.module';
+import { CalendarModule } from './calendar/calendar.module';
 import { EntitlementsModule } from './entitlements/entitlements.module';
 import { TimeModule } from './common/time/time.module';
 import { databaseConfig, appConfig } from './config';
+import calendarConfig from './config/calendar.config';
 
 @Module({
   imports: [
     // Load configuration first
     ConfigModule.forRoot({
       isGlobal: true, // Makes ConfigModule available everywhere
-      load: [databaseConfig, appConfig],
+      load: [databaseConfig, appConfig, calendarConfig],
       envFilePath: ['.env.local', '.env'], // Load .env.local first, then .env
     }),
+    EventEmitterModule.forRoot(),
     TimeModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 30 }]),
     DatabaseModule,
@@ -44,6 +48,7 @@ import { databaseConfig, appConfig } from './config';
     CustomersModule,
     FeedbackModule,
     AdminModule,
+    CalendarModule,
     ChatModule,
     NotesModule,
     InquiriesModule,

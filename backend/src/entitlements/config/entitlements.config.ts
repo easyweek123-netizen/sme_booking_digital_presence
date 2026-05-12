@@ -22,12 +22,27 @@ export type QuotaEntitlement = {
 export type EntitlementSpec = FeatureEntitlement | QuotaEntitlement;
 
 export const ENTITLEMENTS = {
-  'service.create':  { kind: 'quota',   unlimitedFrom: Plan.PRO, freeCap: 3,  counter: CounterKey.ActiveServices },
-  'bookings.confirm': { kind: 'quota',   unlimitedFrom: Plan.PRO, freeCap: 30, counter: CounterKey.MonthlyConfirmedBookings },
-  'chat.history':     { kind: 'quota',   unlimitedFrom: Plan.PRO, freeCap: 1,  counter: CounterKey.ChatThreads },
-  'analytics.view':   { kind: 'feature', minPlan: Plan.PRO },
-  'reminders.send':   { kind: 'feature', minPlan: Plan.PRO },
-  'ics.export':       { kind: 'feature', minPlan: Plan.PRO },
+  'service.create': {
+    kind: 'quota',
+    unlimitedFrom: Plan.PRO,
+    freeCap: 3,
+    counter: CounterKey.ActiveServices,
+  },
+  'bookings.confirm': {
+    kind: 'quota',
+    unlimitedFrom: Plan.PRO,
+    freeCap: 30,
+    counter: CounterKey.MonthlyConfirmedBookings,
+  },
+  'chat.history': {
+    kind: 'quota',
+    unlimitedFrom: Plan.PRO,
+    freeCap: 1,
+    counter: CounterKey.ChatThreads,
+  },
+  'analytics.view': { kind: 'feature', minPlan: Plan.PRO },
+  'reminders.send': { kind: 'feature', minPlan: Plan.PRO },
+  'calendar.sync': { kind: 'feature', minPlan: Plan.PRO },
   'domain.customize': { kind: 'feature', minPlan: Plan.PRO },
 } as const satisfies Record<string, EntitlementSpec>;
 

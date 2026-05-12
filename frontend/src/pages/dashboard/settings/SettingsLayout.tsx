@@ -6,17 +6,16 @@ import {
   type DashboardTabSpec,
 } from '../../../components/Dashboard';
 
-type SettingsTabKey = 'billing' | 'profile' | 'team' | 'notifications';
+type SettingsTabKey = 'calendar' | 'billing';
 
 const TAB_PATH: Partial<Record<SettingsTabKey, string>> = {
+  calendar: ROUTES.DASHBOARD.SETTINGS_CALENDAR,
   billing: ROUTES.DASHBOARD.SETTINGS_BILLING,
 };
 
 const SETTINGS_TABS: ReadonlyArray<DashboardTabSpec<SettingsTabKey>> = [
+  { key: 'calendar', label: 'Calendar' },
   { key: 'billing', label: 'Billing' },
-  { key: 'profile', label: 'Profile', disabled: true, disabledHint: 'Coming soon' },
-  { key: 'team', label: 'Team', disabled: true, disabledHint: 'Coming soon' },
-  { key: 'notifications', label: 'Notifications', disabled: true, disabledHint: 'Coming soon' },
 ];
 
 export function SettingsLayout() {
@@ -27,7 +26,7 @@ export function SettingsLayout() {
     SETTINGS_TABS.find((t) => {
       const path = TAB_PATH[t.key];
       return !!path && location.pathname.startsWith(path);
-    })?.key ?? 'billing';
+    })?.key ?? 'calendar';
 
   const handleChange = (key: SettingsTabKey) => {
     const path = TAB_PATH[key];

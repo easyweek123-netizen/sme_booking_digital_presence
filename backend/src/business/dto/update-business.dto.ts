@@ -71,4 +71,12 @@ export class UpdateBusinessDto {
   @IsString()
   @MaxLength(5000)
   aboutContent?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  @Matches(/^[A-Za-z]+\/[A-Za-z_+\-/]+$|^UTC$/, {
+    message: 'Timezone must be a valid IANA identifier (e.g., Europe/Vienna)',
+  })
+  timezone?: string;
 }

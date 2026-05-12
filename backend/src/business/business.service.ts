@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -230,6 +231,18 @@ export class BusinessService {
     }
     if (updateBusinessDto.aboutContent !== undefined) {
       business.aboutContent = updateBusinessDto.aboutContent || null;
+    }
+    if (updateBusinessDto.timezone !== undefined) {
+      if (updateBusinessDto.timezone) {
+        try {
+          new Intl.DateTimeFormat('en-US', {
+            timeZone: updateBusinessDto.timezone,
+          });
+        } catch {
+          throw new BadRequestException('Invalid timezone identifier');
+        }
+      }
+      business.timezone = updateBusinessDto.timezone;
     }
 
     await this.businessRepository.save(business);

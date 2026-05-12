@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import { Booking } from '../bookings/entities/booking.entity';
+import { Booking, BookingStatus } from '../bookings/entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Owner } from '../owner/entities/owner.entity';
 import { generateGoogleCalendarLink } from '../common/utils/calendar';
@@ -159,6 +159,29 @@ export class EmailService {
       subject,
       html,
     });
+  }
+
+  /**
+   * Dispatch customer email for a booking status transition (confirmed / cancelled / completed).
+   */
+  async sendBookingStatusChange(
+    booking: Booking,
+    business: Business,
+    status: BookingStatus,
+  ): Promise<void> {
+    switch (status) {
+      case BookingStatus.CONFIRMED:
+        await this.sendBookingConfirmed(booking, business);
+        break;
+      case BookingStatus.CANCELLED:
+        await this.sendBookingCancelled(booking, business);
+        break;
+      case BookingStatus.COMPLETED:
+        await this.sendBookingCompleted(booking, business);
+        break;
+      default:
+        break;
+    }
   }
 
   /**

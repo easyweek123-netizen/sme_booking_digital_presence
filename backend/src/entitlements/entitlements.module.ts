@@ -9,6 +9,11 @@ import { UsageCounterRegistry } from './counters/usage-counter.registry';
 @Module({
   imports: [BillingModule, AuthModule],
   providers: [EntitlementGuard, OwnerResolverGuard, UsageCounterRegistry],
-  exports: [EntitlementGuard, OwnerResolverGuard, UsageCounterRegistry],
+  exports: [
+    EntitlementGuard,
+    OwnerResolverGuard,
+    UsageCounterRegistry,
+    BillingModule,
+  ],
 })
 export class EntitlementsModule {}

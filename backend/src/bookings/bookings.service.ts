@@ -4,6 +4,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, DataSource } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
@@ -14,6 +15,7 @@ import { EmailService } from '../email/email.service';
 import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
 import { WorkingHours } from '../common/types';
 import { generateBookingReference, verifyBusinessOwnership } from '../common';
+import { BookingStatusChangedEvent } from './events';
 import { formatLocalYmd } from '../common/time/local-date';
 
 interface AvailabilityResult {
@@ -47,6 +49,7 @@ export class BookingsService {
     private readonly serviceRepository: Repository<Service>,
     private readonly emailService: EmailService,
     private readonly dataSource: DataSource,
+    private readonly events: EventEmitter2,
   ) {}
 
   /**
@@ -247,8 +250,12 @@ export class BookingsService {
     let savedBooking: Booking;
     try {
       savedBooking = await this.bookingRepository.save(booking);
-    } catch (err: any) {
-      if (err.code === '23505') {
+    } catch (err: unknown) {
+      const code =
+        typeof err === 'object' && err !== null && 'code' in err
+          ? String((err as { code: unknown }).code)
+          : undefined;
+      if (code === '23505') {
         throw new BadRequestException(
           'This time slot was just booked. Please choose another time.',
         );
@@ -462,18 +469,10 @@ export class BookingsService {
 
     const updatedBooking = await this.findOne(id);
 
-    // Send status change emails to customer (skip NO_SHOW)
-    if (previousStatus !== status && status !== BookingStatus.NO_SHOW) {
-      const business = await this.businessRepository.findOne({
-        where: { id: booking.businessId },
-      });
-
-      if (business) {
-        this.sendStatusChangeEmail(updatedBooking, business, status).catch(
-          (err) => this.logger.error(`Failed to send ${status} email`, err),
-        );
-      }
-    }
+    this.events.emit(
+      BookingStatusChangedEvent.NAME,
+      new BookingStatusChangedEvent(booking.id, previousStatus, status),
+    );
 
     return updatedBooking;
   }
@@ -510,7 +509,7 @@ export class BookingsService {
     }
 
     const total = Object.entries(byStatus)
-      .filter(([key]) => key !== BookingStatus.CANCELLED)
+      .filter(([key]) => (key as BookingStatus) !== BookingStatus.CANCELLED)
       .reduce((sum, [, n]) => sum + n, 0);
 
     const pending = byStatus[BookingStatus.PENDING];
@@ -532,30 +531,6 @@ export class BookingsService {
   }
 
   // ==================== Helper Methods ====================
-
-  /**
-   * Send appropriate email based on status change
-   */
-  private async sendStatusChangeEmail(
-    booking: Booking,
-    business: Business,
-    status: BookingStatus,
-  ): Promise<void> {
-    switch (status) {
-      case BookingStatus.CONFIRMED:
-        await this.emailService.sendBookingConfirmed(booking, business);
-        break;
-      case BookingStatus.CANCELLED:
-        await this.emailService.sendBookingCancelled(booking, business);
-        break;
-      case BookingStatus.COMPLETED:
-        await this.emailService.sendBookingCompleted(booking, business);
-        break;
-      default:
-        // NO_SHOW and PENDING don't send emails
-        break;
-    }
-  }
 
   /**
    * Generate time slots between open and close times

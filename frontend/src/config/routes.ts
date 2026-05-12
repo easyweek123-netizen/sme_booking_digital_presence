@@ -15,6 +15,7 @@ export const ROUTES = {
     SERVICES: '/dashboard/services',
     WEBSITE: '/dashboard/website',
     SETTINGS: '/dashboard/settings',
+    SETTINGS_CALENDAR: '/dashboard/settings/calendar',
     SETTINGS_BILLING: '/dashboard/settings/billing',
     SETTINGS_CHECKOUT: '/dashboard/settings/checkout',
   },

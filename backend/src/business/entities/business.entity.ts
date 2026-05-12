@@ -66,6 +66,9 @@ export class Business {
   @Column({ type: 'varchar', length: 500, nullable: true })
   coverImageUrl: string | null;
 
+  @Column({ type: 'varchar', length: 64, default: 'Europe/Vienna' })
+  timezone: string;
+
   @Column({ type: 'text', nullable: true })
   aboutContent: string | null;
 

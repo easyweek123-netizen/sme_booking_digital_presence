@@ -100,7 +100,7 @@ export class AdminController {
     @Headers('x-admin-secret') secret: string,
   ) {
     this.checkSecret(secret);
-    return this.bookingsService.removeByIdAdmin(id, reference);
+    return this.bookingsService.remove(id, reference);
   }
 
   /**

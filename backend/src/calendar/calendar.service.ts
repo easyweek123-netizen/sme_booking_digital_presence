@@ -219,11 +219,11 @@ export class CalendarService {
   private async loadSyncContext(bookingId: number) {
     const booking = await this.bookingRepository.findOne({
       where: { id: bookingId },
-      relations: ['business', 'service', 'customer'],
+      relations: ['service', 'service.business', 'customer'],
     });
     if (!booking) return null;
     const calendar = await this.calendars.findByBusinessAndProvider(
-      booking.businessId,
+      booking.service.businessId,
     );
     if (!calendar || calendar.status !== 'connected' || !calendar.refreshToken)
       return null;

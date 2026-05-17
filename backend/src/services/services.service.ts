@@ -2,204 +2,148 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Service } from './entities/service.entity';
-import { Business } from '../business/entities/business.entity';
-import { CreateServiceDto } from './dto/create-service.dto';
-import { UpdateServiceDto } from './dto/update-service.dto';
-import { verifyBusinessOwnership } from '../common';
+import { ScheduleService } from '../schedule/schedule.service';
+import type { ServiceCreateInput, ServicePatchInput } from '@bookeasy/shared';
+
+function withMappedAvailability<T extends { schedule?: unknown }>(s: T): T {
+  const sched = s.schedule as Record<string, unknown> | null | undefined;
+  if (sched && 'availabilities' in sched) {
+    sched['availability'] = sched['availabilities'];
+    delete sched['availabilities'];
+  }
+  return s;
+}
 
 @Injectable()
 export class ServicesService {
   constructor(
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
-    @InjectRepository(Business)
-    private readonly businessRepository: Repository<Business>,
+    private readonly scheduleService: ScheduleService,
   ) {}
 
-  /**
-   * Create a new service for a business
-   */
-  async create(
-    ownerId: number,
-    createServiceDto: CreateServiceDto,
-  ): Promise<Service> {
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      createServiceDto.businessId,
-      ownerId,
+  async create(businessId: number, dto: ServiceCreateInput): Promise<Service> {
+    await this.scheduleService.assertOwnedByBusiness(
+      dto.scheduleId,
+      businessId,
     );
-
     const service = this.serviceRepository.create({
-      businessId: createServiceDto.businessId,
-      categoryId: createServiceDto.categoryId || null,
-      name: createServiceDto.name,
-      description: createServiceDto.description || null,
-      durationMinutes: createServiceDto.durationMinutes,
-      price: createServiceDto.price,
-      availableDays: createServiceDto.availableDays || null,
-      imageUrl: createServiceDto.imageUrl || null,
-      displayOrder: createServiceDto.displayOrder ?? 0,
+      businessId,
+      categoryId: dto.categoryId ?? null,
+      scheduleId: dto.scheduleId,
+      type: dto.type,
+      name: dto.name,
+      description: dto.description ?? null,
+      capacity: dto.capacity,
+      durationMinutes: dto.durationMinutes,
+      pauseAfterMinutes: dto.pauseAfterMinutes ?? 0,
+      price: dto.price ?? null,
+      priceType: dto.priceType,
+      locationType: dto.locationType,
+      locationMeta: dto.locationMeta ?? null,
+      color: dto.color ?? null,
+      photoUrl: dto.photoUrl ?? null,
       isActive: true,
     });
-
     return this.serviceRepository.save(service);
   }
 
-  /**
-   * Get all services for a business (public)
-   */
   async findByBusiness(businessId: number): Promise<Service[]> {
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
-    return this.serviceRepository.find({
+    const services = await this.serviceRepository.find({
       where: { businessId, isActive: true },
-      relations: ['category'],
+      relations: ['category', 'schedule', 'schedule.availabilities'],
       order: { displayOrder: 'ASC', createdAt: 'ASC' },
     });
+    return services.map(withMappedAvailability);
   }
 
-  /**
-   * Get a single service by ID
-   */
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id },
+      relations: ['schedule', 'schedule.availabilities'],
     });
-
-    if (!service) {
-      throw new NotFoundException('Service not found');
-    }
-
-    return service;
+    if (!service) throw new NotFoundException('Service not found');
+    return withMappedAvailability(service);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Entity Resolution Methods (for AI tool handlers)
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Find a service by name within a business (case-insensitive)
-   * Used by AI tool handlers for entity resolution
-   */
   async findByNameAndBusiness(
     name: string,
     businessId: number,
   ): Promise<Service | null> {
     return this.serviceRepository.findOne({
-      where: {
-        name: ILike(name),
-        businessId,
-      },
+      where: { name: ILike(name), businessId },
       relations: ['category'],
     });
   }
 
-  /**
-   * Find a service by ID within a business (ownership check)
-   * Used by AI tool handlers to verify service belongs to business
-   */
   async findByIdAndBusiness(
     id: number,
     businessId: number,
   ): Promise<Service | null> {
     return this.serviceRepository.findOne({
-      where: {
-        id,
-        businessId,
-      },
+      where: { id, businessId },
       relations: ['category'],
     });
   }
 
-  /**
-   * Update a service
-   */
   async update(
     id: number,
-    ownerId: number,
-    updateServiceDto: UpdateServiceDto,
+    businessId: number,
+    dto: ServicePatchInput,
   ): Promise<Service> {
     const service = await this.serviceRepository.findOne({
-      where: { id },
-      relations: ['business'],
+      where: { id, businessId },
     });
+    if (!service) throw new NotFoundException('Service not found');
 
-    if (!service) {
-      throw new NotFoundException('Service not found');
-    }
-
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      service.businessId,
-      ownerId,
-    );
-
-    // Update fields
-    if (updateServiceDto.categoryId !== undefined) {
-      service.categoryId = updateServiceDto.categoryId;
-    }
-    if (updateServiceDto.name !== undefined) {
-      service.name = updateServiceDto.name;
-    }
-    if (updateServiceDto.description !== undefined) {
-      service.description = updateServiceDto.description || null;
-    }
-    if (updateServiceDto.durationMinutes !== undefined) {
-      service.durationMinutes = updateServiceDto.durationMinutes;
-    }
-    if (updateServiceDto.price !== undefined) {
-      service.price = updateServiceDto.price;
-    }
-    if (updateServiceDto.availableDays !== undefined) {
-      service.availableDays = updateServiceDto.availableDays || null;
-    }
-    if (updateServiceDto.isActive !== undefined) {
-      service.isActive = updateServiceDto.isActive;
-    }
-    if (updateServiceDto.imageUrl !== undefined) {
-      service.imageUrl = updateServiceDto.imageUrl || null;
-    }
-    if (updateServiceDto.displayOrder !== undefined) {
-      service.displayOrder = updateServiceDto.displayOrder;
+    if (dto.scheduleId !== undefined) {
+      await this.scheduleService.assertOwnedByBusiness(
+        dto.scheduleId,
+        businessId,
+      );
     }
 
+    for (const key of [
+      'categoryId',
+      'scheduleId',
+      'type',
+      'name',
+      'description',
+      'capacity',
+      'durationMinutes',
+      'pauseAfterMinutes',
+      'price',
+      'priceType',
+      'locationType',
+      'locationMeta',
+      'color',
+      'photoUrl',
+    ] as const) {
+      if ((dto as Record<string, unknown>)[key] !== undefined) {
+        (service as unknown as Record<string, unknown>)[key] = (
+          dto as Record<string, unknown>
+        )[key];
+      }
+    }
     return this.serviceRepository.save(service);
   }
 
   /**
-   * Delete a service.
-   * Hard deletes if no bookings exist.
-   * Disables (isActive=false) if bookings exist, preserving booking history.
+   * Soft-delete (deactivate) if the service has bookings, otherwise hard
+   * delete. Scoped by businessId.
    */
-  async remove(id: number, ownerId: number): Promise<void> {
+  async remove(id: number, businessId: number): Promise<void> {
     const service = await this.serviceRepository.findOne({
-      where: { id },
-      relations: ['business', 'bookings'],
+      where: { id, businessId },
+      relations: ['bookings'],
     });
-
-    if (!service) {
-      throw new NotFoundException('Service not found');
-    }
-
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      service.businessId,
-      ownerId,
-    );
+    if (!service) throw new NotFoundException('Service not found');
 
     if (service.bookings && service.bookings.length > 0) {
-      // Disable instead of deleting — preserves booking history
       service.isActive = false;
       await this.serviceRepository.save(service);
       return;
     }
-
     await this.serviceRepository.remove(service);
   }
 }

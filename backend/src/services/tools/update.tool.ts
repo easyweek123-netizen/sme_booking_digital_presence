@@ -90,7 +90,7 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
       price: price ?? Number(service.price),
       durationMinutes: durationMinutes ?? service.durationMinutes,
       description: description ?? service.description ?? undefined,
-      imageUrl: imageUrl ?? service.imageUrl ?? undefined,
+      imageUrl: imageUrl ?? service.photoUrl ?? undefined,
     };
 
     const proposal = createProposal('service:update', {
@@ -114,7 +114,7 @@ export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
     if (description !== undefined && description !== service.description) {
       changes.push('description updated');
     }
-    if (imageUrl !== undefined && imageUrl !== service.imageUrl) {
+    if (imageUrl !== undefined && imageUrl !== service.photoUrl) {
       changes.push('image updated');
     }
 

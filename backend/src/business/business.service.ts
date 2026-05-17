@@ -8,9 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Business } from './entities/business.entity';
 import { Service } from '../services/entities/service.entity';
+import { Schedule } from '../schedule/entities/schedule.entity';
+import { Availability } from '../schedule/entities/availability.entity';
+import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
-import { assertBusinessOwnership, DEFAULT_WORKING_HOURS } from '../common';
 
 @Injectable()
 export class BusinessService {
@@ -20,50 +22,38 @@ export class BusinessService {
     private readonly dataSource: DataSource,
   ) {}
 
-  /**
-   * Generate URL-friendly slug: full-business-name + 4 random alphanumeric
-   */
+  /** Generate URL-friendly slug: full-business-name + 4 random alphanumeric */
   private generateSlug(name: string): string {
-    // Convert name to lowercase, replace spaces/special chars with hyphens
     const baseName = name
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-
-    // Generate 4 char random suffix (lowercase letters + numbers)
+      .replace(/^-+|-+$/g, '');
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let suffix = '';
     for (let i = 0; i < 4; i++) {
       suffix += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-
     return `${baseName}-${suffix}`;
   }
 
-  /**
-   * Create a new business with services in a transaction
-   */
+  /** Create a new business with services in a transaction. */
   async create(
     ownerId: number,
     createBusinessDto: CreateBusinessDto,
   ): Promise<Business> {
-    // Check if owner already has a business
     const existingBusiness = await this.businessRepository.findOne({
       where: { ownerId },
     });
-
     if (existingBusiness) {
       throw new ConflictException('You already have a business registered');
     }
 
-    // Use a transaction to create business and services together
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      // Create the business
       const business = new Business();
       business.ownerId = ownerId;
       business.name = createBusinessDto.name;
@@ -74,39 +64,56 @@ export class BusinessService {
       business.city = createBusinessDto.city || null;
       business.logoUrl = createBusinessDto.logoUrl || null;
       business.brandColor = createBusinessDto.brandColor || null;
-      business.workingHours =
-        createBusinessDto.workingHours || DEFAULT_WORKING_HOURS;
       business.businessTypeId = createBusinessDto.businessTypeId ?? null;
 
       const savedBusiness = await queryRunner.manager.save(business);
 
-      // Create all services (if provided)
+      const defaultSchedule = queryRunner.manager.create(Schedule, {
+        businessId: savedBusiness.id,
+        name: 'Default',
+      });
+      const savedSchedule = await queryRunner.manager.save(defaultSchedule);
+      savedBusiness.defaultScheduleId = savedSchedule.id;
+      await queryRunner.manager.save(savedBusiness);
+
+      const availabilityRows = DEFAULT_BUSINESS_HOURS.map((row) =>
+        queryRunner.manager.create(Availability, {
+          scheduleId: savedSchedule.id,
+          isRecurring: row.isRecurring,
+          dayOfWeek: row.dayOfWeek ?? null,
+          startTime: row.startTime ?? null,
+          endTime: row.endTime ?? null,
+          isClosed: row.isClosed ?? false,
+        }),
+      );
+      await queryRunner.manager.save(availabilityRows);
+
       const services = (createBusinessDto.services || []).map((serviceDto) => {
         const service = new Service();
         service.businessId = savedBusiness.id;
+        service.scheduleId = savedSchedule.id;
         service.name = serviceDto.name;
         service.durationMinutes = serviceDto.durationMinutes;
-        service.price = serviceDto.price;
-        service.availableDays = serviceDto.availableDays || null;
+        service.type = 'APPOINTMENT';
+        service.capacity = 1;
+        service.pauseAfterMinutes = 0;
+        service.price =
+          serviceDto.price != null ? Number(serviceDto.price).toFixed(2) : null;
+        service.priceType = 'FIXED';
+        service.locationType = 'AT_BUSINESS';
         service.isActive = true;
         return service;
       });
 
       await queryRunner.manager.save(services);
-
       await queryRunner.commitTransaction();
-
-      // Return the business with services
       return this.findByOwnerIdOrFail(ownerId);
     } catch (error: any) {
       await queryRunner.rollbackTransaction();
-      // Handle duplicate slug error
-      // MySQL: ER_DUP_ENTRY (code 1062), PostgreSQL: code 23505
       const isDuplicateError =
         error.code === 'ER_DUP_ENTRY' ||
         error.code === '23505' ||
         error.constraint?.includes('slug');
-
       if (isDuplicateError) {
         throw new ConflictException(
           'Business with this name already exists. Please choose a different name.',
@@ -118,32 +125,19 @@ export class BusinessService {
     }
   }
 
-  /**
-   * Find business by Firebase user
-   */
   async findByOwner(ownerId: number): Promise<Business> {
     return this.findByOwnerIdOrFail(ownerId);
   }
 
-  /**
-   * Find business by owner ID (internal use - throws if not found)
-   */
   private async findByOwnerIdOrFail(ownerId: number): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { ownerId },
       relations: ['services', 'services.category', 'businessType'],
     });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
+    if (!business) throw new NotFoundException('Business not found');
     return business;
   }
 
-  /**
-   * Find business by owner ID (returns null if not found)
-   */
   async findByOwnerId(ownerId: number): Promise<Business | null> {
     return this.businessRepository.findOne({
       where: { ownerId },
@@ -151,51 +145,34 @@ export class BusinessService {
     });
   }
 
-  /**
-   * Find business by ID
-   */
   async findOne(id: number): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { id },
       relations: ['services', 'services.category', 'businessType'],
     });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
+    if (!business) throw new NotFoundException('Business not found');
     return business;
   }
 
-  /**
-   * Find business by slug (public)
-   */
   async findBySlug(slug: string): Promise<Business> {
     const business = await this.businessRepository.findOne({
       where: { slug },
       relations: ['services', 'services.category', 'businessType'],
     });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
+    if (!business) throw new NotFoundException('Business not found');
     return business;
   }
 
   /**
-   * Update business
+   * Update business by id. Ownership is enforced upstream by
+   * BusinessOwnershipGuard which scopes the route to the owner's business.
    */
   async update(
     id: number,
-    ownerId: number,
     updateBusinessDto: UpdateBusinessDto,
   ): Promise<Business> {
     const business = await this.findOne(id);
 
-    assertBusinessOwnership(business, ownerId);
-
-    // Update fields
     if (updateBusinessDto.name !== undefined) {
       business.name = updateBusinessDto.name;
     }
@@ -223,9 +200,6 @@ export class BusinessService {
     if (updateBusinessDto.brandColor !== undefined) {
       business.brandColor = updateBusinessDto.brandColor || null;
     }
-    if (updateBusinessDto.workingHours !== undefined) {
-      business.workingHours = updateBusinessDto.workingHours;
-    }
     if (updateBusinessDto.coverImageUrl !== undefined) {
       business.coverImageUrl = updateBusinessDto.coverImageUrl || null;
     }
@@ -246,23 +220,9 @@ export class BusinessService {
     }
 
     await this.businessRepository.save(business);
-
     return this.findOne(id);
   }
 
-  /**
-   * Check if owner has a business
-   */
-  async hasBusinessForOwner(ownerId: number): Promise<boolean> {
-    const business = await this.businessRepository.findOne({
-      where: { ownerId },
-    });
-    return !!business;
-  }
-
-  /**
-   * Delete a business by ID
-   */
   async remove(id: number): Promise<void> {
     await this.businessRepository.delete(id);
   }

@@ -13,10 +13,9 @@ import {
 import { Owner } from '../../owner/entities/owner.entity';
 import { BusinessType } from '../../business-categories/entities/business-type.entity';
 import { Service } from '../../services/entities/service.entity';
-import { Booking } from '../../bookings/entities/booking.entity';
-import { WorkingHours } from '../../common/types';
 import { Plan } from '../../billing/types/enums';
 import { Subscription } from '../../billing/entities/subscription.entity';
+import { Schedule } from '../../schedule/entities/schedule.entity';
 
 @Entity('business')
 @Index('IDX_business_plan', ['plan'])
@@ -60,9 +59,6 @@ export class Business {
   @Column({ type: 'varchar', length: 7, nullable: true })
   brandColor: string | null;
 
-  @Column({ type: 'json', nullable: true })
-  workingHours: WorkingHours | null;
-
   @Column({ type: 'varchar', length: 500, nullable: true })
   coverImageUrl: string | null;
 
@@ -83,6 +79,13 @@ export class Business {
   @Column({ type: 'varchar', length: 120, nullable: true, unique: true })
   providerCustomerId: string | null;
 
+  @Column({ name: 'default_schedule_id', type: 'int', nullable: true })
+  defaultScheduleId: number | null;
+
+  @ManyToOne(() => Schedule, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'default_schedule_id' })
+  defaultSchedule: Schedule | null;
+
   @OneToOne(() => Subscription, (subscription) => subscription.business, {
     nullable: true,
   })
@@ -98,9 +101,6 @@ export class Business {
 
   @OneToMany(() => Service, (service) => service.business)
   services: Service[];
-
-  @OneToMany(() => Booking, (booking) => booking.business)
-  bookings: Booking[];
 
   @CreateDateColumn()
   createdAt: Date;

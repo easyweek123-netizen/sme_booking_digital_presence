@@ -10,10 +10,6 @@ import {
 } from 'class-validator';
 
 export class CreateServiceDto {
-  @IsNumber()
-  @IsPositive()
-  businessId: number;
-
   @IsOptional()
   @IsNumber()
   @IsPositive()

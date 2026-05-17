@@ -13,10 +13,10 @@ export class GoogleEventFactory {
   }
 
   create(booking: Booking): GoogleEventInput {
-    const business = booking.business;
+    const business = booking.service?.business;
     const lines: string[] = [`Booking ${booking.reference}`];
     if (booking.customerEmail) lines.push(`Email: ${booking.customerEmail}`);
-    const phone = booking.business?.phone;
+    const phone = business?.phone;
     if (phone) lines.push(`Phone: ${phone}`);
     lines.push('');
     lines.push(

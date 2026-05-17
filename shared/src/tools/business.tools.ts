@@ -1,26 +1,6 @@
 import { z } from 'zod';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Working Hours Schema (used in business_update args and profile)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const DayScheduleSchema = z.object({
-  isOpen: z.boolean().describe('Whether the business is open on this day'),
-  openTime: z.string().describe('Opening time in HH:MM format (e.g. "09:00")'),
-  closeTime: z.string().describe('Closing time in HH:MM format (e.g. "17:00")'),
-});
-
-export const WorkingHoursSchema = z.object({
-  monday: DayScheduleSchema,
-  tuesday: DayScheduleSchema,
-  wednesday: DayScheduleSchema,
-  thursday: DayScheduleSchema,
-  friday: DayScheduleSchema,
-  saturday: DayScheduleSchema,
-  sunday: DayScheduleSchema,
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Business Profile Schema (read-only shape returned by business_get)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -37,7 +17,6 @@ export const BusinessProfileSchema = z.object({
   brandColor: z.string().nullable(),
   coverImageUrl: z.string().nullable(),
   aboutContent: z.string().nullable(),
-  workingHours: WorkingHoursSchema.nullable(),
   slug: z.string(),
   businessType: z.string().nullable(),
 });
@@ -105,11 +84,6 @@ export const BusinessUpdateArgsSchema = z
       .string()
       .optional()
       .describe('Cover image URL for booking page header. Empty string — user fills in the form.'),
-    workingHours: WorkingHoursSchema
-      .optional()
-      .describe(
-        'Weekly opening hours — all 7 days. Use sensible defaults for the business type (e.g. salons: Tue–Sat 09:00–18:00; restaurants: Mon–Sun 11:00–22:00). Closed days: isOpen=false. User can adjust in the form.',
-      ),
     aboutContent: z
       .string()
       .optional()

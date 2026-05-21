@@ -41,7 +41,7 @@ export const ServiceCreateActionSchema = z.object({
   proposalId: z.string().uuid(),
   executionMode: z.enum(['confirm', 'auto']).default('confirm'),
   businessId: z.number(),
-  seed: ServiceSeedPayloadSchema.optional(),
+  suggestedEdits: ServiceSeedPayloadSchema.optional(),
 });
 
 /**
@@ -54,7 +54,7 @@ export const ServiceUpdateActionSchema = z.object({
   executionMode: z.enum(['confirm', 'auto']).default('confirm'),
   resolvedId: z.number(),
   serviceName: z.string(),
-  seed: ServiceSeedPayloadSchema.optional(),
+  suggestedEdits: ServiceSeedPayloadSchema.optional(),
 });
 
 /**

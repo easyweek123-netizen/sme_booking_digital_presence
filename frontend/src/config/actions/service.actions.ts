@@ -19,7 +19,7 @@ export function useServiceActions(): Record<string, RuntimeActionHandler> {
       ownsShell: true,
       getProps: (action) => ({
         serviceId: undefined,
-        initialValues: action.seed as Partial<ServiceFormInput> | undefined,
+        initialValues: action.suggestedEdits as Partial<ServiceFormInput> | undefined,
       }),
       execute: async () => { /* saved inside ServiceFormProposal */ },
     }),
@@ -30,7 +30,7 @@ export function useServiceActions(): Record<string, RuntimeActionHandler> {
       ownsShell: true,
       getProps: (action) => ({
         serviceId: action.resolvedId,
-        initialValues: action.seed as Partial<ServiceFormInput> | undefined,
+        initialValues: action.suggestedEdits as Partial<ServiceFormInput> | undefined,
       }),
       execute: async () => { /* saved inside ServiceFormProposal */ },
     }),

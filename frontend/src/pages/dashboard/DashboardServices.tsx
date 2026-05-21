@@ -5,9 +5,7 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
   ModalBody,
-  ModalCloseButton,
   useDisclosure,
   useToast,
   AlertDialog,
@@ -16,6 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Flex,
+  Heading,
+  HStack,
 } from '@chakra-ui/react';
 import { useState, useRef } from 'react';
 import { useBusiness } from '../../contexts/useBusiness';
@@ -157,7 +158,7 @@ export function DashboardServices() {
       title="Services"
       description="Manage your service catalog"
       actions={
-        <Button leftIcon={<PlusIcon size={18} />} onClick={handleAddService}>
+        <Button variant="accent" leftIcon={<PlusIcon size={18} />} onClick={handleAddService}>
           Add Service
         </Button>
       }
@@ -188,14 +189,62 @@ export function DashboardServices() {
       )}
 
       {/* Add/Edit Modal */}
-      <Modal isOpen={isModalOpen} onClose={closeModal} size="lg">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {editingService ? 'Edit Service' : 'Add Service'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
+      <Modal isOpen={isModalOpen} onClose={closeModal} size="full" motionPreset="slideInBottom">
+        <ModalOverlay bg="#0C0B10" />
+        <ModalContent bg="#0C0B10" color="white" h="100vh" m={0} borderRadius={0} overflowY="auto">
+          {/* Custom Salon Premium Header Bar */}
+          <Flex
+            justify="space-between"
+            align="center"
+            px={{ base: 6, md: 10 }}
+            py={5}
+            borderBottom="1px solid"
+            borderColor="whiteAlpha.100"
+            position="sticky"
+            top={0}
+            bg="#0C0B10"
+            zIndex={20}
+          >
+            <Heading fontSize="2xl" fontWeight="700" color="white" letterSpacing="-0.01em">
+              {editingService ? 'Edit service' : 'New service'}
+            </Heading>
+            <HStack spacing={3}>
+              <Button
+                variant="outline"
+                borderColor="whiteAlpha.300"
+                color="white"
+                borderRadius="full"
+                px={6}
+                h="40px"
+                fontSize="sm"
+                fontWeight="700"
+                _hover={{ bg: 'whiteAlpha.150', borderColor: 'whiteAlpha.400' }}
+                _active={{ bg: 'whiteAlpha.200' }}
+                onClick={closeModal}
+              >
+                Close
+              </Button>
+              <Button
+                type="submit"
+                form="service-form"
+                isLoading={isSaving}
+                bg="white"
+                color="black"
+                borderRadius="full"
+                px={6}
+                h="40px"
+                fontSize="sm"
+                fontWeight="700"
+                _hover={{ bg: 'gray.200' }}
+                _active={{ bg: 'gray.300', transform: 'scale(0.98)' }}
+                transition="all 0.15s ease"
+              >
+                Save
+              </Button>
+            </HStack>
+          </Flex>
+
+          <ModalBody p={0} bg="#0C0B10">
             {business.workingHours && (
               <ServiceForm
                 initialValues={
@@ -218,6 +267,7 @@ export function DashboardServices() {
                 onCancel={closeModal}
                 moreOptionsExpanded
                 isLoading={isSaving}
+                hideInlineActions
               />
             )}
           </ModalBody>

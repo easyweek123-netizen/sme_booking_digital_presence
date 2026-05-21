@@ -5,7 +5,6 @@ import { CheckIcon } from '../../../../components/icons';
 const STEPS = [
   { n: 1, label: 'Service' },
   { n: 2, label: 'Date & time' },
-  { n: 3, label: 'Your details' },
 ] as const;
 
 interface Props {
@@ -50,7 +49,7 @@ export function WizardStepIndicator({ currentStep, onStepClick, canGoTo }: Props
                 h="auto"
                 p={0}
                 aria-current={isActive ? 'step' : undefined}
-                aria-label={`${s.label}, step ${s.n} of 3`}
+                aria-label={`${s.label}, step ${s.n} of 2`}
               >
                 <Box
                   w="28px"
@@ -93,7 +92,7 @@ export function WizardStepIndicator({ currentStep, onStepClick, canGoTo }: Props
         fontWeight="500"
         aria-live="polite"
       >
-        Step {currentStep} of 3 · {activeSummary}
+        Step {currentStep} of 2 · {activeSummary}
       </Text>
     </Box>
   );

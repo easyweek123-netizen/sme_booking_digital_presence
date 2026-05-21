@@ -28,6 +28,7 @@ export function OnboardingPage() {
     placeholder,
     handleSubmit,
     handleSuggestionSelect,
+    handleBack,
     businessTypeId,
   } = useOnboardingFlow(businessCategories);
 
@@ -112,8 +113,10 @@ export function OnboardingPage() {
       onboardingComplete={onboardingComplete}
       isTyping={isTyping}
       placeholder={placeholder}
+      data={data}
       onSubmit={handleSubmit}
       onSuggestionSelect={handleSuggestionSelect}
+      onBack={handleBack}
       isAuthenticated={isAuthenticated}
       isCreating={isCreating}
       isError={isError}

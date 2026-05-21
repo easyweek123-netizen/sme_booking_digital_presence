@@ -1,4 +1,4 @@
-import { Box, VStack, HStack, Text, Button, Divider } from '@chakra-ui/react';
+import { Box, VStack, HStack, Text, Button, Divider, Heading, Link } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { CalendarIcon, UserIcon } from '../../../../components/icons';
 import { formatDuration, formatPrice, formatDateDisplay } from '../../../../utils/format';
@@ -19,10 +19,18 @@ interface Props {
   onContinue: () => void;
 }
 
+function StarIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="#FBBF24" stroke="#FBBF24" strokeWidth="2">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
 function continueLabel(step: 1 | 2 | 3 | 4): string {
-  if (step === 1) return 'Continue to date & time  →';
-  if (step === 2) return 'Continue to your details  →';
-  return 'Confirm booking  →';
+  if (step === 1) return 'Book now';
+  if (step === 2) return 'Continue';
+  return 'Confirm booking';
 }
 
 const rowMotion = {
@@ -32,12 +40,9 @@ const rowMotion = {
 };
 
 export function BookingSummarySidebar(p: Props) {
-  const showEmptyGuidance = p.step === 1 && !p.selectedService;
   const showService = !!p.selectedService;
   const showDateTime = !!p.selectedService && !!p.selectedTime;
   const showDetails = !!(p.customerName || p.customerEmail);
-  const showTotal = !!p.selectedService;
-  const showContinueCta = p.step !== 3 && !(p.step === 1 && !p.selectedService);
 
   return (
     <VStack
@@ -45,140 +50,213 @@ export function BookingSummarySidebar(p: Props) {
       spacing={4}
       position="sticky"
       sx={{
-        top: 'calc(var(--booking-header-h, 80px) + 16px)',
+        top: 'calc(var(--booking-header-h, 80px) + 20px)',
       }}
     >
-      <Box bg="surface.card" border="1px solid" borderColor="border.subtle" borderRadius="xl" p={5}>
-        <Text fontSize="xs" fontWeight="700" letterSpacing="wider" color="text.muted" mb={4}>
-          YOUR BOOKING
-        </Text>
+      <Box
+        bg="white"
+        border="1px solid"
+        borderColor="#ECECEC"
+        borderRadius="3xl"
+        p={6}
+        boxShadow="0 4px 24px rgba(0,0,0,0.015)"
+      >
+        {/* 1. BUSINESS PROFILE INFORMATION */}
+        <Heading
+          fontSize="xl"
+          fontWeight="800"
+          color="black"
+          mb={2.5}
+          lineHeight="short"
+          letterSpacing="-0.02em"
+        >
+          {p.business.name}
+        </Heading>
 
-        {showEmptyGuidance && (
-          <Text fontSize="sm" color="text.muted" lineHeight="short">
-            Select a service to start
+        {/* Rating Row */}
+        <HStack spacing={1.5} align="center" mb={3.5}>
+          <Text fontSize="sm" fontWeight="800" color="black">
+            4.9
           </Text>
-        )}
+          <HStack spacing={0.5}>
+            <StarIcon />
+            <StarIcon />
+            <StarIcon />
+            <StarIcon />
+            <StarIcon />
+          </HStack>
+          <Text fontSize="xs" fontWeight="700" color="blue.500">
+            (219)
+          </Text>
+        </HStack>
 
+        {/* Badges Row */}
+        <HStack spacing={2} mb={5.5}>
+          <Box bg="#F3EEFC" color="#6B46C1" px={3} py={1} borderRadius="full" fontSize="10px" fontWeight="700">
+            Featured
+          </Box>
+          <Box bg="#E8F8F0" color="#10B981" px={3} py={1} borderRadius="full" fontSize="10px" fontWeight="700">
+            Deals
+          </Box>
+        </HStack>
+
+        {/* 2. MAIN PILL CTA BUTTON */}
+        <Button
+          w="100%"
+          h="52px"
+          bg="black"
+          color="white"
+          borderRadius="full"
+          fontWeight="700"
+          fontSize="sm"
+          onClick={p.onContinue}
+          isDisabled={p.step !== 1 && !p.canContinue}
+          _hover={{
+            bg: 'gray.850',
+            transform: 'translateY(-1px)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+          }}
+          _active={{
+            bg: 'black',
+            transform: 'scale(0.98)',
+          }}
+          _disabled={{
+            bg: '#F3F3F5',
+            color: 'gray.400',
+            cursor: 'not-allowed',
+          }}
+          transition="all 0.15s ease"
+          mb={5}
+        >
+          {continueLabel(p.step)}
+        </Button>
+
+        {/* 3. DYNAMIC SELECTED SERVICES SUMMARY DETAILS */}
         {showService && (
-          <MotionBox {...rowMotion}>
-            <VStack align="stretch" spacing={1}>
-              <HStack justify="space-between" align="start">
-                <Text
-                  fontSize="xs"
-                  fontWeight="600"
-                  color="text.muted"
-                  textTransform="uppercase"
-                  letterSpacing="wider"
-                >
-                  Service
-                </Text>
-                <Text fontSize="sm" fontWeight="600" color="text.heading">
-                  {formatPrice(Number(p.selectedService!.price))}
-                </Text>
-              </HStack>
-              <Text fontSize="md" fontWeight="600" color="text.heading">
-                {p.selectedService!.name}
-              </Text>
-              <Text fontSize="sm" color="text.muted">
-                {formatDuration(p.selectedService!.durationMinutes)}
-              </Text>
-            </VStack>
-          </MotionBox>
-        )}
+          <Box borderTop="1px solid" borderColor="#F1F1F4" pt={4.5} pb={1}>
+            <Text
+              fontSize="xs"
+              fontWeight="700"
+              letterSpacing="0.1em"
+              color="gray.450"
+              textTransform="uppercase"
+              mb={4}
+            >
+              Your booking
+            </Text>
 
-        {showService && showDateTime && (
-          <>
-            <Divider my={4} />
             <MotionBox {...rowMotion}>
-              <VStack align="stretch" spacing={1}>
-                <HStack justify="space-between">
-                  <Text
-                    fontSize="xs"
-                    fontWeight="600"
-                    color="text.muted"
-                    textTransform="uppercase"
-                    letterSpacing="wider"
-                  >
-                    Date & time
+              <VStack align="stretch" spacing={1.5}>
+                <HStack justify="space-between" align="start">
+                  <Text fontSize="sm" fontWeight="700" color="black" noOfLines={1}>
+                    {p.selectedService!.name}
                   </Text>
-                  <Box color="text.muted">
-                    <CalendarIcon size={16} />
-                  </Box>
+                  <Text fontSize="sm" fontWeight="800" color="black">
+                    {formatPrice(Number(p.selectedService!.price))}
+                  </Text>
                 </HStack>
-                <Text fontSize="md" fontWeight="600" color="text.heading">
-                  {formatDateDisplay(p.selectedDate)} · {formatTime(p.selectedTime!)}
+                <Text fontSize="xs" color="gray.400" fontWeight="600">
+                  {formatDuration(p.selectedService!.durationMinutes)}
                 </Text>
               </VStack>
             </MotionBox>
-          </>
-        )}
 
-        {showService && showDetails && (
-          <>
-            <Divider my={4} />
-            <MotionBox {...rowMotion}>
-              <VStack align="stretch" spacing={1}>
-                <HStack justify="space-between">
-                  <Text
-                    fontSize="xs"
-                    fontWeight="600"
-                    color="text.muted"
-                    textTransform="uppercase"
-                    letterSpacing="wider"
-                  >
-                    Your details
-                  </Text>
-                  <Box color="text.muted">
-                    <UserIcon size={16} />
-                  </Box>
-                </HStack>
-                {p.customerName && (
-                  <Text fontSize="md" fontWeight="600" color="text.heading">
-                    {p.customerName}
-                  </Text>
-                )}
-                {p.customerEmail && (
-                  <Text fontSize="sm" color="text.muted">
-                    {p.customerEmail}
-                  </Text>
-                )}
-              </VStack>
-            </MotionBox>
-          </>
-        )}
+            {showDateTime && (
+              <>
+                <Divider my={4} borderColor="#F1F1F4" />
+                <MotionBox {...rowMotion}>
+                  <VStack align="stretch" spacing={1.5}>
+                    <HStack justify="space-between">
+                      <Text fontSize="xs" fontWeight="700" color="gray.400" textTransform="uppercase" letterSpacing="0.05em">
+                        Date & time
+                      </Text>
+                      <Box color="gray.400">
+                        <CalendarIcon size={14} />
+                      </Box>
+                    </HStack>
+                    <Text fontSize="sm" fontWeight="700" color="black">
+                      {formatDateDisplay(p.selectedDate)} · {formatTime(p.selectedTime!)}
+                    </Text>
+                  </VStack>
+                </MotionBox>
+              </>
+            )}
 
-        {showTotal && (
-          <>
-            <Divider my={4} />
-            <MotionBox {...rowMotion}>
-              <HStack justify="space-between" mb={showContinueCta ? 5 : 0}>
-                <Text fontSize="md" fontWeight="600" color="text.heading">
+            {showDetails && (
+              <>
+                <Divider my={4} borderColor="#F1F1F4" />
+                <MotionBox {...rowMotion}>
+                  <VStack align="stretch" spacing={1.5}>
+                    <HStack justify="space-between">
+                      <Text fontSize="xs" fontWeight="700" color="gray.400" textTransform="uppercase" letterSpacing="0.05em">
+                        Your details
+                      </Text>
+                      <Box color="gray.400">
+                        <UserIcon size={14} />
+                      </Box>
+                    </HStack>
+                    {p.customerName && (
+                      <Text fontSize="sm" fontWeight="700" color="black">
+                        {p.customerName}
+                      </Text>
+                    )}
+                    {p.customerEmail && (
+                      <Text fontSize="xs" color="gray.400" fontWeight="600">
+                        {p.customerEmail}
+                      </Text>
+                    )}
+                  </VStack>
+                </MotionBox>
+              </>
+            )}
+
+            <Divider my={4} borderColor="#F1F1F4" />
+            <MotionBox {...rowMotion} mb={2}>
+              <HStack justify="space-between">
+                <Text fontSize="sm" fontWeight="700" color="black">
                   Total
                 </Text>
-                <Text fontSize="xl" fontWeight="700" color="text.heading">
+                <Text fontSize="lg" fontWeight="800" color="black" letterSpacing="-0.02em">
                   {formatPrice(Number(p.selectedService!.price))}
                 </Text>
               </HStack>
             </MotionBox>
-          </>
+          </Box>
         )}
 
-        {showContinueCta && (
-          <Button
-            w="100%"
-            h={12}
-            mt={!showTotal ? 4 : 0}
-            bg="gray.800"
-            color="white"
-            borderRadius="xl"
-            fontWeight="600"
-            _hover={{ bg: 'gray.700' }}
-            onClick={p.onContinue}
-            isDisabled={!p.canContinue}
-          >
-            {continueLabel(p.step)}
-          </Button>
-        )}
+        {/* 4. ADDRESS, WORKING HOURS, & PROMOTIONS PANEL */}
+        <Box borderTop="1px solid" borderColor="#F1F1F4" pt={5}>
+          
+          {/* Status Open */}
+          <HStack spacing={3} mb={4} align="center">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#71717A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <Text fontSize="xs" color="gray.600" fontWeight="600">
+              <Text as="span" color="green.500" fontWeight="700">Open</Text> until 7:00 PM
+            </Text>
+          </HStack>
+
+          {/* Location & Navigation */}
+          <HStack spacing={3} align="start" mb={4.5}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#71717A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <VStack align="flex-start" spacing={0.5} w="100%">
+              <Text fontSize="xs" color="gray.600" fontWeight="600" lineHeight="short">
+                {p.business.address || 'Avenida de la Osa Mayor 50, Moncloa - Aravaca, Madrid'}
+              </Text>
+              <Link fontSize="xs" fontWeight="700" color="blue.500" _hover={{ textDecoration: 'underline' }}>
+                Get directions
+              </Link>
+            </VStack>
+          </HStack>
+
+
+        </Box>
+
       </Box>
     </VStack>
   );

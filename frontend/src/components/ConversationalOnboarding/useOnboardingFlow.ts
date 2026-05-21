@@ -17,11 +17,15 @@ const HOURS_PRESETS: Record<HoursPreference, WorkingHours> = {
 const TYPING_DELAY = 700;
 
 function buildBusinessTypeSuggestions(categories: BusinessCategory[]): Suggestion[] {
-  const typeSuggestions: Suggestion[] = categories.flatMap((category) =>
-    (category.types ?? [])
-      .filter((t) => t.isActive)
-      .map((t) => ({ label: t.name, value: String(t.id) }))
-  );
+  const typeSuggestions: Suggestion[] = categories.flatMap((category) => {
+    if (category.types && category.types.length > 0) {
+      return category.types
+        .filter((t) => t.isActive)
+        .map((t) => ({ label: t.name, value: String(t.id) }));
+    }
+    // Fallback: If no nested types exist in the db, map the category itself
+    return [{ label: category.name, value: String(category.id) }];
+  });
   return [
     ...typeSuggestions,
     { label: 'Skip', value: '', variant: 'skip' as const },
@@ -77,10 +81,15 @@ export function useOnboardingFlow(businessCategories: BusinessCategory[] = []) {
     }
   }, [isTyping, stepIndex]);
 
+  const handleBack = useCallback(() => {
+    if (isTyping) return;
+    dispatch({ type: 'BACK' });
+  }, [isTyping]);
+
   // Compute working hours based on preference, defaulting to standard (9-5)
   const workingHours = useMemo(() => {
-  const preference = data.hoursPreference;
-  return preference ? HOURS_PRESETS[preference] : defaultWorkingHours;
+    const preference = data.hoursPreference;
+    return preference ? HOURS_PRESETS[preference] : defaultWorkingHours;
   }, [data.hoursPreference]);
 
   return {
@@ -92,6 +101,7 @@ export function useOnboardingFlow(businessCategories: BusinessCategory[] = []) {
     placeholder: currentStep?.placeholder,
     handleSubmit,
     handleSuggestionSelect,
+    handleBack,
     workingHours,
     businessTypeId: data.businessTypeId,
   };

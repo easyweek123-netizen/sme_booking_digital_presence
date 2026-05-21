@@ -25,18 +25,19 @@ function PageLoader() {
     </Center>
   );
 }
-
 function App() {
   return (
     <Suspense fallback={<PageLoader />}>
       <ScrollToTop />
       <GlobalModals />
       <Routes>
+        {/* Standalone Login & Onboarding pages — full screen, no public header/footer */}
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
+
         {/* Public routes with consistent header */}
         <Route element={<PublicLayout />}>
           <Route path={ROUTES.HOME} element={<LandingPage />} />
-          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-          <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
           <Route path={ROUTES.PRICING} element={<PricingPage />} />
           <Route path={ROUTES.SERVICES} element={<ServicesPage />} />
           <Route path={ROUTES.PRIVACY} element={<PrivacyPolicy />} />

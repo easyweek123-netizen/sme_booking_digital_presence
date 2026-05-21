@@ -16,6 +16,12 @@ import {
   WrapItem,
   Image,
   Collapse,
+  Input,
+  Textarea,
+  SimpleGrid,
+  InputGroup,
+  InputLeftElement,
+  Heading,
 } from '@chakra-ui/react';
 import { useForm, FormProvider, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,9 +50,6 @@ const defaultWorkingHours: WorkingHours = {
   sunday: { isOpen: false, openTime: '09:00', closeTime: '17:00' },
 };
 
-/**
- * Service form data - used for both input and output
- */
 export interface ServiceFormData {
   id?: string;
   name: string;
@@ -73,6 +76,8 @@ interface ServiceFormProps {
   moreOptionsExpanded?: boolean;
   /** Is loading */
   isLoading?: boolean;
+  /** Hide standard inline actions and trigger via HTML5 form ID */
+  hideInlineActions?: boolean;
 }
 
 export function ServiceForm({
@@ -83,6 +88,7 @@ export function ServiceForm({
   onCancel,
   moreOptionsExpanded = false,
   isLoading = false,
+  hideInlineActions = false,
 }: ServiceFormProps) {
   const isEditing = initialValues != null;
 
@@ -122,7 +128,10 @@ export function ServiceForm({
     formState: { errors },
   } = methods;
 
-  const imageUrl = useWatch({ control, name: 'imageUrl' });
+  // Watch input values for live character counters and previews
+  const nameValue = useWatch({ control, name: 'name' }) || '';
+  const descValue = useWatch({ control, name: 'description' }) || '';
+  const imageUrl = useWatch({ control, name: 'imageUrl' }) || '';
 
   // Keep availableDays form value in sync with UX state
   useEffect(() => {
@@ -142,6 +151,476 @@ export function ServiceForm({
     });
   };
 
+  // PREMIUM DARK SPLIT-SCREEN LAYOUT FOR DASHBOARD
+  if (hideInlineActions) {
+    return (
+      <Box bg="#0C0B10" minH="calc(100vh - 80px)" color="white" py={8} px={{ base: 6, md: 10 }}>
+        <FormProvider {...methods}>
+          <form id="service-form" onSubmit={handleSubmit(onSubmit)}>
+            {/* Centered Form Container */}
+            <Box maxW="760px" mx="auto" w="100%">
+              <VStack spacing={10} align="stretch">
+                  
+                  {/* SECTION 1: Basic Details */}
+                  <Box>
+                    <Heading fontSize="lg" fontWeight="700" color="white" mb={6} letterSpacing="-0.01em">
+                      Basic details
+                    </Heading>
+                    <VStack spacing={6} align="stretch">
+                      
+                      {/* Service Name Input */}
+                      <Controller
+                        name="name"
+                        control={control}
+                        render={({ field, fieldState }) => (
+                          <FormControl isInvalid={!!fieldState.error}>
+                            <Flex justify="space-between" mb={2}>
+                              <FormLabel m={0} fontSize="sm" fontWeight="600" color="white">
+                                Service name
+                              </FormLabel>
+                              <Text fontSize="xs" color="whiteAlpha.450" fontWeight="500">
+                                {nameValue.length}/255
+                              </Text>
+                            </Flex>
+                            <Input
+                              {...field}
+                              placeholder="Add a service name, e.g. Men's Haircut"
+                              bg="#16151A"
+                              border="1px solid"
+                              borderColor="#29282D"
+                              color="white"
+                              h="46px"
+                              borderRadius="xl"
+                              maxLength={255}
+                              _hover={{ borderColor: 'whiteAlpha.350' }}
+                              _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                              _placeholder={{ color: 'whiteAlpha.400' }}
+                            />
+                            {fieldState.error && (
+                              <FormErrorMessage color="danger.primary">{fieldState.error.message}</FormErrorMessage>
+                            )}
+                          </FormControl>
+                        )}
+                      />
+
+                      {/* Menu Category & Treatment Type Selects */}
+                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                        
+                        {/* Menu Category */}
+                        <Controller
+                          name="categoryId"
+                          control={control}
+                          render={({ field, fieldState }) => (
+                            <FormControl isInvalid={!!fieldState.error}>
+                              <FormLabel fontSize="sm" fontWeight="600" color="white" mb={2}>
+                                Menu category
+                              </FormLabel>
+                              <Select
+                                value={field.value ?? ''}
+                                onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                                bg="#16151A"
+                                border="1px solid"
+                                borderColor="#29282D"
+                                color="white"
+                                h="46px"
+                                borderRadius="xl"
+                                placeholder="Select category"
+                                _hover={{ borderColor: 'whiteAlpha.350' }}
+                                _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                                sx={{
+                                  '& > option': {
+                                    bg: '#16151A',
+                                    color: 'white',
+                                  },
+                                }}
+                              >
+                                {categories.map((cat) => (
+                                  <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                  </option>
+                                ))}
+                              </Select>
+                              <Text fontSize="xs" color="whiteAlpha.400" mt={2} lineHeight="short">
+                                The category displayed to you, and to clients online
+                              </Text>
+                              {fieldState.error && (
+                                <FormErrorMessage color="danger.primary">{fieldState.error.message}</FormErrorMessage>
+                              )}
+                            </FormControl>
+                          )}
+                        />
+
+                        {/* Treatment Type (Mock select) */}
+                        <FormControl>
+                          <FormLabel fontSize="sm" fontWeight="600" color="white" mb={2}>
+                            Treatment type
+                          </FormLabel>
+                          <Select
+                            bg="#16151A"
+                            border="1px solid"
+                            borderColor="#29282D"
+                            color="white"
+                            h="46px"
+                            borderRadius="xl"
+                            placeholder="Select treatment type"
+                            _hover={{ borderColor: 'whiteAlpha.350' }}
+                            _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                            sx={{
+                              '& > option': {
+                                bg: '#16151A',
+                                color: 'white',
+                              },
+                            }}
+                          >
+                            <option value="hair">Hair Treatment</option>
+                            <option value="barber">Barbering</option>
+                            <option value="face">Face Care</option>
+                          </Select>
+                          <Text fontSize="xs" color="whiteAlpha.400" mt={2} lineHeight="short">
+                            Used to help clients find your service on the marketplace
+                          </Text>
+                        </FormControl>
+
+                      </SimpleGrid>
+
+                      {/* Description (Optional) Textarea */}
+                      <Controller
+                        name="description"
+                        control={control}
+                        render={({ field, fieldState }) => (
+                          <FormControl isInvalid={!!fieldState.error}>
+                            <Flex justify="space-between" mb={2}>
+                              <FormLabel m={0} fontSize="sm" fontWeight="600" color="white">
+                                Description (Optional)
+                              </FormLabel>
+                              <Text fontSize="xs" color="whiteAlpha.450" fontWeight="500">
+                                {descValue.length}/1000
+                              </Text>
+                            </Flex>
+                            <Textarea
+                              {...field}
+                              placeholder="Add a short description"
+                              bg="#16151A"
+                              border="1px solid"
+                              borderColor="#29282D"
+                              color="white"
+                              rows={4}
+                              borderRadius="xl"
+                              maxLength={1000}
+                              _hover={{ borderColor: 'whiteAlpha.350' }}
+                              _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                              _placeholder={{ color: 'whiteAlpha.400' }}
+                              lineHeight="relaxed"
+                            />
+                            {fieldState.error && (
+                              <FormErrorMessage color="danger.primary">{fieldState.error.message}</FormErrorMessage>
+                            )}
+                          </FormControl>
+                        )}
+                      />
+
+                      {/* Optional Image URL */}
+                      <Controller
+                        name="imageUrl"
+                        control={control}
+                        render={({ field, fieldState }) => (
+                          <FormControl isInvalid={!!fieldState.error}>
+                            <FormLabel fontSize="sm" fontWeight="600" color="white" mb={2}>
+                              Service Image URL (Optional)
+                            </FormLabel>
+                            <Input
+                              {...field}
+                              placeholder="https://example.com/service-image.jpg"
+                              bg="#16151A"
+                              border="1px solid"
+                              borderColor="#29282D"
+                              color="white"
+                              h="46px"
+                              borderRadius="xl"
+                              type="url"
+                              _hover={{ borderColor: 'whiteAlpha.350' }}
+                              _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                              _placeholder={{ color: 'whiteAlpha.400' }}
+                            />
+                            {imageUrl && !imageError && (
+                              <Box mt={3} borderRadius="xl" overflow="hidden" maxW="200px" border="1px solid" borderColor="whiteAlpha.100">
+                                <Image
+                                  src={imageUrl}
+                                  alt="Service preview"
+                                  maxH="120px"
+                                  w="100%"
+                                  objectFit="cover"
+                                  onError={() => setImageError(true)}
+                                />
+                              </Box>
+                            )}
+                            {fieldState.error && (
+                              <FormErrorMessage color="danger.primary">{fieldState.error.message}</FormErrorMessage>
+                            )}
+                          </FormControl>
+                        )}
+                      />
+
+                    </VStack>
+                  </Box>
+
+                  {/* SECTION 2: Pricing and Duration */}
+                  <Box>
+                    <Heading fontSize="lg" fontWeight="700" color="white" mb={6} letterSpacing="-0.01em">
+                      Pricing and duration
+                    </Heading>
+                    <VStack spacing={6} align="stretch">
+                      
+                      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                        
+                        {/* Price Type */}
+                        <FormControl>
+                          <FormLabel fontSize="sm" fontWeight="600" color="white" mb={2}>
+                            Price type
+                          </FormLabel>
+                          <Select
+                            bg="#16151A"
+                            border="1px solid"
+                            borderColor="#29282D"
+                            color="white"
+                            h="46px"
+                            borderRadius="xl"
+                            defaultValue="fixed"
+                            _hover={{ borderColor: 'whiteAlpha.350' }}
+                            _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                            sx={{
+                              '& > option': {
+                                bg: '#16151A',
+                                color: 'white',
+                              },
+                            }}
+                          >
+                            <option value="fixed">Fixed</option>
+                            <option value="free">Free</option>
+                          </Select>
+                        </FormControl>
+
+                        {/* Price Input */}
+                        <Controller
+                          name="price"
+                          control={control}
+                          render={({ field, fieldState }) => (
+                            <FormControl isInvalid={!!fieldState.error}>
+                              <FormLabel fontSize="sm" fontWeight="600" color="white" mb={2}>
+                                Price
+                              </FormLabel>
+                              <InputGroup>
+                                <InputLeftElement pointerEvents="none" h="46px" color="whiteAlpha.600">
+                                  €
+                                </InputLeftElement>
+                                <Input
+                                  value={field.value ?? ''}
+                                  onChange={(e) => {
+                                    const val = e.target.value.replace(/[^0-9.]/g, '');
+                                    field.onChange(val ? Number(val) : 0);
+                                  }}
+                                  onBlur={field.onBlur}
+                                  placeholder="0.00"
+                                  bg="#16151A"
+                                  border="1px solid"
+                                  borderColor="#29282D"
+                                  color="white"
+                                  h="46px"
+                                  pl={10}
+                                  borderRadius="xl"
+                                  _hover={{ borderColor: 'whiteAlpha.350' }}
+                                  _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                                />
+                              </InputGroup>
+                              {fieldState.error && (
+                                <FormErrorMessage color="danger.primary">{fieldState.error.message}</FormErrorMessage>
+                              )}
+                            </FormControl>
+                          )}
+                        />
+
+                        {/* Duration Input */}
+                        <Controller
+                          name="durationMinutes"
+                          control={control}
+                          render={({ field, fieldState }) => (
+                            <FormControl isInvalid={!!fieldState.error}>
+                              <FormLabel fontSize="sm" fontWeight="600" color="white" mb={2}>
+                                Duration
+                              </FormLabel>
+                              <Select
+                                value={field.value ?? ''}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                                onBlur={field.onBlur}
+                                name={field.name}
+                                ref={field.ref}
+                                bg="#16151A"
+                                border="1px solid"
+                                borderColor="#29282D"
+                                color="white"
+                                h="46px"
+                                borderRadius="xl"
+                                _hover={{ borderColor: 'whiteAlpha.350' }}
+                                _focus={{ borderColor: 'white', boxShadow: 'none' }}
+                                sx={{
+                                  '& > option': {
+                                    bg: '#16151A',
+                                    color: 'white',
+                                  },
+                                }}
+                              >
+                                {SERVICE_DURATIONS.map((d) => (
+                                  <option key={d.value} value={d.value}>
+                                    {d.label}
+                                  </option>
+                                ))}
+                              </Select>
+                              {fieldState.error && (
+                                <FormErrorMessage color="danger.primary">{fieldState.error.message}</FormErrorMessage>
+                              )}
+                            </FormControl>
+                          )}
+                        />
+
+                      </SimpleGrid>
+
+                      {/* Mock Buttons for Extra Time and Options */}
+                      <HStack spacing={3} pt={2}>
+                        <Button
+                          variant="outline"
+                          borderColor="whiteAlpha.300"
+                          color="white"
+                          borderRadius="full"
+                          h="38px"
+                          px={5}
+                          fontSize="xs"
+                          fontWeight="700"
+                          _hover={{ bg: 'whiteAlpha.100' }}
+                          leftIcon={
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <line x1="12" y1="5" x2="12" y2="19" />
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                          }
+                        >
+                          Add extra time
+                        </Button>
+                        <Button
+                          variant="outline"
+                          borderColor="whiteAlpha.300"
+                          color="white"
+                          borderRadius="full"
+                          h="38px"
+                          px={5}
+                          fontSize="xs"
+                          fontWeight="700"
+                          _hover={{ bg: 'whiteAlpha.100' }}
+                          rightIcon={
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                          }
+                        >
+                          Options
+                        </Button>
+                      </HStack>
+
+                    </VStack>
+                  </Box>
+
+                  {/* SECTION 3: Availability schedule */}
+                  <Box>
+                    <Heading fontSize="lg" fontWeight="700" color="white" mb={6} letterSpacing="-0.01em">
+                      Availability schedule
+                    </Heading>
+                    <Box bg="#16151A" border="1px solid" borderColor="whiteAlpha.100" borderRadius="2xl" p={5}>
+                      <Checkbox
+                        isChecked={useAllDays}
+                        onChange={(e) => setUseAllDays(e.target.checked)}
+                        colorScheme="brand"
+                        mb={4}
+                        sx={{
+                          '.chakra-checkbox__control': {
+                            bg: '#16151A',
+                            borderColor: 'whiteAlpha.350',
+                            _checked: {
+                              bg: 'brand.500',
+                              borderColor: 'brand.500',
+                            }
+                          }
+                        }}
+                      >
+                        <Text fontSize="sm" fontWeight="600" color="white">Available all open days</Text>
+                      </Checkbox>
+
+                      {!useAllDays && (
+                        <MotionBox
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          pt={2}
+                        >
+                          <CheckboxGroup
+                            value={selectedDays}
+                            onChange={(values) => setSelectedDays(values as string[])}
+                          >
+                            <Wrap spacing={4}>
+                              {DAYS_OF_WEEK.map((day) => {
+                                const isOpen = openDays.includes(day);
+                                return (
+                                  <WrapItem key={day}>
+                                    <Checkbox
+                                      value={day}
+                                      isDisabled={!isOpen}
+                                      colorScheme="brand"
+                                      size="md"
+                                      sx={{
+                                        '.chakra-checkbox__control': {
+                                          bg: '#16151A',
+                                          borderColor: 'whiteAlpha.300',
+                                          _checked: {
+                                            bg: 'brand.500',
+                                            borderColor: 'brand.500',
+                                          }
+                                        }
+                                      }}
+                                    >
+                                      <Text
+                                        fontSize="sm"
+                                        fontWeight="600"
+                                        color={isOpen ? 'white' : 'whiteAlpha.400'}
+                                      >
+                                        {DAY_SHORT_LABELS[day as DayOfWeek]}
+                                      </Text>
+                                    </Checkbox>
+                                  </WrapItem>
+                                );
+                              })}
+                            </Wrap>
+                          </CheckboxGroup>
+                          {errors.availableDays && (
+                            <Text fontSize="xs" color="danger.primary" mt={2}>
+                              {errors.availableDays.message}
+                            </Text>
+                          )}
+                        </MotionBox>
+                      )}
+                    </Box>
+                  </Box>
+
+                </VStack>
+            </Box>
+          </form>
+        </FormProvider>
+      </Box>
+    );
+  }
+
+  // STANDARD LIGHT-THEMED INLINE FORM RENDERER (Preserves onboarding unmodified!)
   return (
     <MotionBox
       initial={{ opacity: 0, height: 0 }}

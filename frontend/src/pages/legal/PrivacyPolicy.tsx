@@ -15,7 +15,6 @@ export function PrivacyPolicy() {
 
   return (
     <Box minH="100vh" bg="surface.card">
-      <Header />
       <Container maxW="container.md" py={{ base: 12, md: 20 }}>
         <VStack spacing={8} align="stretch">
           <VStack spacing={4} align="start">
@@ -30,8 +29,8 @@ export function PrivacyPolicy() {
           <VStack spacing={6} align="stretch">
             <Section title="Introduction">
               <Text>
-                BookEasy ("we", "our", or "us") is committed to protecting your privacy. 
-                This Privacy Policy explains how we collect, use, and safeguard your 
+                BookEasy ("we", "our", or "us") is committed to protecting your privacy.
+                This Privacy Policy explains how we collect, use, and safeguard your
                 information when you use our booking platform service.
               </Text>
             </Section>
@@ -78,9 +77,9 @@ export function PrivacyPolicy() {
 
             <Section title="Data Security">
               <Text>
-                We implement appropriate security measures to protect your personal 
-                information. This includes encryption in transit and at rest, secure 
-                authentication, and regular security reviews. However, no method of 
+                We implement appropriate security measures to protect your personal
+                information. This includes encryption in transit and at rest, secure
+                authentication, and regular security reviews. However, no method of
                 transmission over the Internet is 100% secure.
               </Text>
             </Section>
@@ -101,15 +100,15 @@ export function PrivacyPolicy() {
 
             <Section title="Cookies">
               <Text>
-                We use essential cookies to maintain your session and remember your 
+                We use essential cookies to maintain your session and remember your
                 preferences. We do not use tracking cookies or share data with advertisers.
               </Text>
             </Section>
 
             <Section title="Changes to This Policy">
               <Text>
-                We may update this Privacy Policy from time to time. We will notify you 
-                of any changes by posting the new policy on this page and updating the 
+                We may update this Privacy Policy from time to time. We will notify you
+                of any changes by posting the new policy on this page and updating the
                 "Last updated" date.
               </Text>
             </Section>

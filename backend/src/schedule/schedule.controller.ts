@@ -47,20 +47,19 @@ export class ScheduleController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(ScheduleCreateSchema))
   async create(
     @BusinessId() businessId: number,
-    @Body() body: ScheduleCreateInput,
+    @Body(new ZodValidationPipe(ScheduleCreateSchema))
+    body: ScheduleCreateInput,
   ) {
     return this.schedule.createForBusiness(businessId, body);
   }
 
   @Patch(':id')
-  @UsePipes(new ZodValidationPipe(SchedulePatchSchema))
   async update(
     @BusinessId() businessId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: SchedulePatchInput,
+    @Body(new ZodValidationPipe(SchedulePatchSchema)) body: SchedulePatchInput,
   ) {
     return this.schedule.updateForBusiness(id, businessId, body);
   }

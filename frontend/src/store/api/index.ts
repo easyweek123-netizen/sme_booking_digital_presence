@@ -32,7 +32,6 @@ export {
   useGetBookingsQuery,
   useCreateBookingMutation,
   useUpdateBookingStatusMutation,
-  useGetAvailabilityQuery,
   useGetBookingStatsQuery,
   useGetBookingQuery,
 } from './bookingsApi';
@@ -80,7 +79,6 @@ export type {
   CustomerData,
   Booking,
   CreateBookingRequest,
-  AvailabilityResponse,
   BookingStats,
   Note,
   Customer,

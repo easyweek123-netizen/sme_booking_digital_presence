@@ -27,7 +27,7 @@ import {
   DAY_SHORT_LABELS,
   type DayOfWeek,
 } from '../../constants';
-import { useGetServiceCategoriesQuery } from '../../store/api/servicesApi';
+import { useGetServiceCategoriesQuery } from '../../store/api/serviceCategoriesApi';
 import { ChevronDownIcon } from '../icons';
 import type { WorkingHours } from '../../types';
 import { TextField, TextAreaField, CurrencyField, SubmitButton } from '../ui/form';

@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@shared": ["../shared/src/index.ts"],
-      "@shared/*": ["../shared/src/*"]
+      "@shared/*": ["../shared/src/*"],
+      "@bookeasy/shared": ["../shared/src/index.ts"]
     },
 
     /* Linting */
@@ -32,5 +33,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../shared/src"]
+  "include": ["src", "../shared/src"],
+  "exclude": [
+    "src/pages/booking",
+    "src/components/Booking"
+  ]
 }

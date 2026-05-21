@@ -13,6 +13,13 @@ import { Booking } from '../../bookings/entities/booking.entity';
 import { ServiceCategory } from '../../service-categories/entities/service-category.entity';
 import { Schedule } from '../../schedule/entities/schedule.entity';
 
+export enum LocationType {
+  AT_BUSINESS = 'AT_BUSINESS',
+  ONLINE = 'ONLINE',
+  AT_CUSTOMER = 'AT_CUSTOMER',
+  PHONE = 'PHONE',
+}
+
 @Entity('services')
 export class Service {
   @PrimaryGeneratedColumn()
@@ -59,9 +66,9 @@ export class Service {
     name: 'location_type',
     type: 'varchar',
     length: 16,
-    default: 'AT_BUSINESS',
+    default: LocationType.AT_BUSINESS,
   })
-  locationType: 'AT_BUSINESS' | 'ONLINE' | 'AT_CUSTOMER' | 'PHONE';
+  locationType: LocationType;
 
   @Column({ name: 'location_meta', type: 'jsonb', nullable: true })
   locationMeta: Record<string, unknown> | null;

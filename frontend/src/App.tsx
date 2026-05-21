@@ -11,7 +11,6 @@ const LandingPage = lazy(() => import('./pages/landing').then(m => ({ default: m
 const LoginPage = lazy(() => import('./pages/login').then(m => ({ default: m.LoginPage })));
 const OnboardingPage = lazy(() => import('./pages/onboarding').then(m => ({ default: m.OnboardingPage })));
 const DashboardPage = lazy(() => import('./pages/dashboard').then(m => ({ default: m.DashboardPage })));
-const BookingPage = lazy(() => import('./pages/booking').then(m => ({ default: m.BookingPage })));
 const PricingPage = lazy(() => import('./pages/pricing').then(m => ({ default: m.PricingPage })));
 const ServicesPage = lazy(() => import('./pages/services').then(m => ({ default: m.ServicesPage })));
 const PrivacyPolicy = lazy(() => import('./pages/legal').then(m => ({ default: m.PrivacyPolicy })));
@@ -45,10 +44,7 @@ function App() {
           <Route path={ROUTES.IMPRESSUM} element={<Impressum />} />
         </Route>
 
-        {/* Booking page — standalone, no BookEasy header/footer */}
-        <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
-        
-        {/* Protected routes - Dashboard has its own layout */}
+{/* Protected routes - Dashboard has its own layout */}
         <Route
           path={`${ROUTES.DASHBOARD.ROOT}/*`}
           element={

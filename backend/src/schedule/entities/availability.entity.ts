@@ -9,6 +9,10 @@ import {
 } from 'typeorm';
 import { Schedule } from './schedule.entity';
 
+const timeColumnTransformer = {
+  to: (v: string | null) => v,
+  from: (v: string | null) => (v ? v.slice(0, 5) : null),
+};
 @Entity('availability')
 @Index('idx_avail_schedule_recur', ['scheduleId', 'isRecurring', 'dayOfWeek'])
 @Index('idx_avail_schedule_date', ['scheduleId', 'date'])
@@ -28,10 +32,20 @@ export class Availability {
   @Column({ type: 'date', nullable: true })
   date: string | null;
 
-  @Column({ name: 'start_time', type: 'time', nullable: true })
+  @Column({
+    name: 'start_time',
+    type: 'time',
+    nullable: true,
+    transformer: timeColumnTransformer,
+  })
   startTime: string | null;
 
-  @Column({ name: 'end_time', type: 'time', nullable: true })
+  @Column({
+    name: 'end_time',
+    type: 'time',
+    nullable: true,
+    transformer: timeColumnTransformer,
+  })
   endTime: string | null;
 
   @Column({ name: 'is_closed', type: 'boolean', default: false })

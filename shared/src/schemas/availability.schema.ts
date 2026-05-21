@@ -10,7 +10,7 @@ export const AvailabilitySchema = z
     date: z.string().regex(YMD).nullable().optional(),
     startTime: z.string().regex(HHMM).nullable().optional(),
     endTime: z.string().regex(HHMM).nullable().optional(),
-    isClosed: z.boolean().default(false),
+    isClosed: z.boolean(),
   })
   .superRefine((v, ctx) => {
     const issue = (path: string, message: string) =>

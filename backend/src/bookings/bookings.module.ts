@@ -16,6 +16,9 @@ import { MonthlyConfirmedBookingsCounter } from './counters/monthly-confirmed-bo
 import { CounterKey } from '../entitlements/config/counter-keys';
 import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
 import { BillingModule } from '../billing/billing.module';
+import { CalendarModule } from '../calendar/calendar.module';
+import { EmailModule } from '../email/email.module';
+import { BookingStatusEffectsHandler } from './listeners/booking-status-effects.handler';
 import { BusinessOwnershipGuard } from '../common';
 
 @Module({
@@ -25,10 +28,13 @@ import { BusinessOwnershipGuard } from '../common';
     CustomersModule,
     ScheduleModule,
     BillingModule,
+    CalendarModule,
+    EmailModule,
   ],
   controllers: [BookingsController],
   providers: [
     BookingsService,
+    BookingStatusEffectsHandler,
     BusinessOwnershipGuard,
     MonthlyConfirmedBookingsCounter,
     {

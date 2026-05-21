@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
-import { Service } from './entities/service.entity';
+import { LocationType, Service } from './entities/service.entity';
 import { ScheduleService } from '../schedule/schedule.service';
 import type { ServiceCreateInput, ServicePatchInput } from '@bookeasy/shared';
 
@@ -39,7 +39,7 @@ export class ServicesService {
       pauseAfterMinutes: dto.pauseAfterMinutes ?? 0,
       price: dto.price ?? null,
       priceType: dto.priceType,
-      locationType: dto.locationType,
+      locationType: dto.locationType as LocationType,
       locationMeta: dto.locationMeta ?? null,
       color: dto.color ?? null,
       photoUrl: dto.photoUrl ?? null,

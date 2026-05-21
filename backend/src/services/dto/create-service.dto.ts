@@ -29,9 +29,10 @@ export class CreateServiceDto {
   @Min(15)
   durationMinutes: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  price: number;
+  price?: number | null;
 
   @IsOptional()
   @IsArray()

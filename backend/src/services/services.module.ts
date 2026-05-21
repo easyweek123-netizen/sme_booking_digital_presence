@@ -11,6 +11,7 @@ import { BusinessOwnershipGuard } from '../common';
 import {
   CreateServiceTool,
   ListServicesTool,
+  GetServiceTool,
   UpdateServiceTool,
   DeleteServiceTool,
 } from './tools';
@@ -36,6 +37,7 @@ import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
     },
     CreateServiceTool,
     ListServicesTool,
+    GetServiceTool,
     UpdateServiceTool,
     DeleteServiceTool,
   ],

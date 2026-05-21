@@ -13,8 +13,14 @@ export * from './schemas/schedule.schema';
 export {
   ServiceCreateSchema,
   ServicePatchSchema,
+  ServiceFormFieldsSchema,
+  ServiceFormSchema,
+  ServiceFieldsObject,
+  SERVICE_FORM_FIELD_KEYS,
 } from './schemas/service.schema';
 export type {
   ServiceCreateInput,
   ServicePatchInput,
+  ServiceFormFieldsInput,
+  ServiceFormInput,
 } from './schemas/service.schema';

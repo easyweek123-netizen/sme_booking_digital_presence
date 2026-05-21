@@ -46,48 +46,80 @@ export interface ServiceCategory {
   createdAt: string;
 }
 
+export interface Schedule {
+  id: number;
+  businessId: number;
+  name: string;
+  timezone: string | null;
+  availability: import('./availability.types').Availability[];
+}
+
+export type ServiceTypeValue = 'APPOINTMENT' | 'GROUP';
+export type PriceTypeValue = 'FIXED' | 'FROM' | 'FREE' | 'ON_REQUEST';
+export type LocationTypeValue = 'AT_BUSINESS' | 'ONLINE' | 'PHONE';
+
 export interface Service {
   id: number;
   businessId: number;
   categoryId: number | null;
+  scheduleId: number;
+  type: ServiceTypeValue;
   name: string;
   description: string | null;
+  capacity: number;
   durationMinutes: number;
-  price: number;
-  availableDays: string[] | null;
+  pauseAfterMinutes: number;
+  price: string | null;
+  priceType: PriceTypeValue;
+  locationType: LocationTypeValue;
+  locationMeta: Record<string, unknown> | null;
+  color: string | null;
+  photoUrl: string | null;
   isActive: boolean;
-  imageUrl: string | null;
   displayOrder: number;
   createdAt: string;
+  updatedAt: string;
   category?: ServiceCategory | null;
+  schedule?: Schedule;
 }
 
 export interface CreateServiceRequest {
-  businessId: number;
   categoryId?: number | null;
+  scheduleId: number;
+  type: ServiceTypeValue;
   name: string;
-  description?: string;
+  description?: string | null;
+  capacity: number;
   durationMinutes: number;
-  price: number;
-  availableDays?: string[] | null;
-  imageUrl?: string | null;
-  displayOrder?: number;
+  pauseAfterMinutes?: number;
+  price?: string | null;
+  priceType: PriceTypeValue;
+  locationType: LocationTypeValue;
+  locationMeta?: Record<string, unknown> | null;
+  color?: string | null;
+  photoUrl?: string | null;
 }
 
 export interface UpdateServiceRequest {
   categoryId?: number | null;
+  scheduleId?: number;
+  type?: ServiceTypeValue;
   name?: string;
-  description?: string;
+  description?: string | null;
+  capacity?: number;
   durationMinutes?: number;
-  price?: number;
-  availableDays?: string[] | null;
+  pauseAfterMinutes?: number;
+  price?: string | null;
+  priceType?: PriceTypeValue;
+  locationType?: LocationTypeValue;
+  locationMeta?: Record<string, unknown> | null;
+  color?: string | null;
+  photoUrl?: string | null;
   isActive?: boolean;
-  imageUrl?: string | null;
   displayOrder?: number;
 }
 
 export interface CreateServiceCategoryRequest {
-  businessId: number;
   name: string;
   displayOrder?: number;
 }
@@ -100,6 +132,7 @@ export interface UpdateServiceCategoryRequest {
 export interface Business {
   id: number;
   slug: string;
+  defaultScheduleId: number;
   /** Mirrors backend `plan_enum`; public booking page uses this for the footer. */
   plan?: 'free' | 'pro' | 'growth';
   timezone: string;

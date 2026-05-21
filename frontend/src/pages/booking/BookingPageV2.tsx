@@ -10,16 +10,22 @@ import {
   AlertIcon,
   Link,
   useBreakpointValue,
-} from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
-import { useMemo } from 'react';
-import type { CSSProperties } from 'react';
-import { useGetBusinessBySlugQuery } from '../../store/api/businessApi';
-import { BookingHeader, BookingWizard, BusinessInfoFooter } from './components';
-import type { BusinessWithServices } from '../../types';
-import { generateBrandColorCss, isValidHexColor } from '../../utils/brandColor';
-import { MobileBookingFooter } from './components/wizard/MobileBookingFooter';
-import { useBookingWizard } from './components/wizard/useBookingWizard';
+} from "@chakra-ui/react";
+import { useParams } from "react-router-dom";
+import { useMemo } from "react";
+import type { CSSProperties } from "react";
+import { useGetBusinessBySlugQuery } from "../../store/api/businessApi";
+import {
+  BookingHeader,
+  BookingWizard,
+  BusinessInfoFooter,
+  MapSection,
+  OpeningHoursSection,
+} from "./components";
+import type { BusinessWithServices } from "../../types";
+import { generateBrandColorCss, isValidHexColor } from "../../utils/brandColor";
+import { MobileBookingFooter } from "./components/wizard/MobileBookingFooter";
+import { useBookingWizard } from "./components/wizard/useBookingWizard";
 
 interface BookingPageV2Props {
   /** Optional business data — if provided, skips slug lookup */
@@ -42,21 +48,44 @@ function BookingPageContent({
   isDesktop?: boolean;
 }) {
   const wizard = useBookingWizard(business);
-  const viewportLgUp = useBreakpointValue({ base: false, lg: true }, { ssr: false }) ?? false;
-  const desktopLayout = typeof isDesktop === 'boolean' ? isDesktop : viewportLgUp;
+  const viewportLgUp =
+    useBreakpointValue({ base: false, lg: true }, { ssr: false }) ?? false;
+  const desktopLayout =
+    typeof isDesktop === "boolean" ? isDesktop : viewportLgUp;
 
   return (
-    <Box minH={isPreview ? 'auto' : '100vh'} bg="surface.page" style={brandColorStyles}>
+    <Box
+      minH={isPreview ? "auto" : "100vh"}
+      bg="surface.page"
+      style={brandColorStyles}
+    >
       <BookingHeader business={business} />
-      <BookingWizard business={business} wizard={wizard} desktopLayout={desktopLayout} isPreview={isPreview}/>
+      <BookingWizard
+        business={business}
+        wizard={wizard}
+        desktopLayout={desktopLayout}
+        isPreview={isPreview}
+      />
 
       <BusinessInfoFooter business={business} desktopLayout={desktopLayout} />
+      <MapSection business={business} />
+      <OpeningHoursSection business={business} />
 
-      {!isPreview && business.plan === 'free' && (
-        <Box py={6} textAlign="center" borderTop="1px" borderColor="border.subtle">
+      {!isPreview && business.plan === "free" && (
+        <Box
+          py={6}
+          textAlign="center"
+          borderTop="1px"
+          borderColor="border.subtle"
+        >
           <Text fontSize="xs" color="text.faint">
-            Powered by{' '}
-            <Link href="/" fontWeight="600" color="text.faint" _hover={{ color: 'accent.primary' }}>
+            Powered by{" "}
+            <Link
+              href="/"
+              fontWeight="600"
+              color="text.faint"
+              _hover={{ color: "accent.primary" }}
+            >
               BookEasy
             </Link>
           </Text>
@@ -83,7 +112,11 @@ export function BookingPageV2({
 }: BookingPageV2Props) {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data: fetchedBusiness, isLoading, error } = useGetBusinessBySlugQuery(slug || '', {
+  const {
+    data: fetchedBusiness,
+    isLoading,
+    error,
+  } = useGetBusinessBySlugQuery(slug || "", {
     skip: !!businessProp,
   });
 
@@ -99,8 +132,8 @@ export function BookingPageV2({
 
   if (isLoading && !businessProp) {
     return (
-      <Box minH={isPreview ? '200px' : '100vh'} bg="surface.card">
-        <Center h={isPreview ? '200px' : '100vh'}>
+      <Box minH={isPreview ? "200px" : "100vh"} bg="surface.card">
+        <Center h={isPreview ? "200px" : "100vh"}>
           <VStack spacing={4}>
             <Spinner size="xl" color="accent.primary" thickness="4px" />
             <Text color="text.muted" fontSize="sm">
@@ -114,10 +147,14 @@ export function BookingPageV2({
 
   if ((error && !businessProp) || !business) {
     return (
-      <Box minH={isPreview ? '200px' : '100vh'} bg="surface.card" py={isPreview ? 4 : 20}>
+      <Box
+        minH={isPreview ? "200px" : "100vh"}
+        bg="surface.card"
+        py={isPreview ? 4 : 20}
+      >
         <Container maxW="lg">
           <Alert
-            status={isPreview ? 'info' : 'error'}
+            status={isPreview ? "info" : "error"}
             variant="subtle"
             flexDirection="column"
             alignItems="center"
@@ -128,11 +165,11 @@ export function BookingPageV2({
           >
             <AlertIcon boxSize="40px" mr={0} mb={4} />
             <Heading size="md" mb={2}>
-              {isPreview ? 'No Preview Available' : 'Page Not Found'}
+              {isPreview ? "No Preview Available" : "Page Not Found"}
             </Heading>
             <Text color="text.secondary">
               {isPreview
-                ? 'Complete your business setup to see a preview.'
+                ? "Complete your business setup to see a preview."
                 : "The page you're looking for doesn't exist or has been removed."}
             </Text>
           </Alert>

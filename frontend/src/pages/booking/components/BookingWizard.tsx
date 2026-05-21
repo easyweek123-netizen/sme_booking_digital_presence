@@ -1,16 +1,16 @@
-import { Box, Container, SimpleGrid, GridItem, VStack } from '@chakra-ui/react';
-import { useState } from 'react';
-import { WizardStepIndicator } from './wizard/WizardStepIndicator';
-import { ServiceStep } from './wizard/ServiceStep';
-import { DateTimeStep } from './wizard/DateTimeStep';
-import { BookingSummarySidebar } from './wizard/BookingSummarySidebar';
-import { BookingSuccess } from '../../../components/Booking/BookingSuccess';
-import { BusinessDetailsSections } from './wizard/BusinessDetailsSections';
-import { SelectOptionModal } from './wizard/SelectOptionModal';
-import { FullScreenWizardOverlay } from './wizard/FullScreenWizardOverlay';
-import { AuthModal } from './wizard/AuthModal';
-import type { BusinessWithServices } from '../../../types';
-import type { BookingWizardState } from './wizard/useBookingWizard';
+import { Box, Container, SimpleGrid, GridItem, VStack } from "@chakra-ui/react";
+import { useState } from "react";
+import { WizardStepIndicator } from "./wizard/WizardStepIndicator";
+import { ServiceStep } from "./wizard/ServiceStep";
+import { DateTimeStep } from "./wizard/DateTimeStep";
+import { BookingSummarySidebar } from "./wizard/BookingSummarySidebar";
+import { BookingSuccess } from "../../../components/Booking/BookingSuccess";
+import { BusinessDetailsSections } from "./wizard/BusinessDetailsSections";
+import { SelectOptionModal } from "./wizard/SelectOptionModal";
+import { FullScreenWizardOverlay } from "./wizard/FullScreenWizardOverlay";
+import { AuthModal } from "./wizard/AuthModal";
+import type { BusinessWithServices } from "../../../types";
+import type { BookingWizardState } from "./wizard/useBookingWizard";
 
 interface Props {
   business: BusinessWithServices;
@@ -23,15 +23,17 @@ interface Props {
 export function BookingWizard(props: Props) {
   const { business, wizard, desktopLayout } = props;
   const services = (business.services || []).filter((s) => s.isActive);
-  const [bookingFlowState, setBookingFlowState] = useState<'profile' | 'select-option' | 'wizard'>('profile');
+  const [bookingFlowState, setBookingFlowState] = useState<
+    "profile" | "select-option" | "wizard"
+  >("profile");
   const [isAuthOpen, setAuthOpen] = useState(false);
 
   const handleSidebarContinue = () => {
     if (wizard.step === 1) {
       if (wizard.selectedService) {
-        setBookingFlowState('wizard');
+        setBookingFlowState("wizard");
       } else {
-        setBookingFlowState('select-option');
+        setBookingFlowState("select-option");
       }
     } else if (wizard.step === 2) {
       setAuthOpen(true);
@@ -62,14 +64,14 @@ export function BookingWizard(props: Props) {
   }
 
   // FULL-SCREEN WIZARD FLOW OVERLAY MODE
-  if (bookingFlowState === 'wizard') {
+  if (bookingFlowState === "wizard") {
     return (
       <>
         <FullScreenWizardOverlay
           business={business}
           wizard={wizard}
-          onBack={() => setBookingFlowState('select-option')}
-          onClose={() => setBookingFlowState('profile')}
+          onBack={() => setBookingFlowState("select-option")}
+          onClose={() => setBookingFlowState("profile")}
           onContinueToAuth={() => setAuthOpen(true)}
         />
         <AuthModal
@@ -84,11 +86,11 @@ export function BookingWizard(props: Props) {
   return (
     <Box as="section" bg="white">
       <Container maxW="container.xl" px={{ base: 4 }} py={{ base: 6 }}>
-        <WizardStepIndicator
+        {/* <WizardStepIndicator
           currentStep={wizard.step}
           onStepClick={wizard.setStep}
           canGoTo={wizard.canGoTo}
-        />
+        /> */}
         <SimpleGrid
           columns={desktopLayout ? 12 : 1}
           spacing={{ base: 4, lg: 8 }}
@@ -127,7 +129,10 @@ export function BookingWizard(props: Props) {
               /> */}
           </GridItem>
 
-          <GridItem colSpan={desktopLayout ? 4 : 12} display={desktopLayout ? 'block' : 'none'}>
+          <GridItem
+            colSpan={desktopLayout ? 4 : 12}
+            display={desktopLayout ? "block" : "none"}
+          >
             <BookingSummarySidebar
               business={business}
               step={wizard.step}
@@ -145,9 +150,9 @@ export function BookingWizard(props: Props) {
 
       {/* Select Option Overlay Sheet */}
       <SelectOptionModal
-        isOpen={bookingFlowState === 'select-option'}
-        onClose={() => setBookingFlowState('profile')}
-        onSelectAppointment={() => setBookingFlowState('wizard')}
+        isOpen={bookingFlowState === "select-option"}
+        onClose={() => setBookingFlowState("profile")}
+        onSelectAppointment={() => setBookingFlowState("wizard")}
         hasSelectedService={true} // always allow transitioning to full screen selector to choose services!
       />
 

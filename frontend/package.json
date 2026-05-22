@@ -28,6 +28,7 @@
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.72.1",
     "react-markdown": "^10.1.0",
+    "react-phone-number-input": "^3.4.16",
     "react-redux": "^9.2.0",
     "react-resizable-panels": "^4.0.1",
     "react-router-dom": "^7.1.1",

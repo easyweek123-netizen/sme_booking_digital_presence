@@ -43,8 +43,7 @@ export type OnboardingAction =
   | { type: 'SUBMIT'; value: string; label?: string }
   | { type: 'UPDATE_SELECTION'; value: string; label?: string }
   | { type: 'SKIP' }
-  | { type: 'FINISH_TYPING'; message: Message }
-  | { type: 'BACK' };
+  | { type: 'FINISH_TYPING'; message: Message };
 
 // Initial state
 export const initialState: OnboardingState = {
@@ -61,22 +60,6 @@ export function onboardingReducer(state: OnboardingState, action: OnboardingActi
   const isLastStep = nextStepIndex >= STEPS.length;
 
   switch (action.type) {
-    case 'BACK': {
-      if (state.stepIndex === 0) return state;
-      const prevStepIndex = state.stepIndex - 1;
-      
-      // Slice messages to revert step updates
-      const sliceCount = state.stepIndex === 2 ? 1 : 2;
-      const updatedMessages = state.messages.slice(0, -sliceCount);
-      
-      return {
-        ...state,
-        stepIndex: prevStepIndex,
-        messages: updatedMessages.length > 0 ? updatedMessages : [{ role: 'bot' as const, content: STEPS[0].message }],
-        isTyping: false,
-      };
-    }
-
     case 'SUBMIT': {
       if (state.stepIndex >= STEPS.length) return state;
 

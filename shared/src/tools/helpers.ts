@@ -4,13 +4,18 @@ import type { ChatAction, PreviewContext } from './index';
 // Proposal Builder
 // ─────────────────────────────────────────────────────────────────────────────
 
+function getGlobalCrypto(): { randomUUID?: () => string } | undefined {
+  return (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
+}
+
 /**
  * Generate a UUID (works in both Node.js and browsers)
  */
 function generateUUID(): string {
   // Use globalThis.crypto for cross-platform compatibility
-  if (typeof globalThis.crypto?.randomUUID === 'function') {
-    return globalThis.crypto.randomUUID();
+  const crypto = getGlobalCrypto();
+  if (typeof crypto?.randomUUID === 'function') {
+    return crypto.randomUUID();
   }
   // Fallback for older environments
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {

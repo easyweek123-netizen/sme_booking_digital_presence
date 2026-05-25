@@ -11,7 +11,7 @@ export function buildProposalToolMessage(
 ): string {
   const ids = proposals.map((p) => `${p.type}:${p.proposalId}`).join(', ');
   return [
-    `PROPOSED (not applied): ${summaryLine}`,
+    `PROPOSED: ${summaryLine}`,
     `proposalIds: ${ids} | executionMode: confirm`,
     'User must press Confirm in the Actions panel to apply.',
   ].join('\n');

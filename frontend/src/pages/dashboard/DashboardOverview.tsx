@@ -28,7 +28,7 @@ export function DashboardOverview() {
   const navigate = useNavigate();
 
   const business = useBusiness();
-  const { data: stats } = useGetBookingStatsQuery(business.id);
+  const { data: stats } = useGetBookingStatsQuery();
 
   const servicesCount = business.services?.filter((s) => s.isActive).length || 0;
   

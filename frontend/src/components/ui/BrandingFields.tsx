@@ -3,7 +3,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  HStack,
   Image,
   Text,
   InputGroup,
@@ -20,23 +19,13 @@ import {
   useToken,
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 import { CloseIcon } from '../icons';
-import { DEFAULT_BRAND_COLOR } from '../../utils/brandColor';
-
-const PRESET_COLOR_KEYS = [
-  'brand.500',
-  'coral.400',
-  'sage.500',
-  'amber.500',
-  'gray.800',
-  'gray.500',
-] as const;
+import { ColorField } from './form/ColorField';
+import { BRAND_COLOR_PRESETS } from '../../constants';
+import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 
 interface BrandingFieldsProps {
-  logoUrl: string;
-  brandColor: string;
-  onLogoUrlChange: (url: string) => void;
-  onBrandColorChange: (color: string) => void;
   coverImageUrl?: string;
   onCoverImageUrlChange?: (url: string) => void;
 }
@@ -56,26 +45,24 @@ const helperTextProps = {
 };
 
 export function BrandingFields({
-  logoUrl,
-  brandColor,
-  onLogoUrlChange,
-  onBrandColorChange,
-  coverImageUrl,
-  onCoverImageUrlChange,
-}: BrandingFieldsProps) {
+  coverImageUrl: coverImageUrlProp,
+  onCoverImageUrlChange: onCoverImageUrlChangeProp,
+}: BrandingFieldsProps = {}) {
+  const { control, watch, setValue } = useFormContext<WebsiteFormValues>();
+  const logoUrl = watch('branding.logoUrl');
+  const showCoverImage =
+    coverImageUrlProp !== undefined || onCoverImageUrlChangeProp !== undefined;
+  const coverImageUrl = coverImageUrlProp ?? watch('branding.coverImageUrl');
+  const onCoverImageUrlChange =
+    onCoverImageUrlChangeProp ??
+    ((url: string) => setValue('branding.coverImageUrl', url, { shouldDirty: true }));
+
   const [logoError, setLogoError] = useState(false);
   const [coverError, setCoverError] = useState(false);
-  const presetHexes = useToken('colors', [...PRESET_COLOR_KEYS]);
-
-  const [localColor, setLocalColor] = useState(brandColor || DEFAULT_BRAND_COLOR);
-  const [prevBrandColor, setPrevBrandColor] = useState(brandColor);
-  if (brandColor !== prevBrandColor) {
-    setPrevBrandColor(brandColor);
-    setLocalColor(brandColor || DEFAULT_BRAND_COLOR);
-  }
+  const presetHexes = useToken('colors', [...BRAND_COLOR_PRESETS]);
 
   const handleLogoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onLogoUrlChange(e.target.value);
+    setValue('branding.logoUrl', e.target.value, { shouldDirty: true });
     setLogoError(false);
   };
 
@@ -84,35 +71,14 @@ export function BrandingFields({
     setCoverError(false);
   };
 
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalColor(e.target.value);
-  };
-
-  const handleColorBlur = () => {
-    if (localColor !== (brandColor || DEFAULT_BRAND_COLOR)) {
-      onBrandColorChange(localColor === DEFAULT_BRAND_COLOR ? '' : localColor);
-    }
-  };
-
   const handleClearLogo = () => {
-    onLogoUrlChange('');
+    setValue('branding.logoUrl', '', { shouldDirty: true });
     setLogoError(false);
-  };
-
-  const handleClearColor = () => {
-    setLocalColor(DEFAULT_BRAND_COLOR);
-    onBrandColorChange('');
   };
 
   const handleClearCover = () => {
     onCoverImageUrlChange?.('');
     setCoverError(false);
-  };
-
-  const applyPreset = (hex: string) => {
-    if (!hex) return;
-    onBrandColorChange(hex);
-    setLocalColor(hex);
   };
 
   return (
@@ -198,7 +164,7 @@ export function BrandingFields({
           </VStack>
         </Box>
 
-        {onCoverImageUrlChange && (
+        {showCoverImage && (
           <Box {...dropzoneShellProps}>
             <FormControl>
               <VStack spacing="space.stack.md" align="stretch">
@@ -297,100 +263,20 @@ export function BrandingFields({
         )}
       </SimpleGrid>
 
-      <FormControl>
-        <FormLabel fontSize="sm" fontWeight="500" color="text.strong">
-          Brand color
-        </FormLabel>
-        <HStack spacing="space.stack.md" align="flex-start">
-          <Box
-            as="label"
-            boxSize={12}
-            borderRadius="xl"
-            bg={localColor}
-            cursor="pointer"
-            borderWidth={1}
-            borderColor="border.subtle"
-            _hover={{ transform: 'scale(1.03)', borderColor: 'border.strong' }}
-            transition="all 0.15s"
-            position="relative"
-            overflow="hidden"
-            flexShrink={0}
-            boxShadow={brandColor ? 'sm' : 'none'}
-          >
-            <Input
-              type="color"
-              value={localColor}
-              onChange={handleColorChange}
-              onBlur={handleColorBlur}
-              position="absolute"
-              top={0}
-              left={0}
-              w="200%"
-              h="200%"
-              opacity={0}
-              cursor="pointer"
-            />
-          </Box>
-
-          <InputGroup size="md" flex={1}>
-            <Input
-              value={brandColor ? brandColor.toUpperCase() : ''}
-              placeholder="Click swatch or enter hex (e.g. #FF5733)"
-              size="md"
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === '' || /^#?[0-9A-Fa-f]{0,6}$/.test(val)) {
-                  onBrandColorChange(val.startsWith('#') ? val : `#${val}`);
-                }
-              }}
-              fontFamily="mono"
-              pr={brandColor ? 10 : 4}
-            />
-            {brandColor && (
-              <InputRightElement h="full">
-                <IconButton
-                  aria-label="Reset to default"
-                  icon={<CloseIcon />}
-                  size="sm"
-                  variant="ghost"
-                  color="text.faint"
-                  _hover={{ color: 'text.secondary' }}
-                  onClick={handleClearColor}
-                />
-              </InputRightElement>
-            )}
-          </InputGroup>
-        </HStack>
-
-        <HStack spacing="space.stack.sm" flexWrap="wrap" mt="space.stack.md">
-          {PRESET_COLOR_KEYS.map((key, i) => (
-            <Box
-              key={key}
-              as="button"
-              type="button"
-              boxSize={8}
-              borderRadius="full"
-              bg={key}
-              borderWidth={1}
-              borderColor="border.subtle"
-              cursor="pointer"
-              flexShrink={0}
-              aria-label={`Use ${key} preset`}
-              onClick={() => applyPreset(presetHexes[i] ?? '')}
-              _hover={{ boxShadow: 'md', borderColor: 'border.strong' }}
-              _focusVisible={{
-                outline: '2px solid',
-                outlineColor: 'brand.500',
-                outlineOffset: 2,
-              }}
-            />
-          ))}
-        </HStack>
-
-        <FormHelperText {...helperTextProps} mt="space.stack.sm">
-          Used for accents on your booking page. Pick a swatch or enter a hex value.
-        </FormHelperText>
-      </FormControl>
+      <Controller
+        control={control}
+        name="branding.brandColor"
+        render={({ field }) => (
+          <ColorField
+            label="Brand color"
+            value={field.value || presetHexes[0]}
+            onChange={(c) => field.onChange(c)}
+            presets={presetHexes}
+            allowCustom
+            showCheckmark={false}
+          />
+        )}
+      />
     </VStack>
   );
 }

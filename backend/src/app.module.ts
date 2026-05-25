@@ -8,6 +8,7 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { AuthModule } from './auth/auth.module';
 import { OwnerModule } from './owner/owner.module';
 import { BusinessModule } from './business/business.module';
+import { ScheduleModule } from './schedule/schedule.module';
 import { ServicesModule } from './services/services.module';
 import { ServiceCategoriesModule } from './service-categories/service-categories.module';
 import { BookingsModule } from './bookings/bookings.module';
@@ -41,6 +42,7 @@ import calendarConfig from './config/calendar.config';
     AuthModule,
     OwnerModule,
     BusinessModule,
+    ScheduleModule,
     ServicesModule,
     ServiceCategoriesModule,
     BookingsModule,

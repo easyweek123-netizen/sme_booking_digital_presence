@@ -8,6 +8,7 @@ interface BookingConfirmedParams {
   address?: string;
   phone?: string;
   calendarLink: string;
+  meetLink?: string;
 }
 
 export function bookingConfirmedTemplate(
@@ -23,6 +24,7 @@ export function bookingConfirmedTemplate(
     address,
     phone,
     calendarLink,
+    meetLink,
   } = params;
 
   const contactSection =
@@ -37,6 +39,23 @@ export function bookingConfirmedTemplate(
     </tr>
   `
       : '';
+
+  const meetSection = meetLink
+    ? `
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
+      <tr>
+        <td align="center">
+          <a href="${meetLink}" target="_blank" style="display: inline-block; background-color: #1a73e8; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+            🎥 Join Google Meet
+          </a>
+          <p style="color: #6b7280; font-size: 12px; margin: 8px 0 0 0;">
+            ${meetLink}
+          </p>
+        </td>
+      </tr>
+    </table>
+  `
+    : '';
 
   return `
 <!DOCTYPE html>
@@ -101,6 +120,8 @@ export function bookingConfirmedTemplate(
                   </td>
                 </tr>
               </table>
+
+              ${meetSection}
 
               <!-- Calendar Button -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">

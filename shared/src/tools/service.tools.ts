@@ -1,62 +1,32 @@
 import { z } from 'zod';
+import { ServiceFieldsObject } from '../schemas/service.schema';
+import { SERVICE_TYPES, PRICE_TYPES, LOCATION_TYPES } from '../schemas/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Service Input Schema (Single Source of Truth)
+// Service List Item Schema (for display / AI context)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Service input data schema - used by:
- * - AI tool arguments (what AI sends when calling services_create/update)
- * - Frontend forms (ServiceForm component)
- * - API payloads (create/update service endpoints)
- *
- * Descriptions are used by AI to understand each parameter.
- */
-export const ServiceInputSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Service name is required')
-    .describe('Service name (e.g., "Haircut", "60-min Massage")'),
-  price: z
-    .number()
-    .nonnegative('Price must be non-negative')
-    .describe('Price in dollars (e.g., 50)'),
-  durationMinutes: z
-    .number()
-    .int()
-    .positive('Duration must be a positive integer')
-    .describe('Duration in minutes (e.g., 30, 60, 90)'),
-  description: z
-    .string()
-    .optional()
-    .describe('Optional description of the service'),
-  imageUrl: z
-    .string()
-    .nullable()
-    .optional()
-    .describe('Optional image URL for the service'),
-});
-
-/** Service input type - inferred from schema */
-export type ServiceInput = z.infer<typeof ServiceInputSchema>;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Service List Item Schema (for display)
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Service item with ID for display purposes
- */
 export const ServiceListItemSchema = z.object({
   id: z.number(),
   name: z.string(),
-  price: z.number(),
+  type: z.enum(SERVICE_TYPES),
+  description: z.string().nullable().optional(),
   durationMinutes: z.number(),
-  description: z.string().optional(),
+  price: z.string().nullable().optional(),
+  priceType: z.enum(PRICE_TYPES),
+  locationType: z.enum(LOCATION_TYPES),
+  capacity: z.number().int(),
+  isActive: z.boolean(),
   imageUrl: z.string().nullable().optional(),
 });
 
 export type ServiceListItem = z.infer<typeof ServiceListItemSchema>;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Seed payload schema (cross-wire: backend tool → frontend form initialValues)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ServiceSeedPayloadSchema = ServiceFieldsObject.partial();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Service Action Schemas (Proposals from AI to Frontend)
@@ -71,7 +41,7 @@ export const ServiceCreateActionSchema = z.object({
   proposalId: z.string().uuid(),
   executionMode: z.enum(['confirm', 'auto']).default('confirm'),
   businessId: z.number(),
-  service: ServiceInputSchema,
+  suggestedEdits: ServiceSeedPayloadSchema.optional(),
 });
 
 /**
@@ -84,7 +54,7 @@ export const ServiceUpdateActionSchema = z.object({
   executionMode: z.enum(['confirm', 'auto']).default('confirm'),
   resolvedId: z.number(),
   serviceName: z.string(),
-  service: ServiceInputSchema,
+  suggestedEdits: ServiceSeedPayloadSchema.optional(),
 });
 
 /**
@@ -101,7 +71,7 @@ export const ServiceDeleteActionSchema = z.object({
 
 /**
  * Action: Display a service (read-only)
- * Used when AI wants to show service details without modification
+ * Schema kept for union completeness; no tool emits this anymore (services_get is data-only).
  */
 export const ServiceGetActionSchema = z.object({
   type: z.literal('service:get'),

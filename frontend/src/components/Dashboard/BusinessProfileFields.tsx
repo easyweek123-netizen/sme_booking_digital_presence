@@ -11,22 +11,9 @@ import {
   InputLeftAddon,
   SimpleGrid,
 } from '@chakra-ui/react';
+import { useFormContext } from 'react-hook-form';
 import { PhoneIcon } from '../icons';
-
-export interface BusinessProfileValues {
-  name: string;
-  description: string;
-  phone: string;
-  address: string;
-  city: string;
-  website: string;
-  instagram: string;
-}
-
-interface BusinessProfileFieldsProps {
-  values: BusinessProfileValues;
-  onChange: (name: string, value: string) => void;
-}
+import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 
 const sectionHeadingProps = {
   size: 'xs' as const,
@@ -41,15 +28,8 @@ const helperTextProps = {
   color: 'text.muted',
 };
 
-export function BusinessProfileFields({
-  values,
-  onChange,
-}: BusinessProfileFieldsProps) {
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    onChange(e.target.name, e.target.value);
-  };
+export function BusinessProfileFields() {
+  const { register } = useFormContext<WebsiteFormValues>();
 
   return (
     <VStack spacing="space.stack.lg" align="stretch">
@@ -59,9 +39,7 @@ export function BusinessProfileFields({
           <FormControl>
             <FormLabel>Business name</FormLabel>
             <Input
-              name="name"
-              value={values.name}
-              onChange={handleChange}
+              {...register('profile.name')}
               placeholder="Your business name"
               size="md"
               autoComplete="organization"
@@ -71,9 +49,7 @@ export function BusinessProfileFields({
           <FormControl>
             <FormLabel>Description</FormLabel>
             <Textarea
-              name="description"
-              value={values.description}
-              onChange={handleChange}
+              {...register('profile.description')}
               placeholder="A short tagline customers see on your booking page"
               rows={3}
               size="md"
@@ -95,10 +71,8 @@ export function BusinessProfileFields({
                 <PhoneIcon size={18} />
               </InputLeftAddon>
               <Input
-                name="phone"
+                {...register('profile.phone')}
                 type="tel"
-                value={values.phone}
-                onChange={handleChange}
                 placeholder="+1 555 123 4567"
                 borderLeftRadius={0}
                 size="md"
@@ -114,9 +88,7 @@ export function BusinessProfileFields({
             <FormControl>
               <FormLabel>Address</FormLabel>
               <Input
-                name="address"
-                value={values.address}
-                onChange={handleChange}
+                {...register('profile.address')}
                 placeholder="Street and number"
                 size="md"
                 autoComplete="street-address"
@@ -125,9 +97,7 @@ export function BusinessProfileFields({
             <FormControl>
               <FormLabel>City</FormLabel>
               <Input
-                name="city"
-                value={values.city}
-                onChange={handleChange}
+                {...register('profile.city')}
                 placeholder="City"
                 size="md"
                 autoComplete="address-level2"
@@ -143,10 +113,8 @@ export function BusinessProfileFields({
           <FormControl>
             <FormLabel>Website</FormLabel>
             <Input
-              name="website"
+              {...register('profile.website')}
               type="url"
-              value={values.website}
-              onChange={handleChange}
               placeholder="https://example.com"
               size="md"
               autoComplete="url"
@@ -159,9 +127,7 @@ export function BusinessProfileFields({
           <FormControl>
             <FormLabel>Instagram</FormLabel>
             <Input
-              name="instagram"
-              value={values.instagram}
-              onChange={handleChange}
+              {...register('profile.instagram')}
               placeholder="@yourbusiness or full profile URL"
               size="md"
               autoComplete="off"

@@ -1,13 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsObject,
-  ValidateNested,
-  MaxLength,
-  Matches,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { WorkingHoursDto } from './create-business.dto';
+import { IsString, IsOptional, MaxLength, Matches } from 'class-validator';
 
 export class UpdateBusinessDto {
   @IsOptional()
@@ -55,12 +46,6 @@ export class UpdateBusinessDto {
     message: 'Brand color must be a valid hex color (e.g., #FF5733)',
   })
   brandColor?: string;
-
-  @IsOptional()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => WorkingHoursDto)
-  workingHours?: WorkingHoursDto;
 
   @IsOptional()
   @IsString()

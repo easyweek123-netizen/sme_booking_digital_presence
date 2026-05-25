@@ -7,8 +7,10 @@ import {
 } from '@chakra-ui/react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { setActiveTab } from '../../store/slices/canvasSlice';
+import { useBusiness } from '../../contexts/useBusiness';
 import { CanvasPreview } from './CanvasPreview';
 import { ActionsRenderer } from './ActionsRenderer';
+import { BookingPage } from '../../pages/booking';
 import { DashboardServices } from '../../pages/dashboard/DashboardServices';
 import { DashboardBookings } from '../../pages/dashboard/DashboardBookings';
 import { DashboardClients } from '../../pages/dashboard/DashboardClients';
@@ -23,12 +25,14 @@ import { DashboardWebsite } from '../../pages/dashboard/DashboardWebsite';
 export function CanvasPanel() {
   const dispatch = useAppDispatch();
   const { activeTab, proposals, previewContext } = useAppSelector((state) => state.canvas);
+  const business = useBusiness();
+
   /**
    * Render preview content based on previewContext
    */
   const renderPreviewContent = () => {
     const previewMap: Record<PreviewContext, React.ReactNode> = {
-      booking_page: <Box p={6} color="gray.400">Booking page preview coming soon</Box>,
+      booking_page: <BookingPage business={business} isPreview />,
       business_profile: <DashboardWebsite />,
       services: <DashboardServices />,
       bookings: <DashboardBookings />,

@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Business } from '../business/entities/business.entity';
 import { Booking } from '../bookings/entities/booking.entity';
-import { BusinessService } from '../business/business.service';
-import { Calendar } from './entities/calendar.entity';
 import { CalendarRepository } from './repositories/calendar.repository';
 import { CalendarEventRepository } from './repositories/calendar-event.repository';
 import { CalendarSyncLogRepository } from './repositories/calendar-sync-log.repository';
@@ -11,6 +12,7 @@ import {
   GoogleCalendarApiService,
   GoogleCalendarApiError,
 } from './google/google-calendar-api.service';
+import { GoogleEventFactory } from './google/google-event.factory';
 import { TokenEncryptionService } from './google/token-encryption.service';
 import { CalendarStatusDto } from './dto/calendar-status.dto';
 import { CalendarSyncLogDto } from './dto/calendar-sync-log.dto';
@@ -26,8 +28,12 @@ export class CalendarService {
     private readonly logs: CalendarSyncLogRepository,
     private readonly oauth: GoogleOAuthService,
     private readonly api: GoogleCalendarApiService,
+    private readonly factory: GoogleEventFactory,
     private readonly encryption: TokenEncryptionService,
-    private readonly businesses: BusinessService,
+    @InjectRepository(Business)
+    private readonly businessRepository: Repository<Business>,
+    @InjectRepository(Booking)
+    private readonly bookingRepository: Repository<Booking>,
     config: ConfigService,
   ) {
     this.frontendUrl = config.get<string>('calendar.frontendUrl') || '';
@@ -68,6 +74,7 @@ export class CalendarService {
   }
 
   // ── OAuth flow ───────────────────────────────────────────────────────────
+
   buildGoogleAuthUrl(ownerId: number): string {
     return this.oauth.buildAuthUrl(ownerId);
   }
@@ -75,10 +82,10 @@ export class CalendarService {
   async handleGoogleCallback(code: string, state: string): Promise<void> {
     const { ownerId } = this.oauth.verifyState(state);
     const tokens = await this.oauth.exchangeCode(code);
-    const business = await this.businesses.findByOwner(ownerId);
+    const businessId = await this.resolveBusinessId(ownerId);
     const encrypted = await this.encryption.encrypt(tokens.refreshToken);
     await this.calendars.upsertConnected({
-      businessId: business.id,
+      businessId,
       provider: 'google',
       providerAccountEmail: tokens.email,
       refreshToken: encrypted,
@@ -96,85 +103,97 @@ export class CalendarService {
     if (refreshToken) await this.oauth.revokeRefreshToken(refreshToken);
   }
 
+  /** Builds the FE redirect URL after a Google callback (success or error). */
   redirectAfterCallback(status: 'success' | 'error', reason?: string): string {
     const base = `${this.frontendUrl}/dashboard/settings/calendar?status=${status}`;
     return reason ? `${base}&reason=${encodeURIComponent(reason)}` : base;
   }
 
-  // ── Booking effects ──────────────────────────────────────────────────────
-  async confirmBooking(booking: Booking): Promise<{ joinLink: string | null }> {
-    const ctx = await this.getCalendar(booking);
-    if (!ctx) return { joinLink: null };
+  // ── Sync (called from BookingSyncListener) ───────────────────────────────
+
+  async syncBookingConfirmed(bookingId: number): Promise<void> {
+    const ctx = await this.loadSyncContext(bookingId);
+    if (!ctx) return;
 
     const existing = await this.events.findByBookingAndCalendar(
-      booking.id,
+      bookingId,
       ctx.calendar.id,
     );
     if (existing) {
       this.logger.log(
-        `Booking ${booking.id} already mapped to ${existing.externalEventId}`,
+        `Booking ${bookingId} already mapped to ${existing.externalEventId}`,
       );
-      return { joinLink: existing.meetLink };
+      return;
     }
 
+    const input = this.factory.create(ctx.booking);
     try {
-      const { externalEventId, joinLink } = await this.api.createEvent(
+      const externalEventId = await this.api.createEvent(
         ctx.refreshToken,
-        booking,
+        input,
       );
       await this.events.record({
-        bookingId: booking.id,
+        bookingId,
         calendarId: ctx.calendar.id,
         externalEventId,
-        meetLink: joinLink,
       });
       await this.logs.record({
         calendarId: ctx.calendar.id,
-        bookingId: booking.id,
+        bookingId,
         operation: 'create_event',
         status: 'success',
         externalEventId,
       });
-      await this.calendars.setLastSyncedAt(ctx.calendar.id, new Date());
+      const now = new Date();
+      await this.calendars.setLastSyncedAt(ctx.calendar.id, now);
       await this.calendars.clearLastError(ctx.calendar.id);
-      return { joinLink };
+      this.logger.log(`Synced booking ${bookingId} → ${externalEventId}`);
     } catch (e) {
       await this.handleSyncFailure(
         ctx.calendar.id,
-        booking.id,
+        bookingId,
         'create_event',
         e,
       );
-      return { joinLink: null };
     }
   }
 
-  async cancelBooking(booking: Booking): Promise<void> {
-    const event = await this.events.findByBooking(booking.id);
+  async syncBookingCancelled(bookingId: number): Promise<void> {
+    const event = await this.events.findByBooking(bookingId);
     if (!event) return;
 
-    const ctx = await this.getCalendar(booking);
-    if (!ctx) {
+    const calendar = await this.calendars.findById(event.calendarId);
+    if (
+      !calendar ||
+      calendar.status !== 'connected' ||
+      !calendar.refreshToken
+    ) {
       await this.events.deleteById(event.id);
       return;
     }
 
+    const refreshToken = await this.encryption.decrypt(calendar.refreshToken);
+
     try {
-      await this.api.deleteEvent(ctx.refreshToken, event.externalEventId);
+      await this.api.deleteEvent(refreshToken, event.externalEventId);
       await this.events.deleteById(event.id);
       await this.logs.record({
-        calendarId: ctx.calendar.id,
-        bookingId: booking.id,
+        calendarId: calendar.id,
+        bookingId,
         operation: 'delete_event',
         status: 'success',
         externalEventId: event.externalEventId,
       });
-      await this.calendars.setLastSyncedAt(ctx.calendar.id, new Date());
-      await this.calendars.clearLastError(ctx.calendar.id);
+      const now = new Date();
+      await this.calendars.setLastSyncedAt(calendar.id, now);
+      await this.calendars.clearLastError(calendar.id);
+      this.logger.log(
+        `Removed event ${event.externalEventId} for booking ${bookingId}`,
+      );
     } catch (e) {
       await this.handleSyncFailure(
-        ctx.calendar.id,
-        booking.id,
+        calendar.id,
+        bookingId,
         'delete_event',
         e,
         event.externalEventId,
@@ -182,22 +201,34 @@ export class CalendarService {
     }
   }
 
-  // ── Internals ────────────────────────────────────────────────────────────
-  private async findForOwner(ownerId: number): Promise<Calendar | null> {
-    const business = await this.businesses.findByOwner(ownerId);
-    return this.calendars.findByBusinessAndProvider(business.id);
+  // ── Internal helpers ─────────────────────────────────────────────────────
+
+  private async findForOwner(ownerId: number) {
+    const businessId = await this.resolveBusinessId(ownerId);
+    return this.calendars.findByBusinessAndProvider(businessId);
   }
 
-  private async getCalendar(
-    booking: Booking,
-  ): Promise<{ calendar: Calendar; refreshToken: string } | null> {
+  private async resolveBusinessId(ownerId: number): Promise<number> {
+    const business = await this.businessRepository.findOne({
+      where: { ownerId },
+    });
+    if (!business) throw new NotFoundException('Business not found');
+    return business.id;
+  }
+
+  private async loadSyncContext(bookingId: number) {
+    const booking = await this.bookingRepository.findOne({
+      where: { id: bookingId },
+      relations: ['business', 'service', 'customer'],
+    });
+    if (!booking) return null;
     const calendar = await this.calendars.findByBusinessAndProvider(
-      booking.service.businessId,
+      booking.businessId,
     );
     if (!calendar || calendar.status !== 'connected' || !calendar.refreshToken)
       return null;
     const refreshToken = await this.encryption.decrypt(calendar.refreshToken);
-    return { calendar, refreshToken };
+    return { booking, calendar, refreshToken };
   }
 
   private async handleSyncFailure(

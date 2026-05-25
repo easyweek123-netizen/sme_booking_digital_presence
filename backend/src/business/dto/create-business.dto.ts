@@ -2,16 +2,62 @@ import {
   IsString,
   IsOptional,
   IsNotEmpty,
+  IsObject,
   IsArray,
   ValidateNested,
   IsNumber,
   IsPositive,
   Min,
   MaxLength,
+  IsBoolean,
   Matches,
   IsInt,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DaySchedule, WorkingHours } from '../../common/types';
+
+export class DayScheduleDto implements DaySchedule {
+  @IsBoolean()
+  isOpen: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  openTime: string;
+
+  @IsString()
+  @IsNotEmpty()
+  closeTime: string;
+}
+
+export class WorkingHoursDto implements WorkingHours {
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  monday: DayScheduleDto;
+
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  tuesday: DayScheduleDto;
+
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  wednesday: DayScheduleDto;
+
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  thursday: DayScheduleDto;
+
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  friday: DayScheduleDto;
+
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  saturday: DayScheduleDto;
+
+  @ValidateNested()
+  @Type(() => DayScheduleDto)
+  sunday: DayScheduleDto;
+}
 
 export class ServiceDto {
   @IsString()
@@ -70,6 +116,12 @@ export class CreateBusinessDto {
     message: 'Brand color must be a valid hex color (e.g., #FF5733)',
   })
   brandColor?: string;
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => WorkingHoursDto)
+  workingHours?: WorkingHoursDto;
 
   @IsOptional()
   @IsInt()

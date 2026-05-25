@@ -14,8 +14,11 @@ export function useBusinessActions(): Record<string, RuntimeActionHandler> {
         initialValues: { ...action.current, ...action.updates },
         updatedFields: Object.keys(action.updates),
       }),
-      execute: async (_action, formData) => {
-        await updateBusiness(formData).unwrap();
+      execute: async (action, formData) => {
+        await updateBusiness({
+          id: action.businessId,
+          data: formData,
+        }).unwrap();
       },
     }),
   };

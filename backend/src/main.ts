@@ -18,9 +18,8 @@ async function bootstrap() {
 
   // Enable CORS for frontend
   const corsOrigin = configService.get<string>('app.cors.origin');
-  const origins = corsOrigin ? corsOrigin.split(',').map((o) => o.trim()) : 'http://localhost:5173';
   app.enableCors({
-    origin: origins,
+    origin: corsOrigin,
     credentials: true,
   });
 

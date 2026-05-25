@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google, calendar_v3 } from 'googleapis';
-import { Booking } from '../../bookings/entities/booking.entity';
-import { LocationType } from '../../services/entities/service.entity';
-import { toLocalIsoDateTime } from '../../common';
 
-export interface CalendarEventResult {
-  externalEventId: string;
-  joinLink: string | null;
+export interface GoogleEventInput {
+  summary: string;
+  description?: string;
+  location?: string;
+  startDateTime: string; // 'YYYY-MM-DDTHH:MM:SS', no offset
+  endDateTime: string;
+  timeZone: string; // IANA, e.g. 'Europe/Vienna'
 }
 
 export class GoogleCalendarApiError extends Error {
@@ -26,35 +27,30 @@ export class GoogleCalendarApiService {
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
-  private readonly frontendUrl: string;
 
   constructor(config: ConfigService) {
     this.clientId = config.get<string>('calendar.google.clientId') || '';
     this.clientSecret =
       config.get<string>('calendar.google.clientSecret') || '';
     this.redirectUri = config.get<string>('calendar.google.redirectUri') || '';
-    this.frontendUrl = config.get<string>('calendar.frontendUrl') || '';
   }
 
   async createEvent(
     refreshToken: string,
-    booking: Booking,
-  ): Promise<CalendarEventResult> {
+    input: GoogleEventInput,
+  ): Promise<string> {
     const calendar = this.calendarClient(refreshToken);
-    const withMeeting = booking.service?.locationType === LocationType.ONLINE;
     try {
       const res = await calendar.events.insert({
         calendarId: 'primary',
-        conferenceDataVersion: withMeeting ? 1 : 0,
-        requestBody: this.toRequestBody(booking, withMeeting),
+        requestBody: this.toRequestBody(input),
       });
-      const externalEventId = res.data.id;
-      if (!externalEventId) {
+      const id = res.data.id;
+      if (!id)
         throw new GoogleCalendarApiError('No event id returned', 'unknown');
-      }
-      return { externalEventId, joinLink: res.data.hangoutLink ?? null };
+      return id;
     } catch (e) {
-      throw this.toApiError(e);
+      throw this.wrap(e);
     }
   }
 
@@ -69,58 +65,18 @@ export class GoogleCalendarApiService {
         eventId: externalEventId,
       });
     } catch (e) {
-      const apiError = this.toApiError(e);
-      if (apiError.code === 'not_found') {
+      const wrapped = this.wrap(e);
+      if (wrapped.code === 'not_found') {
         this.logger.warn(
           `Event ${externalEventId} already gone in Google; treating delete as success`,
         );
         return;
       }
-      throw apiError;
+      throw wrapped;
     }
   }
 
   // ── Internals ─────────────────────────────────────────────────────────────
-
-  private toRequestBody(
-    booking: Booking,
-    withMeeting: boolean,
-  ): calendar_v3.Schema$Event {
-    const service = booking.service;
-    const business = service?.business;
-    const timeZone = business?.timezone ?? 'Europe/Vienna';
-
-    const description = [
-      `Booking ${booking.reference}`,
-      ...(booking.customerEmail ? [`Email: ${booking.customerEmail}`] : []),
-      ...(business?.phone ? [`Phone: ${business.phone}`] : []),
-      '',
-      `Manage in BookEasy: ${this.frontendUrl}/dashboard/bookings/${booking.id}`,
-    ].join('\n');
-
-    return {
-      summary: `${booking.customerName} — ${service?.name ?? 'Booking'}`,
-      description,
-      location: withMeeting ? undefined : (business?.address ?? undefined),
-      start: {
-        dateTime: toLocalIsoDateTime(booking.date, booking.startTime),
-        timeZone,
-      },
-      end: {
-        dateTime: toLocalIsoDateTime(booking.date, booking.endTime),
-        timeZone,
-      },
-      reminders: { useDefault: true },
-      conferenceData: withMeeting
-        ? {
-            createRequest: {
-              requestId: `booking-${booking.id}-${Date.now()}`,
-              conferenceSolutionKey: { type: 'hangoutsMeet' },
-            },
-          }
-        : undefined,
-    };
-  }
 
   private calendarClient(refreshToken: string): calendar_v3.Calendar {
     const oauth = new google.auth.OAuth2(
@@ -132,7 +88,18 @@ export class GoogleCalendarApiService {
     return google.calendar({ version: 'v3', auth: oauth });
   }
 
-  private toApiError(err: unknown): GoogleCalendarApiError {
+  private toRequestBody(input: GoogleEventInput): calendar_v3.Schema$Event {
+    return {
+      summary: input.summary,
+      description: input.description,
+      location: input.location || undefined,
+      start: { dateTime: input.startDateTime, timeZone: input.timeZone },
+      end: { dateTime: input.endDateTime, timeZone: input.timeZone },
+      reminders: { useDefault: true },
+    };
+  }
+
+  private wrap(err: unknown): GoogleCalendarApiError {
     const e = err as {
       response?: { status?: number; data?: { error?: string } };
       code?: number;

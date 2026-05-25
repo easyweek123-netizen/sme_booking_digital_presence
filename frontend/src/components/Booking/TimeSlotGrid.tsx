@@ -22,11 +22,11 @@ export function TimeSlotGrid({ slots, selectedTime, onSelectTime }: TimeSlotGrid
           <Box color="text.faint">
             <CalendarIcon size={48} />
           </Box>
-          <Text color="text.muted" textAlign="center" fontWeight="500">
+          <Text color="text.muted" textAlign="center">
             No available times for this date.
             <br />
-            <Text as="span" fontSize="sm" color="gray.450" fontWeight="400">
-              Try selecting a different date above.
+            <Text as="span" fontSize="sm">
+              Try selecting a different date.
             </Text>
           </Text>
         </VStack>
@@ -77,16 +77,15 @@ function SlotSection({ title, slots, selectedTime, onSelectTime }: SlotSectionPr
   return (
     <Box>
       <Text
-        fontSize="xs"
-        fontWeight="700"
-        letterSpacing="0.08em"
-        color="gray.400"
-        mb={3.5}
+        fontSize="sm"
+        fontWeight="500"
+        color="text.muted"
+        mb={3}
         textTransform="uppercase"
       >
         {title}
       </Text>
-      <SimpleGrid columns={{ base: 3, sm: 4 }} spacing={2.5}>
+      <SimpleGrid columns={4} spacing={2}>
         {slots.map((slot) => {
           const isSelected = slot === selectedTime;
           return (
@@ -94,28 +93,26 @@ function SlotSection({ title, slots, selectedTime, onSelectTime }: SlotSectionPr
               key={slot}
               onClick={() => onSelectTime(slot)}
               size="md"
-              h="46px"
+              h="48px"
               variant="unstyled"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              borderRadius="xl"
-              border="1px solid"
-              borderColor={isSelected ? 'var(--brand-color, #6B46C1)' : '#ECECEC'}
-              bg={isSelected ? 'var(--brand-color, #6B46C1)' : 'white'}
-              color={isSelected ? 'white' : 'black'}
-              fontWeight="700"
+              borderRadius="sm"
+              border="2px"
+              borderColor={isSelected ? 'brand.500' : 'gray.200'}
+              bg={isSelected ? 'brand.500' : 'white'}
+              color={isSelected ? 'white' : 'gray.700'}
+              fontWeight="500"
               fontSize="sm"
-              boxShadow={isSelected ? '0 4px 10px rgba(107, 70, 193, 0.12)' : '0 2px 4px rgba(0, 0, 0, 0.01)'}
               _hover={{
-                borderColor: isSelected ? 'var(--brand-color, #6B46C1)' : 'black',
-                bg: isSelected ? 'var(--brand-color-dark, #53369B)' : 'gray.50',
-                transform: 'translateY(-0.5px)',
+                borderColor: isSelected ? 'brand.500' : 'brand.300',
+                bg: isSelected ? 'brand.500' : 'brand.50',
               }}
               _active={{
-                transform: 'scale(0.97)',
+                transform: 'scale(0.98)',
               }}
-              transition="all 0.15s cubic-bezier(0.4, 0, 0.2, 1)"
+              transition="all 0.15s"
             >
               {formatTime(slot)}
             </Button>
@@ -146,3 +143,4 @@ function groupSlotsByPeriod(slots: string[]): GroupedSlots {
 
   return grouped;
 }
+

@@ -1,53 +1,132 @@
 import { Injectable } from '@nestjs/common';
-import { ToolHandler, BaseToolHandler, buildProposalToolMessage } from '../../common/tools';
-import { createProposal, ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
+import { z } from 'zod';
+import { ToolHandler, BaseToolHandler } from '../../common/tools';
+import {
+  ServiceInputSchema,
+  createProposal,
+  ToolResultHelpers,
+  type ToolResult,
+} from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServicesService } from '../services.service';
-import { ServiceUpdateArgsSchema, type ServiceUpdateArgs } from './schemas';
+import { buildProposalToolMessage } from '../../common/tools';
 
+/**
+ * Schema for services_update tool arguments.
+ * Supports both ID (preferred) and name (fallback) lookup.
+ * Update fields are derived from ServiceInputSchema but made optional.
+ */
+const UpdateServiceArgsSchema = z
+  .object({
+    // Lookup fields
+    id: z
+      .number()
+      .optional()
+      .describe('Service ID (preferred - get from services_list)'),
+    name: z
+      .string()
+      .optional()
+      .describe('Service name (fallback if ID not available)'),
+    // Update fields - partial ServiceInputSchema with newName for renaming
+    newName: z.string().min(1).optional().describe('New name for the service'),
+    price: ServiceInputSchema.shape.price.optional(),
+    durationMinutes: ServiceInputSchema.shape.durationMinutes.optional(),
+    description: ServiceInputSchema.shape.description,
+    imageUrl: ServiceInputSchema.shape.imageUrl,
+  })
+  .refine((data) => data.id !== undefined || data.name !== undefined, {
+    message: 'Either id or name is required',
+  });
+
+type UpdateServiceArgs = z.infer<typeof UpdateServiceArgsSchema>;
+
+/**
+ * Tool handler for updating a service.
+ * Resolves service by ID (preferred) or name, creates update proposal.
+ */
 @ToolHandler({
   name: 'services_update',
   description:
-    'Open the edit-service form for an existing service, pre-filled with the changes the user wants or you are suggesting ' +
-    'Lookup by id (preferred, from service_list) or name. Only include fields the user explicitly changed.',
+    'Update an existing service. Lookup by ID (preferred, from services_list) or name. ' +
+    'Can change any field i.e. name (via newName), price, durationMinutes, description, or imageUrl. Only send fields that change.',
 })
 @Injectable()
-export class UpdateServiceTool extends BaseToolHandler<ServiceUpdateArgs> {
-  readonly schema = ServiceUpdateArgsSchema;
+export class UpdateServiceTool extends BaseToolHandler<UpdateServiceArgs> {
+  readonly schema = UpdateServiceArgsSchema;
 
-  constructor(private readonly services: ServicesService) {
+  constructor(private readonly servicesService: ServicesService) {
     super();
   }
 
-  async execute(args: ServiceUpdateArgs, ctx: ToolContext): Promise<ToolResult> {
-    const { id, name, ...suggestedEdits } = args;
+  async execute(
+    args: UpdateServiceArgs,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
+    const { id, name, newName, price, durationMinutes, description, imageUrl } =
+      args;
 
-    const service =
-      id !== undefined
-        ? await this.services.findByIdAndBusiness(id, ctx.businessId)
-        : await this.services.findByNameAndBusiness(name!, ctx.businessId);
-
-    if (!service) {
-      return ToolResultHelpers.notFound(
-        'Service',
-        id !== undefined ? `ID ${id}` : `"${name}"`,
+    // Resolve service: prefer ID, fallback to name
+    let service;
+    if (id !== undefined) {
+      service = await this.servicesService.findByIdAndBusiness(
+        id,
+        ctx.businessId,
+      );
+    } else if (name) {
+      service = await this.servicesService.findByNameAndBusiness(
+        name,
+        ctx.businessId,
       );
     }
+
+    if (!service) {
+      const identifier = id !== undefined ? `ID ${id}` : `"${name}"`;
+      return ToolResultHelpers.notFound('Service', identifier);
+    }
+
+    // Merge existing values with updates
+    const updatedService = {
+      name: newName ?? service.name,
+      price: price ?? Number(service.price),
+      durationMinutes: durationMinutes ?? service.durationMinutes,
+      description: description ?? service.description ?? undefined,
+      imageUrl: imageUrl ?? service.imageUrl ?? undefined,
+    };
 
     const proposal = createProposal('service:update', {
       resolvedId: service.id,
       serviceName: service.name,
-      suggestedEdits,
+      service: updatedService,
     });
 
-    const changed = Object.keys(suggestedEdits).filter(
-      (k) => suggestedEdits[k as keyof typeof suggestedEdits] !== undefined,
-    );
-    const summary = changed.length ? `editing ${changed.join(', ')}` : 'no changes proposed';
+    // Build change summary
+    const changes: string[] = [];
+    if (newName && newName !== service.name)
+      changes.push(`name → "${newName}"`);
+    if (price !== undefined && price !== Number(service.price))
+      changes.push(`price → $${price}`);
+    if (
+      durationMinutes !== undefined &&
+      durationMinutes !== service.durationMinutes
+    ) {
+      changes.push(`duration → ${durationMinutes} min`);
+    }
+    if (description !== undefined && description !== service.description) {
+      changes.push('description updated');
+    }
+    if (imageUrl !== undefined && imageUrl !== service.imageUrl) {
+      changes.push('image updated');
+    }
+
+    const changesSummary =
+      changes.length > 0 ? changes.join(', ') : 'no changes detected';
 
     return ToolResultHelpers.withProposal(
       proposal,
-      buildProposalToolMessage(`edit "${service.name}" — ${summary}`, [proposal]),
+      buildProposalToolMessage(
+        `service update "${service.name}" — ${changesSummary}`,
+        [proposal],
+      ),
     );
   }
 }

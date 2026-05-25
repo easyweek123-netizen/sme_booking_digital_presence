@@ -5,7 +5,9 @@ import {
   ManyToOne,
   CreateDateColumn,
   JoinColumn,
+  Index,
 } from 'typeorm';
+import { Business } from '../../business/entities/business.entity';
 import { Service } from '../../services/entities/service.entity';
 import { Customer } from '../../customers/entities/customer.entity';
 
@@ -17,13 +19,19 @@ export enum BookingStatus {
   NO_SHOW = 'NO_SHOW', // Customer didn't show up
 }
 
+// Partial unique index UQ_booking_slot on (businessId, date, startTime) WHERE status != 'CANCELLED'
+// is enforced via migration 1734400000000. TypeORM @Index doesn't support WHERE clauses.
 @Entity('bookings')
+@Index(['businessId', 'date', 'startTime'])
 export class Booking {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: 'varchar', length: 10, unique: true })
   reference: string; // e.g., "BK-A3X9" for customer lookup
+
+  @Column()
+  businessId: number;
 
   @Column()
   serviceId: number;
@@ -34,9 +42,6 @@ export class Booking {
   @Column({ type: 'varchar', length: 255 })
   customerEmail: string;
 
-  @Column()
-  customerId: number;
-
   @Column({ type: 'date' })
   date: Date;
 
@@ -46,9 +51,6 @@ export class Booking {
   @Column({ type: 'time' })
   endTime: string;
 
-  @Column({ type: 'text', nullable: true })
-  notes: string | null;
-
   @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;
 
@@ -56,9 +58,16 @@ export class Booking {
   @Column({ type: 'timestamp', nullable: true })
   confirmedAt: Date | null;
 
+  @ManyToOne(() => Business, (business) => business.bookings)
+  @JoinColumn({ name: 'businessId' })
+  business: Business;
+
   @ManyToOne(() => Service, (service) => service.bookings)
   @JoinColumn({ name: 'serviceId' })
   service: Service;
+
+  @Column()
+  customerId: number;
 
   @ManyToOne(() => Customer, (customer) => customer.bookings)
   @JoinColumn({ name: 'customerId' })

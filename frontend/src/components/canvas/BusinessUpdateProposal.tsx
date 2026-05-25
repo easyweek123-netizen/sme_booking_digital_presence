@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { VStack, Heading, Button, HStack } from '@chakra-ui/react';
-import { FormProvider, useForm } from 'react-hook-form';
 import { BUSINESS_PROFILE_FIELDS, BUSINESS_BRANDING_FIELDS, BUSINESS_ABOUT_FIELDS } from '@shared';
 import { BusinessProfileFields } from '../Dashboard/BusinessProfileFields';
 import { AboutContentFields } from '../Dashboard/AboutContentFields';
 import { BrandingFields } from '../ui/BrandingFields';
 import { WorkingHoursEditor } from '../onboarding/WorkingHoursEditor';
 import { defaultWorkingHours } from '../../store/slices/onboardingSlice';
-import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 import type { WorkingHours } from '../../types';
 
 interface BusinessUpdateProposalProps {
@@ -18,29 +16,6 @@ interface BusinessUpdateProposalProps {
   isLoading?: boolean;
 }
 
-function toWebsiteFormValues(initial: Record<string, unknown>): WebsiteFormValues {
-  return {
-    profile: {
-      name: String(initial.name ?? ''),
-      description: String(initial.description ?? ''),
-      phone: String(initial.phone ?? ''),
-      address: String(initial.address ?? ''),
-      city: String(initial.city ?? ''),
-      website: String(initial.website ?? ''),
-      instagram: String(initial.instagram ?? ''),
-    },
-    branding: {
-      logoUrl: String(initial.logoUrl ?? ''),
-      brandColor: String(initial.brandColor ?? ''),
-      coverImageUrl: String(initial.coverImageUrl ?? ''),
-    },
-    about: {
-      aboutContent: String(initial.aboutContent ?? ''),
-    },
-    availability: [],
-  };
-}
-
 export function BusinessUpdateProposal({
   initialValues,
   updatedFields,
@@ -48,8 +23,12 @@ export function BusinessUpdateProposal({
   onCancel,
   isLoading = false,
 }: BusinessUpdateProposalProps) {
-  const form = useForm<WebsiteFormValues>({
-    defaultValues: toWebsiteFormValues(initialValues),
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    const merged: Record<string, string> = {};
+    for (const key of [...BUSINESS_PROFILE_FIELDS, ...BUSINESS_BRANDING_FIELDS, ...BUSINESS_ABOUT_FIELDS]) {
+      merged[key] = String(initialValues[key] ?? '');
+    }
+    return merged;
   });
 
   const [workingHours, setWorkingHours] = useState<WorkingHours>(
@@ -61,75 +40,87 @@ export function BusinessUpdateProposal({
   const showAbout = updatedFields.some((f) => (BUSINESS_ABOUT_FIELDS as readonly string[]).includes(f));
   const showWorkingHours = updatedFields.includes('workingHours');
 
-  const handleConfirm = () => {
-    const values = form.getValues();
-    const filtered: Record<string, unknown> = {};
-
-    if (showProfile) {
-      for (const [key, val] of Object.entries(values.profile)) {
-        if (val !== '') filtered[key] = val;
-      }
-    }
-    if (showBranding) {
-      for (const [key, val] of Object.entries(values.branding)) {
-        if (val !== '') filtered[key] = val;
-      }
-    }
-    if (showAbout && values.about.aboutContent !== '') {
-      filtered.aboutContent = values.about.aboutContent;
-    }
-    if (showWorkingHours) {
-      filtered.workingHours = workingHours;
-    }
-    onSubmit(filtered);
+  const handleFieldChange = (name: string, value: string) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <FormProvider {...form}>
-      <VStack spacing={6} align="stretch">
-        {showProfile && (
-          <VStack spacing={3} align="stretch">
-            <BusinessProfileFields />
-          </VStack>
-        )}
+    <VStack spacing={6} align="stretch">
+      {showProfile && (
+        <VStack spacing={3} align="stretch">
+          <BusinessProfileFields
+            values={{
+              name: values.name,
+              description: values.description,
+              phone: values.phone,
+              address: values.address,
+              city: values.city,
+              website: values.website,
+              instagram: values.instagram,
+            }}
+            onChange={handleFieldChange}
+          />
+        </VStack>
+      )}
 
-        {showBranding && (
-          <VStack spacing={3} align="stretch">
-            <Heading size="xs" color="text.secondary">
-              Branding
-            </Heading>
-            <BrandingFields />
-          </VStack>
-        )}
+      {showBranding && (
+        <VStack spacing={3} align="stretch">
+          <Heading size="xs" color="text.secondary">
+            Branding
+          </Heading>
+          <BrandingFields
+            logoUrl={values.logoUrl}
+            brandColor={values.brandColor}
+            onLogoUrlChange={(url) => handleFieldChange('logoUrl', url)}
+            onBrandColorChange={(color) => handleFieldChange('brandColor', color)}
+            coverImageUrl={values.coverImageUrl}
+            onCoverImageUrlChange={(url) => handleFieldChange('coverImageUrl', url)}
+          />
+        </VStack>
+      )}
 
-        {showAbout && (
-          <VStack spacing={3} align="stretch">
-            <Heading size="xs" color="text.secondary">
-              About Section
-            </Heading>
-            <AboutContentFields />
-          </VStack>
-        )}
+      {showAbout && (
+        <VStack spacing={3} align="stretch">
+          <Heading size="xs" color="text.secondary">
+            About Section
+          </Heading>
+          <AboutContentFields
+            value={values.aboutContent}
+            onChange={(val) => handleFieldChange('aboutContent', val)}
+            brandColor={values.brandColor}
+          />
+        </VStack>
+      )}
 
-        {showWorkingHours && (
-          <VStack spacing={3} align="stretch">
-            <WorkingHoursEditor
-              value={workingHours}
-              onChange={setWorkingHours}
-              defaultExpanded={true}
-            />
-          </VStack>
-        )}
+      {showWorkingHours && (
+        <VStack spacing={3} align="stretch">
+          <WorkingHoursEditor
+            value={workingHours}
+            onChange={setWorkingHours}
+            defaultExpanded={true}
+          />
+        </VStack>
+      )}
 
-        <HStack spacing={3} justify="flex-end" pt={2}>
-          <Button variant="ghost" size="sm" onClick={onCancel} isDisabled={isLoading}>
-            Cancel
-          </Button>
-          <Button isLoading={isLoading} colorScheme="brand" size="sm" onClick={handleConfirm}>
-            Confirm
-          </Button>
-        </HStack>
-      </VStack>
-    </FormProvider>
+      <HStack spacing={3} justify="flex-end" pt={2}>
+        <Button variant="ghost" size="sm" onClick={onCancel} isDisabled={isLoading}>
+          Cancel
+        </Button>
+        <Button isLoading={isLoading} colorScheme="brand" size="sm" onClick={() => {
+          const filtered: Record<string, unknown> = {};
+          for (const [key, val] of Object.entries(values)) {
+            if (val !== '') {
+              filtered[key] = val;
+            }
+          }
+          if (showWorkingHours) {
+            filtered.workingHours = workingHours;
+          }
+          onSubmit(filtered);
+        }}>
+          Confirm
+        </Button>
+      </HStack>
+    </VStack>
   );
 }

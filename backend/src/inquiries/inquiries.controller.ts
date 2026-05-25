@@ -5,14 +5,11 @@ import {
   Headers,
   Post,
   UnauthorizedException,
-  UsePipes,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import { InquiriesService } from './inquiries.service';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { InquiryCreateSchema } from '@bookeasy/shared';
-import type { InquiryCreateInput } from '@bookeasy/shared';
+import { CreateInquiryDto } from './dto/create-inquiry.dto';
 
 @Controller('inquiries')
 export class InquiriesController {
@@ -32,9 +29,8 @@ export class InquiriesController {
 
   @Post()
   @Throttle({ default: { ttl: 3600000, limit: 5 } })
-  @UsePipes(new ZodValidationPipe(InquiryCreateSchema))
-  create(@Body() body: InquiryCreateInput) {
-    return this.inquiriesService.create(body);
+  create(@Body() dto: CreateInquiryDto) {
+    return this.inquiriesService.create(dto);
   }
 
   @Get()

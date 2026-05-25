@@ -1,16 +1,18 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, useCallback, type ReactNode } from 'react';
 import {
   Box,
   VStack,
+  Text,
+  Button,
   useToast,
+  HStack,
   SimpleGrid,
   GridItem,
   Badge,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { useForm, FormProvider } from 'react-hook-form';
 import { useUpdateBusinessMutation } from '../../store/api/businessApi';
-import { useUpdateScheduleMutation } from '../../store/api/schedulesApi';
+import { WorkingHoursEditor } from '../../components/onboarding/WorkingHoursEditor';
 import { BrandingFields } from '../../components/ui/BrandingFields';
 import {
   AboutContentFields,
@@ -18,87 +20,143 @@ import {
   WebsiteCompletionProgress,
   DashboardContentShell,
   DashboardTabs,
-  DashboardFormActions,
   type DashboardTabSpec,
 } from '../../components/Dashboard';
-import { RecurringHoursEditor, DateSpecificHoursEditor } from '../../components/Availability';
 import { BookingLinkCard } from '../../components/QRCode';
 import { CheckIcon } from '../../components/icons';
 import { TOAST_DURATION } from '../../constants';
-import type { BusinessWithServices, AvailabilityInput } from '../../types';
-import type { WebsiteFormValues } from './websiteForm.types';
+import type { WorkingHours, BusinessWithServices } from '../../types';
+
 type TabKey = 'profile' | 'branding' | 'hours' | 'about';
+
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'profile', label: 'Profile' },
   { key: 'branding', label: 'Branding' },
   { key: 'hours', label: 'Hours' },
   { key: 'about', label: 'About' },
 ];
-function businessToFormValues(
-  b: BusinessWithServices,
-  availability: AvailabilityInput[],
-): WebsiteFormValues {
+
+const SECTION_SCROLL_ID_TO_TAB: Record<string, TabKey> = {
+  'section-business-profile': 'profile',
+  'section-branding': 'branding',
+  'section-working-hours': 'hours',
+  'section-about': 'about',
+};
+
+const FORM_DATA_KEYS = [
+  'name',
+  'description',
+  'phone',
+  'address',
+  'city',
+  'website',
+  'instagram',
+  'logoUrl',
+  'brandColor',
+  'coverImageUrl',
+  'aboutContent',
+] as const;
+
+type FormDataState = {
+  [K in (typeof FORM_DATA_KEYS)[number]]: string;
+};
+
+function businessToFormState(b: BusinessWithServices): FormDataState {
   return {
-    profile: {
-      name: b.name || '',
-      description: b.description || '',
-      phone: b.phone || '',
-      address: b.address || '',
-      city: b.city || '',
-      website: b.website || '',
-      instagram: b.instagram || '',
-    },
-    branding: {
-      logoUrl: b.logoUrl || '',
-      brandColor: b.brandColor || '',
-      coverImageUrl: b.coverImageUrl || '',
-    },
-    about: { aboutContent: b.aboutContent || '' },
-    availability,
+    name: b.name || '',
+    description: b.description || '',
+    phone: b.phone || '',
+    address: b.address || '',
+    city: b.city || '',
+    website: b.website || '',
+    instagram: b.instagram || '',
+    logoUrl: b.logoUrl || '',
+    brandColor: b.brandColor || '',
+    coverImageUrl: b.coverImageUrl || '',
+    aboutContent: b.aboutContent || '',
   };
 }
+
+function workingHoursEqual(a: WorkingHours | null, b: WorkingHours | null | undefined): boolean {
+  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+}
+
+function countDirtyFields(
+  formData: FormDataState,
+  baseline: FormDataState,
+  workingHours: WorkingHours | null,
+  baselineWorkingHours: WorkingHours | null | undefined,
+): number {
+  let n = 0;
+  for (const k of FORM_DATA_KEYS) {
+    if ((formData[k] ?? '') !== (baseline[k] ?? '')) {
+      n += 1;
+    }
+  }
+  if (!workingHoursEqual(workingHours, baselineWorkingHours ?? null)) {
+    n += 1;
+  }
+  return n;
+}
+
+function filled(v?: string | null): boolean {
+  return !!(v && String(v).trim());
+}
+
 interface DashboardWebsiteFormProps {
   business: BusinessWithServices;
-  initialAvailability: AvailabilityInput[];
+  /** When provided (canvas preview), layout follows panel width; otherwise uses `lg` viewport breakpoint. */
   isDesktop?: boolean;
 }
-export function DashboardWebsiteForm({
-  business,
-  initialAvailability,
-  isDesktop,
-}: DashboardWebsiteFormProps) {
+
+export function DashboardWebsiteForm({ business, isDesktop }: DashboardWebsiteFormProps) {
   const toast = useToast();
   const viewportLgUp = useBreakpointValue({ base: false, lg: true }, { ssr: false }) ?? false;
   const desktopLayout = typeof isDesktop === 'boolean' ? isDesktop : viewportLgUp;
-  const [updateBusiness, { isLoading: isUpdatingBusiness }] = useUpdateBusinessMutation();
-  const [updateSchedule, { isLoading: isUpdatingSchedule }] = useUpdateScheduleMutation();
+  const [updateBusiness, { isLoading: isUpdating }] = useUpdateBusinessMutation();
+
   const [activeTab, setActiveTab] = useState<TabKey>('profile');
-  const methods = useForm<WebsiteFormValues>({
-    defaultValues: businessToFormValues(business, initialAvailability),
-    mode: 'onBlur',
-  });
-  const { isDirty, dirtyFields } = methods.formState;
-  const handleDiscard = () => {
-    methods.reset(businessToFormValues(business, initialAvailability));
+
+  const [formData, setFormData] = useState<FormDataState>(() => businessToFormState(business));
+  const [workingHours, setWorkingHours] = useState<WorkingHours | null>(
+    () => business.workingHours ?? null,
+  );
+
+  const dirtyCount = useMemo(() => {
+    const baseline = businessToFormState(business);
+    return countDirtyFields(formData, baseline, workingHours, business.workingHours);
+  }, [formData, business, workingHours]);
+  const hasChanges = dirtyCount > 0;
+
+  const handleScrollToSection = useCallback((sectionId: string) => {
+    const tab = SECTION_SCROLL_ID_TO_TAB[sectionId];
+    if (tab) setActiveTab(tab);
+  }, []);
+
+  const handleDiscard = useCallback(() => {
+    setFormData(businessToFormState(business));
+    setWorkingHours(business.workingHours ?? null);
+  }, [business]);
+
+  const handleWorkingHoursChange = (hours: WorkingHours) => {
+    setWorkingHours(hours);
   };
-  const handleSave = methods.handleSubmit(async (values) => {
+
+  const handleSave = async () => {
     try {
-      const businessFields = { ...values.profile, ...values.branding, ...values.about };
-      const ops: Promise<unknown>[] = [];
-      const businessIsDirty =
-        !!dirtyFields.profile || !!dirtyFields.branding || !!dirtyFields.about;
-      if (businessIsDirty) ops.push(updateBusiness(businessFields).unwrap());
-      if (dirtyFields.availability) {
-        ops.push(
-          updateSchedule({
-            id: business.defaultScheduleId,
-            data: { availability: values.availability },
-          }).unwrap(),
-        );
-      }
-      await Promise.all(ops);
-      methods.reset(values);
-      toast({ title: 'Website saved', status: 'success', duration: TOAST_DURATION.MEDIUM });
+      await updateBusiness({
+        id: business.id,
+        data: {
+          ...formData,
+          workingHours: workingHours || undefined,
+        },
+      }).unwrap();
+
+      toast({
+        title: 'Website saved',
+        status: 'success',
+        duration: TOAST_DURATION.MEDIUM,
+      });
     } catch {
       toast({
         title: 'Error',
@@ -107,58 +165,81 @@ export function DashboardWebsiteForm({
         duration: TOAST_DURATION.MEDIUM,
       });
     }
-  });
-  const isSaving = isUpdatingBusiness || isUpdatingSchedule;
-  const tabStatus: Record<TabKey, { done: number; total: number }> = (() => {
-    const v = methods.watch();
-    const filled = (s?: string) => !!(s && s.trim());
-    return {
-      profile: {
-        done: [
-          v.profile.name,
-          v.profile.description,
-          v.profile.phone,
-          v.profile.address,
-          v.profile.city,
-        ].filter(filled).length,
-        total: 5,
-      },
-      branding: {
-        done: [v.branding.logoUrl, v.branding.brandColor, v.branding.coverImageUrl].filter(
-          filled,
-        ).length,
-        total: 3,
-      },
-      hours: { done: 1, total: 1 },
-      about: { done: filled(v.about.aboutContent) ? 1 : 0, total: 1 },
-    };
-  })();
+  };
+
+  const tabStatus = {
+    profile: {
+      done: [
+        formData.name,
+        formData.description,
+        formData.phone,
+        formData.address,
+        formData.city,
+      ].filter(filled).length,
+      total: 5,
+    },
+    branding: {
+      done: [formData.logoUrl, formData.brandColor, formData.coverImageUrl].filter(filled).length,
+      total: 3,
+    },
+    hours: { done: workingHours ? 1 : 0, total: 1 },
+    about: { done: filled(formData.aboutContent) ? 1 : 0, total: 1 },
+  };
+
   const sectionCardProps = {
     bg: 'surface.card' as const,
     borderRadius: 'xl' as const,
     border: '1px solid' as const,
     borderColor: 'border.subtle' as const,
   };
+
+  const headerActions = (
+    <HStack
+      spacing={3}
+      align="center"
+      flexWrap="wrap"
+      justify="flex-end"
+    >
+      {hasChanges && (
+        <Button variant="ghost" size="sm" onClick={handleDiscard} color="text.muted">
+          Discard
+        </Button>
+      )}
+      <Button
+        colorScheme="brand"
+        size="md"
+        onClick={handleSave}
+        isLoading={isUpdating}
+        isDisabled={!hasChanges}
+      >
+        Save changes
+      </Button>
+    </HStack>
+  );
+
   const buildBadge = (key: TabKey): ReactNode => {
     const { done, total } = tabStatus[key];
     const complete = done === total;
-    return complete ? (
-      <Badge
-        bg="brand.50"
-        color="brand.700"
-        borderRadius="full"
-        px={2}
-        py={0.5}
-        display="inline-flex"
-        alignItems="center"
-        gap={1}
-        fontSize="2xs"
-        fontWeight="600"
-      >
-        <CheckIcon size={10} aria-hidden />
-        {total}/{total}
-      </Badge>
-    ) : (
+    if (complete) {
+      return (
+        <Badge
+          bg="brand.50"
+          color="brand.700"
+          borderRadius="full"
+          px={2}
+          py={0.5}
+          display="inline-flex"
+          alignItems="center"
+          gap={1}
+          fontSize="2xs"
+          fontWeight="600"
+        >
+          <CheckIcon size={10} aria-hidden />
+          {total}/{total}
+        </Badge>
+      );
+    }
+    return (
       <Badge
         variant="subtle"
         colorScheme="gray"
@@ -171,80 +252,90 @@ export function DashboardWebsiteForm({
       </Badge>
     );
   };
+
   const websiteTabs: ReadonlyArray<DashboardTabSpec<TabKey>> = TABS.map((t) => ({
     key: t.key,
     label: t.label,
     badge: buildBadge(t.key),
   }));
+
   return (
-    <FormProvider {...methods}>
-      <DashboardContentShell
-        title="Website"
-        description="Build and customize your booking page"
-        actions={
-          <DashboardFormActions
-            isDirty={isDirty}
-            isSaving={isSaving}
-            onSave={handleSave}
-            onDiscard={handleDiscard}
-          />
-        }
-        tabs={
-          <DashboardTabs tabs={websiteTabs} activeKey={activeTab} onChange={setActiveTab} />
-        }
-      >
-        <SimpleGrid columns={desktopLayout ? 12 : 1} spacing={{ base: 4 }} alignItems="start">
-          <GridItem colSpan={desktopLayout ? 8 : 12}>
-            {activeTab === 'profile' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <BusinessProfileFields />
-              </Box>
-            )}
-            {activeTab === 'branding' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <BrandingFields />
-              </Box>
-            )}
-            {activeTab === 'hours' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <VStack align="stretch" spacing={6}>
-                  <RecurringHoursEditor
-                    name="availability"
-                    title="Weekly hours"
-                    description="Set when you are typically available."
-                    layout="day-grouped"
-                    showCopyToDays
-                  />
-                  <DateSpecificHoursEditor
-                    name="availability"
-                    title="Date-specific hours"
-                    description="Adjust hours for specific dates."
-                    addLabel="Hours"
-                    allowClosedToggle
-                  />
-                </VStack>
-              </Box>
-            )}
-            {activeTab === 'about' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <AboutContentFields />
-              </Box>
-            )}
-          </GridItem>
-          <GridItem colSpan={desktopLayout ? 4 : 12}>
-            <VStack
-              spacing="space.stack.lg"
-              align="stretch"
-              position={desktopLayout ? 'sticky' : 'static'}
-              top={desktopLayout ? 'space.stack.lg' : undefined}
-              py={4}
-            >
-              <BookingLinkCard slug={business.slug} />
-              <WebsiteCompletionProgress business={business} onScrollToSection={() => undefined} />
-            </VStack>
-          </GridItem>
-        </SimpleGrid>
-      </DashboardContentShell>
-    </FormProvider>
+    <DashboardContentShell
+      title="Website"
+      description="Build and customize your booking page"
+      actions={headerActions}
+      tabs={
+        <DashboardTabs
+          tabs={websiteTabs}
+          activeKey={activeTab}
+          onChange={setActiveTab}
+        />
+      }
+    >
+      <SimpleGrid columns={desktopLayout ? 12 : 1} spacing={{ base: 4 }} alignItems="start">
+        <GridItem colSpan={desktopLayout ? 8 : 12}>
+          {activeTab === 'profile' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              <BusinessProfileFields
+                values={formData}
+                onChange={(name, value) => setFormData((prev) => ({ ...prev, [name]: value }))}
+              />
+            </Box>
+          )}
+          {activeTab === 'branding' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              <BrandingFields
+                logoUrl={formData.logoUrl}
+                brandColor={formData.brandColor}
+                onLogoUrlChange={(url) => setFormData((prev) => ({ ...prev, logoUrl: url }))}
+                onBrandColorChange={(color) => setFormData((prev) => ({ ...prev, brandColor: color }))}
+                coverImageUrl={formData.coverImageUrl}
+                onCoverImageUrlChange={(url) => setFormData((prev) => ({ ...prev, coverImageUrl: url }))}
+              />
+            </Box>
+          )}
+          {activeTab === 'hours' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              {workingHours ? (
+                <WorkingHoursEditor
+                  defaultExpanded
+                  value={workingHours}
+                  onChange={handleWorkingHoursChange}
+                />
+              ) : (
+                <Text color="text.muted" fontSize="sm">
+                  Working hours are not configured yet.
+                </Text>
+              )}
+            </Box>
+          )}
+          {activeTab === 'about' && (
+            <Box {...sectionCardProps} p={{ base: 4 }}>
+              <AboutContentFields
+                value={formData.aboutContent}
+                onChange={(val) => setFormData((prev) => ({ ...prev, aboutContent: val }))}
+                brandColor={formData.brandColor}
+                businessName={formData.name}
+              />
+            </Box>
+          )}
+        </GridItem>
+        <GridItem colSpan={desktopLayout ? 4 : 12}>
+          <VStack
+            spacing="space.stack.lg"
+            align="stretch"
+            position={desktopLayout ? 'sticky' : 'static'}
+            top={desktopLayout ? 'space.stack.lg' : undefined}
+            py={4}
+          >
+            <BookingLinkCard slug={business.slug} />
+            <WebsiteCompletionProgress
+              business={business}
+              onScrollToSection={handleScrollToSection}
+            />
+          </VStack>
+        </GridItem>
+      </SimpleGrid>
+    </DashboardContentShell>
   );
 }

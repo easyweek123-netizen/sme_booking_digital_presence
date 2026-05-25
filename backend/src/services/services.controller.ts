@@ -12,15 +12,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { ServiceCreateSchema, ServicePatchSchema } from '@bookeasy/shared';
-import type { ServiceCreateInput, ServicePatchInput } from '@bookeasy/shared';
+import { CreateServiceDto, UpdateServiceDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
-import {
-  BusinessId,
-  BusinessOwnershipGuard,
-  OwnerResolverGuard,
-} from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { Entitlement, EntitlementGuard } from '../entitlements';
 import { Service } from './entities/service.entity';
 
@@ -28,22 +22,25 @@ import { Service } from './entities/service.entity';
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
+  /**
+   * Create a new service
+   * POST /api/services
+   */
   @Post()
-  @UseGuards(
-    FirebaseAuthGuard,
-    OwnerResolverGuard,
-    BusinessOwnershipGuard,
-    EntitlementGuard,
-  )
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, EntitlementGuard)
   @Entitlement('service.create')
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @BusinessId() businessId: number,
-    @Body(new ZodValidationPipe(ServiceCreateSchema)) body: ServiceCreateInput,
+    @OwnerId() ownerId: number,
+    @Body() createServiceDto: CreateServiceDto,
   ): Promise<Service> {
-    return this.servicesService.create(businessId, body);
+    return this.servicesService.create(ownerId, createServiceDto);
   }
 
+  /**
+   * Get all services for a business (public)
+   * GET /api/services/business/:businessId
+   */
   @Get('business/:businessId')
   async findByBusiness(
     @Param('businessId', ParseIntPipe) businessId: number,
@@ -51,37 +48,43 @@ export class ServicesController {
     return this.servicesService.findByBusiness(businessId);
   }
 
+  /**
+   * Get a single service by ID
+   * GET /api/services/:id
+   */
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Service> {
     return this.servicesService.findOne(id);
   }
 
+  /**
+   * Update a service
+   * PATCH /api/services/:id
+   */
   @Patch(':id')
-  @UseGuards(
-    FirebaseAuthGuard,
-    OwnerResolverGuard,
-    BusinessOwnershipGuard,
-    EntitlementGuard,
-  )
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, EntitlementGuard)
   @Entitlement('service.create', {
-    when: (req) =>
-      (req.body as { isActive?: boolean } | undefined)?.isActive === true,
+    when: (req) => (req.body as { isActive?: boolean } | undefined)?.isActive === true,
   })
   async update(
-    @BusinessId() businessId: number,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodValidationPipe(ServicePatchSchema)) body: ServicePatchInput,
+    @Body() updateServiceDto: UpdateServiceDto,
   ): Promise<Service> {
-    return this.servicesService.update(id, businessId, body);
+    return this.servicesService.update(id, ownerId, updateServiceDto);
   }
 
+  /**
+   * Delete a service. Hard deletes if no bookings exist, disables otherwise.
+   * DELETE /api/services/:id
+   */
   @Delete(':id')
-  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
-    @BusinessId() businessId: number,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {
-    return this.servicesService.remove(id, businessId);
+    return this.servicesService.remove(id, ownerId);
   }
 }

@@ -7,10 +7,11 @@ import {
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useRef, type ReactNode } from 'react';
+import { useBusiness } from '../../contexts/useBusiness';
 import {
   useGetBookingsQuery,
   useUpdateBookingStatusMutation,
-  useGetBookingStatsQuery,
+  useGetPendingCountQuery,
 } from '../../store/api/bookingsApi';
 import { BookingDetailDrawer } from '../../components/BookingDetailDrawer';
 import { DashboardBookingCard } from '../../components/Dashboard/DashboardBookingCard';
@@ -65,22 +66,25 @@ const emptyConfig: Record<FilterKey, { icon: ReactNode; title: string; descripti
 };
 
 export function DashboardBookings() {
+  const business = useBusiness();
   const [activeFilter, setActiveFilter] = useState<FilterKey>('requests');
 
-  const { data: stats } = useGetBookingStatsQuery();
-  const pendingCount = stats?.pending || 0;
+  const { data: pendingData } = useGetPendingCountQuery(business.id);
+  const pendingCount = pendingData?.count || 0;
 
   const today = getTodayString();
 
   const currentFilter = FILTER_OPTIONS.find((f) => f.key === activeFilter)!;
 
   const { data: bookings, isLoading } = useGetBookingsQuery({
+    businessId: business.id,
     status: currentFilter.status,
     from: activeFilter === 'upcoming' ? today : undefined,
   });
 
   const { data: noShowBookings } = useGetBookingsQuery(
     {
+      businessId: business.id,
       status: 'NO_SHOW',
     },
     { skip: activeFilter !== 'completed' },

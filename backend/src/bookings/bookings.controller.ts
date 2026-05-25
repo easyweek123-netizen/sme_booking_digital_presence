@@ -8,92 +8,152 @@ import {
   Query,
   UseGuards,
   UseInterceptors,
-  UsePipes,
   Request,
   ParseIntPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { BookingsService } from './bookings.service';
-import type { BookingStats } from './bookings.service';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { BookingCreateSchema } from '@bookeasy/shared';
-import type { BookingCreateInput } from '@bookeasy/shared';
+import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking.dto';
 import { FirebaseAuthGuard } from '../auth/guards';
 import { CustomerResolverInterceptor } from '../customers/interceptors';
-import {
-  BusinessId,
-  BusinessOwnershipGuard,
-  OwnerResolverGuard,
-} from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { Entitlement, EntitlementGuard } from '../entitlements';
 import { Booking, BookingStatus } from './entities/booking.entity';
 import type { RequestWithCustomer } from '../common';
 
 @Controller('bookings')
 export class BookingsController {
-  constructor(private readonly bookings: BookingsService) {}
+  constructor(private readonly bookingsService: BookingsService) {}
 
+  /**
+   * Get available time slots for a business on a specific date
+   * GET /api/bookings/availability/:businessId?date=YYYY-MM-DD&serviceId=123
+   * Public endpoint
+   */
+  @Get('availability/:businessId')
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
+  async getAvailability(
+    @Param('businessId', ParseIntPipe) businessId: number,
+    @Query('date') date: string,
+    @Query('serviceId', ParseIntPipe) serviceId: number,
+  ): Promise<{ slots: string[] }> {
+    return this.bookingsService.getAvailability(businessId, date, serviceId);
+  }
+
+  /**
+   * Create a new booking
+   * POST /api/bookings
+   * Requires Firebase authentication (customer must be signed in)
+   */
   @Post()
   @UseInterceptors(CustomerResolverInterceptor)
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(BookingCreateSchema))
   async create(
     @Request() req: RequestWithCustomer,
-    @Body() body: BookingCreateInput,
+    @Body() createBookingDto: CreateBookingDto,
   ): Promise<Booking> {
-    return this.bookings.create(body, req.customerId);
+    return this.bookingsService.create(createBookingDto, req.customerId);
   }
 
-  @Get()
-  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
-  async findOwnerBookings(
-    @BusinessId() businessId: number,
+  /**
+   * Get all bookings for a business (owner only)
+   * GET /api/bookings/business/:businessId?status=CONFIRMED&from=YYYY-MM-DD&to=YYYY-MM-DD
+   * Protected endpoint
+   */
+  @Get('business/:businessId')
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
+  async findByBusiness(
+    @OwnerId() ownerId: number,
+    @Param('businessId', ParseIntPipe) businessId: number,
     @Query('status') status?: BookingStatus,
     @Query('from') from?: string,
     @Query('to') to?: string,
   ): Promise<Booking[]> {
-    return this.bookings.findByBusiness(businessId, { status, from, to });
+    return this.bookingsService.findByBusiness(businessId, ownerId, {
+      status,
+      from,
+      to,
+    });
   }
 
-  @Get('stats')
-  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
-  async getOwnerBookingStats(
-    @BusinessId() businessId: number,
-  ): Promise<BookingStats> {
-    return this.bookings.getStats(businessId);
+  /**
+   * Get booking stats for a business (owner only)
+   * GET /api/bookings/stats/:businessId
+   * Protected endpoint
+   */
+  @Get('stats/:businessId')
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
+  async getStats(
+    @OwnerId() ownerId: number,
+    @Param('businessId', ParseIntPipe) businessId: number,
+  ): Promise<{ total: number; today: number }> {
+    return this.bookingsService.getStats(businessId, ownerId);
   }
 
+  /**
+   * Get booking status by reference code
+   * GET /api/bookings/status/:reference
+   * Public endpoint (for customer status lookup)
+   */
   @Get('status/:reference')
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
   async findByReference(
     @Param('reference') reference: string,
   ): Promise<Booking> {
-    return this.bookings.findByReference(reference);
+    return this.bookingsService.findByReference(reference);
   }
 
+  /**
+   * Get pending bookings count for a business (owner only)
+   * GET /api/bookings/pending-count/:businessId
+   * Protected endpoint
+   */
+  @Get('pending-count/:businessId')
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
+  async getPendingCount(
+    @OwnerId() ownerId: number,
+    @Param('businessId', ParseIntPipe) businessId: number,
+  ): Promise<{ count: number }> {
+    const count = await this.bookingsService.getPendingCount(
+      businessId,
+      ownerId,
+    );
+    return { count };
+  }
+
+  /**
+   * Get a single booking by ID
+   * GET /api/bookings/:id
+   * Public endpoint (for confirmation pages)
+   */
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Booking> {
-    return this.bookings.findOne(id);
+    return this.bookingsService.findOne(id);
   }
 
+  /**
+   * Update booking status (cancel or complete)
+   * PATCH /api/bookings/:id/status
+   * Protected endpoint (owner only)
+   */
   @Patch(':id/status')
-  @UseGuards(
-    FirebaseAuthGuard,
-    OwnerResolverGuard,
-    BusinessOwnershipGuard,
-    EntitlementGuard,
-  )
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, EntitlementGuard)
   @Entitlement('bookings.confirm', {
     when: (req) =>
-      (req.body as { status?: string } | undefined)?.status ===
-      BookingStatus.CONFIRMED,
+      (req.body as { status?: string } | undefined)?.status === BookingStatus.CONFIRMED,
   })
   async updateStatus(
-    @BusinessId() businessId: number,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateBookingStatusDto,
+    @Body() updateBookingStatusDto: UpdateBookingStatusDto,
   ): Promise<Booking> {
-    return this.bookings.updateStatusForBusiness(id, businessId, body.status);
+    return this.bookingsService.updateStatus(
+      id,
+      ownerId,
+      updateBookingStatusDto.status,
+    );
   }
 }

@@ -24,8 +24,6 @@ export interface RuntimeActionHandler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: React.ComponentType<any>;
   title: string;
-  /** When true, ProposalCard skips wrapping in CanvasActionsContainer — the component renders its own shell. */
-  ownsShell?: boolean;
   getProps: (action: ChatAction, ctx: ActionContext) => Record<string, unknown>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   execute?: (action: ChatAction, formData: any) => Promise<void>;
@@ -55,9 +53,6 @@ interface TypedActionHandlerDef<
 
   /** Title shown in the canvas container */
   title: string;
-
-  /** When true, ProposalCard skips wrapping in CanvasActionsContainer — the component renders its own shell. */
-  ownsShell?: boolean;
 
   /**
    * Build props for the component from action data.

@@ -17,12 +17,11 @@
     "jsx": "react-jsx",
 
     /* Path aliases */
+    "baseUrl": ".",
     "paths": {
-      "*": ["./*"],
       "@/*": ["./src/*"],
       "@shared": ["../shared/src/index.ts"],
-      "@shared/*": ["../shared/src/*"],
-      "@bookeasy/shared": ["../shared/src/index.ts"]
+      "@shared/*": ["../shared/src/*"]
     },
 
     /* Linting */
@@ -33,9 +32,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../shared/src"],
-  "exclude": [
-    "src/pages/booking",
-    "src/components/Booking"
-  ]
+  "include": ["src", "../shared/src"]
 }

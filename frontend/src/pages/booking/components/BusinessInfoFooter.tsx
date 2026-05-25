@@ -5,6 +5,7 @@ import {
   Text,
   VStack,
   HStack,
+  Flex,
   Link,
   SimpleGrid,
   GridItem,
@@ -14,8 +15,10 @@ import {
   MapPinIcon,
   InstagramIcon,
   GlobeIcon,
+  ClockIcon,
 } from '../../../components/icons';
 import { AboutTab } from '../../../components/Booking';
+import { DAYS_OF_WEEK, DAY_LABELS, formatTime } from '../../../constants';
 import type { BusinessWithServices } from '../../../types';
 
 interface BusinessInfoFooterProps {
@@ -32,8 +35,10 @@ export function BusinessInfoFooter({ business, desktopLayout }: BusinessInfoFoot
     !!business.instagram ||
     !!business.website ||
     !!business.city;
+  const hasWorkingHours = !!business.workingHours;
+  const hasContactBlock = hasContactInfo || hasWorkingHours;
 
-  if (!hasAbout && !hasContactInfo) return null;
+  if (!hasAbout && !hasContactBlock) return null;
 
   return (
     <Box as="section" bg="surface.alt" py={{ base: 8, md: 12 }}>
@@ -43,9 +48,9 @@ export function BusinessInfoFooter({ business, desktopLayout }: BusinessInfoFoot
           spacing={{ base: 6, lg: 8 }}
           alignItems="start"
         >
-          {(hasAbout || hasContactInfo) && (
+          {hasAbout && (
             <GridItem
-              colSpan={desktopLayout ? (hasContactInfo ? 7 : 12) : 12}
+              colSpan={desktopLayout ? (hasContactBlock ? 7 : 12) : 12}
               id="about"
             >
               <Heading size="lg" color="text.heading" mb={6} letterSpacing="-0.02em">
@@ -58,26 +63,18 @@ export function BusinessInfoFooter({ business, desktopLayout }: BusinessInfoFoot
                 borderColor="border.subtle"
                 p={{ base: 4, md: 6 }}
               >
-                {hasAbout ? (
-                  <AboutTab content={business.aboutContent!} brandColor={business.brandColor} />
-                ) : (
-                  <Text color="text.secondary" lineHeight="tall">
-                    Welcome to {business.name}! We provide high-quality services tailored to your needs. 
-                    Our team is dedicated to delivering an exceptional experience with attention to detail and customer satisfaction. 
-                    Discover why we're the trusted choice for beauty and wellness services in the community.
-                  </Text>
-                )}
+                <AboutTab content={business.aboutContent!} brandColor={business.brandColor} />
               </Box>
             </GridItem>
           )}
 
-          {hasContactInfo && (
+          {hasContactBlock && (
             <GridItem
               colSpan={desktopLayout ? (hasAbout ? 5 : 12) : 12}
               id="contact"
             >
               <Heading size="lg" color="text.heading" mb={6} letterSpacing="-0.02em">
-                Contact
+                Contact & Hours
               </Heading>
               <VStack spacing={4} align="stretch">
                 {hasContactInfo && (
@@ -142,6 +139,64 @@ export function BusinessInfoFooter({ business, desktopLayout }: BusinessInfoFoot
                           isExternal
                         />
                       )}
+                    </VStack>
+                  </Box>
+                )}
+
+                {hasWorkingHours && (
+                  <Box
+                    bg="surface.card"
+                    borderRadius="xl"
+                    border="1px solid"
+                    borderColor="border.subtle"
+                    p={5}
+                  >
+                    <HStack spacing={2} mb={4}>
+                      <ClockIcon size={16} />
+                      <Text
+                        fontWeight="600"
+                        color="text.heading"
+                        fontSize="sm"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                      >
+                        Working hours
+                      </Text>
+                    </HStack>
+                    <VStack align="stretch" spacing={1.5}>
+                      {DAYS_OF_WEEK.map((day) => {
+                        const schedule = business.workingHours![day];
+                        const isToday =
+                          DAYS_OF_WEEK[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1] ===
+                          day;
+                        return (
+                          <Flex
+                            key={day}
+                            justify="space-between"
+                            fontSize="sm"
+                            py={1}
+                            px={2}
+                            borderRadius="md"
+                            bg={isToday ? 'brand.50' : 'transparent'}
+                          >
+                            <Text
+                              color={isToday ? 'brand.700' : 'gray.600'}
+                              fontWeight={isToday ? '600' : '500'}
+                            >
+                              {DAY_LABELS[day]}
+                            </Text>
+                            <Text
+                              color={
+                                schedule?.isOpen ? (isToday ? 'brand.700' : 'gray.900') : 'gray.400'
+                              }
+                            >
+                              {schedule?.isOpen
+                                ? `${formatTime(schedule.openTime)} – ${formatTime(schedule.closeTime)}`
+                                : 'Closed'}
+                            </Text>
+                          </Flex>
+                        );
+                      })}
                     </VStack>
                   </Box>
                 )}

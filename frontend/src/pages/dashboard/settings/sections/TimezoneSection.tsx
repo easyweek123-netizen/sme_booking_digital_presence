@@ -37,7 +37,7 @@ export function TimezoneSection() {
   const handleSave = async (): Promise<void> => {
     if (!business) return;
     try {
-      await updateBusiness({ timezone: tz }).unwrap();
+      await updateBusiness({ id: business.id, data: { timezone: tz } }).unwrap();
       setLocalTz(null);
       toast({
         title: 'Timezone updated',

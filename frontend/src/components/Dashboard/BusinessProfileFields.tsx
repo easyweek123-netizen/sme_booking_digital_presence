@@ -11,9 +11,22 @@ import {
   InputLeftAddon,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { useFormContext } from 'react-hook-form';
 import { PhoneIcon } from '../icons';
-import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
+
+export interface BusinessProfileValues {
+  name: string;
+  description: string;
+  phone: string;
+  address: string;
+  city: string;
+  website: string;
+  instagram: string;
+}
+
+interface BusinessProfileFieldsProps {
+  values: BusinessProfileValues;
+  onChange: (name: string, value: string) => void;
+}
 
 const sectionHeadingProps = {
   size: 'xs' as const,
@@ -28,8 +41,15 @@ const helperTextProps = {
   color: 'text.muted',
 };
 
-export function BusinessProfileFields() {
-  const { register } = useFormContext<WebsiteFormValues>();
+export function BusinessProfileFields({
+  values,
+  onChange,
+}: BusinessProfileFieldsProps) {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    onChange(e.target.name, e.target.value);
+  };
 
   return (
     <VStack spacing="space.stack.lg" align="stretch">
@@ -39,7 +59,9 @@ export function BusinessProfileFields() {
           <FormControl>
             <FormLabel>Business name</FormLabel>
             <Input
-              {...register('profile.name')}
+              name="name"
+              value={values.name}
+              onChange={handleChange}
               placeholder="Your business name"
               size="md"
               autoComplete="organization"
@@ -49,7 +71,9 @@ export function BusinessProfileFields() {
           <FormControl>
             <FormLabel>Description</FormLabel>
             <Textarea
-              {...register('profile.description')}
+              name="description"
+              value={values.description}
+              onChange={handleChange}
               placeholder="A short tagline customers see on your booking page"
               rows={3}
               size="md"
@@ -71,8 +95,10 @@ export function BusinessProfileFields() {
                 <PhoneIcon size={18} />
               </InputLeftAddon>
               <Input
-                {...register('profile.phone')}
+                name="phone"
                 type="tel"
+                value={values.phone}
+                onChange={handleChange}
                 placeholder="+1 555 123 4567"
                 borderLeftRadius={0}
                 size="md"
@@ -88,7 +114,9 @@ export function BusinessProfileFields() {
             <FormControl>
               <FormLabel>Address</FormLabel>
               <Input
-                {...register('profile.address')}
+                name="address"
+                value={values.address}
+                onChange={handleChange}
                 placeholder="Street and number"
                 size="md"
                 autoComplete="street-address"
@@ -97,7 +125,9 @@ export function BusinessProfileFields() {
             <FormControl>
               <FormLabel>City</FormLabel>
               <Input
-                {...register('profile.city')}
+                name="city"
+                value={values.city}
+                onChange={handleChange}
                 placeholder="City"
                 size="md"
                 autoComplete="address-level2"
@@ -113,8 +143,10 @@ export function BusinessProfileFields() {
           <FormControl>
             <FormLabel>Website</FormLabel>
             <Input
-              {...register('profile.website')}
+              name="website"
               type="url"
+              value={values.website}
+              onChange={handleChange}
               placeholder="https://example.com"
               size="md"
               autoComplete="url"
@@ -127,7 +159,9 @@ export function BusinessProfileFields() {
           <FormControl>
             <FormLabel>Instagram</FormLabel>
             <Input
-              {...register('profile.instagram')}
+              name="instagram"
+              value={values.instagram}
+              onChange={handleChange}
               placeholder="@yourbusiness or full profile URL"
               size="md"
               autoComplete="off"

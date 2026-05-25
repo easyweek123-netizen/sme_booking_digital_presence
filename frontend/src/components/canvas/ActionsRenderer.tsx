@@ -39,20 +39,21 @@ function ProposalCard({ proposal }: ProposalCardProps) {
     business,
   });
 
+  const handleSubmit = async (formData: Record<string, unknown>) => {
+    await execute(proposal, formData);
+  };
+
+  const handleCancel = () => {
+    cancel(proposal);
+  };
+
   const Component = config.component;
-  const node = (
-    <Component
-      {...componentProps}
-      onSubmit={(formData: Record<string, unknown>) => execute(proposal, formData)}
-      onCancel={() => cancel(proposal)}
-      isLoading={isLoading}
-    />
-  );
+
   return (
     <Box>
-      {config.ownsShell
-        ? node
-        : <CanvasActionsContainer title={config.title}>{node}</CanvasActionsContainer>}
+      <CanvasActionsContainer title={config.title}>
+        <Component {...componentProps} onSubmit={handleSubmit} onCancel={handleCancel} isLoading={isLoading} />
+      </CanvasActionsContainer>
     </Box>
   );
 }

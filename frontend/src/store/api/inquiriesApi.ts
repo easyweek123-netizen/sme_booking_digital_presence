@@ -6,7 +6,6 @@ export interface SubmitInquiryRequest {
   company?: string;
   budget: 'under_5k' | '5_15k' | '15_50k' | '50k_plus' | 'not_sure';
   message: string;
-  serviceId?: number | null;
 }
 
 export interface InquiryResponse {
@@ -17,7 +16,6 @@ export interface InquiryResponse {
   budget: string;
   message: string;
   source: string;
-  serviceId: number | null;
   createdAt: string;
 }
 

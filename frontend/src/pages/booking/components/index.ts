@@ -6,5 +6,3 @@ export { WorkingHoursSection } from './WorkingHoursSection';
 export { BookingHeader } from './BookingHeader';
 export { BookingWizard } from './BookingWizard';
 export { BusinessInfoFooter } from './BusinessInfoFooter';
-export { MapSection } from './MapSection';
-export { OpeningHoursSection } from './OpeningHoursSection';

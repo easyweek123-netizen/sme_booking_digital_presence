@@ -8,7 +8,6 @@ import { CanvasChat } from './CanvasChat';
 import { DashboardBookings } from './DashboardBookings';
 import { DashboardClients } from './DashboardClients';
 import { DashboardServices } from './DashboardServices';
-import { ServicePage } from './ServicePage';
 import { DashboardWebsite } from './DashboardWebsite';
 import { SettingsLayout } from './settings';
 import { Billing } from './settings/Billing';
@@ -23,8 +22,6 @@ function DashboardRoutes() {
       <Route path="bookings" element={<DashboardBookings />} />
       <Route path="clients" element={<DashboardClients />} />
       <Route path="services" element={<DashboardServices />} />
-      <Route path="services/create" element={<ServicePage isEdit={false} />} />
-      <Route path="services/:id/edit" element={<ServicePage isEdit />} />
       <Route path="website" element={<DashboardWebsite />} />
       <Route path="settings" element={<SettingsLayout />}>
         <Route index element={<Navigate to="calendar" replace />} />

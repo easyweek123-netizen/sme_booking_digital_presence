@@ -1,5 +1,3 @@
-import type { ServiceTypeValue } from './business.types';
-
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
 
 export interface CustomerData {
@@ -33,23 +31,13 @@ export interface Booking {
   };
 }
 
-export interface Slot {
-  date: string;
-  startTime: string;
-  endTime: string;
-  seatsRemaining: number;
-  capacity: number;
-}
-
 export interface CreateBookingRequest {
-  serviceId: number;
   businessId: number;
-  date: string;
-  startTime: string;
-  endTime: string;
+  serviceId: number;
   customerName: string;
   customerEmail: string;
-  notes?: string | null;
+  date: string;
+  startTime: string;
 }
 
 export interface UpdateBookingStatusRequest {
@@ -57,13 +45,7 @@ export interface UpdateBookingStatusRequest {
 }
 
 export interface AvailabilityResponse {
-  service: {
-    id: number;
-    type: ServiceTypeValue;
-    capacity: number;
-    durationMinutes: number;
-  };
-  slots: Slot[];
+  slots: string[];
 }
 
 export interface BookingStats {

@@ -14,7 +14,9 @@ import { BookingsService } from '../bookings.service';
 import { BookingStatus } from '../entities/booking.entity';
 import { buildProposalToolMessage } from '../../common/tools';
 
-/** Propose a booking status change for owner confirmation. */
+/**
+ * Propose a booking status change for owner confirmation.
+ */
 @ToolHandler({
   name: 'bookings_update_status',
   description:
@@ -33,8 +35,9 @@ export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatu
     args: BookingsUpdateStatusArgs,
     ctx: ToolContext,
   ): Promise<ToolResult> {
-    const booking = await this.bookingsService.findOneByBusiness(
+    const booking = await this.bookingsService.findBookingForOwner(
       ctx.businessId,
+      ctx.ownerId,
       { id: args.id, reference: args.reference },
     );
 
@@ -68,7 +71,7 @@ export class UpdateBookingStatusTool extends BaseToolHandler<BookingsUpdateStatu
     return ToolResultHelpers.withProposal(
       proposal,
       buildProposalToolMessage(
-        `booking status ${booking.customerName} (${scheduledSummary}): ${booking.status} -> ${args.status}`,
+        `booking status ${booking.customerName} (${scheduledSummary}): ${booking.status} → ${args.status}`,
         [proposal],
       ),
       'bookings',

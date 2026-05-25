@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import type { UsageCounter } from '../../entitlements/counters/usage-counter.interface';
 import { Clock } from '../../common/time/clock.service';
 import { startOfMonth, startOfNextMonth } from '../../common/time/local-date';
@@ -14,22 +14,14 @@ export class MonthlyConfirmedBookingsCounter implements UsageCounter {
     private readonly clock: Clock,
   ) {}
 
-  count({
-    businessId,
-  }: {
-    ownerId: number;
-    businessId: number;
-  }): Promise<number> {
+  count({ businessId }: { ownerId: number; businessId: number }): Promise<number> {
     const now = this.clock.now();
-    return this.repo
-      .createQueryBuilder('booking')
-      .innerJoin('booking.service', 'service')
-      .where('service.businessId = :businessId', { businessId })
-      .andWhere('booking.status = :status', { status: BookingStatus.CONFIRMED })
-      .andWhere('booking.confirmedAt BETWEEN :from AND :to', {
-        from: startOfMonth(now),
-        to: startOfNextMonth(now),
-      })
-      .getCount();
+    return this.repo.count({
+      where: {
+        businessId,
+        status: BookingStatus.CONFIRMED,
+        confirmedAt: Between(startOfMonth(now), startOfNextMonth(now)),
+      },
+    });
   }
 }

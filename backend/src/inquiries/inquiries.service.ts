@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Inquiry } from './entities/inquiry.entity';
+import { CreateInquiryDto } from './dto/create-inquiry.dto';
 import { EmailService } from '../email/email.service';
-import type { InquiryCreateInput } from '@bookeasy/shared';
 
 @Injectable()
 export class InquiriesService {
@@ -15,15 +15,14 @@ export class InquiriesService {
     private readonly emailService: EmailService,
   ) {}
 
-  async create(dto: InquiryCreateInput): Promise<Inquiry> {
+  async create(dto: CreateInquiryDto): Promise<Inquiry> {
     const inquiry = this.inquiriesRepository.create({
       name: dto.name,
       email: dto.email,
       company: dto.company ?? null,
       budget: dto.budget,
       message: dto.message,
-      source: dto.source ?? 'services_page',
-      serviceId: dto.serviceId ?? null,
+      source: 'services_page',
     });
 
     const saved = await this.inquiriesRepository.save(inquiry);

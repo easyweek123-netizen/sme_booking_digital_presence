@@ -42,14 +42,7 @@ export function DateSelector({ selectedDate, onDateChange, workingHours }: DateS
 
   return (
     <Box>
-      <Text
-        fontSize="xs"
-        fontWeight="700"
-        letterSpacing="0.08em"
-        color="gray.400"
-        mb={4}
-        textTransform="uppercase"
-      >
+      <Text fontSize="sm" fontWeight="500" color="text.muted" mb={3} textTransform="uppercase">
         Select Date
       </Text>
       <Box
@@ -63,7 +56,7 @@ export function DateSelector({ selectedDate, onDateChange, workingHours }: DateS
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        <HStack spacing={2.5} pb={2}>
+        <HStack spacing={2} pb={1}>
           {dates.map((date) => {
             const isSelected = date.dateStr === selectedDate;
             const isClosed = isDateClosed(date.dateStr);
@@ -74,71 +67,56 @@ export function DateSelector({ selectedDate, onDateChange, workingHours }: DateS
                 key={date.dateStr}
                 data-selected={isSelected}
                 onClick={() => !isClosed && onDateChange(date.dateStr)}
-                minW="74px"
+                minW="70px"
                 h="auto"
-                py={4}
-                px={3}
+                py={3}
+                px={2}
                 flexShrink={0}
                 variant="unstyled"
                 display="flex"
                 flexDir="column"
                 alignItems="center"
                 justifyContent="center"
-                borderRadius="2xl"
-                border="1px solid"
-                borderColor={isSelected ? 'var(--brand-color, #6B46C1)' : '#ECECEC'}
-                bg={isSelected ? 'var(--brand-color, #6B46C1)' : 'white'}
-                boxShadow={isSelected ? '0 4px 12px rgba(107, 70, 193, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.01)'}
+                borderRadius="xl"
+                border="2px"
+                borderColor={isSelected ? 'brand.500' : 'transparent'}
+                bg={isSelected ? 'brand.50' : 'white'}
                 opacity={isClosed ? 0.4 : 1}
                 cursor={isClosed ? 'not-allowed' : 'pointer'}
                 _hover={{
-                  bg: isClosed ? 'white' : isSelected ? 'var(--brand-color-dark, #53369B)' : 'gray.50',
-                  borderColor: isSelected ? 'var(--brand-color, #6B46C1)' : 'gray.300',
-                  transform: isClosed ? 'none' : 'translateY(-1px)',
+                  bg: isClosed ? 'white' : isSelected ? 'brand.50' : 'gray.100',
                 }}
-                _active={{
-                  transform: isClosed ? 'none' : 'scale(0.96)',
-                }}
-                transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                transition="all 0.15s"
               >
-                <VStack spacing={1}>
+                <VStack spacing={0.5}>
                   <Text
-                    fontSize="10px"
-                    fontWeight="700"
-                    color={isSelected ? 'white' : 'gray.400'}
+                    fontSize="xs"
+                    fontWeight="500"
+                    color={isSelected ? 'brand.600' : 'gray.500'}
                     textTransform="uppercase"
-                    letterSpacing="0.05em"
                   >
                     {date.dayShort}
                   </Text>
                   <Text
-                    fontSize="lg"
-                    fontWeight="800"
-                    color={isSelected ? 'white' : 'black'}
-                    lineHeight="none"
+                    fontSize="xl"
+                    fontWeight="700"
+                    color={isSelected ? 'brand.600' : 'gray.900'}
                   >
                     {date.day}
                   </Text>
                   {isToday && (
                     <Text
                       fontSize="9px"
-                      fontWeight="700"
-                      color={isSelected ? 'white' : 'brand.500'}
+                      fontWeight="600"
+                      color={isSelected ? 'brand.500' : 'gray.400'}
                       textTransform="uppercase"
-                      letterSpacing="0.05em"
-                      pt={0.5}
+                      letterSpacing="wider"
                     >
                       Today
                     </Text>
                   )}
                   {isClosed && !isToday && (
-                    <Text
-                      fontSize="9px"
-                      fontWeight="600"
-                      color={isSelected ? 'white' : 'gray.400'}
-                      textTransform="uppercase"
-                      pt={0.5}
-                    >
+                    <Text fontSize="9px" color="text.faint" textTransform="uppercase">
                       Closed
                     </Text>
                   )}
@@ -180,3 +158,4 @@ function generateDates(count: number): DateInfo[] {
 
   return dates;
 }
+

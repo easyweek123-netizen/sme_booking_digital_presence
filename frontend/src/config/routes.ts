@@ -13,8 +13,6 @@ export const ROUTES = {
     BOOKINGS: '/dashboard/bookings',
     CLIENTS: '/dashboard/clients',
     SERVICES: '/dashboard/services',
-    SERVICES_CREATE: '/dashboard/services/create',
-    SERVICE_EDIT: (id: number | string) => `/dashboard/services/${id}/edit`,
     WEBSITE: '/dashboard/website',
     SETTINGS: '/dashboard/settings',
     SETTINGS_CALENDAR: '/dashboard/settings/calendar',

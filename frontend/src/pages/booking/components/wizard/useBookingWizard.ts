@@ -52,24 +52,25 @@ export function useBookingWizard(business: BusinessWithServices): BookingWizardS
   const canGoTo = (n: BookingWizardStep) => {
     if (n === 1) return true;
     if (n === 2) return !!selectedService;
+    if (n === 3) return !!selectedService && !!selectedTime;
     return false;
   };
 
   const canContinue =
     (step === 1 && !!selectedService) ||
-    (step === 2 && !!selectedTime);
+    (step === 2 && !!selectedTime) ||
+    (step === 3 && false);
 
   const continueLabel =
     step === 1
-      ? 'Book now'
-      : 'Confirm booking';
+      ? 'Continue to date & time  →'
+      : step === 2
+        ? 'Continue to your details  →'
+        : 'Confirm';
 
-  const handleContinue = async () => {
-    if (step === 1 && selectedService) {
-      setStep(2);
-    } else if (step === 2 && selectedTime) {
-      await handleInstantBooking();
-    }
+  const handleContinue = () => {
+    if (step === 1 && selectedService) setStep(2);
+    else if (step === 2 && selectedTime) setStep(3);
   };
 
   const handleSelectService = (s: Service) => {
@@ -84,31 +85,7 @@ export function useBookingWizard(business: BusinessWithServices): BookingWizardS
 
   const handleSelectTime = (t: string) => {
     setSelectedTime(t);
-  };
-
-  const handleInstantBooking = async () => {
-    if (!selectedService || !selectedTime) return;
-    try {
-      const booking = await createBooking({
-        businessId: business.id,
-        serviceId: selectedService.id,
-        date: selectedDate,
-        startTime: selectedTime,
-        customerName: 'Guest Client',
-        customerEmail: 'guest@example.com',
-      }).unwrap();
-      setCreatedBooking(booking);
-      setStep(4);
-    } catch (e) {
-      const apiErr = e as { data?: { message?: string } };
-      toast({
-        title: 'Booking Failed',
-        description: apiErr.data?.message || 'Something went wrong. Please try again.',
-        status: 'error',
-        duration: TOAST_DURATION.LONG,
-        isClosable: true,
-      });
-    }
+    setStep(3);
   };
 
   const handleVerified = async (u: User, name: string) => {

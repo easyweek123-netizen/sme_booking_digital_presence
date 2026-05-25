@@ -32,7 +32,7 @@ export class UpdateServiceDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  price?: number | null;
+  price?: number;
 
   @IsOptional()
   @IsArray()

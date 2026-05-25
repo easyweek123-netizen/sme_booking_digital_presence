@@ -17,7 +17,7 @@ import { buildProposalToolMessage } from '../../common/tools';
     'Propose updates for business profile. Call this tool to show an editable form and propose prefilled data as default values.' +
     'User confirm, cancel or ask followup questions about proposal. ' +
     'On updates: only send fields being changed — existing values are pre-filled automatically. ' +
-    'Fields: name, description (short plain-text tagline for the hero, not HTML), phone, address, city, website, instagram, logoUrl, brandColor, coverImageUrl, aboutContent (long About section: HTML only <h2>, <p>, <ul>, <blockquote>;. ' +
+    'Fields: name, description (short plain-text tagline for the hero, not HTML), phone, address, city, website, instagram, logoUrl, brandColor, coverImageUrl, workingHours (all 7 days with sensible defaults for the business type), aboutContent (long About section: HTML only <h2>, <p>, <ul>, <blockquote>;. ' +
     'Prefer batching related fields (e.g. phone + address + city, or all branding fields together). At least one field is required.',
 })
 @Injectable()
@@ -48,6 +48,7 @@ export class UpdateBusinessTool extends BaseToolHandler<BusinessUpdateArgs> {
       updatedAt,
       owner,
       services,
+      bookings,
       businessType,
       businessTypeId,
       ...currentProfile

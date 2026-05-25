@@ -3,10 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
-import { Service } from '../../services/entities/service.entity';
 
 @Entity('inquiries')
 export class Inquiry {
@@ -30,13 +27,6 @@ export class Inquiry {
 
   @Column({ type: 'varchar', length: 50, default: 'services_page' })
   source: string;
-
-  @Column({ name: 'service_id', type: 'int', nullable: true })
-  serviceId: number | null;
-
-  @ManyToOne(() => Service, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'service_id' })
-  service: Service | null;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -92,6 +92,7 @@ export function BookingHeader({
 }) {
   const [imgErr, setImgErr] = useState(false);
   const stickyHeaderRef = useRef<HTMLElement | null>(null);
+  const [coverErr, setCoverErr] = useState(false);
   const hasLogo = business.logoUrl && !imgErr;
   const status = getTodayStatus(business.workingHours);
 
@@ -112,6 +113,7 @@ export function BookingHeader({
       document.documentElement.style.removeProperty(BOOKING_HEADER_H_VAR);
     };
   }, [business.name, business.description, business.phone, business.city]);
+  const showCover = business.coverImageUrl && !coverErr;
 
   return (
     <Box bg="white" w="100%">

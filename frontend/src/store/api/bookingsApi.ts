@@ -3,11 +3,22 @@ import type {
   Booking,
   BookingStatus,
   CreateBookingRequest,
+  AvailabilityResponse,
   BookingStats,
 } from '../../types';
 
 export const bookingsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // Get available time slots for a business on a specific date
+    getAvailability: builder.query<
+      AvailabilityResponse,
+      { businessId: number; date: string; serviceId: number }
+    >({
+      query: ({ businessId, date, serviceId }) =>
+        `/bookings/availability/${businessId}?date=${date}&serviceId=${serviceId}`,
+    }),
+
+    // Create a new booking (public, no auth)
     createBooking: builder.mutation<Booking, CreateBookingRequest>({
       query: (data) => ({
         url: '/bookings',
@@ -17,40 +28,52 @@ export const bookingsApi = baseApi.injectEndpoints({
       invalidatesTags: ['Booking'],
     }),
 
+    // Get booking by reference code (public, for customer status lookup)
     getBookingByReference: builder.query<Booking, string>({
       query: (reference) => `/bookings/status/${reference}`,
       providesTags: ['Booking'],
     }),
 
+    // Get pending bookings count for sidebar badge
+    getPendingCount: builder.query<{ count: number }, number>({
+      query: (businessId) => `/bookings/pending-count/${businessId}`,
+      providesTags: ['Booking'],
+    }),
+
+    // Get all bookings for a business (protected)
     getBookings: builder.query<
       Booking[],
       {
+        businessId: number;
         status?: string;
         from?: string;
         to?: string;
       }
     >({
-      query: ({ status, from, to } = {}) => {
+      query: ({ businessId, status, from, to }) => {
         const params = new URLSearchParams();
         if (status) params.append('status', status);
         if (from) params.append('from', from);
         if (to) params.append('to', to);
         const queryString = params.toString();
-        return `/bookings${queryString ? `?${queryString}` : ''}`;
+        return `/bookings/business/${businessId}${queryString ? `?${queryString}` : ''}`;
       },
       providesTags: ['Booking'],
     }),
 
-    getBookingStats: builder.query<BookingStats, void>({
-      query: () => `/bookings/stats`,
+    // Get booking stats for a business
+    getBookingStats: builder.query<BookingStats, number>({
+      query: (businessId) => `/bookings/stats/${businessId}`,
       providesTags: ['Booking'],
     }),
 
+    // Get a single booking by ID
     getBooking: builder.query<Booking, number>({
       query: (id) => `/bookings/${id}`,
       providesTags: ['Booking'],
     }),
 
+    // Update booking status
     updateBookingStatus: builder.mutation<
       Booking,
       { id: number; status: BookingStatus }
@@ -66,8 +89,10 @@ export const bookingsApi = baseApi.injectEndpoints({
 });
 
 export const {
+  useGetAvailabilityQuery,
   useCreateBookingMutation,
   useGetBookingByReferenceQuery,
+  useGetPendingCountQuery,
   useGetBookingsQuery,
   useGetBookingStatsQuery,
   useGetBookingQuery,

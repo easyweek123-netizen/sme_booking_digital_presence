@@ -14,11 +14,7 @@ import {
 import { ServiceCategoriesService } from './service-categories.service';
 import { CreateServiceCategoryDto, UpdateServiceCategoryDto } from './dto';
 import { FirebaseAuthGuard } from '../auth/guards';
-import {
-  BusinessId,
-  BusinessOwnershipGuard,
-  OwnerResolverGuard,
-} from '../common';
+import { OwnerId, OwnerResolverGuard } from '../common';
 import { ServiceCategory } from './entities/service-category.entity';
 
 @Controller('service-categories')
@@ -27,16 +23,24 @@ export class ServiceCategoriesController {
     private readonly serviceCategoriesService: ServiceCategoriesService,
   ) {}
 
+  /**
+   * Create a new service category
+   * POST /api/service-categories
+   */
   @Post()
-  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @BusinessId() businessId: number,
+    @OwnerId() ownerId: number,
     @Body() createCategoryDto: CreateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    return this.serviceCategoriesService.create(businessId, createCategoryDto);
+    return this.serviceCategoriesService.create(ownerId, createCategoryDto);
   }
 
+  /**
+   * Get all categories for a business (public)
+   * GET /api/service-categories/business/:businessId
+   */
   @Get('business/:businessId')
   async findByBusiness(
     @Param('businessId', ParseIntPipe) businessId: number,
@@ -44,6 +48,10 @@ export class ServiceCategoriesController {
     return this.serviceCategoriesService.findByBusiness(businessId);
   }
 
+  /**
+   * Get a single category by ID
+   * GET /api/service-categories/:id
+   */
   @Get(':id')
   async findOne(
     @Param('id', ParseIntPipe) id: number,
@@ -51,27 +59,31 @@ export class ServiceCategoriesController {
     return this.serviceCategoriesService.findOne(id);
   }
 
+  /**
+   * Update a service category
+   * PATCH /api/service-categories/:id
+   */
   @Patch(':id')
-  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   async update(
-    @BusinessId() businessId: number,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    return this.serviceCategoriesService.update(
-      id,
-      businessId,
-      updateCategoryDto,
-    );
+    return this.serviceCategoriesService.update(id, ownerId, updateCategoryDto);
   }
 
+  /**
+   * Delete a service category
+   * DELETE /api/service-categories/:id
+   */
   @Delete(':id')
-  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
+  @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
-    @BusinessId() businessId: number,
+    @OwnerId() ownerId: number,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {
-    return this.serviceCategoriesService.remove(id, businessId);
+    return this.serviceCategoriesService.remove(id, ownerId);
   }
 }

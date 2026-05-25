@@ -71,30 +71,3 @@ export function formatTime(time: string): string {
   return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 }
 
-export const DAY_CHIPS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
-export const MONTH_CHIPS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-] as const;
-
-export function formatDateChip(date: string): { dow: string; day: number; mon: string } {
-  const [y, m, d] = date.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  return { dow: DAY_CHIPS[dt.getDay()], day: d, mon: MONTH_CHIPS[dt.getMonth()] };
-}
-
-export function formatSessionDate(date: string): string {
-  const { dow, day, mon } = formatDateChip(date);
-  return `${dow} · ${day} ${mon}`;
-}
-

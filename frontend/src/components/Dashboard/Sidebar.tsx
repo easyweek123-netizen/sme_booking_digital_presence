@@ -18,7 +18,7 @@ import { ROUTES } from '../../config/routes';
 import { useAppDispatch } from '../../store/hooks';
 import { resetStore } from '../../store/actions';
 import { useBusinessOptional } from '../../contexts/useBusiness';
-import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
+import { useGetPendingCountQuery } from '../../store/api/bookingsApi';
 import { useSidebarCollapsed } from '../../hooks';
 import { SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './constants';
 
@@ -56,10 +56,10 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
   });
 
   const { business } = useBusinessOptional();
-  const { data: stats } = useGetBookingStatsQuery(undefined, {
+  const { data: pendingData } = useGetPendingCountQuery(business?.id || 0, {
     skip: !business?.id,
   });
-  const pendingCount = stats?.pending || 0;
+  const pendingCount = pendingData?.count || 0;
 
   const handleNavigate = (path: string) => {
     onClose?.();

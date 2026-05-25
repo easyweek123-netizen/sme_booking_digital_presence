@@ -27,7 +27,7 @@ import {
   useCreateServiceCategoryMutation,
   useUpdateServiceCategoryMutation,
   useDeleteServiceCategoryMutation,
-} from '../../store/api/servicesApi';
+} from '../../store/api/serviceCategoriesApi';
 import { TOAST_DURATION } from '../../constants';
 import type { ServiceCategory } from '../../types';
 
@@ -55,7 +55,6 @@ export function CategoryManagement({ businessId }: CategoryManagementProps) {
 
     try {
       await createCategory({
-        businessId,
         name: newCategoryName.trim(),
         displayOrder: categories.length,
       }).unwrap();

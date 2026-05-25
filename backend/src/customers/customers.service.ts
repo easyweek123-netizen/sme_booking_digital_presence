@@ -87,7 +87,8 @@ export class CustomersService {
     const qb = this.customerRepository
       .createQueryBuilder('customer')
       .leftJoinAndSelect('customer.bookings', 'booking')
-      .leftJoinAndSelect('booking.business', 'business')
+      .leftJoin('booking.service', 'service')
+      .leftJoin('service.business', 'business')
       .where('business.ownerId = :ownerId', { ownerId });
 
     if (search) {
@@ -112,7 +113,8 @@ export class CustomersService {
     return this.customerRepository
       .createQueryBuilder('customer')
       .leftJoin('customer.bookings', 'booking')
-      .leftJoin('booking.business', 'business')
+      .leftJoin('booking.service', 'service')
+      .leftJoin('service.business', 'business')
       .where('business.ownerId = :ownerId', { ownerId })
       .andWhere('LOWER(customer.name) = LOWER(:name)', { name })
       .getOne();
@@ -126,7 +128,7 @@ export class CustomersService {
       .createQueryBuilder('customer')
       .leftJoinAndSelect('customer.bookings', 'booking')
       .leftJoinAndSelect('booking.service', 'service')
-      .leftJoinAndSelect('booking.business', 'business')
+      .leftJoin('service.business', 'business')
       .where('customer.id = :id', { id })
       .andWhere('business.ownerId = :ownerId', { ownerId })
       .orderBy('booking.date', 'DESC')

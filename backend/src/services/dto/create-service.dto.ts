@@ -10,10 +10,6 @@ import {
 } from 'class-validator';
 
 export class CreateServiceDto {
-  @IsNumber()
-  @IsPositive()
-  businessId: number;
-
   @IsOptional()
   @IsNumber()
   @IsPositive()
@@ -33,9 +29,10 @@ export class CreateServiceDto {
   @Min(15)
   durationMinutes: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  price: number;
+  price?: number | null;
 
   @IsOptional()
   @IsArray()

@@ -78,6 +78,7 @@ export class EmailService {
   async sendBookingConfirmed(
     booking: Booking,
     business: Business,
+    meetLink?: string,
   ): Promise<void> {
     const customerEmail = booking.customerEmail;
 
@@ -88,9 +89,6 @@ export class EmailService {
       return;
     }
 
-    const subject = `Booking Confirmed - ${business.name}`;
-
-    // Generate Google Calendar link
     const bookingDateTime = this.combineDateTime(
       booking.date,
       booking.startTime,
@@ -104,8 +102,10 @@ export class EmailService {
       title: `${booking.service?.name || 'Appointment'} at ${business.name}`,
       start: bookingDateTime,
       durationMinutes,
-      location: business.address || undefined,
-      description: `Reference: ${booking.reference}`,
+      location: meetLink ?? business.address ?? undefined,
+      description: meetLink
+        ? `Reference: ${booking.reference}\nJoin: ${meetLink}`
+        : `Reference: ${booking.reference}`,
     });
 
     const html = bookingConfirmedTemplate({
@@ -115,14 +115,15 @@ export class EmailService {
       date: this.formatDate(booking.date),
       time: `${booking.startTime} - ${booking.endTime}`,
       reference: booking.reference,
-      address: business.address || undefined,
+      address: meetLink ? undefined : business.address || undefined,
       phone: business.phone || undefined,
       calendarLink,
+      meetLink,
     });
 
     await this.send({
       to: customerEmail,
-      subject,
+      subject: `Booking Confirmed - ${business.name}`,
       html,
     });
   }
@@ -168,10 +169,11 @@ export class EmailService {
     booking: Booking,
     business: Business,
     status: BookingStatus,
+    meetLink?: string,
   ): Promise<void> {
     switch (status) {
       case BookingStatus.CONFIRMED:
-        await this.sendBookingConfirmed(booking, business);
+        await this.sendBookingConfirmed(booking, business, meetLink);
         break;
       case BookingStatus.CANCELLED:
         await this.sendBookingCancelled(booking, business);

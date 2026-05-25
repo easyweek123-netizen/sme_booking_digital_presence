@@ -15,8 +15,12 @@ export type {
   Service,
   CreateServiceRequest,
   UpdateServiceRequest,
+  ServiceTypeValue,
+  PriceTypeValue,
+  LocationTypeValue,
   CreateServiceCategoryRequest,
   UpdateServiceCategoryRequest,
+  Schedule,
   Business,
   BusinessWithServices,
   CreateBusinessRequest,
@@ -35,6 +39,9 @@ export type {
   AvailabilityResponse,
   BookingStats,
 } from './booking.types';
+export type { Slot } from './booking.types';
+export type { Availability } from './availability.types';
+export type { AvailabilityInput } from '@bookeasy/shared';
 
 // Note types
 export type {

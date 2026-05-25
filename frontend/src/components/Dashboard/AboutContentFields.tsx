@@ -14,6 +14,8 @@ import {
   Button,
 } from '@chakra-ui/react';
 import DOMPurify from 'dompurify';
+import { useFormContext } from 'react-hook-form';
+import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 
 const ALLOWED_TAGS = [
   'h2',
@@ -48,13 +50,6 @@ function buildAboutContentTemplate(businessName?: string): string {
 <blockquote>
   "Customer testimonial here"
 </blockquote>`;
-}
-
-interface AboutContentFieldsProps {
-  value: string;
-  onChange: (value: string) => void;
-  brandColor?: string;
-  businessName?: string;
 }
 
 const helperTextProps = {
@@ -180,12 +175,12 @@ function AboutEditorFields({
   );
 }
 
-export function AboutContentFields({
-  value,
-  onChange,
-  brandColor,
-  businessName,
-}: AboutContentFieldsProps) {
+export function AboutContentFields() {
+  const { watch, setValue } = useFormContext<WebsiteFormValues>();
+  const value = watch('about.aboutContent');
+  const brandColor = watch('branding.brandColor');
+  const businessName = watch('profile.name');
+
   const sanitizedHtml = useMemo(() => {
     if (!value) return '';
     return DOMPurify.sanitize(value, { ALLOWED_TAGS, ALLOWED_ATTR });
@@ -193,6 +188,7 @@ export function AboutContentFields({
 
   const accentColor = brandColor || 'brand.500';
   const linkColor = brandColor || 'brand.600';
+  const onChange = (v: string) => setValue('about.aboutContent', v, { shouldDirty: true });
 
   return (
     <>

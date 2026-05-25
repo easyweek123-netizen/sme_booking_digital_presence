@@ -36,7 +36,7 @@ type DeleteServiceArgs = z.infer<typeof DeleteServiceArgsSchema>;
  * Resolves service by ID (preferred) or name, creates delete proposal.
  */
 @ToolHandler({
-  name: 'services_delete',
+  name: 'service_delete',
   description:
     'Delete a service. Lookup by ID (preferred, from services_list) or name. Requires owner confirmation before execution. Use only when user explicitly asks to remove a service.',
 })

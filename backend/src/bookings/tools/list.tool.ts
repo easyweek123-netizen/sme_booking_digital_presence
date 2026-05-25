@@ -11,9 +11,7 @@ import { formatLocalYmd } from '../../common/time/local-date';
 import { BookingsService } from '../bookings.service';
 import { BookingStatus } from '../entities/booking.entity';
 
-/**
- * List bookings for the business with optional filters.
- */
+/** List bookings for the business with optional filters. */
 @ToolHandler({
   name: 'bookings_list',
   description:
@@ -32,15 +30,11 @@ export class ListBookingsTool extends BaseToolHandler<BookingsListFilters> {
     args: BookingsListFilters,
     ctx: ToolContext,
   ): Promise<ToolResult> {
-    const bookings = await this.bookingsService.findByBusiness(
-      ctx.businessId,
-      ctx.ownerId,
-      {
-        status: args.status as BookingStatus | undefined,
-        from: args.from,
-        to: args.to,
-      },
-    );
+    const bookings = await this.bookingsService.findByBusiness(ctx.businessId, {
+      status: args.status as BookingStatus | undefined,
+      from: args.from,
+      to: args.to,
+    });
 
     if (bookings.length === 0) {
       return ToolResultHelpers.success('No bookings match those filters.');
@@ -50,7 +44,7 @@ export class ListBookingsTool extends BaseToolHandler<BookingsListFilters> {
       .map((b) => {
         const dateStr = this.formatDate(b.date);
         const svc = b.service?.name ?? 'Service';
-        return `${b.customerName} — ${svc} on ${dateStr} at ${b.startTime} (${b.status})`;
+        return `${b.customerName} - ${svc} on ${dateStr} at ${b.startTime} (${b.status})`;
       })
       .join('; ');
 

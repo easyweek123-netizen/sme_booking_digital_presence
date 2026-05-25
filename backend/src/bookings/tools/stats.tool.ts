@@ -6,12 +6,9 @@ import type { ToolContext } from '../../common';
 import { BookingsService } from '../bookings.service';
 
 const BookingsStatsArgsSchema = z.object({});
-
 type BookingsStatsArgs = z.infer<typeof BookingsStatsArgsSchema>;
 
-/**
- * Booking counts for the business (rollup by status + today’s active count).
- */
+/** Booking counts for the business (rollup by status + today's active count). */
 @ToolHandler({
   name: 'bookings_stats',
   description:
@@ -30,22 +27,12 @@ export class BookingStatsTool extends BaseToolHandler<BookingsStatsArgs> {
     _args: BookingsStatsArgs,
     ctx: ToolContext,
   ): Promise<ToolResult> {
-    const stats = await this.bookingsService.getStats(
-      ctx.businessId,
-      ctx.ownerId,
-    );
-
+    const stats = await this.bookingsService.getStats(ctx.businessId);
     const { total, today, pending, byStatus } = stats;
     const summary = `You have ${total} active booking(s), ${today} scheduled for today, and ${pending} awaiting your confirmation.`;
-
     return ToolResultHelpers.withData(
       summary,
-      {
-        total,
-        today,
-        pending,
-        byStatus,
-      },
+      { total, today, pending, byStatus },
       'bookings',
     );
   }

@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button, type ButtonProps } from '@chakra-ui/react';
 import { signInWithGoogle, type User } from '../firebase';
 import { GoogleIcon } from '../../components/icons';
 
-interface GoogleButtonProps {
+interface GoogleButtonProps extends Omit<ButtonProps, 'onError'> {
   onSuccess: (user: User) => void;
   onError?: (error: Error) => void;
   text?: string;
-  isDisabled?: boolean;
 }
 
 export function GoogleButton({
@@ -15,6 +14,7 @@ export function GoogleButton({
   onError,
   text = 'Continue with Google',
   isDisabled = false,
+  ...rest
 }: GoogleButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,9 +42,11 @@ export function GoogleButton({
       borderRadius="lg"
       fontWeight="500"
       _hover={{ bg: 'surface.alt' }}
+      {...rest}
     >
       {text}
     </Button>
   );
 }
+
 

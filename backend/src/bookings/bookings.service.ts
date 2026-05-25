@@ -2,34 +2,25 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  Logger,
+  ConflictException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, DataSource } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { Booking, BookingStatus } from './entities/booking.entity';
-import { Business } from '../business/entities/business.entity';
-import { Service } from '../services/entities/service.entity';
-import { CreateBookingDto } from './dto/create-booking.dto';
-import { EmailService } from '../email/email.service';
-import { SLOT_INTERVAL_MINUTES, DayOfWeek } from '../common/constants';
-import { WorkingHours } from '../common/types';
-import { generateBookingReference, verifyBusinessOwnership } from '../common';
-import { BookingStatusChangedEvent } from './events';
+import { ScheduleService } from '../schedule/schedule.service';
+import { generateBookingReference } from '../common';
+import { BookingCreatedEvent, BookingStatusChangedEvent } from './events';
 import { formatLocalYmd } from '../common/time/local-date';
+import type { BookingCreateInput } from '@bookeasy/shared';
 
-interface AvailabilityResult {
-  slots: string[];
-}
-
-interface BookingsFilter {
+export interface BookingsFilter {
   status?: BookingStatus;
   from?: string;
   to?: string;
 }
 
-/** Aggregated booking counts for dashboard and AI tools */
-export interface BusinessBookingStats {
+export interface BookingStats {
   total: number;
   today: number;
   pending: number;
@@ -38,298 +29,204 @@ export interface BusinessBookingStats {
 
 @Injectable()
 export class BookingsService {
-  private readonly logger = new Logger(BookingsService.name);
-
   constructor(
     @InjectRepository(Booking)
-    private readonly bookingRepository: Repository<Booking>,
-    @InjectRepository(Business)
-    private readonly businessRepository: Repository<Business>,
-    @InjectRepository(Service)
-    private readonly serviceRepository: Repository<Service>,
-    private readonly emailService: EmailService,
-    private readonly dataSource: DataSource,
+    private readonly bookings: Repository<Booking>,
+    private readonly schedule: ScheduleService,
     private readonly events: EventEmitter2,
   ) {}
 
-  /**
-   * Get available time slots for a specific date and service
-   */
-  async getAvailability(
-    businessId: number,
-    date: string,
-    serviceId: number,
-  ): Promise<AvailabilityResult> {
-    // 0. Validate date format (YYYY-MM-DD)
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      throw new BadRequestException('Invalid date format. Use YYYY-MM-DD.');
-    }
-
-    // Validate calendar date is real (e.g. reject month 13, day 32)
-    const [year, month, day] = date.split('-').map(Number);
-    const dateObj = new Date(year, month - 1, day);
-    if (
-      dateObj.getFullYear() !== year ||
-      dateObj.getMonth() !== month - 1 ||
-      dateObj.getDate() !== day
-    ) {
-      throw new BadRequestException('Invalid calendar date.');
-    }
-
-    // Don't allow booking in the past
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    if (dateObj < todayStart) {
-      return { slots: [] };
-    }
-
-    // Don't allow booking more than 90 days out
-    const maxDate = new Date(todayStart);
-    maxDate.setDate(maxDate.getDate() + 90);
-    if (dateObj > maxDate) {
-      return { slots: [] };
-    }
-
-    // 1. Fetch business with working hours
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
-    // 2. Fetch the service to get duration
-    const service = await this.serviceRepository.findOne({
-      where: { id: serviceId, businessId, isActive: true },
-    });
-
-    if (!service) {
-      throw new NotFoundException('Service not found or inactive');
-    }
-
-    // 3. Get day of week from date
-    const dayIndex = dateObj.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    // Convert to our format (monday, tuesday, etc.)
-    const dayMap: DayOfWeek[] = [
-      'sunday',
-      'monday',
-      'tuesday',
-      'wednesday',
-      'thursday',
-      'friday',
-      'saturday',
-    ];
-    const dayOfWeek = dayMap[dayIndex];
-
-    // 4. Check if business is open on this day
-    const workingHours = business.workingHours as WorkingHours;
-    if (!workingHours || !workingHours[dayOfWeek]?.isOpen) {
-      return { slots: [] };
-    }
-
-    // 5. Check if service is available on this day (if availableDays is set)
-    if (service.availableDays && service.availableDays.length > 0) {
-      if (!service.availableDays.includes(dayOfWeek)) {
-        return { slots: [] };
-      }
-    }
-
-    const daySchedule = workingHours[dayOfWeek];
-    const openTime = daySchedule.openTime; // e.g., "09:00"
-    const closeTime = daySchedule.closeTime; // e.g., "18:00"
-
-    // 6. Generate all possible slots
-    const allSlots = this.generateSlots(
-      openTime,
-      closeTime,
-      service.durationMinutes,
+  async create(dto: BookingCreateInput, customerId: number): Promise<Booking> {
+    const slot = await this.schedule.findSlot(
+      dto.serviceId,
+      dto.date,
+      dto.startTime,
     );
 
-    // 7. Fetch existing bookings for this date (excluding cancelled)
-    const existingBookings = await this.bookingRepository.find({
+    const taken = await this.bookings.count({
       where: {
-        businessId,
-        date: new Date(date),
+        serviceId: dto.serviceId,
+        date: dto.date as unknown as Date,
+        startTime: dto.startTime,
         status: Not(BookingStatus.CANCELLED),
       },
     });
-
-    // 8. Filter out slots that overlap with existing bookings
-    const availableSlots = allSlots.filter((slot) => {
-      const slotStart = this.timeToMinutes(slot);
-      const slotEnd = slotStart + service.durationMinutes;
-
-      return !existingBookings.some((booking) => {
-        const bookingStart = this.timeToMinutes(booking.startTime);
-        const bookingEnd = this.timeToMinutes(booking.endTime);
-
-        // Check for overlap
-        return slotStart < bookingEnd && slotEnd > bookingStart;
-      });
-    });
-
-    // 9. Filter out past slots if the date is today
-    const today = new Date();
-    const todayStr = this.getLocalDateString(today);
-
-    if (date === todayStr) {
-      const currentMinutes = today.getHours() * 60 + today.getMinutes();
-      // Add a buffer of 30 minutes - can't book slots that start within 30 min
-      const minBookableTime = currentMinutes + 30;
-
-      return {
-        slots: availableSlots.filter(
-          (slot) => this.timeToMinutes(slot) >= minBookableTime,
-        ),
-      };
+    if (taken >= slot.capacity) {
+      throw new ConflictException('Slot capacity reached');
     }
 
-    return { slots: availableSlots };
-  }
-
-  /**
-   * Create a new booking
-   */
-  async create(
-    createBookingDto: CreateBookingDto,
-    customerId: number,
-  ): Promise<Booking> {
-    const { businessId, serviceId, date, startTime } = createBookingDto;
-
-    // 1. Verify business exists
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
-    // 2. Verify service exists and belongs to business
-    const service = await this.serviceRepository.findOne({
-      where: { id: serviceId, businessId, isActive: true },
-    });
-
-    if (!service) {
-      throw new NotFoundException('Service not found or inactive');
-    }
-
-    // 3. Check slot is still available (prevent double-booking)
-    const availability = await this.getAvailability(
-      businessId,
-      date,
-      serviceId,
+    const saved = await this.bookings.save(
+      this.bookings.create({
+        reference: generateBookingReference(),
+        serviceId: dto.serviceId,
+        customerId,
+        customerName: dto.customerName,
+        customerEmail: dto.customerEmail,
+        date: new Date(dto.date) as unknown as Date,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        status: BookingStatus.PENDING,
+        notes: dto.notes ?? null,
+      }),
     );
 
-    if (!availability.slots.includes(startTime)) {
-      throw new BadRequestException(
-        'This time slot is no longer available. Please choose another time.',
-      );
-    }
-
-    // 4. Calculate end time
-    const endTime = this.addMinutesToTime(startTime, service.durationMinutes);
-
-    // 5. Create the booking (defaults to PENDING status)
-    // Wrapped in try/catch to handle race condition — the partial unique index
-    // UQ_booking_slot catches concurrent inserts for the same slot.
-    const booking = this.bookingRepository.create({
-      businessId,
-      serviceId,
-      customerId,
-      customerName: createBookingDto.customerName,
-      customerEmail: createBookingDto.customerEmail,
-      date: new Date(date),
-      startTime,
-      endTime,
-      reference: generateBookingReference(),
-      // status defaults to PENDING via entity
-    });
-
-    let savedBooking: Booking;
-    try {
-      savedBooking = await this.bookingRepository.save(booking);
-    } catch (err: unknown) {
-      const code =
-        typeof err === 'object' && err !== null && 'code' in err
-          ? String((err as { code: unknown }).code)
-          : undefined;
-      if (code === '23505') {
-        throw new BadRequestException(
-          'This time slot was just booked. Please choose another time.',
-        );
-      }
-      throw err;
-    }
-
-    // Load booking with relations for email
-    const fullBooking = await this.findOne(savedBooking.id);
-
-    // Send new booking alert to owner (fire-and-forget)
-    const businessWithOwner = await this.businessRepository.findOne({
-      where: { id: businessId },
-      relations: ['owner'],
-    });
-
-    if (businessWithOwner?.owner) {
-      this.emailService
-        .sendNewBookingAlert(
-          fullBooking,
-          businessWithOwner,
-          businessWithOwner.owner,
-        )
-        .catch((err) =>
-          this.logger.error('Failed to send new booking alert', err),
-        );
-    }
-
-    return fullBooking;
+    this.events.emit(
+      BookingCreatedEvent.NAME,
+      new BookingCreatedEvent(saved.id),
+    );
+    return this.findOne(saved.id);
   }
 
-  /**
-   * Find booking by ID with service info
-   */
   async findOne(id: number): Promise<Booking> {
-    const booking = await this.bookingRepository.findOne({
+    const booking = await this.bookings.findOne({
       where: { id },
       relations: ['service'],
     });
-
-    if (!booking) {
-      throw new NotFoundException('Booking not found');
-    }
-
+    if (!booking) throw new NotFoundException('Booking not found');
     return booking;
   }
 
-  /**
-   * Find booking by reference code (public - for customer status lookup)
-   */
   async findByReference(reference: string): Promise<Booking> {
-    const booking = await this.bookingRepository.findOne({
+    const booking = await this.bookings.findOne({
       where: { reference: reference.toUpperCase() },
-      relations: ['service', 'business'],
+      relations: ['service'],
     });
-
-    if (!booking) {
-      throw new NotFoundException('Booking not found');
-    }
-
+    if (!booking) throw new NotFoundException('Booking not found');
     return booking;
   }
 
+  async findByBusiness(
+    businessId: number,
+    filters: BookingsFilter = {},
+  ): Promise<Booking[]> {
+    const qb = this.bookings
+      .createQueryBuilder('booking')
+      .leftJoinAndSelect('booking.service', 'service')
+      .where('service.businessId = :businessId', { businessId });
+
+    if (filters.status) {
+      qb.andWhere('booking.status = :status', { status: filters.status });
+    }
+    if (filters.from) {
+      qb.andWhere('booking.date >= :from', { from: filters.from });
+    }
+    if (filters.to) {
+      qb.andWhere('booking.date <= :to', { to: filters.to });
+    }
+
+    return qb
+      .orderBy('booking.date', 'ASC')
+      .addOrderBy('booking.startTime', 'ASC')
+      .getMany();
+  }
+
+  async findOneByBusiness(
+    businessId: number,
+    lookup: { id?: number; reference?: string },
+  ): Promise<Booking | null> {
+    const hasId = lookup.id !== undefined;
+    const hasRef =
+      lookup.reference !== undefined && lookup.reference.trim().length > 0;
+    if (!hasId && !hasRef) return null;
+
+    const qb = this.bookings
+      .createQueryBuilder('booking')
+      .innerJoinAndSelect('booking.service', 'service')
+      .where('service.businessId = :businessId', { businessId });
+
+    if (hasId) {
+      qb.andWhere('booking.id = :id', { id: lookup.id });
+    } else {
+      qb.andWhere('booking.reference = :ref', {
+        ref: lookup.reference!.toUpperCase(),
+      });
+    }
+    return qb.getOne();
+  }
+
+  async getStats(businessId: number): Promise<BookingStats> {
+    const statusRows = await this.bookings
+      .createQueryBuilder('booking')
+      .innerJoin('booking.service', 'service')
+      .select('booking.status', 'status')
+      .addSelect('COUNT(*)', 'count')
+      .where('service.businessId = :businessId', { businessId })
+      .groupBy('booking.status')
+      .getRawMany<{ status: string; count: string }>();
+
+    const byStatus = {} as Record<BookingStatus, number>;
+    for (const s of Object.values(BookingStatus)) byStatus[s] = 0;
+    for (const row of statusRows) {
+      const s = row.status as BookingStatus;
+      if (s in byStatus) byStatus[s] = Number(row.count);
+    }
+
+    const total = Object.entries(byStatus)
+      .filter(([k]) => (k as BookingStatus) !== BookingStatus.CANCELLED)
+      .reduce((sum, [, n]) => sum + n, 0);
+    const pending = byStatus[BookingStatus.PENDING];
+
+    const todayDate = new Date(formatLocalYmd(new Date()));
+    const today = await this.bookings
+      .createQueryBuilder('booking')
+      .innerJoin('booking.service', 'service')
+      .where('service.businessId = :businessId', { businessId })
+      .andWhere('booking.date = :date', { date: todayDate })
+      .andWhere('booking.status != :cancelled', {
+        cancelled: BookingStatus.CANCELLED,
+      })
+      .getCount();
+
+    return { total, today, pending, byStatus };
+  }
+
   /**
-   * Hard-delete a booking (admin / support only). Optional reference must match id when provided.
+   * Update a booking's status. Caller is expected to have verified the booking
+   * belongs to a known business via findOneByBusiness, or to call this from
+   * an HTTP route protected by BusinessOwnershipGuard with prior scope check.
    */
-  async removeByIdAdmin(
+  async updateStatus(id: number, status: BookingStatus): Promise<Booking> {
+    const booking = await this.findOne(id);
+    const previous = booking.status;
+    if (previous === status) return booking;
+
+    booking.status = status;
+    if (
+      status === BookingStatus.CONFIRMED &&
+      previous !== BookingStatus.CONFIRMED
+    ) {
+      booking.confirmedAt = new Date();
+    }
+    await this.bookings.save(booking);
+
+    this.events.emit(
+      BookingStatusChangedEvent.NAME,
+      new BookingStatusChangedEvent(booking.id, previous, status),
+    );
+    return this.findOne(id);
+  }
+
+  /**
+   * Update status scoped by businessId. Returns 404 if the booking is not
+   * in this business. Used by HTTP routes after BusinessOwnershipGuard.
+   */
+  async updateStatusForBusiness(
+    id: number,
+    businessId: number,
+    status: BookingStatus,
+  ): Promise<Booking> {
+    const booking = await this.findOneByBusiness(businessId, { id });
+    if (!booking) throw new NotFoundException('Booking not found');
+    return this.updateStatus(id, status);
+  }
+
+  async remove(
     id: number,
     expectedReference?: string,
   ): Promise<{ deletedId: number; reference: string }> {
-    const booking = await this.bookingRepository.findOne({ where: { id } });
-    if (!booking) {
-      throw new NotFoundException(`Booking ${id} not found`);
-    }
+    const booking = await this.bookings.findOne({ where: { id } });
+    if (!booking) throw new NotFoundException(`Booking ${id} not found`);
+
     if (
       expectedReference !== undefined &&
       expectedReference.trim().length > 0 &&
@@ -339,250 +236,7 @@ export class BookingsService {
         `Reference mismatch: booking ${id} has reference ${booking.reference}`,
       );
     }
-    await this.bookingRepository.remove(booking);
+    await this.bookings.remove(booking);
     return { deletedId: id, reference: booking.reference };
-  }
-
-  /**
-   * Find a booking for the authenticated owner of a business.
-   * Verifies business ownership first, then loads by id (preferred) or reference within that business.
-   */
-  async findBookingForOwner(
-    businessId: number,
-    ownerId: number,
-    lookup: { id?: number; reference?: string },
-  ): Promise<Booking | null> {
-    const hasId = lookup.id !== undefined;
-    const hasRef =
-      lookup.reference !== undefined && lookup.reference.trim().length > 0;
-    if (!hasId && !hasRef) return null;
-
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
-
-    if (hasId) {
-      return this.bookingRepository.findOne({
-        where: { id: lookup.id!, businessId },
-        relations: ['service'],
-      });
-    }
-
-    return this.bookingRepository.findOne({
-      where: {
-        reference: lookup.reference!.toUpperCase(),
-        businessId,
-      },
-      relations: ['service'],
-    });
-  }
-
-  /**
-   * Get count of pending bookings for a business
-   */
-  async getPendingCount(businessId: number, ownerId: number): Promise<number> {
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
-
-    return this.bookingRepository.count({
-      where: {
-        businessId,
-        status: BookingStatus.PENDING,
-      },
-    });
-  }
-
-  /**
-   * Find all bookings for a business with optional filters
-   */
-  async findByBusiness(
-    businessId: number,
-    ownerId: number,
-    filters: BookingsFilter = {},
-  ): Promise<Booking[]> {
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
-
-    // Build query
-    const queryBuilder = this.bookingRepository
-      .createQueryBuilder('booking')
-      .leftJoinAndSelect('booking.service', 'service')
-      .where('booking.businessId = :businessId', { businessId });
-
-    if (filters.status) {
-      queryBuilder.andWhere('booking.status = :status', {
-        status: filters.status,
-      });
-    }
-
-    if (filters.from) {
-      queryBuilder.andWhere('booking.date >= :from', { from: filters.from });
-    }
-
-    if (filters.to) {
-      queryBuilder.andWhere('booking.date <= :to', { to: filters.to });
-    }
-
-    // Order by date and time
-    queryBuilder
-      .orderBy('booking.date', 'ASC')
-      .addOrderBy('booking.startTime', 'ASC');
-
-    return queryBuilder.getMany();
-  }
-
-  /**
-   * Update booking status
-   */
-  async updateStatus(
-    id: number,
-    ownerId: number,
-    status: BookingStatus,
-  ): Promise<Booking> {
-    const booking = await this.bookingRepository.findOne({
-      where: { id },
-      relations: ['business'],
-    });
-
-    if (!booking) {
-      throw new NotFoundException('Booking not found');
-    }
-
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      booking.businessId,
-      ownerId,
-    );
-
-    const previousStatus = booking.status;
-
-    if (previousStatus === status) {
-      return this.findOne(id);
-    }
-
-    booking.status = status;
-
-    if (
-      status === BookingStatus.CONFIRMED &&
-      previousStatus !== BookingStatus.CONFIRMED
-    ) {
-      booking.confirmedAt = new Date();
-    }
-
-    await this.bookingRepository.save(booking);
-
-    const updatedBooking = await this.findOne(id);
-
-    this.events.emit(
-      BookingStatusChangedEvent.NAME,
-      new BookingStatusChangedEvent(booking.id, previousStatus, status),
-    );
-
-    return updatedBooking;
-  }
-
-  /**
-   * Get booking stats for a business (two light aggregates: GROUP BY status + today count).
-   */
-  async getStats(
-    businessId: number,
-    ownerId: number,
-  ): Promise<BusinessBookingStats> {
-    await verifyBusinessOwnership(this.businessRepository, businessId, ownerId);
-
-    const today = new Date();
-    const todayDate = new Date(this.getLocalDateString(today));
-
-    const statusRows = await this.bookingRepository
-      .createQueryBuilder('booking')
-      .select('booking.status', 'status')
-      .addSelect('COUNT(*)', 'count')
-      .where('booking.businessId = :businessId', { businessId })
-      .groupBy('booking.status')
-      .getRawMany<{ status: string; count: string }>();
-
-    const byStatus = {} as Record<BookingStatus, number>;
-    for (const s of Object.values(BookingStatus)) {
-      byStatus[s] = 0;
-    }
-    for (const row of statusRows) {
-      const status = row.status as BookingStatus;
-      if (status in byStatus) {
-        byStatus[status] = Number(row.count);
-      }
-    }
-
-    const total = Object.entries(byStatus)
-      .filter(([key]) => (key as BookingStatus) !== BookingStatus.CANCELLED)
-      .reduce((sum, [, n]) => sum + n, 0);
-
-    const pending = byStatus[BookingStatus.PENDING];
-
-    const todayCount = await this.bookingRepository.count({
-      where: {
-        businessId,
-        date: todayDate,
-        status: Not(BookingStatus.CANCELLED),
-      },
-    });
-
-    return {
-      total,
-      today: todayCount,
-      pending,
-      byStatus,
-    };
-  }
-
-  // ==================== Helper Methods ====================
-
-  /**
-   * Generate time slots between open and close times
-   */
-  private generateSlots(
-    openTime: string,
-    closeTime: string,
-    serviceDuration: number,
-  ): string[] {
-    const slots: string[] = [];
-    const openMinutes = this.timeToMinutes(openTime);
-    const closeMinutes = this.timeToMinutes(closeTime);
-
-    // Generate slots at SLOT_INTERVAL_MINUTES intervals
-    for (
-      let time = openMinutes;
-      time + serviceDuration <= closeMinutes;
-      time += SLOT_INTERVAL_MINUTES
-    ) {
-      slots.push(this.minutesToTime(time));
-    }
-
-    return slots;
-  }
-
-  /**
-   * Convert "HH:mm" to minutes since midnight
-   */
-  private timeToMinutes(time: string): number {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  /**
-   * Convert minutes since midnight to "HH:mm"
-   */
-  private minutesToTime(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-  }
-
-  /**
-   * Add minutes to a time string
-   */
-  private addMinutesToTime(time: string, minutesToAdd: number): string {
-    const totalMinutes = this.timeToMinutes(time) + minutesToAdd;
-    return this.minutesToTime(totalMinutes);
-  }
-
-  /** Local calendar day YYYY-MM-DD (aligned with server_clock). */
-  private getLocalDateString(date: Date): string {
-    return formatLocalYmd(date);
   }
 }

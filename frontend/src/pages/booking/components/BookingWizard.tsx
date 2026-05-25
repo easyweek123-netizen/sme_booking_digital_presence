@@ -86,11 +86,6 @@ export function BookingWizard(props: Props) {
   return (
     <Box as="section" bg="white">
       <Container maxW="container.xl" px={{ base: 4 }} py={{ base: 6 }}>
-        {/* <WizardStepIndicator
-          currentStep={wizard.step}
-          onStepClick={wizard.setStep}
-          canGoTo={wizard.canGoTo}
-        /> */}
         <SimpleGrid
           columns={desktopLayout ? 12 : 1}
           spacing={{ base: 4, lg: 8 }}

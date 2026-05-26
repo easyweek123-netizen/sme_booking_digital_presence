@@ -21,7 +21,9 @@ const ServicesPage = lazy(() => import('./pages/services').then(m => ({ default:
 const PrivacyPolicy = lazy(() => import('./pages/legal').then(m => ({ default: m.PrivacyPolicy })));
 const TermsOfService = lazy(() => import('./pages/legal').then(m => ({ default: m.TermsOfService })));
 const Impressum = lazy(() => import('./pages/legal').then(m => ({ default: m.Impressum })));
-const BookingPage = lazy(() => import('./pages/booking').then(m => ({ default: m.BookingPage })));
+const BookingPreview = lazy(() => import('./pages/booking/BookingPreview').then(m => ({ default: m.BookingPreview })));
+const BusinessLandingPage = lazy(() => import('./pages/business/BusinessLandingPage').then(m => ({ default: m.BusinessLandingPage })));
+const ServiceBookingPage = lazy(() => import('./pages/business/ServiceBookingPage').then(m => ({ default: m.ServiceBookingPage })));
 // Loading fallback component
 function PageLoader() {
   return (
@@ -42,7 +44,9 @@ function App() {
           path={ROUTES.ONBOARDING}
           element={USE_ONBOARDING_V2 ? <OnboardingV2Page /> : <OnboardingPage />}
         />
-        <Route path={ROUTES.BOOKING.PATTERN} element={<BookingPage />} />
+        <Route path="/book/preview/*" element={<BookingPreview />} />
+        <Route path={ROUTES.BUSINESS.BOOKING_PATTERN} element={<ServiceBookingPage />} />
+        <Route path={ROUTES.BUSINESS.PATTERN} element={<BusinessLandingPage />} />
 
         {/* Public routes with consistent header */}
         <Route element={<PublicLayout />}>

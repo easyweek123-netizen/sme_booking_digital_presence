@@ -841,3 +841,35 @@ export const LockIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
+export const ShareIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" />
+    <path d="M16 6l-4-4-4 4" />
+    <path d="M12 2v14" />
+  </svg>
+);
+
+export const XIcon = ({ size = 20 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+

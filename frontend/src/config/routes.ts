@@ -25,6 +25,13 @@ export const ROUTES = {
     PATTERN: '/book/:slug',
     path: (slug: string) => `/book/${slug}`,
   },
+  BUSINESS: {
+    PATTERN: '/book/:slug',
+    path: (slug: string) => `/book/${slug}`,
+    BOOKING_PATTERN: '/book/:slug/booking/:serviceId?',
+    bookingPath: (slug: string, serviceId?: number | string) =>
+      serviceId != null ? `/book/${slug}/booking/${serviceId}` : `/book/${slug}/booking`,
+  },
 } as const;
 
 // Helper for type-safe navigation

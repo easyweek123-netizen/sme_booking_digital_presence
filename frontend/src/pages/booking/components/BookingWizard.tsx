@@ -2,7 +2,7 @@ import { Box, Container, SimpleGrid, GridItem, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import { WizardStepIndicator } from "./wizard/WizardStepIndicator";
 import { ServiceStep } from "./wizard/ServiceStep";
-import { DateTimeStep } from "./wizard/DateTimeStep";
+// import { DateTimeStep } from "./wizard/DateTimeStep";
 import { BookingSummarySidebar } from "./wizard/BookingSummarySidebar";
 import { BookingSuccess } from "../../../components/Booking/BookingSuccess";
 import { BusinessDetailsSections } from "./wizard/BusinessDetailsSections";
@@ -109,7 +109,7 @@ export function BookingWizard(props: Props) {
                 <BusinessDetailsSections business={business} />
               </VStack>
             )}
-            {wizard.step === 2 && wizard.selectedService && (
+            {/* {wizard.step === 2 && wizard.selectedService && (
               <DateTimeStep
                 business={business}
                 service={wizard.selectedService}
@@ -118,7 +118,7 @@ export function BookingWizard(props: Props) {
                 selectedTime={wizard.selectedTime}
                 onSelectTime={wizard.handleSelectTime}
               />
-            )}
+            )} */}
             {/* {wizard.step === 4 && wizard.createdBooking && wizard.selectedService && (
               <BookingSuccess
                 booking={wizard.createdBooking}

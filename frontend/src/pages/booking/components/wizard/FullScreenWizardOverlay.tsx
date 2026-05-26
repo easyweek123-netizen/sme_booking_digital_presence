@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../../../types';
 import type { BookingWizardState } from './useBookingWizard';
 import { formatDuration, formatPrice } from '../../../../utils/format';
-import { DateTimeStep } from './DateTimeStep';
+// import { DateTimeStep } from './DateTimeStep';
 
 interface Props {
   business: BusinessWithServices;
@@ -329,7 +329,7 @@ export function FullScreenWizardOverlay({ business, wizard, onBack, onClose, onC
             </>
           )}
 
-          {wizard.step === 2 && selectedService && (
+          {/* {wizard.step === 2 && selectedService && (
             <DateTimeStep
               business={business}
               service={selectedService}
@@ -338,7 +338,7 @@ export function FullScreenWizardOverlay({ business, wizard, onBack, onClose, onC
               selectedTime={wizard.selectedTime}
               onSelectTime={wizard.handleSelectTime}
             />
-          )}
+          )} */}
         </GridItem>
 
         {/* Right Column (Luxurious Checkout Sidebar Card) */}

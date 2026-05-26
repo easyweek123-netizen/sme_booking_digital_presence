@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   FormLabel,
   Input,
@@ -18,17 +19,12 @@ import {
   AccordionIcon,
   useToken,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { CloseIcon } from '../icons';
 import { ColorField } from './form/ColorField';
 import { BRAND_COLOR_PRESETS } from '../../constants';
 import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
-
-interface BrandingFieldsProps {
-  coverImageUrl?: string;
-  onCoverImageUrlChange?: (url: string) => void;
-}
 
 const dropzoneShellProps = {
   borderWidth: 1,
@@ -44,22 +40,29 @@ const helperTextProps = {
   color: 'text.muted',
 };
 
-export function BrandingFields({
-  coverImageUrl: coverImageUrlProp,
-  onCoverImageUrlChange: onCoverImageUrlChangeProp,
-}: BrandingFieldsProps = {}) {
+export function BrandingFields() {
   const { control, watch, setValue } = useFormContext<WebsiteFormValues>();
   const logoUrl = watch('branding.logoUrl');
-  const showCoverImage =
-    coverImageUrlProp !== undefined || onCoverImageUrlChangeProp !== undefined;
-  const coverImageUrl = coverImageUrlProp ?? watch('branding.coverImageUrl');
-  const onCoverImageUrlChange =
-    onCoverImageUrlChangeProp ??
-    ((url: string) => setValue('branding.coverImageUrl', url, { shouldDirty: true }));
+  const coverImageUrl = watch('branding.coverImageUrl');
+  const onCoverImageUrlChange = (url: string) =>
+    setValue('branding.coverImageUrl', url, { shouldDirty: true });
 
   const [logoError, setLogoError] = useState(false);
   const [coverError, setCoverError] = useState(false);
+  const logoFileRef = useRef<HTMLInputElement>(null);
   const presetHexes = useToken('colors', [...BRAND_COLOR_PRESETS]);
+
+  const handleLogoFile = async (file: File) => {
+    if (file.size > 2 * 1024 * 1024) return;
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    setValue('branding.logoUrl', dataUrl, { shouldDirty: true });
+    setLogoError(false);
+  };
 
   const handleLogoUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue('branding.logoUrl', e.target.value, { shouldDirty: true });
@@ -120,6 +123,23 @@ export function BrandingFields({
                 Could not load image from URL
               </Text>
             )}
+            <Button variant="outline" size="sm" onClick={() => logoFileRef.current?.click()}>
+              {logoUrl ? 'Replace logo' : 'Upload logo'}
+            </Button>
+            <input
+              ref={logoFileRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void handleLogoFile(file);
+                e.target.value = '';
+              }}
+            />
+            <Text {...helperTextProps}>
+              PNG or JPG, up to 2MB. Square images look best.
+            </Text>
             <Accordion allowToggle>
               <AccordionItem border="none">
                 <AccordionButton
@@ -164,9 +184,8 @@ export function BrandingFields({
           </VStack>
         </Box>
 
-        {showCoverImage && (
-          <Box {...dropzoneShellProps}>
-            <FormControl>
+        <Box {...dropzoneShellProps}>
+          <FormControl>
               <VStack spacing="space.stack.md" align="stretch">
                 <FormLabel fontSize="sm" fontWeight="600" color="text.primary" m={0}>
                   Cover image
@@ -258,9 +277,8 @@ export function BrandingFields({
                   on your brand color.
                 </FormHelperText>
               </VStack>
-            </FormControl>
-          </Box>
-        )}
+          </FormControl>
+        </Box>
       </SimpleGrid>
 
       <Controller

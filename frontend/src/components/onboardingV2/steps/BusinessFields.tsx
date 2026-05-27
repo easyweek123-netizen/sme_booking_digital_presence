@@ -1,5 +1,4 @@
-import { Input, FormControl, FormLabel, Text, VStack } from '@chakra-ui/react';
-import { PhoneField } from '../fields/PhoneField';
+import { Input, VStack } from '@chakra-ui/react';
 import type { StepProps } from '../types';
 
 export function BusinessFields({ flow }: StepProps) {

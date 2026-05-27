@@ -2,7 +2,6 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ServiceFormSchema,
-  SERVICE_FORM_FIELD_KEYS,
   type ServiceFormFieldsInput,
   type ServiceFormInput,
 } from '@bookeasy/shared';

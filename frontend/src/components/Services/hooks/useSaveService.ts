@@ -73,7 +73,7 @@ export function useSaveService({
         data: { ...serviceFields, scheduleId },
       }).unwrap();
     }
-    return createService({ ...serviceFields, scheduleId }).unwrap();
+    return createService({ ...serviceFields, scheduleId, durationMinutes: serviceFields.durationMinutes ?? 30 }).unwrap();
   };
 
   return [saveService, { isSaving: cs || us || csv || usv }] as const;

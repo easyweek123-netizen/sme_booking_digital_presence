@@ -13,6 +13,8 @@ export const ROUTES = {
     BOOKINGS: '/dashboard/bookings',
     CLIENTS: '/dashboard/clients',
     SERVICES: '/dashboard/services',
+    SERVICES_CREATE: '/dashboard/services/create',
+    SERVICE_EDIT: (id: number | string) => `/dashboard/services/${id}/edit`,
     WEBSITE: '/dashboard/website',
     SETTINGS: '/dashboard/settings',
     SETTINGS_CALENDAR: '/dashboard/settings/calendar',
@@ -22,6 +24,13 @@ export const ROUTES = {
   BOOKING: {
     PATTERN: '/book/:slug',
     path: (slug: string) => `/book/${slug}`,
+  },
+  BUSINESS: {
+    PATTERN: '/book/:slug',
+    path: (slug: string) => `/book/${slug}`,
+    BOOKING_PATTERN: '/book/:slug/booking/:serviceId?',
+    bookingPath: (slug: string, serviceId?: number | string) =>
+      serviceId != null ? `/book/${slug}/booking/${serviceId}` : `/book/${slug}/booking`,
   },
 } as const;
 

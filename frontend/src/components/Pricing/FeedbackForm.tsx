@@ -111,7 +111,7 @@ export function FeedbackForm() {
                 Be first when paid plans launch
               </Heading>
               <Text fontSize={{ base: 'md', md: 'lg' }} color="text.secondary" maxW="500px" mx="auto">
-                Drop your email — we'll let you know when Pro and Growth go live,
+                Drop your email — we'll let you know when Pro goes live,
                 and use your input to shape what ships.
               </Text>
             </Box>

@@ -25,11 +25,13 @@ export class CalendarEventRepository {
     bookingId: number;
     calendarId: number;
     externalEventId: string;
+    meetLink: string | null;
   }): Promise<void> {
     await this.repo.save({
       bookingId: input.bookingId,
       calendarId: input.calendarId,
       externalEventId: input.externalEventId,
+      meetLink: input.meetLink,
     });
   }
 

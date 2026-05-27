@@ -17,7 +17,7 @@ const StripeEmbeddedCheckout = lazy(
 );
 
 function isPaidPlan(value: string | null): value is Exclude<Plan, 'free'> {
-  return value === 'pro' || value === 'growth';
+  return value === 'pro';
 }
 
 function isCycle(value: string | null): value is BillingCycle {
@@ -71,7 +71,7 @@ export function Checkout() {
 
   const headerProps = {
     title: 'Checkout',
-    description: `Upgrade to ${plan === 'pro' ? 'Pro' : 'Growth'} (${cycle}).`,
+    description: `Upgrade to Pro (${cycle}).`,
     backHref: ROUTES.DASHBOARD.SETTINGS_BILLING,
   };
 
@@ -80,11 +80,14 @@ export function Checkout() {
   }
 
   if (startState.isError) {
+    const message =
+      (startState.error as { data?: { message?: string } } | undefined)?.data
+        ?.message ?? 'Unable to start checkout. Please try again.';
     return (
       <Box>
         <PageHeader {...headerProps} />
         <ErrorState
-          description="Unable to start checkout. Please try again."
+          description={message}
           onRetry={() =>
             void start({ plan, cycle, returnUrl: absoluteReturnUrl() })
           }

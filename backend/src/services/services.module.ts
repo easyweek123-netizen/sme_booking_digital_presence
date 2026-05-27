@@ -5,11 +5,13 @@ import { ServicesController } from './services.controller';
 import { Service } from './entities/service.entity';
 import { Business } from '../business/entities/business.entity';
 import { AuthModule } from '../auth/auth.module';
-import { BusinessModule } from '../business/business.module';
 import { BillingModule } from '../billing/billing.module';
+import { ScheduleModule } from '../schedule/schedule.module';
+import { BusinessOwnershipGuard } from '../common';
 import {
   CreateServiceTool,
   ListServicesTool,
+  GetServiceTool,
   UpdateServiceTool,
   DeleteServiceTool,
 } from './tools';
@@ -20,21 +22,22 @@ import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Service, Business]),
+    ScheduleModule,
     AuthModule,
-    BusinessModule,
     BillingModule,
   ],
   controllers: [ServicesController],
   providers: [
     ServicesService,
+    BusinessOwnershipGuard,
     ActiveServicesCounter,
     {
       provide: COUNTER_TOKEN(CounterKey.ActiveServices),
       useExisting: ActiveServicesCounter,
     },
-    // Tool handlers - auto-discovered by ToolsModule
     CreateServiceTool,
     ListServicesTool,
+    GetServiceTool,
     UpdateServiceTool,
     DeleteServiceTool,
   ],

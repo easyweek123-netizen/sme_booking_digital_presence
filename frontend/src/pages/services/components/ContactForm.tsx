@@ -36,7 +36,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ContactForm() {
+export interface ContactFormProps {
+  serviceId?: number;
+}
+
+export function ContactForm({ serviceId }: ContactFormProps) {
   const toast = useToast();
   const [submitInquiry, { isLoading, isSuccess }] = useSubmitInquiryMutation();
 
@@ -60,6 +64,7 @@ export function ContactForm() {
         company: values.company || undefined,
         budget: values.budget,
         message: values.message,
+        serviceId: serviceId ?? null,
       }).unwrap();
 
       methods.reset();

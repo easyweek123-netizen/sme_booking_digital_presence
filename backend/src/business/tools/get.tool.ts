@@ -44,7 +44,6 @@ export class GetBusinessTool extends BaseToolHandler<GetBusinessArgs> {
       brandColor: business.brandColor,
       coverImageUrl: business.coverImageUrl,
       aboutContent: business.aboutContent,
-      workingHours: business.workingHours,
       slug: business.slug,
       businessType: business.businessType?.name ?? null,
     };

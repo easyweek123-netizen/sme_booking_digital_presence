@@ -1,4 +1,4 @@
-export type Plan = 'free' | 'pro' | 'growth';
+export type Plan = 'free' | 'pro';
 export type BillingCycle = 'monthly' | 'annual';
 export type SubStatus = 'active' | 'past_due' | 'canceled' | 'incomplete' | 'trialing';
 export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'uncollectible' | 'void';

@@ -18,15 +18,15 @@ export const businessApi = baseApi.injectEndpoints({
       invalidatesTags: ['Business'],
     }),
     getMyBusiness: builder.query<BusinessWithServices, void>({
-      query: () => '/business/me',
+      query: () => '/business',
       providesTags: ['Business'],
     }),
     getBusinessBySlug: builder.query<BusinessWithServices, string>({
       query: (slug) => `/business/slug/${slug}`,
     }),
-    updateBusiness: builder.mutation<Business, { id: number; data: UpdateBusinessRequest }>({
-      query: ({ id, data }) => ({
-        url: `/business/${id}`,
+    updateBusiness: builder.mutation<Business, UpdateBusinessRequest>({
+      query: (data) => ({
+        url: '/business',
         method: 'PATCH',
         body: data,
       }),

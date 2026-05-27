@@ -1,0 +1,41 @@
+import { baseApi } from './baseApi';
+import type {
+  ServiceCategory,
+  CreateServiceCategoryRequest,
+  UpdateServiceCategoryRequest,
+} from '../../types';
+
+export const serviceCategoriesApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getServiceCategories: builder.query<ServiceCategory[], number>({
+      query: (businessId) => `/service-categories/business/${businessId}`,
+      providesTags: ['ServiceCategory'],
+    }),
+    createServiceCategory: builder.mutation<ServiceCategory, CreateServiceCategoryRequest>({
+      query: (data) => ({ url: '/service-categories', method: 'POST', body: data }),
+      invalidatesTags: ['ServiceCategory'],
+    }),
+    updateServiceCategory: builder.mutation<
+      ServiceCategory,
+      { id: number } & Partial<UpdateServiceCategoryRequest>
+    >({
+      query: ({ id, ...data }) => ({
+        url: `/service-categories/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['ServiceCategory', 'Service'],
+    }),
+    deleteServiceCategory: builder.mutation<void, number>({
+      query: (id) => ({ url: `/service-categories/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['ServiceCategory', 'Service', 'Business'],
+    }),
+  }),
+});
+
+export const {
+  useGetServiceCategoriesQuery,
+  useCreateServiceCategoryMutation,
+  useUpdateServiceCategoryMutation,
+  useDeleteServiceCategoryMutation,
+} = serviceCategoriesApi;

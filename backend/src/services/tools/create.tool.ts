@@ -1,44 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { ToolHandler, BaseToolHandler } from '../../common/tools';
 import {
-  ServiceInputSchema,
+  ToolHandler,
+  BaseToolHandler,
+  buildProposalToolMessage,
+} from '../../common/tools';
+import {
   createProposal,
   ToolResultHelpers,
-  type ServiceInput,
   type ToolResult,
 } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
-import { buildProposalToolMessage } from '../../common/tools';
+import { ServiceToolSeedSchema, type ServiceToolSeed } from './schemas';
 
-/**
- * Tool handler for creating a new service.
- * Uses ServiceInputSchema from shared package as single source of truth.
- * Creates a proposal for frontend confirmation.
- */
 @ToolHandler({
-  name: 'services_create',
+  name: 'service_create',
   description:
-    'Create a new service. Requires name, price, durationMinutes. Description and imageUrl are optional. Call once per service, if user lists 3, make 3 parallel calls. ' +
-    'Use sensible defaults when user is vague: haircut ~30min, massage ~60min, consultation ~45min, color ~90min.',
+    'Open the new-service form pre-filled with values the user has described or you are proposing' +
+    'Pass only what the user actually said (name, description, type, durationMinutes, price, priceType, categoryId, capacity). ' +
+    'The user completes all fields in form, you can suggest values in form fields. ' +
+    'Call once per service; for multiple services make parallel calls. Suggest appropriate values for fields that are not provided by the user.',
 })
 @Injectable()
-export class CreateServiceTool extends BaseToolHandler<ServiceInput> {
-  readonly schema = ServiceInputSchema;
+export class CreateServiceTool extends BaseToolHandler<ServiceToolSeed> {
+  readonly schema = ServiceToolSeedSchema;
 
-  async execute(args: ServiceInput, ctx: ToolContext): Promise<ToolResult> {
-    const { name, price, durationMinutes, description, imageUrl } = args;
-
+  async execute(
+    suggestedEdits: ServiceToolSeed,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const proposal = createProposal('service:create', {
       businessId: ctx.businessId,
-      service: { name, price, durationMinutes, description, imageUrl },
+      suggestedEdits,
     });
 
+    const label = suggestedEdits.name
+      ? `"${suggestedEdits.name}"`
+      : 'a new service';
     return ToolResultHelpers.withProposal(
       proposal,
-      buildProposalToolMessage(
-        `new service "${name}" — $${price}, ${durationMinutes} min`,
-        [proposal],
-      ),
+      buildProposalToolMessage(`opened new-service form for ${label}`, [
+        proposal,
+      ]),
     );
   }
 }

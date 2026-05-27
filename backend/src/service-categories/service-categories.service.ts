@@ -2,127 +2,78 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ServiceCategory } from './entities/service-category.entity';
-import { Business } from '../business/entities/business.entity';
 import { CreateServiceCategoryDto } from './dto/create-service-category.dto';
 import { UpdateServiceCategoryDto } from './dto/update-service-category.dto';
-import { verifyBusinessOwnership } from '../common';
 
 @Injectable()
 export class ServiceCategoriesService {
   constructor(
     @InjectRepository(ServiceCategory)
     private readonly categoryRepository: Repository<ServiceCategory>,
-    @InjectRepository(Business)
-    private readonly businessRepository: Repository<Business>,
   ) {}
 
   /**
-   * Create a new service category for a business
+   * Create a category for the given business. Ownership enforced upstream
+   * by BusinessOwnershipGuard.
    */
   async create(
-    ownerId: number,
+    businessId: number,
     createCategoryDto: CreateServiceCategoryDto,
   ): Promise<ServiceCategory> {
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      createCategoryDto.businessId,
-      ownerId,
-    );
-
     const category = this.categoryRepository.create({
-      businessId: createCategoryDto.businessId,
+      businessId,
       name: createCategoryDto.name,
       displayOrder: createCategoryDto.displayOrder ?? 0,
     });
-
     return this.categoryRepository.save(category);
   }
 
-  /**
-   * Get all categories for a business (public)
-   */
+  /** Public: list categories for a business. */
   async findByBusiness(businessId: number): Promise<ServiceCategory[]> {
-    const business = await this.businessRepository.findOne({
-      where: { id: businessId },
-    });
-
-    if (!business) {
-      throw new NotFoundException('Business not found');
-    }
-
     return this.categoryRepository.find({
       where: { businessId },
       order: { displayOrder: 'ASC', createdAt: 'ASC' },
     });
   }
 
-  /**
-   * Get a single category by ID
-   */
+  /** Public: get a single category by id. */
   async findOne(id: number): Promise<ServiceCategory> {
     const category = await this.categoryRepository.findOne({
       where: { id },
     });
-
-    if (!category) {
-      throw new NotFoundException('Service category not found');
-    }
-
+    if (!category) throw new NotFoundException('Service category not found');
     return category;
   }
 
   /**
-   * Update a service category
+   * Update a category scoped by businessId. Returns 404 if the category is
+   * not in this business.
    */
   async update(
     id: number,
-    ownerId: number,
+    businessId: number,
     updateCategoryDto: UpdateServiceCategoryDto,
   ): Promise<ServiceCategory> {
     const category = await this.categoryRepository.findOne({
-      where: { id },
+      where: { id, businessId },
     });
+    if (!category) throw new NotFoundException('Service category not found');
 
-    if (!category) {
-      throw new NotFoundException('Service category not found');
-    }
-
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      category.businessId,
-      ownerId,
-    );
-
-    // Update fields
     if (updateCategoryDto.name !== undefined) {
       category.name = updateCategoryDto.name;
     }
     if (updateCategoryDto.displayOrder !== undefined) {
       category.displayOrder = updateCategoryDto.displayOrder;
     }
-
     return this.categoryRepository.save(category);
   }
 
-  /**
-   * Delete a service category
-   */
-  async remove(id: number, ownerId: number): Promise<void> {
+  /** Delete a category scoped by businessId. */
+  async remove(id: number, businessId: number): Promise<void> {
     const category = await this.categoryRepository.findOne({
-      where: { id },
+      where: { id, businessId },
     });
-
-    if (!category) {
-      throw new NotFoundException('Service category not found');
-    }
-
-    await verifyBusinessOwnership(
-      this.businessRepository,
-      category.businessId,
-      ownerId,
-    );
-
-    // Delete category - services will have categoryId set to null (onDelete: 'SET NULL')
+    if (!category) throw new NotFoundException('Service category not found');
     await this.categoryRepository.remove(category);
   }
 }

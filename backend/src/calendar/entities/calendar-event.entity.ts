@@ -31,6 +31,9 @@ export class CalendarEvent {
 
   @Column({ type: 'varchar', length: 1024 }) externalEventId: string;
 
+  @Column({ name: 'meet_link', type: 'text', nullable: true })
+  meetLink: string | null;
+
   @CreateDateColumn() createdAt: Date;
   @UpdateDateColumn() updatedAt: Date;
 }

@@ -1,6 +1,4 @@
-import { Box, Flex, Text, HStack, Image } from '@chakra-ui/react';
-import { useState } from 'react';
-import { ClockIcon } from '../../../../components/icons';
+import { Box, Flex, Text, VStack, Button } from '@chakra-ui/react';
 import { formatDuration, formatPrice } from '../../../../utils/format';
 import type { Service } from '../../../../types';
 
@@ -11,83 +9,101 @@ interface Props {
 }
 
 export function BookingServiceCard({ service, isSelected, onSelect }: Props) {
-  const [imageError, setImageError] = useState(false);
-  const hasImage = service.imageUrl && !imageError;
-  const initial = service.name.charAt(0).toUpperCase() || '?';
-
   return (
     <Box
-      as="button"
-      type="button"
+      as="div"
+      role="button"
+      tabIndex={0}
       onClick={onSelect}
       textAlign="left"
       w="100%"
-      p={{ base: 4 }}
-      bg="surface.card"
-      border={isSelected ? '2px solid' : '1px solid'}
-      borderColor={isSelected ? 'brand.500' : 'border.subtle'}
-      borderRadius="xl"
-      transition="border-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease"
+      p={{ base: 5 }}
+      bg="white"
+      border="1px solid"
+      borderColor={isSelected ? 'var(--brand-color, #6B46C1)' : '#ECECEC'}
+      borderRadius="2xl"
+      boxShadow={isSelected ? '0 0 0 1px var(--brand-color, #6B46C1), 0 4px 12px rgba(107, 70, 193, 0.06)' : '0 2px 4px rgba(0, 0, 0, 0.01)'}
+      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
       _hover={{
-        borderColor: isSelected ? 'brand.500' : 'border.strong',
-        boxShadow: 'md',
-        transform: 'translateY(-1px)',
+        borderColor: isSelected ? 'var(--brand-color, #6B46C1)' : 'black',
+        boxShadow: isSelected
+          ? '0 0 0 1px var(--brand-color, #6B46C1), 0 6px 16px rgba(107, 70, 193, 0.1)'
+          : '0 4px 12px rgba(0, 0, 0, 0.03)',
+        transform: 'translateY(-0.5px)',
       }}
       cursor="pointer"
     >
-      <Flex align="start" gap={4}>
-        <Box
-          w="56px"
-          h="56px"
-          minW="56px"
-          borderRadius="lg"
-          overflow="hidden"
-          bg={hasImage ? 'gray.100' : 'brand.500'}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          flexShrink={0}
-        >
-          {hasImage ? (
-            <Image
-              src={service.imageUrl!}
-              alt={service.name}
-              w="100%"
-              h="100%"
-              objectFit="cover"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <Text fontSize="xl" fontWeight="bold" color="white">
-              {initial}
-            </Text>
-          )}
-        </Box>
+      <Flex align="center" justify="space-between" gap={4}>
+        
+        {/* Left Column: Service Details */}
+        <VStack align="flex-start" spacing={1.5} flex={1} minW={0}>
+          <Text
+            fontWeight="700"
+            fontSize="md"
+            color="black"
+            noOfLines={1}
+            letterSpacing="-0.01em"
+          >
+            {service.name}
+          </Text>
 
-        <Box flex={1} minW={0}>
-          <Flex justify="space-between" align="start" gap={2} mb={2}>
-            <Text fontWeight="600" fontSize="md" color="text.heading" noOfLines={1}>
-              {service.name}
-            </Text>
-            <Text fontWeight="600" fontSize="md" color="text.heading" flexShrink={0}>
-              {formatPrice(Number(service.price))}
-            </Text>
-          </Flex>
+          <Text
+            fontSize="sm"
+            color="gray.450"
+            fontWeight="500"
+          >
+            {formatDuration(service.durationMinutes)}
+          </Text>
+
           {service.description && (
-            <Text fontSize="sm" color="text.muted" noOfLines={2} mb={3}>
+            <Text
+              fontSize="sm"
+              color="gray.500"
+              noOfLines={1}
+              lineHeight="short"
+            >
               {service.description}
             </Text>
           )}
-          <Flex justify="space-between" align="center">
-            <HStack spacing={1.5} color="text.muted" fontSize="sm">
-              <ClockIcon size={14} />
-              <Text>{formatDuration(service.durationMinutes)}</Text>
-            </HStack>
-            <Text fontSize="sm" fontWeight="600" color={isSelected ? 'brand.500' : 'text.primary'}>
-              {isSelected ? 'Selected ✓' : 'Select →'}
-            </Text>
-          </Flex>
-        </Box>
+
+          <Text
+            fontWeight="700"
+            fontSize="md"
+            color="black"
+            pt={0.5}
+          >
+            {formatPrice(Number(service.price))}
+          </Text>
+        </VStack>
+
+        {/* Right Column: Pill Action Button */}
+        <Button
+          size="sm"
+          h="34px"
+          borderRadius="full"
+          px={5}
+          fontSize="xs"
+          fontWeight="700"
+          variant={isSelected ? 'solid' : 'outline'}
+          bg={isSelected ? 'var(--brand-color, #6B46C1)' : 'white'}
+          color={isSelected ? 'white' : 'black'}
+          borderColor={isSelected ? 'var(--brand-color, #6B46C1)' : '#ECECEC'}
+          _hover={{
+            bg: isSelected ? 'var(--brand-color-dark, #53369B)' : 'gray.50',
+            borderColor: isSelected ? 'var(--brand-color-dark, #53369B)' : 'black',
+          }}
+          _active={{
+            transform: 'scale(0.96)',
+          }}
+          transition="all 0.12s ease"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+        >
+          {isSelected ? 'Added ✓' : 'Book'}
+        </Button>
+
       </Flex>
     </Box>
   );

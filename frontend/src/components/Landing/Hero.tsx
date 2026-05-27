@@ -102,8 +102,21 @@ export function Hero() {
   };
 
   return (
-    <Box bg="surface.page" py={{ base: 10, lg: 16 }} overflow="hidden">
-      <Container maxW="container.xl">
+    <Box
+      position="relative"
+      bg="surface.page"
+      py={{ base: 10, lg: 16 }}
+      overflow="hidden"
+    >
+      <Box
+        position="absolute"
+        inset={0}
+        bgGradient="linear(to-br, brand.50, surface.page 60%, surface.page)"
+        pointerEvents="none"
+        aria-hidden="true"
+      />
+
+      <Container maxW="container.xl" position="relative">
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
           spacing={{ base: 12, md: 16 }}

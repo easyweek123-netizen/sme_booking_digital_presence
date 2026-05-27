@@ -59,12 +59,20 @@ function getDatabaseType(): DatabaseType {
  * - DB_TYPE: 'postgres' (default) | 'mysql'
  * - DB_PORT: Database port (default: 5432 for postgres, 3306 for mysql)
  * - DB_SSL: Enable SSL connection (default: 'false', set 'true' for production)
- * - NODE_ENV: Environment (affects synchronize and logging)
+ * - DB_SYNC: Enable TypeORM schema sync (default: unset/false; set 'true' only when intentional)
+ * - NODE_ENV: Environment (affects logging; production + DB_SYNC logs a warning)
  */
 export default registerAs('database', () => {
   const type = getDatabaseType();
   const isProduction = process.env.NODE_ENV === 'production';
   const isDevelopment = process.env.NODE_ENV === 'development';
+  const syncEnabled = process.env.DB_SYNC === 'true';
+
+  if (syncEnabled && isProduction) {
+    console.warn(
+      '⚠️  DB_SYNC=true — schema is auto-managed by TypeORM. '
+    );
+  }
 
   return {
     type,
@@ -74,9 +82,7 @@ export default registerAs('database', () => {
     password: requireEnv('DB_PASSWORD'),
     database: requireEnv('DB_DATABASE'),
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    // Never auto-sync. Rely on migrations instead.
-    synchronize: false,
-    // Only log in development
+    synchronize: syncEnabled,
     logging: isDevelopment,
   };
 });

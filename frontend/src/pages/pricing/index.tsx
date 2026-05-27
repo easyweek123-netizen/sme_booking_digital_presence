@@ -45,17 +45,6 @@ const PRO_FEATURES = [
   'Priority support',
 ];
 
-const GROWTH_FEATURES = [
-  'Everything in Pro',
-  'Staff management with per-staff hours (unlimited team)',
-  'AI receptionist on WhatsApp — books appointments autonomously',
-  'AI receptionist on Instagram DM',
-  'AI receptionist on Facebook Messenger',
-  'Unified inbox — every channel in one thread view',
-  'Auto-booking from chat — 70%+ of messages handled without you',
-  'Owner takeover — when you reply, AI pauses for that thread',
-  'Smart escalation — AI flags messages it isn\'t sure about',
-];
 
 export function PricingPage() {
   const navigate = useNavigate();
@@ -76,15 +65,13 @@ export function PricingPage() {
 
 
   const proMonthly = (pricing ?? []).find((p) => p.plan === 'pro' && p.cycle === 'monthly');
-  const growthMonthly = (pricing ?? []).find((p) => p.plan === 'growth' && p.cycle === 'monthly');
 
   const proPrice = proMonthly ? formatPrice(proMonthly.amountCents / 100, proMonthly.currency) : '—';
-  const growthPrice = growthMonthly ? formatPrice(growthMonthly.amountCents / 100, growthMonthly.currency) : '—';
 
-  const checkoutPath = (plan: 'pro' | 'growth') =>
+  const checkoutPath = (plan: 'pro') =>
     `${ROUTES.DASHBOARD.SETTINGS_CHECKOUT}?plan=${plan}&cycle=monthly`;
 
-  const handleSubscribe = (plan: 'pro' | 'growth') => {
+  const handleSubscribe = (plan: 'pro') => {
     const target = checkoutPath(plan);
     if (isAuthenticated) {
       navigate(target);
@@ -147,9 +134,9 @@ export function PricingPage() {
 
           {/* Pricing Cards */}
           <SimpleGrid
-            columns={{ base: 1, lg: 3 }}
+            columns={{ base: 1, md: 2 }}
             spacing={{ base: 6, md: 8 }}
-            maxW="1200px"
+            maxW="800px"
             mx="auto"
             alignItems="stretch"
           >
@@ -173,17 +160,6 @@ export function PricingPage() {
               isPremium
               badge={isAuthenticated && currentPlan === 'pro' ? 'Current Plan' : undefined}
               delay={0.1}
-            />
-            <PricingCard
-              title="Growth"
-              price={growthPrice}
-              priceSubtext="/ month"
-              features={GROWTH_FEATURES}
-              buttonText="Subscribe"
-              onButtonClick={() => handleSubscribe('growth')}
-              isPremium
-              badge={isAuthenticated && currentPlan === 'growth' ? 'Current Plan' : undefined}
-              delay={0.2}
             />
           </SimpleGrid>
         </Container>

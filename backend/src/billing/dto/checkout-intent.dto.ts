@@ -2,7 +2,7 @@ import { IsIn, IsUrl } from 'class-validator';
 import { BillingCycle, Plan } from '../types/enums';
 
 export class CheckoutIntentDto {
-  @IsIn([Plan.PRO, Plan.GROWTH])
+  @IsIn([Plan.PRO])
   plan: Plan;
 
   @IsIn([BillingCycle.MONTHLY, BillingCycle.ANNUAL])

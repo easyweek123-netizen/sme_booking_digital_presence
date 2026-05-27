@@ -10,6 +10,11 @@ interface DashboardContentShellProps {
   backHref?: string;
   /** When true, header stays pinned while body scrolls. Defaults to true. */
   stickyHeader?: boolean;
+  /**
+   * Controls overflow on the body area. Use `"hidden"` when the child manages
+   * its own internal scrolling (e.g. MobileSplitTabs). Defaults to `"auto"`.
+   */
+  bodyOverflow?: 'auto' | 'hidden';
   children: ReactNode;
 }
 
@@ -20,6 +25,7 @@ export function DashboardContentShell({
   tabs,
   backHref,
   stickyHeader = true,
+  bodyOverflow = 'auto',
   children,
 }: DashboardContentShellProps) {
   return (
@@ -47,7 +53,7 @@ export function DashboardContentShell({
       <Box
         flex={1}
         minH={0}
-        overflow="auto"
+        overflow={bodyOverflow}
         px={{ base: 4, md: 6, lg: 8 }}
         py={4}
       >

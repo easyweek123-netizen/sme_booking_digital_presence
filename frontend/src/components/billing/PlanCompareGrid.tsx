@@ -6,21 +6,12 @@ import type { BillingCycle, Plan } from '../../types/billing.types';
 import { formatPrice } from '../../utils/format';
 import { PlanFeatureList } from './PlanFeatureList';
 import { PLAN_LABEL } from '../../utils/billingLabels';
+import { PLAN_ORDER, isLowerTier, isHigherTier } from '../../utils/billingPlanTier';
 import { buildCheckoutRoute } from '../../pages/dashboard/settings/utils/checkoutRoute';
 
 interface PlanCompareGridProps {
   cycle: BillingCycle;
   currentPlan: Plan;
-}
-
-const PLAN_ORDER: Plan[] = ['free', 'pro', 'growth'];
-
-function isLowerTier(current: Plan, target: Plan) {
-  return PLAN_ORDER.indexOf(current) < PLAN_ORDER.indexOf(target);
-}
-
-function isHigherTier(current: Plan, target: Plan) {
-  return PLAN_ORDER.indexOf(current) > PLAN_ORDER.indexOf(target);
 }
 
 export function PlanCompareGrid({ cycle, currentPlan }: PlanCompareGridProps) {
@@ -41,7 +32,7 @@ export function PlanCompareGrid({ cycle, currentPlan }: PlanCompareGridProps) {
   }, [pricing, cycle]);
 
   return (
-    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
       {PLAN_ORDER.map((plan) => {
         const isCurrent = currentPlan === plan;
         const canUpgrade = !isCurrent && isLowerTier(currentPlan, plan);

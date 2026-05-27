@@ -9,26 +9,33 @@ import {
 } from './tools';
 import { Booking } from './entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
-import { Service } from '../services/entities/service.entity';
 import { AuthModule } from '../auth/auth.module';
 import { CustomersModule } from '../customers/customers.module';
-import { EmailModule } from '../email/email.module';
+import { ScheduleModule } from '../schedule/schedule.module';
 import { MonthlyConfirmedBookingsCounter } from './counters/monthly-confirmed-bookings.counter';
 import { CounterKey } from '../entitlements/config/counter-keys';
 import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
-import { BillingModule } from 'src/billing/billing.module';
+import { BillingModule } from '../billing/billing.module';
+import { CalendarModule } from '../calendar/calendar.module';
+import { EmailModule } from '../email/email.module';
+import { BookingStatusEffectsHandler } from './listeners/booking-status-effects.handler';
+import { BusinessOwnershipGuard } from '../common';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Booking, Business, Service]),
+    TypeOrmModule.forFeature([Booking, Business]),
     AuthModule,
     CustomersModule,
-    EmailModule,
+    ScheduleModule,
     BillingModule,
+    CalendarModule,
+    EmailModule,
   ],
   controllers: [BookingsController],
   providers: [
     BookingsService,
+    BookingStatusEffectsHandler,
+    BusinessOwnershipGuard,
     MonthlyConfirmedBookingsCounter,
     {
       provide: COUNTER_TOKEN(CounterKey.MonthlyConfirmedBookings),

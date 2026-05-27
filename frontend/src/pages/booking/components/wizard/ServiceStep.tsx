@@ -35,12 +35,9 @@ export function ServiceStep({
 
   return (
     <VStack align="stretch" spacing={0}>
-      <Heading size="lg" color="text.heading" mb={2}>
-        Choose a service
+      <Heading fontSize="2xl" fontWeight="700" color="black" mb={5} letterSpacing="-0.015em">
+        Services
       </Heading>
-      <Text color="text.muted" fontSize="md" mb={6}>
-        Pick what you need. You&apos;ll choose a time next.
-      </Text>
 
       <CategoryFilterChips
         categories={categories}
@@ -53,7 +50,7 @@ export function ServiceStep({
           <Text color="text.muted">No services in this category.</Text>
         </Box>
       ) : (
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <SimpleGrid columns={1} spacing={3.5}>
           {filtered.map((s) => (
             <BookingServiceCard
               key={s.id}

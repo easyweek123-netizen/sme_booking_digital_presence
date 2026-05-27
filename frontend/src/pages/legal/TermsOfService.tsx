@@ -8,7 +8,7 @@ import {
   ListItem,
   Divider,
 } from '@chakra-ui/react';
-import { Header, Footer } from '../../components/Layout';
+import { Footer } from '../../components/Layout';
 
 export function TermsOfService() {
   const lastUpdated = 'April 2026';

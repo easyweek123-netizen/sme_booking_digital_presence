@@ -1,6 +1,5 @@
 import { Box, Flex, HStack, Heading, Image, Text } from '@chakra-ui/react';
-import { ClockIcon, MapPinIcon, ShareIcon, HeartIcon } from '../icons';
-import { RoundIconButton } from './atoms';
+import { ClockIcon, MapPinIcon } from '../icons';
 import { BrandButton } from './brand';
 import type { Business } from '../../types';
 import type { OpenStatus } from './utils';

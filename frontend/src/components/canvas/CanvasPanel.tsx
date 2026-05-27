@@ -14,7 +14,7 @@ import { DashboardBookings } from '../../pages/dashboard/DashboardBookings';
 import { DashboardClients } from '../../pages/dashboard/DashboardClients';
 import type { PreviewContext } from '@shared';
 import { DashboardWebsite } from '../../pages/dashboard/DashboardWebsite';
-import { BusinessLandingPage } from '../../pages/business/BusinessLandingPage';
+import { BookingPagePreview } from './BookingPagePreview';
 
 /**
  * Canvas panel with Preview and Actions tabs.
@@ -29,7 +29,7 @@ export function CanvasPanel() {
    */
   const renderPreviewContent = () => {
     const previewMap: Record<PreviewContext, React.ReactNode> = {
-      booking_page: <BusinessLandingPage />,
+      booking_page: <BookingPagePreview />,
       business_profile: <DashboardWebsite />,
       services: <DashboardServices />,
       bookings: <DashboardBookings />,

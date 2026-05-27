@@ -105,19 +105,13 @@ export function sameDay(a: Date, b: Date): boolean {
 }
 
 export function formatSlotLabel(hour: number, minute: number): string {
-  const ampm = hour < 12 ? 'am' : 'pm';
-  const display = hour % 12 === 0 ? 12 : hour % 12;
-  return `${display}:${String(minute).padStart(2, '0')} ${ampm}`;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
 export function endTimeFromSlot(slot: string, durationMinutes: number): string {
-  const match = slot.match(/(\d+):(\d+) (am|pm)/);
+  const match = slot.match(/^(\d{2}):(\d{2})$/);
   if (!match) return slot;
-  let h = parseInt(match[1], 10);
-  const m = parseInt(match[2], 10);
-  if (match[3] === 'pm' && h !== 12) h += 12;
-  if (match[3] === 'am' && h === 12) h = 0;
-  const total = (h * 60 + m + durationMinutes) % 1440;
+  const total = (parseInt(match[1], 10) * 60 + parseInt(match[2], 10) + durationMinutes) % 1440;
   return formatSlotLabel(Math.floor(total / 60), total % 60);
 }
 

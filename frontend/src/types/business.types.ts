@@ -134,7 +134,7 @@ export interface Business {
   slug: string;
   defaultScheduleId: number;
   /** Mirrors backend `plan_enum`; public booking page uses this for the footer. */
-  plan?: 'free' | 'pro' | 'growth';
+  plan?: 'free' | 'pro';
   timezone: string;
   name: string;
   description: string | null;

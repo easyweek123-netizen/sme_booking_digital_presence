@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class MakeServicePriceNullable1778600800000
-  implements MigrationInterface
-{
+export class MakeServicePriceNullable1778600800000 implements MigrationInterface {
   name = 'MakeServicePriceNullable1778600800000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

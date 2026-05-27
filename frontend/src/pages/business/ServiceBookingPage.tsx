@@ -7,27 +7,24 @@ import {
   Spinner,
   Text,
   VStack,
+  useBreakpointValue,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useGetBusinessBySlugQuery,
   useGetServicesQuery,
 } from '../../store/api';
-import { useAppSelector } from '../../store/hooks';
-import { useCreateBookingMutation } from '../../store/api/bookingsApi';
 import { BookingWizard } from '../../components/Business/Book';
-import { endTimeFromSlot } from '../../components/Business/utils';
+import { useBookingAuth } from '../../components/Business/Book/hooks/useBookingAuth';
+import { useGoogleSignIn } from '../../components/Business/Book/hooks/useGoogleSignIn';
+import { useSubmitBooking } from '../../components/Business/Book/hooks/useSubmitBooking';
 import { ROUTES } from '../../config/routes';
 import type { Service } from '../../types';
 
 export function ServiceBookingPage() {
   const { slug, serviceId } = useParams<{ slug: string; serviceId?: string }>();
   const navigate = useNavigate();
-  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
-  const userEmail = useAppSelector((s) => s.auth.user?.email ?? null);
-
-  const [signingIn, setSigningIn] = useState(false);
+  const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
 
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
@@ -36,7 +33,9 @@ export function ServiceBookingPage() {
     skip: !business?.id,
   });
 
-  const [createBooking] = useCreateBookingMutation();
+  const auth = useBookingAuth();
+  const { signingIn, signIn } = useGoogleSignIn();
+  const handleSubmit = useSubmitBooking(auth);
 
   if (businessQuery.isLoading) {
     return (
@@ -80,50 +79,19 @@ export function ServiceBookingPage() {
     else navigate(ROUTES.HOME);
   };
 
-  const handleSignIn = () => {
-    setSigningIn(true);
-    setTimeout(() => setSigningIn(false), 600);
-  };
-
-  const handleSubmit = async ({
-    service,
-    date,
-    slot,
-  }: {
-    service: Service;
-    date: Date;
-    slot: string;
-  }) => {
-    await createBooking({
-      serviceId: service.id,
-      businessId: business.id,
-      date: toIsoDate(date),
-      startTime: slot,
-      endTime: endTimeFromSlot(slot, service.durationMinutes),
-      customerName: userEmail ?? 'Customer',
-      customerEmail: userEmail ?? '',
-    }).unwrap();
-  };
-
   return (
     <BookingWizard
       business={business}
       services={business.services}
       categories={categoriesQuery.data ?? []}
       initialService={initialService}
-      isAuthenticated={isAuthenticated}
-      userEmail={userEmail}
+      isAuthenticated={auth.isAuthenticated}
+      userEmail={auth.userEmail}
       signingIn={signingIn}
-      onSignIn={handleSignIn}
+      isDesktop={isDesktop}
+      onSignIn={signIn}
       onSubmit={handleSubmit}
       onClose={handleClose}
     />
   );
-}
-
-function toIsoDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
 }

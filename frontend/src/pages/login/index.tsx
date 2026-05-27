@@ -165,6 +165,7 @@ export function LoginPage() {
                 onChange={(e) => setTermsAccepted(e.target.checked)}
                 borderColor="gray.600"
                 alignItems="flex-start"
+                justifyContent="center"
               >
                 <Text fontSize="xs" color="gray.400" lineHeight="1.4" mt="-2px">
                   I agree to the{' '}
@@ -193,45 +194,15 @@ export function LoginPage() {
               />
             </VStack>
 
-            {/* Customer Portal Link */}
-            <VStack spacing={1} pt={4} textAlign="center">
-              <Text fontSize="xs" color="gray.400" fontWeight="500">
-                Are you a customer looking to book an appointment?
-              </Text>
-              <Link
-                onClick={() => navigate(ROUTES.HOME)}
-                fontSize="xs"
-                color="brand.300"
-                fontWeight="600"
-                _hover={{ color: 'brand.200', textDecoration: 'none' }}
-              >
-                Go to BookEasy for customers
-              </Link>
-            </VStack>
-
           </VStack>
         </Box>
 
-        {/* Footer legalities and credits */}
-        <VStack spacing={4} align="center" pt={4}>
-          <Text fontSize="10px" color="gray.600" textAlign="center" maxW="280px" lineHeight="1.5">
-            This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.
-          </Text>
-          
-          <HStack spacing={4} fontSize="xs" color="gray.500" justify="center">
-            <Link _hover={{ color: 'white' }} display="inline-flex" alignItems="center">
-              <WorldIcon /> English (US)
-            </Link>
-            <Text color="gray.800">•</Text>
-            <Link onClick={() => handleMockProviderClick('Support')} _hover={{ color: 'white' }}>
-              Support
-            </Link>
-            <Text color="gray.800">•</Text>
-            <Link onClick={() => navigate(ROUTES.PRIVACY)} _hover={{ color: 'white' }}>
-              Privacy Policy
-            </Link>
-          </HStack>
-        </VStack>
+        <HStack spacing={4} fontSize="xs" color="gray.500" justify="center">
+          <Text color="gray.800">•</Text>
+          <Link onClick={() => navigate(ROUTES.PRIVACY)} _hover={{ color: 'white' }}>
+            Privacy Policy
+          </Link>
+        </HStack>
 
       </Flex>
 

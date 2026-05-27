@@ -1,4 +1,4 @@
-import { Box, Grid, useBreakpointValue, useDisclosure } from '@chakra-ui/react';
+import { Box, Grid, useDisclosure } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../types';
 import { BrandProvider } from './brand';
@@ -26,6 +26,9 @@ interface BusinessBookingPageProps {
   categories: ServiceCategory[];
   businessTypeName?: string;
   serviceVariant?: 'book' | 'preview';
+  /** Required. The orchestrator decides what "desktop" means for its environment
+   *  (viewport-driven for /book/:slug routes; canvas-pane-driven for previews). */
+  isDesktop: boolean;
   onBook: (service?: Service) => void;
 }
 
@@ -34,9 +37,9 @@ export function BusinessBookingPage({
   categories,
   businessTypeName,
   serviceVariant = 'book',
+  isDesktop,
   onBook,
 }: BusinessBookingPageProps) {
-  const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
   const sectionIds = useMemo(() => TABS.map((t) => t.id), []);
   const { activeId, scrolled, scrollTo } = useScrollSpy({
     sectionIds,
@@ -46,10 +49,10 @@ export function BusinessBookingPage({
   const { isOpen: coverEnabled } = useDisclosure({ defaultIsOpen: !!business.coverImageUrl });
 
   const status = computeOpenStatus(business.workingHours);
-  const surfacePx = { base: 4, lg: 12 };
+  const surfacePx = isDesktop ? 12 : 4;
 
   return (
-    <BrandProvider brandColor={business.brandColor} pb={{ base: 8, lg: 10 }} bg="white">
+    <BrandProvider brandColor={business.brandColor} pb={isDesktop ? 10 : 8} bg="white">
       <BusinessTopNav
         business={business}
         visible={scrolled}
@@ -81,9 +84,9 @@ export function BusinessBookingPage({
         )}
 
         <Grid
-          templateColumns={{ base: '1fr', lg: 'minmax(0,1fr) 360px' }}
-          gap={{ base: 0, lg: 12 }}
-          mt={{ base: 4, lg: 7 }}
+          templateColumns={isDesktop ? 'minmax(0,1fr) 360px' : '1fr'}
+          gap={isDesktop ? 12 : 0}
+          mt={isDesktop ? 7 : 4}
         >
           <Box>
             <ServicesSection

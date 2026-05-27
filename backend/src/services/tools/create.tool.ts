@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ToolHandler, BaseToolHandler, buildProposalToolMessage } from '../../common/tools';
-import { createProposal, ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
+import {
+  ToolHandler,
+  BaseToolHandler,
+  buildProposalToolMessage,
+} from '../../common/tools';
+import {
+  createProposal,
+  ToolResultHelpers,
+  type ToolResult,
+} from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { ServiceToolSeedSchema, type ServiceToolSeed } from './schemas';
 
@@ -8,24 +16,31 @@ import { ServiceToolSeedSchema, type ServiceToolSeed } from './schemas';
   name: 'service_create',
   description:
     'Open the new-service form pre-filled with values the user has described or you are proposing' +
-    'Pass only what the user actually said (name, type, durationMinutes, price, priceType, description, categoryId, capacity). ' +
+    'Pass only what the user actually said (name, description, type, durationMinutes, price, priceType, categoryId, capacity). ' +
     'The user completes all fields in form, you can suggest values in form fields. ' +
-    'Call once per service; for multiple services make parallel calls.',
+    'Call once per service; for multiple services make parallel calls. Suggest appropriate values for fields that are not provided by the user.',
 })
 @Injectable()
 export class CreateServiceTool extends BaseToolHandler<ServiceToolSeed> {
   readonly schema = ServiceToolSeedSchema;
 
-  async execute(suggestedEdits: ServiceToolSeed, ctx: ToolContext): Promise<ToolResult> {
+  async execute(
+    suggestedEdits: ServiceToolSeed,
+    ctx: ToolContext,
+  ): Promise<ToolResult> {
     const proposal = createProposal('service:create', {
       businessId: ctx.businessId,
       suggestedEdits,
     });
 
-    const label = suggestedEdits.name ? `"${suggestedEdits.name}"` : 'a new service';
+    const label = suggestedEdits.name
+      ? `"${suggestedEdits.name}"`
+      : 'a new service';
     return ToolResultHelpers.withProposal(
       proposal,
-      buildProposalToolMessage(`opened new-service form for ${label}`, [proposal]),
+      buildProposalToolMessage(`opened new-service form for ${label}`, [
+        proposal,
+      ]),
     );
   }
 }

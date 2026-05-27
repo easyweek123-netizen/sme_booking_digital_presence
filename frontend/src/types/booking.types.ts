@@ -43,10 +43,8 @@ export interface Slot {
 
 export interface CreateBookingRequest {
   serviceId: number;
-  businessId: number;
   date: string;
   startTime: string;
-  endTime: string;
   customerName: string;
   customerEmail: string;
   notes?: string | null;

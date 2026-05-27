@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
 import { Business } from './entities/business.entity';
 import { LocationType, Service } from '../services/entities/service.entity';
 import { Schedule } from '../schedule/entities/schedule.entity';
@@ -13,6 +13,7 @@ import { Availability } from '../schedule/entities/availability.entity';
 import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto, ServiceDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import type { WorkingHours } from './types/working-hours';
 
 @Injectable()
 export class BusinessService {
@@ -45,9 +46,11 @@ export class BusinessService {
 
   /** Create a new business with default schedule and optional services. */
   async create(ownerId: number, dto: CreateBusinessDto): Promise<Business> {
-    if (await this.businessRepository.exist({ where: { ownerId } })) {
-      throw new ConflictException('You already have a business registered');
-    }
+    const existing = await this.businessRepository.findOne({
+      where: { ownerId },
+      relations: ['services', 'services.category', 'businessType'],
+    });
+    if (existing) return existing;
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -136,38 +139,99 @@ export class BusinessService {
     return this.findByOwnerIdOrFail(ownerId);
   }
 
-  private async findByOwnerIdOrFail(ownerId: number): Promise<Business> {
+  private static readonly DOW_TO_KEY = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ] as const;
+
+  /** Project recurring `availability` rows into the WorkingHours shape the
+   *  frontend booking page consumes. Returns null when there are no rows so
+   *  callers / UI can distinguish "never configured" from "all closed". */
+  private buildWorkingHours(
+    availability: Availability[] | undefined,
+  ): WorkingHours | null {
+    if (!availability?.length) return null;
+    const hours: WorkingHours = {
+      sunday: { isOpen: false, openTime: '', closeTime: '' },
+      monday: { isOpen: false, openTime: '', closeTime: '' },
+      tuesday: { isOpen: false, openTime: '', closeTime: '' },
+      wednesday: { isOpen: false, openTime: '', closeTime: '' },
+      thursday: { isOpen: false, openTime: '', closeTime: '' },
+      friday: { isOpen: false, openTime: '', closeTime: '' },
+      saturday: { isOpen: false, openTime: '', closeTime: '' },
+    };
+    for (const row of availability) {
+      if (!row.isRecurring || row.dayOfWeek == null) continue;
+      const key = BusinessService.DOW_TO_KEY[row.dayOfWeek];
+      if (!key) continue;
+      hours[key] = {
+        isOpen: !row.isClosed && !!row.startTime && !!row.endTime,
+        openTime: row.startTime ?? '',
+        closeTime: row.endTime ?? '',
+      };
+    }
+    return hours;
+  }
+
+  /** Single read path used by every business lookup. Loads the default
+   *  schedule's recurring availability and attaches `workingHours` so the
+   *  public booking page can render hours instead of "Closed on all days". */
+  private async loadBusiness(
+    where: FindOptionsWhere<Business>,
+  ): Promise<Business> {
     const business = await this.businessRepository.findOne({
-      where: { ownerId },
-      relations: ['services', 'services.category', 'businessType'],
+      where,
+      relations: [
+        'services',
+        'services.category',
+        'businessType',
+        'defaultSchedule',
+        'defaultSchedule.availabilities',
+      ],
     });
     if (!business) throw new NotFoundException('Business not found');
-    return business;
+    return Object.assign(business, {
+      workingHours: this.buildWorkingHours(
+        business.defaultSchedule?.availabilities,
+      ),
+    });
+  }
+
+  private async findByOwnerIdOrFail(ownerId: number): Promise<Business> {
+    return this.loadBusiness({ ownerId });
   }
 
   async findByOwnerId(ownerId: number): Promise<Business | null> {
-    return this.businessRepository.findOne({
+    const business = await this.businessRepository.findOne({
       where: { ownerId },
-      relations: ['services', 'services.category', 'businessType', 'owner'],
+      relations: [
+        'services',
+        'services.category',
+        'businessType',
+        'owner',
+        'defaultSchedule',
+        'defaultSchedule.availabilities',
+      ],
+    });
+    if (!business) return null;
+    return Object.assign(business, {
+      workingHours: this.buildWorkingHours(
+        business.defaultSchedule?.availabilities,
+      ),
     });
   }
 
   async findOne(id: number): Promise<Business> {
-    const business = await this.businessRepository.findOne({
-      where: { id },
-      relations: ['services', 'services.category', 'businessType'],
-    });
-    if (!business) throw new NotFoundException('Business not found');
-    return business;
+    return this.loadBusiness({ id });
   }
 
   async findBySlug(slug: string): Promise<Business> {
-    const business = await this.businessRepository.findOne({
-      where: { slug },
-      relations: ['services', 'services.category', 'businessType'],
-    });
-    if (!business) throw new NotFoundException('Business not found');
-    return business;
+    return this.loadBusiness({ slug });
   }
 
   /**

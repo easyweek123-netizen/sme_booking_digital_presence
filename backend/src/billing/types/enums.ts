@@ -1,7 +1,6 @@
 export enum Plan {
   FREE = 'free',
   PRO = 'pro',
-  GROWTH = 'growth',
 }
 
 export enum BillingCycle {

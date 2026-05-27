@@ -51,16 +51,16 @@ export function WizardStepLayout({
 
       <Grid
         flex="1"
-        templateColumns={{ base: '1fr', lg: 'minmax(0,1fr) 340px' }}
-        gap={{ base: 0, lg: 8 }}
+        templateColumns={isDesktop ? 'minmax(0,1fr) 340px' : '1fr'}
+        gap={isDesktop ? 8 : 0}
         maxW="1240px"
         w="100%"
         mx="auto"
-        px={{ base: 4, lg: 12 }}
-        pb={{ base: '220px', lg: '120px' }}
+        px={isDesktop ? 12 : 4}
+        pb={isDesktop ? '120px' : '220px'}
       >
-        <Box pt={{ base: 4, lg: 6 }}>
-          <Heading as="h1" size={{ base: 'lg', lg: 'xl' }} mb={current.subtitle ? 1 : 5}>
+        <Box pt={isDesktop ? 6 : 4}>
+          <Heading as="h1" size={isDesktop ? 'xl' : 'lg'} mb={current.subtitle ? 1 : 5}>
             {current.title}
           </Heading>
           {current.subtitle && (
@@ -72,7 +72,7 @@ export function WizardStepLayout({
         </Box>
 
         {isDesktop && state.service && (
-          <Box pt={{ lg: 6 }} pl={{ lg: 0 }}>
+          <Box pt={6} pl={0}>
             <SummaryCard
               business={business}
               service={state.service}

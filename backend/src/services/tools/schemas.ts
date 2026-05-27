@@ -33,15 +33,26 @@ export const ServiceUpdateArgsSchema = z
       .positive()
       .optional()
       .describe('Service ID (preferred — from services_list).'),
-    name: z.string().optional().describe('Service name (fallback when ID unknown).'),
+    name: z
+      .string()
+      .optional()
+      .describe('Service name (fallback when ID unknown).'),
   })
   .merge(ServiceToolSeedSchema)
   .refine(lookupRefine, lookupMessage);
 
 export const ServiceLookupArgsSchema = z
   .object({
-    id: z.number().int().positive().optional().describe('Service ID (preferred).'),
-    name: z.string().optional().describe('Service name (fallback when ID unknown).'),
+    id: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe('Service ID (preferred).'),
+    name: z
+      .string()
+      .optional()
+      .describe('Service name (fallback when ID unknown).'),
   })
   .refine(lookupRefine, lookupMessage);
 

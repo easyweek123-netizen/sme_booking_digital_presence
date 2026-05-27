@@ -7,6 +7,7 @@ import {
   Spinner,
   Text,
   VStack,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetBusinessBySlugQuery, useGetServicesQuery } from '../../store/api';
@@ -17,6 +18,7 @@ import type { Service } from '../../types';
 export function BusinessLandingPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
 
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
@@ -71,6 +73,7 @@ export function BusinessLandingPage() {
     <BusinessBookingPageView
       business={business}
       categories={categoriesQuery.data ?? []}
+      isDesktop={isDesktop}
       onBook={handleBook}
     />
   );

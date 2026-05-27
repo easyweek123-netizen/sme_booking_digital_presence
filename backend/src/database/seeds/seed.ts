@@ -2,10 +2,8 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { BusinessCategory } from '../../business-categories/entities/business-category.entity';
 import { BusinessType } from '../../business-categories/entities/business-type.entity';
-import { Business } from '../../business/entities/business.entity';
-import { Owner } from '../../owner/entities/owner.entity';
-import { Service } from '../../services/entities/service.entity';
-import { Booking } from '../../bookings/entities/booking.entity';
+import { PricingPlan } from '../../billing/entities/pricing-plan.entity';
+import { BillingCycle, Plan } from '../../billing/types/enums';
 
 // Load environment variables
 config();
@@ -71,8 +69,8 @@ const dataSource = new DataSource({
   password,
   database,
   ssl: sslConfig,
-  entities: [BusinessCategory, BusinessType, Business, Owner, Service, Booking],
-  synchronize: true,
+  entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
+  synchronize: false,
   logging: true,
 } as DataSourceOptions);
 
@@ -94,20 +92,8 @@ const categoriesData: CategorySeed[] = [
     color: '#EC4899',
     types: [
       { slug: 'beauty-salon', name: 'Beauty Salon' },
-      { slug: 'barbershop', name: 'Barbershop' },
       { slug: 'nail-salon', name: 'Nail Salon' },
       { slug: 'hair-salon', name: 'Hair Salon' },
-    ],
-  },
-  {
-    slug: 'health',
-    name: 'Health',
-    icon: '💪',
-    color: '#14B8A6',
-    types: [
-      { slug: 'massage-therapist', name: 'Massage Therapist' },
-      { slug: 'physiotherapy', name: 'Physiotherapy' },
-      { slug: 'chiropractor', name: 'Chiropractor' },
     ],
   },
   {
@@ -117,9 +103,49 @@ const categoriesData: CategorySeed[] = [
     color: '#22C55E',
     types: [
       { slug: 'yoga-studio', name: 'Yoga Studio' },
-      { slug: 'meditation-center', name: 'Meditation Center' },
-      { slug: 'life-coach', name: 'Life Coach' },
+      { slug: 'spiritual-wellness', name: 'Spiritual Wellness' },
+      { slug: 'fitness-studio', name: 'Fitness Studio' },
     ],
+  },
+  {
+    slug: 'coaching',
+    name: 'Coaching',
+    icon: '🎓',
+    color: '#000000',
+    types: [
+      { slug: 'science-coaching', name: 'Science Coaching' },
+      { slug: 'language-coaching', name: 'Language Coaching' },
+      { slug: 'music-coaching', name: 'Music Coaching' },
+    ],
+  },
+];
+
+const PRO_FEATURES = [
+  'Unlimited services',
+  'Unlimited bookings',
+  'Online bookings',
+  'Persistent multi-thread chat',
+  '24h reminders',
+  'Calendar sync',
+  'Remove BookEasy branding',
+];
+
+const pricingData: Partial<PricingPlan>[] = [
+  {
+    plan: Plan.PRO,
+    cycle: BillingCycle.MONTHLY,
+    amountCents: 1900,
+    currency: 'EUR',
+    features: PRO_FEATURES,
+    active: true,
+  },
+  {
+    plan: Plan.PRO,
+    cycle: BillingCycle.ANNUAL,
+    amountCents: 22800,
+    currency: 'EUR',
+    features: PRO_FEATURES,
+    active: true,
   },
 ];
 
@@ -132,47 +158,90 @@ async function seed() {
 
     const categoryRepo = dataSource.getRepository(BusinessCategory);
     const typeRepo = dataSource.getRepository(BusinessType);
+    const existingCategories = await categoryRepo.find();
+    const existingTypes = await typeRepo.find();
+    const categoriesBySlug = new Map(
+      existingCategories.map((category) => [category.slug, category]),
+    );
+    const typesBySlug = new Map(existingTypes.map((type) => [type.slug, type]));
+    let createdCategories = 0;
+    let updatedCategories = 0;
+    let createdTypes = 0;
+    let updatedTypes = 0;
 
-    // Clear existing data (in reverse order due to foreign keys)
-    await typeRepo.createQueryBuilder().delete().from(BusinessType).execute();
-    await categoryRepo
-      .createQueryBuilder()
-      .delete()
-      .from(BusinessCategory)
-      .execute();
-    console.log('🧹 Cleared existing categories and types\n');
-
-    // Seed categories and types
+    // Seed categories by stable slug to preserve existing foreign key references.
     for (const categoryData of categoriesData) {
-      // Create category
-      const category = categoryRepo.create({
-        slug: categoryData.slug,
-        name: categoryData.name,
-        icon: categoryData.icon,
-        color: categoryData.color,
-        isActive: true,
-      });
-      await categoryRepo.save(category);
-      console.log(`📁 Created category: ${category.name}`);
+      const existingCategory = categoriesBySlug.get(categoryData.slug);
+      const category = existingCategory
+        ? categoryRepo.merge(existingCategory, {
+            name: categoryData.name,
+            icon: categoryData.icon,
+            color: categoryData.color,
+            isActive: true,
+          })
+        : categoryRepo.create({
+            slug: categoryData.slug,
+            name: categoryData.name,
+            icon: categoryData.icon,
+            color: categoryData.color,
+            isActive: true,
+          });
 
-      // Create types for this category
+      await categoryRepo.save(category);
+
+      if (existingCategory) {
+        updatedCategories += 1;
+        console.log(`📁 Updated category: ${category.name}`);
+      } else {
+        createdCategories += 1;
+        console.log(`📁 Created category: ${category.name}`);
+      }
+
+      // Seed types by stable slug so existing businesses keep their type IDs.
       for (const typeData of categoryData.types) {
-        const businessType = typeRepo.create({
-          categoryId: category.id,
-          slug: typeData.slug,
-          name: typeData.name,
-          isActive: true,
-        });
+        const existingType = typesBySlug.get(typeData.slug);
+        const businessType = existingType
+          ? typeRepo.merge(existingType, {
+              categoryId: category.id,
+              name: typeData.name,
+              isActive: true,
+            })
+          : typeRepo.create({
+              categoryId: category.id,
+              slug: typeData.slug,
+              name: typeData.name,
+              isActive: true,
+            });
+
         await typeRepo.save(businessType);
-        console.log(`   └── ${businessType.name}`);
+        if (existingType) {
+          updatedTypes += 1;
+          console.log(`   ├── Updated type: ${businessType.name}`);
+        } else {
+          createdTypes += 1;
+          console.log(`   └── Created type: ${businessType.name}`);
+        }
       }
     }
+
+    console.log(
+      `🧩 Synced categories and types (${createdCategories} created / ${updatedCategories} updated categories, ${createdTypes} created / ${updatedTypes} updated types)\n`,
+    );
+
+    // Seed pricing plans
+    const pricingRepo = dataSource.getRepository(PricingPlan);
+    await pricingRepo.createQueryBuilder().delete().from(PricingPlan).execute();
+    for (const row of pricingData) {
+      await pricingRepo.save(pricingRepo.create(row));
+    }
+    console.log(`💶 Seeded ${pricingData.length} pricing plans`);
 
     console.log('\n✅ Seed completed successfully!');
     console.log(`   - ${categoriesData.length} categories`);
     console.log(
       `   - ${categoriesData.reduce((acc, c) => acc + c.types.length, 0)} business types`,
     );
+    console.log(`   - ${pricingData.length} pricing plans`);
   } catch (error) {
     console.error('❌ Seed failed:', error);
     process.exit(1);

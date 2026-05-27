@@ -20,12 +20,12 @@ export function BusinessFields({ flow }: StepProps) {
         _hover={{ borderColor: 'whiteAlpha.400' }}
         _focus={{ borderColor: 'brand.400', boxShadow: 'none' }}
       />
-      <FormControl>
+      {/* <FormControl>
         <FormLabel color="whiteAlpha.800" fontSize="sm" mb={2}>
           Phone <Text as="span" color="whiteAlpha.500" fontWeight="400">(optional)</Text>
         </FormLabel>
         <PhoneField value={state.phone} onChange={(phone) => update({ phone })} />
-      </FormControl>
+      </FormControl> */}
     </VStack>
   );
 }

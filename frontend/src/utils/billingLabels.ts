@@ -3,7 +3,6 @@ import type { BillingCycle, Plan } from '../types/billing.types';
 export const PLAN_LABEL: Record<Plan, string> = {
   free: 'Free',
   pro: 'Pro',
-  growth: 'Growth',
 };
 
 export function planLabel(plan: Plan): string {

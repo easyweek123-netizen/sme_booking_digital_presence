@@ -13,8 +13,9 @@ export function AccountFields({ flow }: StepProps) {
         colorScheme="brand"
         borderColor="whiteAlpha.400"
         alignItems="flex-start"
+        justifyContent="center"
       >
-        <Text fontSize="xs" color="whiteAlpha.700" lineHeight="1.4" mt="-2px" textAlign="left">
+        <Text fontSize="xs" color="whiteAlpha.700" lineHeight="1.4" mt="-2px">
           I agree to the{' '}
           <Link href={ROUTES.TERMS} color="brand.300">Terms of Service</Link>{' '}and{' '}
           <Link href={ROUTES.PRIVACY} color="brand.300">Privacy Policy</Link>.

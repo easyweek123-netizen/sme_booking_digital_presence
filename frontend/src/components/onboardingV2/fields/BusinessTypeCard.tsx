@@ -37,18 +37,18 @@ export function BusinessTypeCard({ id, label, isSelected, onSelect }: Props) {
       type="button"
       onClick={() => onSelect(id, label)}
       aria-pressed={isSelected}
-      bg={isSelected ? 'whiteAlpha.200' : 'whiteAlpha.50'}
+      bg={isSelected ? 'accent.soft' : 'surface.card'}
       border="1px solid"
-      borderColor={isSelected ? 'brand.400' : 'whiteAlpha.200'}
+      borderColor={isSelected ? 'accent.primary' : 'border.subtle'}
       borderRadius="2xl"
       px={4}
       py={5}
       transition="all 0.15s ease"
-      _hover={{ borderColor: 'brand.300', transform: 'translateY(-1px)' }}
+      _hover={{ borderColor: 'accent.hover', transform: 'translateY(-1px)' }}
     >
       <VStack spacing={2}>
-        <Box color="white"><Icon size={24} /></Box>
-        <Text color="white" fontSize="sm" fontWeight="600">
+        <Box color={isSelected ? 'accent.primary' : 'text.primary'}><Icon size={24} /></Box>
+        <Text color="text.primary" fontSize="sm" fontWeight="600">
           {label}
         </Text>
       </VStack>

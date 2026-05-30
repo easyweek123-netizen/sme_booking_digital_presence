@@ -11,14 +11,14 @@ export function AccountFields({ flow }: StepProps) {
         isChecked={state.termsAccepted}
         onChange={(e) => update({ termsAccepted: e.target.checked })}
         colorScheme="brand"
-        borderColor="whiteAlpha.400"
+        borderColor="border.strong"
         alignItems="flex-start"
         justifyContent="center"
       >
-        <Text fontSize="xs" color="whiteAlpha.700" lineHeight="1.4" mt="-2px">
+        <Text fontSize="xs" color="text.secondary" lineHeight="1.4" mt="-2px">
           I agree to the{' '}
-          <Link href={ROUTES.TERMS} color="brand.300">Terms of Service</Link>{' '}and{' '}
-          <Link href={ROUTES.PRIVACY} color="brand.300">Privacy Policy</Link>.
+          <Link href={ROUTES.TERMS} color="accent.primary">Terms of Service</Link>{' '}and{' '}
+          <Link href={ROUTES.PRIVACY} color="accent.primary">Privacy Policy</Link>.
         </Text>
       </Checkbox>
       <GoogleButton
@@ -27,10 +27,12 @@ export function AccountFields({ flow }: StepProps) {
         isDisabled={!state.termsAccepted}
         text="Continue with Google"
         h="54px"
-        bg="white"
-        color="black"
+        bg="surface.card"
+        color="text.primary"
+        borderWidth="1px"
+        borderColor="border.strong"
         borderRadius="full"
-        _hover={{ bg: 'gray.200' }}
+        _hover={{ bg: 'surface.muted' }}
       />
     </VStack>
   );

@@ -6,7 +6,7 @@ export { useGetHealthQuery } from './healthApi';
 export type { HealthResponse } from './healthApi';
 
 // Auth
-export { useGetMeQuery, useLogoutMutation } from './authApi';
+export { useRegisterMutation, useGetMeQuery, useLogoutMutation } from './authApi';
 
 // Business Categories
 export { useGetBusinessCategoriesQuery } from './businessCategoriesApi';

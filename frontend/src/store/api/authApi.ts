@@ -3,6 +3,10 @@ import type { User } from '../../types';
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    register: builder.mutation<User, void>({
+      query: () => ({ url: '/auth/register', method: 'POST' }),
+    }),
+
     getMe: builder.query<User, void>({
       query: () => '/auth/me',
       providesTags: ['Owner'],
@@ -14,4 +18,4 @@ export const authApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetMeQuery, useLogoutMutation } = authApi;
+export const { useRegisterMutation, useGetMeQuery, useLogoutMutation } = authApi;

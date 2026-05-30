@@ -2,11 +2,15 @@ import {
   Injectable,
   BadRequestException,
   ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { QueryFailedError } from 'typeorm';
 import { OwnerService } from '../owner/owner.service';
 import { Owner } from '../owner/entities/owner.entity';
 import type { AuthUser, FirebaseUser } from '../common/types';
 import { normalizeOwnerEmail } from '../common/utils/email';
+
+const PG_UNIQUE_VIOLATION = '23505';
 
 export interface AuthResponse {
   user: AuthUser;
@@ -17,10 +21,25 @@ export class AuthService {
   constructor(private readonly ownerService: OwnerService) {}
 
   /**
-   * Resolve Owner for this Firebase session: by UID, else merge by verified email, else insert.
-   * Used by GET /auth/me and OwnerResolverGuard so UID changes do not strand users.
+   * Read-only owner resolution for guards and GET /auth/me. Never writes.
+   * Throws if this Firebase session has no provisioned owner yet — clients
+   * must call POST /auth/register first (done on login).
    */
-  async resolveRegisteredOwner(firebaseUser: FirebaseUser): Promise<Owner> {
+  async getRegisteredOwner(firebaseUser: FirebaseUser): Promise<Owner> {
+    const owner = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
+    if (!owner) {
+      throw new UnauthorizedException('Owner not registered');
+    }
+    return owner;
+  }
+
+  /**
+   * Provision the Owner for this Firebase session (idempotent).
+   * Resolve by UID, else merge by verified email, else insert.
+   * Safe under concurrency: a duplicate insert from parallel first-login
+   * requests is recovered by re-reading the winning row.
+   */
+  async registerOwner(firebaseUser: FirebaseUser): Promise<Owner> {
     const byUid = await this.ownerService.findByFirebaseUid(firebaseUser.uid);
     if (byUid) {
       return byUid;
@@ -64,18 +83,37 @@ export class AuthService {
       return updated;
     }
 
-    return this.ownerService.create({
-      firebaseUid: firebaseUser.uid,
-      email: canonical,
-      name: firebaseUser.name || canonical.split('@')[0],
-    });
+    try {
+      return await this.ownerService.create({
+        firebaseUid: firebaseUser.uid,
+        email: canonical,
+        name: firebaseUser.name || canonical.split('@')[0],
+      });
+    } catch (err) {
+      if (
+        err instanceof QueryFailedError &&
+        (err as { code?: string }).code === PG_UNIQUE_VIOLATION
+      ) {
+        const existing =
+          (await this.ownerService.findByFirebaseUid(firebaseUser.uid)) ??
+          (await this.ownerService.findByCanonicalEmail(canonical));
+        if (existing) {
+          return existing;
+        }
+      }
+      throw err;
+    }
   }
 
-  /**
-   * Get current user info from Firebase user (registers if first sign-in)
-   */
+  /** GET /auth/me — read-only current user. */
   async getCurrentUser(firebaseUser: FirebaseUser): Promise<AuthUser> {
-    const owner = await this.resolveRegisteredOwner(firebaseUser);
+    const owner = await this.getRegisteredOwner(firebaseUser);
+    return this.toAuthUser(owner);
+  }
+
+  /** POST /auth/register — provision (or resolve) the owner on login. */
+  async register(firebaseUser: FirebaseUser): Promise<AuthUser> {
+    const owner = await this.registerOwner(firebaseUser);
     return this.toAuthUser(owner);
   }
 

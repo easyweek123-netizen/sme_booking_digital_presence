@@ -8,6 +8,7 @@ import {
   useCreateBusinessMutation,
   useGetBusinessCategoriesQuery,
 } from '../../store/api/businessApi';
+import { useRegisterMutation } from '../../store/api/authApi';
 import { useAppSelector } from '../../store/hooks';
 import { ROUTES } from '../../config/routes';
 import { TOAST_DURATION } from '../../constants';
@@ -35,6 +36,7 @@ export function OnboardingPage() {
     undefined,
     { skip: !isAuthenticated },
   );
+  const [register] = useRegisterMutation();
   const [createBusiness, { isLoading: isCreating, isSuccess, isError }] =
     useCreateBusinessMutation();
 
@@ -62,6 +64,7 @@ export function OnboardingPage() {
   const handleCreateBusiness = useCallback(async () => {
     if (!data.businessName || isCreating || isSuccess) return;
     try {
+      await register().unwrap();
       await createBusiness({
         name: data.businessName,
         businessTypeId: businessTypeId ?? undefined,
@@ -73,6 +76,7 @@ export function OnboardingPage() {
   }, [
     data.businessName,
     businessTypeId,
+    register,
     createBusiness,
     handleAuthError,
     isCreating,

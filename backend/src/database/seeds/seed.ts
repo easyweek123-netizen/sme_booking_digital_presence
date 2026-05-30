@@ -6,7 +6,7 @@ import { PricingPlan } from '../../billing/entities/pricing-plan.entity';
 import { BillingCycle, Plan } from '../../billing/types/enums';
 
 // Load environment variables
-config();
+config({ override: true });
 
 /**
  * Supported database types

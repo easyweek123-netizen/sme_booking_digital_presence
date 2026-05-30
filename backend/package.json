@@ -20,8 +20,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "npx typeorm-ts-node-commonjs",
+    "migration:create": "npm run typeorm -- migration:create",
     "migration:generate": "npm run typeorm -- -d src/database/data-source.ts migration:generate",
     "migration:run": "npm run typeorm -- -d src/database/data-source.ts migration:run --transaction each",
+    "migration:run:prod": "typeorm -d dist/database/data-source.js migration:run --transaction each",
     "migration:revert": "npm run typeorm -- -d src/database/data-source.ts migration:revert",
     "db:seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts"
   },
@@ -45,7 +47,6 @@
     "firebase-admin": "^13.6.0",
     "googleapis": "^171.4.0",
     "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.11.5",
     "openai": "^6.10.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

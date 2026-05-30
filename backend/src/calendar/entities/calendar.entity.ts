@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
-  Index,
   Unique,
   CreateDateColumn,
   UpdateDateColumn,
@@ -18,7 +17,6 @@ export type CalendarStatus = 'connected' | 'error' | 'disconnected';
 
 @Entity('calendar')
 @Unique('UQ_calendar_business_provider', ['businessId', 'provider'])
-@Index('IDX_calendar_business', ['businessId'])
 export class Calendar {
   @PrimaryGeneratedColumn() id: number;
 

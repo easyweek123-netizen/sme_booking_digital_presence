@@ -15,7 +15,6 @@ import { Calendar } from './calendar.entity';
 @Entity('calendar_event')
 @Unique('UQ_calendar_event_calendar_booking', ['calendarId', 'bookingId'])
 @Index('IDX_calendar_event_booking', ['bookingId'])
-@Index('IDX_calendar_event_calendar', ['calendarId'])
 export class CalendarEvent {
   @PrimaryGeneratedColumn() id: number;
 

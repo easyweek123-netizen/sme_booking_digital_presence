@@ -31,7 +31,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
 
         try {
-          const result = await dispatch(authApi.endpoints.getMe.initiate()).unwrap();
+          const result = await dispatch(
+            authApi.endpoints.register.initiate(),
+          ).unwrap();
           dispatch(
             setCredentials({
               user: result,

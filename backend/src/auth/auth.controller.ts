@@ -1,4 +1,12 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FirebaseAuthGuard } from './guards';
 import type { AuthUser, RequestWithFirebaseUser } from '../common';
@@ -6,6 +14,13 @@ import type { AuthUser, RequestWithFirebaseUser } from '../common';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('register')
+  @UseGuards(FirebaseAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async register(@Request() req: RequestWithFirebaseUser): Promise<AuthUser> {
+    return this.authService.register(req.firebaseUser);
+  }
 
   @Get('me')
   @UseGuards(FirebaseAuthGuard)

@@ -21,9 +21,7 @@ export class OwnerResolverGuard implements CanActivate {
     }
 
     if (typeof req.ownerId !== 'number') {
-      const owner = await this.authService.resolveRegisteredOwner(
-        req.firebaseUser,
-      );
+      const owner = await this.authService.getRegisteredOwner(req.firebaseUser);
       (req as RequestWithOwner).ownerId = owner.id;
     }
 

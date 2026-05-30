@@ -11,17 +11,11 @@ export function BusinessFields({ flow }: StepProps) {
         onChange={(e) => update({ name: e.target.value })}
         placeholder="e.g. Mindful Studio"
         size="lg"
-        bg="whiteAlpha.100"
-        color="white"
-        borderColor="whiteAlpha.200"
         textAlign="left"
-        _placeholder={{ color: 'whiteAlpha.500' }}
-        _hover={{ borderColor: 'whiteAlpha.400' }}
-        _focus={{ borderColor: 'brand.400', boxShadow: 'none' }}
       />
       {/* <FormControl>
-        <FormLabel color="whiteAlpha.800" fontSize="sm" mb={2}>
-          Phone <Text as="span" color="whiteAlpha.500" fontWeight="400">(optional)</Text>
+        <FormLabel color="text.secondary" fontSize="sm" mb={2}>
+          Phone <Text as="span" color="text.muted" fontWeight="400">(optional)</Text>
         </FormLabel>
         <PhoneField value={state.phone} onChange={(phone) => update({ phone })} />
       </FormControl> */}

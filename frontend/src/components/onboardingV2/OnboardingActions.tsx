@@ -23,24 +23,20 @@ export function OnboardingActions({
         <Button
           variant="ghost"
           size="sm"
-          color="whiteAlpha.700"
           onClick={onSkip}
           isDisabled={skipDisabled}
-          _hover={{ bg: 'whiteAlpha.100' }}
         >
           Skip
         </Button>
       )}
       <Button
+        variant="accent"
         size="sm"
-        bg="white"
-        color="black"
         borderRadius="full"
         px={6}
         onClick={onContinue}
         isDisabled={!canContinue}
         isLoading={isLoading}
-        _hover={{ bg: 'gray.200' }}
       >
         {continueLabel}
       </Button>

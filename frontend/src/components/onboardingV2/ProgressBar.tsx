@@ -11,7 +11,7 @@ export function ProgressBar({ activeStep, totalSteps }: Props) {
           flex={1}
           h="3px"
           borderRadius="full"
-          bg={i <= activeStep ? 'brand.400' : 'whiteAlpha.200'}
+          bg={i <= activeStep ? 'accent.primary' : 'border.subtle'}
         />
       ))}
     </HStack>

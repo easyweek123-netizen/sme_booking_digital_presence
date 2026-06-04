@@ -24,9 +24,21 @@ function isCycle(value: string | null): value is BillingCycle {
   return value === 'monthly' || value === 'annual';
 }
 
+const RETURN_KEY = 'billing:returnTo';
+const isInternal = (p?: string | null) =>
+  !!p && p.startsWith('/') && !p.startsWith('//');
+
+function consumeReturnTo(): string | null {
+  const v = sessionStorage.getItem(RETURN_KEY);
+  if (v) sessionStorage.removeItem(RETURN_KEY);
+  return isInternal(v) ? v : null;
+}
+
 function absoluteReturnUrl() {
   return `${window.location.origin}${ROUTES.DASHBOARD.SETTINGS_BILLING}?welcome=1`;
 }
+
+const RETURN_DELAY_MS = 3000;
 
 export function Checkout() {
   const navigate = useNavigate();
@@ -40,7 +52,12 @@ export function Checkout() {
 
   const [start, startState] = useStartCheckoutMutation();
   const [confirm, confirmState] = useConfirmCheckoutMutation();
-  
+
+  useEffect(() => {
+    const rt = searchParams.get('returnTo');
+    if (isInternal(rt)) sessionStorage.setItem(RETURN_KEY, rt!);
+  }, [searchParams]);
+
   useEffect(() => {
     if (plan && cycle) return;
     toast({
@@ -102,9 +119,23 @@ export function Checkout() {
   const handleConfirm = async () => {
     try {
       await confirm({ sessionId: response.sessionId }).unwrap();
-      navigate(`${ROUTES.DASHBOARD.SETTINGS_BILLING}?welcome=1`, {
-        replace: true,
+      const back = consumeReturnTo();
+      toast({
+        title: 'Welcome to Pro!',
+        description: back
+          ? 'Subscription confirmed — taking you back to where you left off.'
+          : 'Your plan is now active.',
+        status: 'success',
+        duration: RETURN_DELAY_MS,
+        isClosable: true,
+        position: 'top',
       });
+      window.setTimeout(() => {
+        navigate(
+          back ?? `${ROUTES.DASHBOARD.SETTINGS_BILLING}?welcome=1`,
+          { replace: true },
+        );
+      }, RETURN_DELAY_MS);
     } catch {
       toast({
         title: 'Payment failed',

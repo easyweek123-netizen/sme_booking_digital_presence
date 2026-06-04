@@ -30,10 +30,11 @@ export function ServiceFormContainer({
       onError={onError}
       onInvalid={onInvalid}
     >
-      {({ methods, activeTab, setActiveTab, isSaving, onSave, tabs }) => (
+      {({ methods, activeTab, setActiveTab, isSaving, onSave, clearDraft, tabs }) => (
         <DashboardContentShell
           title={session.service?.name ?? 'New service'}
           backHref={ROUTES.DASHBOARD.SERVICES}
+          onBackClick={clearDraft}
           bodyOverflow={isDesktop ? 'auto' : 'hidden'}
           tabs={<DashboardTabs tabs={tabs} activeKey={activeTab} onChange={setActiveTab} />}
           actions={
@@ -41,7 +42,10 @@ export function ServiceFormContainer({
               isDirty={methods.formState.isDirty}
               isSaving={isSaving}
               onSave={onSave}
-              onDiscard={() => methods.reset()}
+              onDiscard={() => {
+                methods.reset();
+                clearDraft();
+              }}
               saveLabel={isEdit ? 'Save changes' : 'Create service'}
             />
           }

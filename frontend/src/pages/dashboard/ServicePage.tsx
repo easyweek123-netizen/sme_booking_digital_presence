@@ -1,7 +1,7 @@
 import { useBreakpointValue, useToast } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLoading } from '../../components/ui/states';
-import { ServiceForm, useServiceFormSession } from '../../components/Services';
+import { ServiceForm, useServiceFormSession, type ServiceTabKey } from '../../components/Services';
 import { ROUTES } from '../../config/routes';
 import { getErrorMessage } from '../../types';
 import { DashboardContentShell } from '@/components/Dashboard/DashboardContentShell';
@@ -27,6 +27,9 @@ export function ServicePage({ isEdit }: ServicePageProps) {
   const session = useServiceFormSession(serviceId);
   if (session.isLoading) return <PageLoading variant="form" />;
 
+  const initialActiveTab: ServiceTabKey =
+    isEdit && session.service?.locationId == null ? 'location' : 'basic';
+
   const onSuccess= () => {
     toast({ status: 'success', title: isEdit ? 'Service updated' : 'Service created' });
     navigate(ROUTES.DASHBOARD.SERVICES);
@@ -47,14 +50,16 @@ export function ServicePage({ isEdit }: ServicePageProps) {
   return (
     <ServiceForm
       session={session}
+      initialActiveTab={initialActiveTab}
       onSuccess={onSuccess}
       onError={onError}
       onInvalid={onInvalid}
     >
-      {({ methods, activeTab, setActiveTab, isSaving, onSave, tabs }) => (
+      {({ methods, activeTab, setActiveTab, isSaving, onSave, clearDraft, tabs }) => (
         <DashboardContentShell
           title={session.service?.name ?? 'New service'}
           backHref={ROUTES.DASHBOARD.SERVICES}
+          onBackClick={clearDraft}
           bodyOverflow={isDesktop ? 'auto' : 'hidden'}
           tabs={<DashboardTabs tabs={tabs} activeKey={activeTab} onChange={setActiveTab} />}
           actions={
@@ -62,7 +67,10 @@ export function ServicePage({ isEdit }: ServicePageProps) {
               isDirty={methods.formState.isDirty}
               isSaving={isSaving}
               onSave={onSave}
-              onDiscard={() => methods.reset()}
+              onDiscard={() => {
+                methods.reset();
+                clearDraft();
+              }}
               saveLabel={isEdit ? 'Save changes' : 'Create service'}
             />
           }

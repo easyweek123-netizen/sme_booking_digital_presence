@@ -21,7 +21,7 @@ export {
 
 // Services
 export {
-  useGetServicesQuery,
+  useGetBusinessServicesQuery,
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,
@@ -60,6 +60,16 @@ export {
   useGetCustomersQuery,
   useGetCustomerQuery,
 } from './customersApi';
+
+// Locations
+export {
+  useListLocationsQuery,
+  useSearchAddressQuery,
+  useReverseAddressQuery,
+  useCreateLocationMutation,
+  useDeleteLocationMutation,
+} from './locationsApi';
+export type { Location, LocationType, AddressCandidate } from '../../types/location';
 
 // Re-export all types from central types folder
 export type {

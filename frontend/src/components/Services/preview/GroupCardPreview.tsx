@@ -56,7 +56,7 @@ export function GroupCardPreview({ draft }: GroupCardPreviewProps) {
                 <Text>Group</Text>
               </HStack>
             </Tag>
-            <LocationChip type={draft.locationType} />
+            <LocationChip type={draft.activeLocationKind ?? undefined} />
           </HStack>
           <Text fontWeight="700" fontSize="md" color="text.heading">
             {draft.name?.trim() || 'Class name'}

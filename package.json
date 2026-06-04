@@ -18,7 +18,7 @@
     "db:down": "docker compose down",
     "db:migrate": "npm run migration:run --workspace=backend",
     "db:seed": "npm run db:seed --workspace=backend",
-    "local:setup": "npm run db:up && sleep 2 && npm run db:migrate && npm run db:seed"
+    "db:sync": "npm run start:dev --workspace=backend"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -1,25 +1,15 @@
-import type { ReactNode } from 'react';
 import { HStack, Tag, Text } from '@chakra-ui/react';
-import {
-  CalendarIcon,
-  MapPinIcon,
-  PhoneIcon,
-} from '../../icons';
-import type { LocationTypeValue } from '../../../types';
+import { LOCATION_TYPE_PRESENTATION } from '../locations/locationDisplay';
+import type { LocationType } from '../../../types/location';
 
-export function LocationChip({ type }: { type?: LocationTypeValue }) {
+export function LocationChip({ type }: { type?: LocationType }) {
   if (!type) return null;
-  const map: Record<LocationTypeValue, { icon: ReactNode; label: string }> = {
-    AT_BUSINESS: { icon: <MapPinIcon size={12} />, label: 'At my place' },
-    ONLINE: { icon: <CalendarIcon size={12} />, label: 'Online' },
-    PHONE: { icon: <PhoneIcon size={12} />, label: 'Phone' },
-  };
-  const cfg = map[type];
+  const { Icon, typeLabel } = LOCATION_TYPE_PRESENTATION[type];
   return (
     <Tag size="sm" variant="subtle" colorScheme="gray">
       <HStack spacing={1}>
-        {cfg.icon}
-        <Text>{cfg.label}</Text>
+        <Icon size={12} />
+        <Text>{typeLabel}</Text>
       </HStack>
     </Tag>
   );

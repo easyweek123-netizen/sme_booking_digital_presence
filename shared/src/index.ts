@@ -7,6 +7,7 @@
 export * from './tools';
 export * from './schemas/types';
 export * from './schemas/availability.schema';
+export * from './schemas/location.schema';
 export * from './schemas/booking.schema';
 export * from './schemas/inquiry.schema';
 export * from './schemas/schedule.schema';

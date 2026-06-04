@@ -3,9 +3,9 @@ import { ClockIcon, UserIcon } from '../../icons';
 import type {
   ServiceTypeValue,
   PriceTypeValue,
-  LocationTypeValue,
   AvailabilityInput,
 } from '../../../types';
+import type { LocationType } from '../../../types/location';
 import { STRIPE_BG, formatPrice, recurringDayLabels } from './helpers';
 import { LocationChip } from './LocationChip';
 
@@ -17,7 +17,7 @@ export interface ServiceDraft {
   durationMinutes?: number;
   price?: string | null;
   priceType?: PriceTypeValue;
-  locationType?: LocationTypeValue;
+  activeLocationKind?: LocationType | null;
   color?: string | null;
   photoUrl?: string | null;
   availability?: AvailabilityInput[];
@@ -84,7 +84,7 @@ export function AppointmentCardPreview({ draft }: AppointmentCardPreviewProps) {
         <VStack align="stretch" spacing={2} flex={1} minW={0}>
           <HStack spacing={2} wrap="wrap">
             <TypeChip type={draft.type} />
-            <LocationChip type={draft.locationType} />
+            <LocationChip type={draft.activeLocationKind ?? undefined} />
           </HStack>
           <Text fontWeight="700" fontSize="md" color="text.heading">
             {draft.name?.trim() || 'Service name'}

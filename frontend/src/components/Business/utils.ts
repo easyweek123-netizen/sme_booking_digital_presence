@@ -1,4 +1,9 @@
 import type { Service, WorkingHours, DaySchedule } from '../../types';
+import type { Location } from '../../types/location';
+import {
+  LOCATION_TYPE_PRESENTATION,
+  type LocationTypeIconName,
+} from '../Services/locations/locationDisplay';
 
 export const DAY_LONG = [
   'Sunday',
@@ -41,11 +46,12 @@ export function formatDuration(minutes: number): string {
   return `${h} hr ${m} min`;
 }
 
-export type LocationMeta = { label: string; iconName: 'globe' | 'phone' | 'pin' };
-export function locationMeta(loc: Service['locationType']): LocationMeta {
-  if (loc === 'ONLINE') return { label: 'Online', iconName: 'globe' };
-  if (loc === 'PHONE') return { label: 'By phone', iconName: 'phone' };
-  return { label: 'In-store', iconName: 'pin' };
+export type LocationMeta = { label: string; iconName: LocationTypeIconName };
+
+export function locationMeta(loc: Location | null | undefined): LocationMeta | null {
+  if (!loc) return null;
+  const { typeLabel, iconName } = LOCATION_TYPE_PRESENTATION[loc.type];
+  return { label: typeLabel, iconName };
 }
 
 export function getDayKey(dayOfWeek: number): keyof WorkingHours {

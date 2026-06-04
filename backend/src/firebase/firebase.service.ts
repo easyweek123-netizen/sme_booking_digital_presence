@@ -83,4 +83,8 @@ export class FirebaseService implements OnModuleInit {
       return null;
     }
   }
+
+  async deleteUser(uid: string): Promise<void> {
+    await this.app.auth().deleteUser(uid);
+  }
 }

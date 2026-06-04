@@ -3,6 +3,7 @@ import {
   IsOptional,
   IsNotEmpty,
   IsNumber,
+  IsInt,
   IsPositive,
   IsArray,
   Min,
@@ -48,4 +49,8 @@ export class CreateServiceDto {
   @IsNumber()
   @Min(0)
   displayOrder?: number;
+
+  @IsInt()
+  @IsPositive()
+  locationId: number;
 }

@@ -1,3 +1,5 @@
+import type { Location } from './location';
+
 export interface DaySchedule {
   isOpen: boolean;
   openTime: string;
@@ -56,7 +58,6 @@ export interface Schedule {
 
 export type ServiceTypeValue = 'APPOINTMENT' | 'GROUP';
 export type PriceTypeValue = 'FIXED' | 'FROM' | 'FREE' | 'ON_REQUEST';
-export type LocationTypeValue = 'AT_BUSINESS' | 'ONLINE' | 'PHONE';
 
 export interface Service {
   id: number;
@@ -71,8 +72,8 @@ export interface Service {
   pauseAfterMinutes: number;
   price: string | null;
   priceType: PriceTypeValue;
-  locationType: LocationTypeValue;
-  locationMeta: Record<string, unknown> | null;
+  locationId: number | null;
+  location?: Location | null;
   color: string | null;
   photoUrl: string | null;
   isActive: boolean;
@@ -94,8 +95,7 @@ export interface CreateServiceRequest {
   pauseAfterMinutes?: number;
   price?: string | null;
   priceType: PriceTypeValue;
-  locationType: LocationTypeValue;
-  locationMeta?: Record<string, unknown> | null;
+  locationId: number;
   color?: string | null;
   photoUrl?: string | null;
 }
@@ -111,8 +111,7 @@ export interface UpdateServiceRequest {
   pauseAfterMinutes?: number;
   price?: string | null;
   priceType?: PriceTypeValue;
-  locationType?: LocationTypeValue;
-  locationMeta?: Record<string, unknown> | null;
+  locationId?: number;
   color?: string | null;
   photoUrl?: string | null;
   isActive?: boolean;
@@ -133,7 +132,7 @@ export interface Business {
   id: number;
   slug: string;
   defaultScheduleId: number;
-  /** Mirrors backend `plan_enum`; public booking page uses this for the footer. */
+  defaultLocation?: Location | null;
   plan?: 'free' | 'pro';
   timezone: string;
   name: string;

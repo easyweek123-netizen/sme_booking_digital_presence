@@ -22,6 +22,7 @@ export const baseApi = createApi({
     'Availability',
     'Schedule',
     'Slot',
+    'Location',
   ],
   endpoints: () => ({}),
 });

@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
-import { Availability, Basic, Pricing } from './tabs';
+import { Availability, Basic, Location, Pricing } from './tabs';
 import type { ServiceFormInput } from '@bookeasy/shared';
 import type { ServiceTabKey } from './serviceTabs';
 
@@ -21,6 +21,7 @@ export function ServiceFormTabs({ activeTab }: ServiceFormTabsProps) {
       borderColor="border.subtle"
     >
       {activeTab === 'basic' && <Basic type={type} />}
+      {activeTab === 'location' && <Location />}
       {activeTab === 'availability' && <Availability type={type} />}
       {activeTab === 'pricing' && <Pricing />}
     </Box>

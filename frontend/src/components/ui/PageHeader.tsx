@@ -2,14 +2,19 @@ import type { ReactNode } from 'react';
 import { Box, Flex, VStack, HStack, Heading, Text, Link as ChakraLink } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ChevronLeftIcon } from '../icons';
+
 interface PageHeaderProps {
   title: string;
   description?: string;
   actions?: ReactNode;
   backHref?: string;
+  onBackClick?: () => void;
   children?: ReactNode;
 }
-export function PageHeader({ title, description, actions, backHref, children }: PageHeaderProps) {
+
+export function PageHeader({
+  title, description, actions, backHref, onBackClick, children,
+}: PageHeaderProps) {
   return (
     <Box as="header" mb={{ base: 4 }}>
       <Flex
@@ -23,6 +28,7 @@ export function PageHeader({ title, description, actions, backHref, children }: 
             <ChakraLink
               as={RouterLink}
               to={backHref}
+              onClick={onBackClick}
               display="inline-flex"
               alignItems="center"
               gap={1}

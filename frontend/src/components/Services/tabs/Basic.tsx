@@ -10,7 +10,6 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { FormLabelWithTooltip, TextField } from '../../ui/form';
 import { ServiceCategory } from '../fields/ServiceCategory';
 import { ServiceColor } from '../fields/ServiceColor';
-import { LocationPicker } from '../fields/LocationPicker';
 import { PhotoUrl } from '../fields/PhotoUrl';
 import { ServiceType } from '../fields/ServiceType';
 import { Capacity } from '../fields/Capacity';
@@ -91,10 +90,6 @@ export function Basic({ type }: BasicProps) {
 
       <Box mt={4}>
         <PhotoUrl />
-      </Box>
-
-      <Box mt={4}>
-        <LocationPicker />
       </Box>
     </Box>
   );

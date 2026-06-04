@@ -17,7 +17,6 @@ export type {
   UpdateServiceRequest,
   ServiceTypeValue,
   PriceTypeValue,
-  LocationTypeValue,
   CreateServiceCategoryRequest,
   UpdateServiceCategoryRequest,
   Schedule,

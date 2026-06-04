@@ -12,13 +12,7 @@ import { Business } from '../../business/entities/business.entity';
 import { Booking } from '../../bookings/entities/booking.entity';
 import { ServiceCategory } from '../../service-categories/entities/service-category.entity';
 import { Schedule } from '../../schedule/entities/schedule.entity';
-
-export enum LocationType {
-  AT_BUSINESS = 'AT_BUSINESS',
-  ONLINE = 'ONLINE',
-  AT_CUSTOMER = 'AT_CUSTOMER',
-  PHONE = 'PHONE',
-}
+import { Location } from '../../locations/entities/location.entity';
 
 @Entity('services')
 export class Service {
@@ -62,16 +56,12 @@ export class Service {
   @Column({ name: 'price_type', type: 'varchar', length: 16, default: 'FIXED' })
   priceType: 'FIXED' | 'FROM' | 'FREE' | 'ON_REQUEST';
 
-  @Column({
-    name: 'location_type',
-    type: 'varchar',
-    length: 16,
-    default: LocationType.AT_BUSINESS,
-  })
-  locationType: LocationType;
+  @Column({ name: 'location_id', type: 'int' })
+  locationId: number;
 
-  @Column({ name: 'location_meta', type: 'jsonb', nullable: true })
-  locationMeta: Record<string, unknown> | null;
+  @ManyToOne(() => Location, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'location_id' })
+  location: Location;
 
   @Column({ type: 'varchar', length: 7, nullable: true })
   color: string | null;

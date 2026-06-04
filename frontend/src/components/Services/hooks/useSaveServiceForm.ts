@@ -2,10 +2,11 @@ import type { FieldErrors } from 'react-hook-form';
 import type { ServiceFormInput } from '@bookeasy/shared';
 import type { Service } from '../../../types';
 import { useServiceForm } from './useServiceForm';
-import { useSaveService } from './useSaveService';
+import { useSaveService, InvalidLocationError } from './useSaveService';
+import { InvalidCreatingLocationError } from '../locations/shared/useCreateLocation';
 import type { ServiceFormSession } from './useServiceFormSession';
 
-interface UseSaveServiceFormParams {
+interface Params {
   session: ServiceFormSession;
   initialValues?: Partial<ServiceFormInput>;
   onSuccess?: (saved: Service) => void;
@@ -14,16 +15,13 @@ interface UseSaveServiceFormParams {
 }
 
 export function useSaveServiceForm({
-  session,
-  initialValues,
-  onSuccess,
-  onError,
-  onInvalid,
-}: UseSaveServiceFormParams) {
-  const methods = useServiceForm({
+  session, initialValues, onSuccess, onError, onInvalid,
+}: Params) {
+  const { methods, clearDraft } = useServiceForm({
     service: session.service,
     business: session.business,
     availability: session.availability,
+    location: session.location,
     initialValues,
   });
 
@@ -37,8 +35,17 @@ export function useSaveServiceForm({
     async (values) => {
       try {
         const saved = await saveService(values);
+        clearDraft();
         onSuccess?.(saved);
       } catch (err) {
+        if (err instanceof InvalidCreatingLocationError) {
+          methods.setError('location', { type: 'manual', message: err.message });
+          return;
+        }
+        if (err instanceof InvalidLocationError) {
+          methods.setError('location', { type: 'required', message: err.message });
+          return;
+        }
         onError?.(err);
         throw err;
       }
@@ -46,5 +53,5 @@ export function useSaveServiceForm({
     (errors) => onInvalid?.(errors),
   );
 
-  return { methods, onSave, isSaving } as const;
+  return { methods, onSave, isSaving, clearDraft } as const;
 }

@@ -45,14 +45,20 @@ export function UpgradeModal() {
 
   const copy = copyForFeature(upgradePrompt.feature);
 
+  const returnTo = upgradePrompt.returnTo;
+  const isInternal = (p?: string) =>
+    !!p && p.startsWith('/') && !p.startsWith('//');
+
   const handleClose = () => dispatch(closeUpgradePrompt());
 
   const handleUpgrade = () => {
     if (!requiredPlan) return;
     handleClose();
-    navigate(
-      `${ROUTES.DASHBOARD.SETTINGS_CHECKOUT}?plan=${requiredPlan}&cycle=monthly`,
-    );
+    const base = `${ROUTES.DASHBOARD.SETTINGS_CHECKOUT}?plan=${requiredPlan}&cycle=monthly`;
+    const url = isInternal(returnTo)
+      ? `${base}&returnTo=${encodeURIComponent(returnTo!)}`
+      : base;
+    navigate(url);
   };
 
   return (

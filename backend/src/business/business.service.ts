@@ -7,13 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, FindOptionsWhere } from 'typeorm';
 import { Business } from './entities/business.entity';
-import { LocationType, Service } from '../services/entities/service.entity';
+import { Service } from '../services/entities/service.entity';
 import { Schedule } from '../schedule/entities/schedule.entity';
 import { Availability } from '../schedule/entities/availability.entity';
 import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto, ServiceDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import type { WorkingHours } from './types/working-hours';
+import { toLocationView } from '../locations/types/location-view';
 
 @Injectable()
 export class BusinessService {
@@ -129,7 +130,6 @@ export class BusinessService {
         pauseAfterMinutes: 0,
         price: s.price != null ? Number(s.price).toFixed(2) : null,
         priceType: 'FIXED',
-        locationType: LocationType.AT_BUSINESS,
         isActive: true,
       }),
     );
@@ -192,6 +192,7 @@ export class BusinessService {
         'businessType',
         'defaultSchedule',
         'defaultSchedule.availabilities',
+        'defaultLocation',
       ],
     });
     if (!business) throw new NotFoundException('Business not found');
@@ -199,6 +200,9 @@ export class BusinessService {
       workingHours: this.buildWorkingHours(
         business.defaultSchedule?.availabilities,
       ),
+      defaultLocation: business.defaultLocation
+        ? toLocationView(business.defaultLocation)
+        : null,
     });
   }
 

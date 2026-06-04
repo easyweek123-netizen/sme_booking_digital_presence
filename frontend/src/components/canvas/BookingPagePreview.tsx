@@ -1,6 +1,6 @@
 import { Box, Center, Spinner, Text, VStack, useToast } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
-import { useGetMyBusinessQuery, useGetServicesQuery } from '../../store/api';
+import { useGetBusinessServicesQuery, useGetMyBusinessQuery } from '../../store/api';
 import { BusinessBookingPage } from '../Business/BusinessBookingPage';
 import { BookingWizard } from '../Business/Book';
 import { BREAKPOINTS } from '../../utils/breakpoints';
@@ -53,7 +53,7 @@ export function BookingPagePreview() {
   const businessQuery = useGetMyBusinessQuery();
   const business = businessQuery.data;
 
-  const categoriesQuery = useGetServicesQuery(business?.id ?? 0, {
+  const categoriesQuery = useGetBusinessServicesQuery(business?.id ?? 0, {
     skip: !business?.id,
   });
 

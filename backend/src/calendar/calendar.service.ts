@@ -38,8 +38,15 @@ export class CalendarService {
   async getStatus(ownerId: number): Promise<CalendarStatusDto> {
     const calendar = await this.findForOwner(ownerId);
     if (!calendar)
-      return { connected: false, email: null, lastSyncAt: null, status: null };
+      return {
+        calendarId: null,
+        connected: false,
+        email: null,
+        lastSyncAt: null,
+        status: null,
+      };
     return {
+      calendarId: calendar.id,
       connected: calendar.status === 'connected',
       email: calendar.providerAccountEmail,
       lastSyncAt: calendar.lastSyncAt
@@ -65,6 +72,16 @@ export class CalendarService {
       externalEventId: r.externalEventId,
       createdAt: r.createdAt.toISOString(),
     }));
+  }
+
+  async isConnectionLive(
+    calendarId: number,
+    businessId: number,
+  ): Promise<boolean> {
+    const calendar = await this.calendars.findById(calendarId);
+    if (!calendar) return false;
+    if (calendar.businessId !== businessId) return false;
+    return calendar.status === 'connected' && calendar.refreshToken !== null;
   }
 
   // ── OAuth flow ───────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { Business } from '../business/entities/business.entity';
 import { AuthModule } from '../auth/auth.module';
 import { BillingModule } from '../billing/billing.module';
 import { ScheduleModule } from '../schedule/schedule.module';
+import { LocationsModule } from '../locations/locations.module';
 import { BusinessOwnershipGuard } from '../common';
 import {
   CreateServiceTool,
@@ -25,6 +26,7 @@ import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
     ScheduleModule,
     AuthModule,
     BillingModule,
+    LocationsModule,
   ],
   controllers: [ServicesController],
   providers: [

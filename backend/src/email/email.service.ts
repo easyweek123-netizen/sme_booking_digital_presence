@@ -5,6 +5,7 @@ import { Booking, BookingStatus } from '../bookings/entities/booking.entity';
 import { Business } from '../business/entities/business.entity';
 import { Owner } from '../owner/entities/owner.entity';
 import { generateGoogleCalendarLink } from '../common/utils/calendar';
+import { locationToCalendarText } from '../locations/types/location-formatters';
 import { newBookingAlertTemplate } from './templates/new-booking-alert';
 import { bookingConfirmedTemplate } from './templates/booking-confirmed';
 import { bookingCancelledTemplate } from './templates/booking-cancelled';
@@ -98,11 +99,18 @@ export class EmailService {
       booking.endTime,
     );
 
+    const serviceLocationText = locationToCalendarText(
+      booking.service?.location,
+    );
     const calendarLink = generateGoogleCalendarLink({
       title: `${booking.service?.name || 'Appointment'} at ${business.name}`,
       start: bookingDateTime,
       durationMinutes,
-      location: meetLink ?? business.address ?? undefined,
+      location:
+        meetLink ??
+        serviceLocationText ??
+        business.address ??
+        undefined,
       description: meetLink
         ? `Reference: ${booking.reference}\nJoin: ${meetLink}`
         : `Reference: ${booking.reference}`,
@@ -115,7 +123,9 @@ export class EmailService {
       date: this.formatDate(booking.date),
       time: `${booking.startTime} - ${booking.endTime}`,
       reference: booking.reference,
-      address: meetLink ? undefined : business.address || undefined,
+      address: meetLink
+        ? undefined
+        : (serviceLocationText ?? business.address ?? undefined),
       phone: business.phone || undefined,
       calendarLink,
       meetLink,

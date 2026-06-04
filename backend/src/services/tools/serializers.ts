@@ -1,5 +1,5 @@
 import type { Service } from '../entities/service.entity';
-import type { ServiceListItem, LocationType } from '@bookeasy/shared';
+import type { ServiceListItem } from '@bookeasy/shared';
 
 export function toServiceListItem(s: Service): ServiceListItem {
   return {
@@ -10,7 +10,6 @@ export function toServiceListItem(s: Service): ServiceListItem {
     durationMinutes: s.durationMinutes,
     price: s.price !== null && s.price !== undefined ? String(s.price) : null,
     priceType: s.priceType,
-    locationType: s.locationType as unknown as LocationType,
     capacity: s.capacity,
     isActive: s.isActive,
     imageUrl: s.photoUrl ?? null,

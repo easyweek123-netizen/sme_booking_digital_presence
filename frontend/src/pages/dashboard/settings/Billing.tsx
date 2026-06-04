@@ -13,6 +13,7 @@ import {
   useGetSubscriptionQuery,
   useResumeSubscriptionMutation,
 } from '../../../store/api/billingApi';
+import { useDelayedNavigate } from '../../../hooks/useDelayedNavigate';
 import { TOAST_DURATION } from '../../../constants';
 
 export function Billing() {
@@ -29,6 +30,16 @@ export function Billing() {
   const [resume, resumeState] = useResumeSubscriptionMutation();
 
   const currentPlan: Plan = subscriptionQuery.data?.plan ?? 'free';
+
+  const returnTo = (() => {
+    if (searchParams.get('welcome') !== '1') return null;
+    const v = sessionStorage.getItem('billing:returnTo');
+    if (!(v && v.startsWith('/') && !v.startsWith('//'))) return null;
+    sessionStorage.removeItem('billing:returnTo');
+    return v;
+  })();
+
+  useDelayedNavigate(returnTo, 3000);
 
   useEffect(() => {
     if (searchParams.get('welcome') !== '1') return;

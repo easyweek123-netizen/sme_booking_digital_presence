@@ -12,7 +12,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   useGetBusinessBySlugQuery,
-  useGetServicesQuery,
+  useGetBusinessServicesQuery,
 } from '../../store/api';
 import { BookingWizard } from '../../components/Business/Book';
 import { useBookingAuth } from '../../components/Business/Book/hooks/useBookingAuth';
@@ -29,7 +29,7 @@ export function ServiceBookingPage() {
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
 
-  const categoriesQuery = useGetServicesQuery(business?.id ?? 0, {
+  const categoriesQuery = useGetBusinessServicesQuery(business?.id ?? 0, {
     skip: !business?.id,
   });
 

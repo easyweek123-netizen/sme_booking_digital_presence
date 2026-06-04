@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ServiceFieldsObject } from '../schemas/service.schema';
-import { SERVICE_TYPES, PRICE_TYPES, LOCATION_TYPES } from '../schemas/types';
+import { SERVICE_TYPES, PRICE_TYPES } from '../schemas/types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Service List Item Schema (for display / AI context)
@@ -14,7 +14,6 @@ export const ServiceListItemSchema = z.object({
   durationMinutes: z.number(),
   price: z.string().nullable().optional(),
   priceType: z.enum(PRICE_TYPES),
-  locationType: z.enum(LOCATION_TYPES),
   capacity: z.number().int(),
   isActive: z.boolean(),
   imageUrl: z.string().nullable().optional(),

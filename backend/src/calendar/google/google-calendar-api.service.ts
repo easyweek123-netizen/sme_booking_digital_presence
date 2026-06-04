@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google, calendar_v3 } from 'googleapis';
 import { Booking } from '../../bookings/entities/booking.entity';
-import { LocationType } from '../../services/entities/service.entity';
+import { LocationType } from '../../locations/entities/location.entity';
+import { locationToCalendarText } from '../../locations/types/location-formatters';
 import { toLocalIsoDateTime } from '../../common';
 
 export interface CalendarEventResult {
@@ -41,7 +42,7 @@ export class GoogleCalendarApiService {
     booking: Booking,
   ): Promise<CalendarEventResult> {
     const calendar = this.calendarClient(refreshToken);
-    const withMeeting = booking.service?.locationType === LocationType.ONLINE;
+    const withMeeting = booking.service?.location?.type === LocationType.ONLINE;
     try {
       const res = await calendar.events.insert({
         calendarId: 'primary',
@@ -101,7 +102,11 @@ export class GoogleCalendarApiService {
     return {
       summary: `${booking.customerName} — ${service?.name ?? 'Booking'}`,
       description,
-      location: withMeeting ? undefined : (business?.address ?? undefined),
+      location: withMeeting
+        ? undefined
+        : (locationToCalendarText(service?.location) ??
+          business?.address ??
+          undefined),
       start: {
         dateTime: toLocalIsoDateTime(booking.date, booking.startTime),
         timeZone,

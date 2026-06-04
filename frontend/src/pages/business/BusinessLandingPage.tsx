@@ -10,7 +10,7 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetBusinessBySlugQuery, useGetServicesQuery } from '../../store/api';
+import { useGetBusinessBySlugQuery, useGetBusinessServicesQuery } from '../../store/api';
 import { BusinessBookingPage as BusinessBookingPageView } from '../../components/Business/BusinessBookingPage';
 import { ROUTES } from '../../config/routes';
 import type { Service } from '../../types';
@@ -23,7 +23,7 @@ export function BusinessLandingPage() {
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
 
-  const categoriesQuery = useGetServicesQuery(business?.id ?? 0, {
+  const categoriesQuery = useGetBusinessServicesQuery(business?.id ?? 0, {
     skip: !business?.id,
   });
 

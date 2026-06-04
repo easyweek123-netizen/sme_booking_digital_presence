@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AvailabilityListSchema } from './availability.schema';
-import { SERVICE_TYPES, PRICE_TYPES, LOCATION_TYPES } from './types';
+import { LocationDraftSchema } from './location.schema';
+import { SERVICE_TYPES, PRICE_TYPES } from './types';
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 function isCanonicalPriceString(value: string): boolean {
@@ -8,7 +9,7 @@ function isCanonicalPriceString(value: string): boolean {
   return Number.isFinite(n) && n >= 0 && n.toFixed(2) === value;
 }
 
-export const ServiceFieldsObject = z.object({
+export const ServiceCoreFieldsObject = z.object({
   type: z.enum(SERVICE_TYPES),
   name: z.string().min(1).max(200),
   description: z.string().max(2000).nullable().optional(),
@@ -17,15 +18,17 @@ export const ServiceFieldsObject = z.object({
   pauseAfterMinutes: z.number().int().min(0).optional(),
   price: z.string().nullable().optional(),
   priceType: z.enum(PRICE_TYPES),
-  locationType: z.enum(LOCATION_TYPES),
-  locationMeta: z.record(z.unknown()).nullable().optional(),
   color: z.string().regex(HEX).nullable().optional(),
   photoUrl: z.string().url().nullable().optional(),
   categoryId: z.number().int().positive().nullable().optional(),
 });
 
-export const SERVICE_FORM_FIELD_KEYS = Object.keys(ServiceFieldsObject.shape) as (keyof z.infer<
-  typeof ServiceFieldsObject
+export const ServiceFieldsObject = ServiceCoreFieldsObject.extend({
+  locationId: z.number().int().positive()
+});
+
+export const SERVICE_FORM_FIELD_KEYS = Object.keys(ServiceCoreFieldsObject.shape) as (keyof z.infer<
+  typeof ServiceCoreFieldsObject
 >)[];
 
 const ServiceBaseObject = ServiceFieldsObject.extend({
@@ -33,7 +36,7 @@ const ServiceBaseObject = ServiceFieldsObject.extend({
 });
 
 function serviceFieldsRefine(
-  v: z.infer<typeof ServiceFieldsObject>,
+  v: z.infer<typeof ServiceCoreFieldsObject>,
   ctx: z.RefinementCtx,
 ): void {
   const issue = (path: string, message: string) =>
@@ -59,29 +62,28 @@ function serviceFieldsRefine(
     }
     issue('price', 'price must be null for FREE/ON_REQUEST');
   }
-  if (v.locationType === 'AT_BUSINESS') {
-    const meta = v.locationMeta as { address?: string } | null | undefined;
-    if (!meta?.address?.trim()) {
-      issue('locationMeta', 'Address is required for at-business services');
-    }
-  }
-  if (v.locationType === 'PHONE') {
-    const meta = v.locationMeta as { phone?: string } | null | undefined;
-    if (!meta?.phone?.trim()) {
-      issue('locationMeta', 'Phone number is required for phone services');
-    }
-  }
 }
 
 export const ServiceCreateSchema = ServiceBaseObject.superRefine(serviceFieldsRefine);
 export type ServiceCreateInput = z.infer<typeof ServiceCreateSchema>;
 
 export const ServiceFormFieldsSchema =
-  ServiceFieldsObject.superRefine(serviceFieldsRefine);
+  ServiceCoreFieldsObject.superRefine(serviceFieldsRefine);
 
-export const ServiceFormSchema = ServiceFieldsObject.extend({
+export const ServiceFormSchema = ServiceCoreFieldsObject.extend({
   availability: AvailabilityListSchema,
-}).superRefine(serviceFieldsRefine);
+  location: LocationDraftSchema.nullable(),
+}).superRefine((v, ctx) => {
+  serviceFieldsRefine(v, ctx);
+  const loc = v.location;
+  if (loc == null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['location'], message: 'Pick or create a location.' });
+  } else if (loc.type === 'ADDRESS' && loc.data == null) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['location'], message: 'Enter an address.' });
+  } else if (loc.type === 'PHONE' && !loc.data?.phoneNumber) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['location'], message: 'Enter a phone number.' });
+  }
+});
 
 export type ServiceFormFieldsInput = z.infer<typeof ServiceFormFieldsSchema>;
 export type ServiceFormInput = z.infer<typeof ServiceFormSchema>;

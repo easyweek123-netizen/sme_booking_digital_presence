@@ -11,7 +11,7 @@ interface WizardServiceRowProps {
 }
 
 export function WizardServiceRow({ service, selected, onSelect }: WizardServiceRowProps) {
-  const loc = locationMeta(service.locationType);
+  const loc = locationMeta(service.location);
   const { isOpen: descOpen, onToggle } = useDisclosure();
   const description = service.description ?? '';
   return (
@@ -39,11 +39,15 @@ export function WizardServiceRow({ service, selected, onSelect }: WizardServiceR
           </Flex>
           <HStack spacing={2.5} fontSize="13px" color="gray.500" mt={1.5} flexWrap="wrap">
             <Text as="span">{formatDuration(service.durationMinutes)}</Text>
-            <Text as="span" color="gray.300">·</Text>
-            <HStack as="span" spacing={1}>
-              <MapPinIcon size={12} />
-              <Text as="span">{loc.label}</Text>
-            </HStack>
+            {loc && (
+              <>
+                <Text as="span" color="gray.300">·</Text>
+                <HStack as="span" spacing={1}>
+                  <MapPinIcon size={12} />
+                  <Text as="span">{loc.label}</Text>
+                </HStack>
+              </>
+            )}
             {service.type === 'GROUP' && (
               <>
                 <Text as="span" color="gray.300">·</Text>

@@ -1,103 +1,79 @@
+import { useCallback } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ServiceFormSchema,
   type ServiceFormFieldsInput,
   type ServiceFormInput,
+  type LocationDraft,
 } from '@bookeasy/shared';
 import { serviceTypeRegistry } from '../serviceTypeRegistry';
-import { resolveLocationMeta } from '../fields/locationMetaConfig';
+import {
+  // useDraftPersistence, readDraft, 
+  clearStoredDraft,
+} from '../../../hooks/useDraftPersistence';
 import type {
-  Business,
-  Service,
-  ServiceTypeValue,
-  AvailabilityInput,
+  Business, Service, ServiceTypeValue, AvailabilityInput,
 } from '../../../types';
 
 interface UseServiceFormParams {
   service?: Service;
   business: Business;
   availability: AvailabilityInput[];
-  /** Values that override both defaults and fetched-service values (e.g. AI-proposed changes). */
+  location: LocationDraft | null;
   initialValues?: Partial<ServiceFormInput>;
 }
 
+export interface UseServiceFormResult {
+  methods: UseFormReturn<ServiceFormInput>;
+  clearDraft: () => void;
+}
+
 const FIELD_DEFAULTS = {
-  type: 'APPOINTMENT',
-  name: '',
-  description: null,
-  capacity: 1,
-  durationMinutes: 30,
-  pauseAfterMinutes: 0,
-  price: '',
-  priceType: 'FIXED',
-  locationType: 'AT_BUSINESS',
-  locationMeta: null,
-  color: '#7C3AED',
-  photoUrl: null,
-  categoryId: null,
-} satisfies ServiceFormFieldsInput;
+  type: 'APPOINTMENT', name: '', description: null, capacity: 1,
+  durationMinutes: 30, pauseAfterMinutes: 0, price: '', priceType: 'FIXED',
+  color: '#7C3AED', photoUrl: null, categoryId: null,
+} satisfies Partial<ServiceFormFieldsInput>;
 
-function makeServiceDraft(type: ServiceTypeValue): ServiceFormFieldsInput {
-  return {
-    ...FIELD_DEFAULTS,
-    ...serviceTypeRegistry[type].defaults,
-  };
+function makeServiceDefaults(type: ServiceTypeValue): Partial<ServiceFormFieldsInput> {
+  return { ...FIELD_DEFAULTS, ...serviceTypeRegistry[type].defaults };
 }
-function fromService(service: Service, business: Business): ServiceFormFieldsInput {
+
+function fromService(service: Service): ServiceFormFieldsInput {
   return {
-    type: service.type,
-    name: service.name,
-    description: service.description,
-    capacity: service.capacity,
-    durationMinutes: service.durationMinutes,
-    pauseAfterMinutes: service.pauseAfterMinutes,
-    price: service.price ?? '',
-    priceType: service.priceType,
-    locationType: service.locationType,
-    color: service.color,
-    photoUrl: service.photoUrl,
+    type: service.type, name: service.name, description: service.description,
+    capacity: service.capacity, durationMinutes: service.durationMinutes,
+    pauseAfterMinutes: service.pauseAfterMinutes, price: service.price ?? '',
+    priceType: service.priceType, color: service.color, photoUrl: service.photoUrl,
     categoryId: service.categoryId,
-    locationMeta: resolveLocationMeta(
-      service.locationType,
-      business,
-      service.locationMeta,
-    ),
-  };
-}
-function pickServiceFormFields(
-  source: Service | ServiceFormFieldsInput,
-  business: Business,
-): ServiceFormFieldsInput {
-  if ('id' in source) {
-    return fromService(source, business);
-  }
-
-  return {
-    ...source,
-    locationMeta: resolveLocationMeta(
-      source.locationType,
-      business,
-      source.locationMeta,
-    ),
-  };
+  } as ServiceFormFieldsInput;
 }
 
 export function useServiceForm({
-  service,
-  business,
-  availability,
-  initialValues,
-}: UseServiceFormParams): UseFormReturn<ServiceFormInput> {
-  const type: ServiceTypeValue =
-    initialValues?.type ?? service?.type ?? 'APPOINTMENT';
+  service, availability, location, initialValues,
+}: UseServiceFormParams): UseServiceFormResult {
+  const type: ServiceTypeValue = initialValues?.type ?? service?.type ?? 'APPOINTMENT';
+  const fields = service ? fromService(service) : (makeServiceDefaults(type) as ServiceFormFieldsInput);
 
-  const source = service ?? makeServiceDraft(type);
-  const fields = pickServiceFormFields(source, business);
+  const draftKey = service ? `service:draft:${service.id}` : 'service:draft:new';
+  // const persisted = readDraft<Partial<ServiceFormInput>>(draftKey);
 
-  return useForm<ServiceFormInput>({
+  const methods = useForm<ServiceFormInput>({
     resolver: zodResolver(ServiceFormSchema),
-    defaultValues: { ...fields, availability, ...initialValues },
+    defaultValues: {
+      ...fields,
+      availability,
+      location,
+      // ...(persisted ?? {}),
+      ...initialValues,
+    },
     mode: 'onBlur',
   });
+
+  // useDraftPersistence(methods, draftKey);
+
+  return {
+    methods,
+    clearDraft: useCallback(() => clearStoredDraft(draftKey), [draftKey]),
+  };
 }

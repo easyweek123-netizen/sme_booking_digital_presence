@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { FirebaseModule } from './firebase/firebase.module';
@@ -19,6 +20,7 @@ import { AdminModule } from './admin/admin.module';
 import { ChatModule } from './chat/chat.module';
 import { NotesModule } from './notes/notes.module';
 import { InquiriesModule } from './inquiries/inquiries.module';
+import { LocationsModule } from './locations/locations.module';
 import { BillingModule } from './billing/billing.module';
 import { CalendarModule } from './calendar/calendar.module';
 import { EntitlementsModule } from './entitlements/entitlements.module';
@@ -54,10 +56,14 @@ import calendarConfig from './config/calendar.config';
     ChatModule,
     NotesModule,
     InquiriesModule,
+    LocationsModule,
     BillingModule,
     EntitlementsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    // Global rate-limiting — @Throttle({...}) on individual routes overrides the default.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

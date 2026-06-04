@@ -1,9 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
-import { LocationType, Service } from './entities/service.entity';
+import { Service } from './entities/service.entity';
 import { ScheduleService } from '../schedule/schedule.service';
+import { LocationsService } from '../locations/locations.service';
+import { toLocationView } from '../locations/types/location-view';
+import type { Location } from '../locations/entities/location.entity';
 import type { ServiceCreateInput, ServicePatchInput } from '@bookeasy/shared';
+
+function withMappedLocation(s: Service): Service {
+  if (s.location) {
+    (s as unknown as { location: unknown }).location = toLocationView(
+      s.location,
+    );
+  }
+  return s;
+}
 
 function withMappedAvailability<T extends { schedule?: unknown }>(s: T): T {
   const sched = s.schedule as Record<string, unknown> | null | undefined;
@@ -20,6 +32,7 @@ export class ServicesService {
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
     private readonly scheduleService: ScheduleService,
+    private readonly locationsService: LocationsService,
   ) {}
 
   async create(businessId: number, dto: ServiceCreateInput): Promise<Service> {
@@ -27,6 +40,7 @@ export class ServicesService {
       dto.scheduleId,
       businessId,
     );
+    await this.locationsService.getForBusiness(dto.locationId, businessId);
     const service = this.serviceRepository.create({
       businessId,
       categoryId: dto.categoryId ?? null,
@@ -39,8 +53,7 @@ export class ServicesService {
       pauseAfterMinutes: dto.pauseAfterMinutes ?? 0,
       price: dto.price ?? null,
       priceType: dto.priceType,
-      locationType: dto.locationType as LocationType,
-      locationMeta: dto.locationMeta ?? null,
+      locationId: dto.locationId,
       color: dto.color ?? null,
       photoUrl: dto.photoUrl ?? null,
       isActive: true,
@@ -51,19 +64,24 @@ export class ServicesService {
   async findByBusiness(businessId: number): Promise<Service[]> {
     const services = await this.serviceRepository.find({
       where: { businessId, isActive: true },
-      relations: ['category', 'schedule', 'schedule.availabilities'],
+      relations: [
+        'category',
+        'schedule',
+        'schedule.availabilities',
+        'location',
+      ],
       order: { displayOrder: 'ASC', createdAt: 'ASC' },
     });
-    return services.map(withMappedAvailability);
+    return services.map((s) => withMappedLocation(withMappedAvailability(s)));
   }
 
   async findOne(id: number): Promise<Service> {
     const service = await this.serviceRepository.findOne({
       where: { id },
-      relations: ['schedule', 'schedule.availabilities'],
+      relations: ['schedule', 'schedule.availabilities', 'location'],
     });
     if (!service) throw new NotFoundException('Service not found');
-    return withMappedAvailability(service);
+    return withMappedLocation(withMappedAvailability(service));
   }
 
   async findByNameAndBusiness(
@@ -103,6 +121,11 @@ export class ServicesService {
       );
     }
 
+    if (dto.locationId !== undefined) {
+      await this.locationsService.getForBusiness(dto.locationId, businessId);
+      service.locationId = dto.locationId;
+    }
+
     for (const key of [
       'categoryId',
       'scheduleId',
@@ -114,8 +137,6 @@ export class ServicesService {
       'pauseAfterMinutes',
       'price',
       'priceType',
-      'locationType',
-      'locationMeta',
       'color',
       'photoUrl',
     ] as const) {

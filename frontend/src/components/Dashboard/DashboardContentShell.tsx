@@ -8,6 +8,7 @@ interface DashboardContentShellProps {
   actions?: ReactNode;
   tabs?: ReactNode;
   backHref?: string;
+  onBackClick?: () => void;
   /** When true, header stays pinned while body scrolls. Defaults to true. */
   stickyHeader?: boolean;
   /**
@@ -24,6 +25,7 @@ export function DashboardContentShell({
   actions,
   tabs,
   backHref,
+  onBackClick,
   stickyHeader = true,
   bodyOverflow = 'auto',
   children,
@@ -46,6 +48,7 @@ export function DashboardContentShell({
           description={description}
           actions={actions}
           backHref={backHref}
+          onBackClick={onBackClick}
         />
         {tabs && <Box pt={2}>{tabs}</Box>}
       </Box>

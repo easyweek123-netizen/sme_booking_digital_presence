@@ -16,6 +16,7 @@ import { Service } from '../../services/entities/service.entity';
 import { Plan } from '../../billing/types/enums';
 import { Subscription } from '../../billing/entities/subscription.entity';
 import { Schedule } from '../../schedule/entities/schedule.entity';
+import { Location } from '../../locations/entities/location.entity';
 
 @Entity('business')
 @Index('IDX_business_plan', ['plan'])
@@ -85,6 +86,13 @@ export class Business {
   @ManyToOne(() => Schedule, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'default_schedule_id' })
   defaultSchedule: Schedule | null;
+
+  @Column({ name: 'default_location_id', type: 'int', nullable: true })
+  defaultLocationId: number | null;
+
+  @ManyToOne(() => Location, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'default_location_id' })
+  defaultLocation: Location | null;
 
   @OneToOne(() => Subscription, (subscription) => subscription.business, {
     nullable: true,

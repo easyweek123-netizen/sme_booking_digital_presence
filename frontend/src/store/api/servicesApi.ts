@@ -3,11 +3,11 @@ import type { Service, CreateServiceRequest, UpdateServiceRequest } from '../../
 
 export const servicesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getServices: builder.query<Service[], number>({
+    getBusinessServices: builder.query<Service[], number>({
       query: (businessId) => `/services/business/${businessId}`,
       providesTags: ['Service'],
     }),
-    getService: builder.query<Service, number>({
+    getServiceById: builder.query<Service, number>({
       query: (id) => `/services/${id}`,
       providesTags: (_r, _e, id) => [{ type: 'Service', id }],
     }),
@@ -27,8 +27,8 @@ export const servicesApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetServicesQuery,
-  useGetServiceQuery,
+  useGetBusinessServicesQuery,
+  useGetServiceByIdQuery,
   useCreateServiceMutation,
   useUpdateServiceMutation,
   useDeleteServiceMutation,

@@ -25,7 +25,12 @@ export class BookingStatusEffectsHandler {
   async handle(event: BookingStatusChangedEvent): Promise<void> {
     const booking = await this.bookings.findOne({
       where: { id: event.bookingId },
-      relations: ['service', 'service.business', 'customer'],
+      relations: [
+        'service',
+        'service.business',
+        'service.location',
+        'customer',
+      ],
     });
     if (!booking) return;
 

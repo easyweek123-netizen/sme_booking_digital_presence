@@ -2,6 +2,7 @@ import {
   IsString,
   IsOptional,
   IsNumber,
+  IsInt,
   IsPositive,
   IsArray,
   IsBoolean,
@@ -52,4 +53,9 @@ export class UpdateServiceDto {
   @IsNumber()
   @Min(0)
   displayOrder?: number;
+
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  locationId?: number;
 }

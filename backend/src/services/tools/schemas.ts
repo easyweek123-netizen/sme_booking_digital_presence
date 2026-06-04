@@ -15,7 +15,6 @@ export const ServiceToolSeedSchema = ServiceFieldsObject.pick({
   priceType: true,
   capacity: true,
   pauseAfterMinutes: true,
-  locationType: true,
   color: true,
 }).partial();
 

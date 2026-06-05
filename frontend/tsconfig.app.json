@@ -33,9 +33,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../shared/src"],
-  "exclude": [
-    "src/pages/booking",
-    "src/components/Booking"
-  ]
+  "include": ["src", "../shared/src"]
 }

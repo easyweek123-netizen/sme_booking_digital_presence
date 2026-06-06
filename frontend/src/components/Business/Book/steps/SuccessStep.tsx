@@ -3,6 +3,7 @@ import { CalendarIcon, CheckIcon, ClockIcon, MapPinIcon } from '../../../icons';
 import type { Business, Service } from '../../../../types';
 import { BrandButton } from '../../brand';
 import { endTimeFromSlot, formatDateLong } from '../../utils';
+import { businessAddressLine } from '../../utils/locationLookup';
 
 interface SuccessStepProps {
   business: Business;
@@ -21,6 +22,7 @@ export function SuccessStep({
   isDesktop,
   onDone,
 }: SuccessStepProps) {
+  const addressLine = businessAddressLine(business);
   return (
     <Flex flex="1" align="center" justify="center" p={6} minH="60vh">
       <Box
@@ -75,14 +77,12 @@ export function SuccessStep({
               {slot} – {endTimeFromSlot(slot, service.durationMinutes)}
             </Text>
           </HStack>
-          {(business.address || business.city) && (
+          {addressLine && (
             <HStack spacing={2.5} fontSize="sm">
               <Box color="gray.500">
                 <MapPinIcon size={14} />
               </Box>
-              <Text as="span">
-                {[business.address, business.city].filter(Boolean).join(', ')}
-              </Text>
+              <Text as="span">{addressLine}</Text>
             </HStack>
           )}
         </Box>

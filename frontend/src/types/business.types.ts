@@ -133,13 +133,11 @@ export interface Business {
   slug: string;
   defaultScheduleId: number;
   defaultLocation?: Location | null;
+  locations: Location[];
   plan?: 'free' | 'pro';
   timezone: string;
   name: string;
   description: string | null;
-  address: string | null;
-  city: string | null;
-  phone: string | null;
   website: string | null;
   instagram: string | null;
   logoUrl: string | null;
@@ -147,6 +145,8 @@ export interface Business {
   workingHours: WorkingHours | null;
   coverImageUrl: string | null;
   aboutContent: string | null;
+  showNextAvailable: boolean;
+  showWeeklyHours: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -157,10 +157,7 @@ export interface BusinessWithServices extends Business {
 
 export interface CreateBusinessRequest {
   name: string;
-  phone?: string;
   description?: string;
-  address?: string;
-  city?: string;
   logoUrl?: string;
   brandColor?: string;
   workingHours?: WorkingHours;
@@ -170,10 +167,7 @@ export interface CreateBusinessRequest {
 
 export interface UpdateBusinessRequest {
   name?: string;
-  phone?: string;
   description?: string;
-  address?: string;
-  city?: string;
   website?: string;
   instagram?: string;
   logoUrl?: string;
@@ -187,10 +181,7 @@ export interface UpdateBusinessRequest {
 // Onboarding types
 export interface BusinessProfile {
   name: string;
-  phone: string;
   description: string;
-  address: string;
-  city: string;
   logoUrl: string;
   brandColor: string;
   workingHours: WorkingHours;

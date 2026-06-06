@@ -9,6 +9,7 @@ import {
 import { BrandButton } from '../brand';
 import type { Business, Service } from '../../../types';
 import type { OpenStatus } from '../utils';
+import { businessAddressLocation, businessPhoneNumber } from '../utils/locationLookup';
 
 interface DesktopBookingCardProps {
   business: Business;
@@ -24,6 +25,8 @@ export function DesktopBookingCard({
   onBookNow,
 }: DesktopBookingCardProps) {
   const cheapest = findCheapest(services);
+  const address = businessAddressLocation(business);
+  const phone = businessPhoneNumber(business);
   return (
     <Box as="aside" alignSelf="start" position="sticky" top="100px">
       <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="16px" p={6}>
@@ -56,13 +59,13 @@ export function DesktopBookingCard({
           >
             {status.line}
           </InfoRow>
-          {(business.address || business.city) && (
+          {address && (
             <InfoRow icon={<MapPinIcon size={16} />} link="Get directions">
-              {business.address && <Text>{business.address}</Text>}
-              {business.city && <Text>{business.city}</Text>}
+              <Text>{address.line1}</Text>
+              <Text>{address.city}</Text>
             </InfoRow>
           )}
-          {business.phone && <InfoRow icon={<PhoneIcon size={16} />}>{business.phone}</InfoRow>}
+          {phone && <InfoRow icon={<PhoneIcon size={16} />}>{phone}</InfoRow>}
           {business.website && (
             <InfoRow icon={<GlobeIcon size={16} />} link={business.website}>
               {business.website}

@@ -4,6 +4,7 @@ import { BrandButton } from './brand';
 import type { Business } from '../../types';
 import type { OpenStatus } from './utils';
 import { getInitials } from './utils';
+import { businessAddressLine } from './utils/locationLookup';
 
 interface BusinessHeaderProps {
   business: Business;
@@ -24,6 +25,7 @@ export function BusinessHeader({
 }: BusinessHeaderProps) {
   const avatarSize = isDesktop ? '144px' : '104px';
   const overlap = coverEnabled ? (isDesktop ? '-64px' : '-52px') : '0';
+  const addressLine = businessAddressLine(business);
 
   return (
     <Flex
@@ -79,14 +81,12 @@ export function BusinessHeader({
                 <ClockIcon size={14} />
                 <Text as="span">{status.line}</Text>
               </HStack>
-              {(business.address || business.city) && (
+              {addressLine && (
                 <>
                   <Text as="span" color="gray.300">·</Text>
                   <HStack as="span" spacing={1.5}>
                     <MapPinIcon size={14} />
-                    <Text as="span">
-                      {[business.address, business.city].filter(Boolean).join(', ')}
-                    </Text>
+                    <Text as="span">{addressLine}</Text>
                   </HStack>
                 </>
               )}

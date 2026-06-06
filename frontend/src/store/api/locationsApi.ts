@@ -15,7 +15,11 @@ export const locationsApi = baseApi.injectEndpoints({
     }),
     createLocation: builder.mutation<Location, CreateLocationDto>({
       query: (body) => ({ url: BASE, method: 'POST', body }),
-      invalidatesTags: ['Location'],
+      invalidatesTags: ['Location', 'Business'],
+    }),
+    patchLocation: builder.mutation<Location, { id: number; body: CreateLocationDto }>({
+      query: ({ id, body }) => ({ url: `${BASE}/${id}`, method: 'PATCH', body }),
+      invalidatesTags: ['Location', 'Business'],
     }),
     reverseAddress: builder.query<AddressCandidate | null, { lat: number; lng: number }>({
       query: ({ lat, lng }) => ({
@@ -25,7 +29,7 @@ export const locationsApi = baseApi.injectEndpoints({
     }),
     deleteLocation: builder.mutation<void, number>({
       query: (id) => ({ url: `${BASE}/${id}`, method: 'DELETE' }),
-      invalidatesTags: ['Location'],
+      invalidatesTags: ['Location', 'Business'],
     }),
   }),
 });
@@ -37,5 +41,6 @@ export const {
   useReverseAddressQuery,
   useLazyReverseAddressQuery,
   useCreateLocationMutation,
+  usePatchLocationMutation,
   useDeleteLocationMutation,
 } = locationsApi;

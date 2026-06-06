@@ -2,6 +2,7 @@ import { Box, Grid, useDisclosure } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../types';
 import { BrandProvider } from './brand';
+import { DeviceModeProvider } from './context/DeviceModeContext';
 import { BusinessHero } from './BusinessHero';
 import { BusinessHeader } from './BusinessHeader';
 import { BusinessTopNav } from './BusinessTopNav';
@@ -50,62 +51,64 @@ export function BusinessBookingPage({
   const surfacePx = isDesktop ? 12 : 4;
 
   return (
-    <BrandProvider brandColor={business.brandColor} pb={isDesktop ? 10 : 8} bg="white">
-      <BusinessTopNav
-        business={business}
-        visible={scrolled}
-        isDesktop={isDesktop}
-        tabs={TABS}
-        activeId={activeId}
-        onSelect={scrollTo}
-        onBookNow={() => onBook()}
-      />
-
-      <BusinessHero
-        coverImageUrl={business.coverImageUrl}
-        enabled={coverEnabled}
-        isDesktop={isDesktop}
-      />
-
-      <Box maxW="1240px" mx="auto" px={surfacePx}>
-        <BusinessHeader
+    <DeviceModeProvider isDesktop={isDesktop}>
+      <BrandProvider brandColor={business.brandColor} pb={isDesktop ? 10 : 8} bg="white">
+        <BusinessTopNav
           business={business}
-          status={status}
+          visible={scrolled}
           isDesktop={isDesktop}
-          businessType={businessTypeName}
-          coverEnabled={coverEnabled && !!business.coverImageUrl}
+          tabs={TABS}
+          activeId={activeId}
+          onSelect={scrollTo}
           onBookNow={() => onBook()}
         />
 
-        {isDesktop && (
-          <SectionTabs tabs={TABS} activeId={activeId} onSelect={scrollTo} />
-        )}
+        <BusinessHero
+          coverImageUrl={business.coverImageUrl}
+          enabled={coverEnabled}
+          isDesktop={isDesktop}
+        />
 
-        <Grid
-          templateColumns={isDesktop ? 'minmax(0,1fr) 360px' : '1fr'}
-          gap={isDesktop ? 12 : 0}
-          mt={isDesktop ? 7 : 4}
-        >
-          <Box>
-            <ServicesSection
-              services={business.services}
-              categories={categories}
-              onBook={onBook}
-            />
-            <AboutSection aboutContent={business.aboutContent} />
-            <LocationSection address={business.address} city={business.city} />
-            <HoursSection hours={business.workingHours} />
-          </Box>
+        <Box maxW="1240px" mx="auto" px={surfacePx}>
+          <BusinessHeader
+            business={business}
+            status={status}
+            isDesktop={isDesktop}
+            businessType={businessTypeName}
+            coverEnabled={coverEnabled && !!business.coverImageUrl}
+            onBookNow={() => onBook()}
+          />
+
           {isDesktop && (
-            <DesktopBookingCard
-              business={business}
-              services={business.services}
-              status={status}
-              onBookNow={() => onBook()}
-            />
+            <SectionTabs tabs={TABS} activeId={activeId} onSelect={scrollTo} />
           )}
-        </Grid>
-      </Box>
-    </BrandProvider>
+
+          <Grid
+            templateColumns={isDesktop ? 'minmax(0,1fr) 360px' : '1fr'}
+            gap={isDesktop ? 12 : 0}
+            mt={isDesktop ? 7 : 4}
+          >
+            <Box>
+              <ServicesSection
+                services={business.services}
+                categories={categories}
+                onBook={onBook}
+              />
+              <AboutSection aboutContent={business.aboutContent} />
+              <LocationSection business={business} />
+              <HoursSection hours={business.workingHours} />
+            </Box>
+            {isDesktop && (
+              <DesktopBookingCard
+                business={business}
+                services={business.services}
+                status={status}
+                onBookNow={() => onBook()}
+              />
+            )}
+          </Grid>
+        </Box>
+      </BrandProvider>
+    </DeviceModeProvider>
   );
 }

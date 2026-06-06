@@ -4,9 +4,9 @@ export interface WebsiteFormValues {
   profile: {
     name: string;
     description: string;
-    phone: string;
-    address: string;
-    city: string;
+    // phone: string;
+    // address: string;
+    // city: string;
     website: string;
     instagram: string;
   };

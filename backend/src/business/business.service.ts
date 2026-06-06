@@ -63,10 +63,7 @@ export class BusinessService {
         ownerId,
         name: dto.name,
         slug: this.generateSlug(dto.name),
-        phone: dto.phone ?? null,
         description: dto.description ?? null,
-        address: dto.address ?? null,
-        city: dto.city ?? null,
         logoUrl: dto.logoUrl ?? null,
         brandColor: dto.brandColor ?? null,
         businessTypeId: dto.businessTypeId ?? null,
@@ -178,9 +175,10 @@ export class BusinessService {
     return hours;
   }
 
-  /** Single read path used by every business lookup. Loads the default
-   *  schedule's recurring availability and attaches `workingHours` so the
-   *  public booking page can render hours instead of "Closed on all days". */
+  /** Single read path used by every business lookup. Loads default schedule
+   *  availability + all locations and projects them so the public booking page
+   *  / API consumers receive workingHours and locations[] (LocationView shape).
+   */
   private async loadBusiness(
     where: FindOptionsWhere<Business>,
   ): Promise<Business> {
@@ -193,6 +191,7 @@ export class BusinessService {
         'defaultSchedule',
         'defaultSchedule.availabilities',
         'defaultLocation',
+        'locations',
       ],
     });
     if (!business) throw new NotFoundException('Business not found');
@@ -203,6 +202,7 @@ export class BusinessService {
       defaultLocation: business.defaultLocation
         ? toLocationView(business.defaultLocation)
         : null,
+      locations: (business.locations ?? []).map(toLocationView),
     });
   }
 
@@ -220,6 +220,7 @@ export class BusinessService {
         'owner',
         'defaultSchedule',
         'defaultSchedule.availabilities',
+        'locations',
       ],
     });
     if (!business) return null;
@@ -227,6 +228,7 @@ export class BusinessService {
       workingHours: this.buildWorkingHours(
         business.defaultSchedule?.availabilities,
       ),
+      locations: (business.locations ?? []).map(toLocationView),
     });
   }
 
@@ -251,17 +253,8 @@ export class BusinessService {
     if (updateBusinessDto.name !== undefined) {
       business.name = updateBusinessDto.name;
     }
-    if (updateBusinessDto.phone !== undefined) {
-      business.phone = updateBusinessDto.phone || null;
-    }
     if (updateBusinessDto.description !== undefined) {
       business.description = updateBusinessDto.description || null;
-    }
-    if (updateBusinessDto.address !== undefined) {
-      business.address = updateBusinessDto.address || null;
-    }
-    if (updateBusinessDto.city !== undefined) {
-      business.city = updateBusinessDto.city || null;
     }
     if (updateBusinessDto.website !== undefined) {
       business.website = updateBusinessDto.website || null;

@@ -4,6 +4,10 @@ import { ToolHandler, BaseToolHandler } from '../../common/tools';
 import { ToolResultHelpers, type ToolResult } from '@bookeasy/shared';
 import type { ToolContext } from '../../common';
 import { BusinessService } from '../business.service';
+import {
+  businessAddressLine,
+  businessPhoneNumber,
+} from '../../locations/types/business-location-lookup';
 
 const GetBusinessArgsSchema = z.object({});
 type GetBusinessArgs = z.infer<typeof GetBusinessArgsSchema>;
@@ -35,9 +39,8 @@ export class GetBusinessTool extends BaseToolHandler<GetBusinessArgs> {
       id: business.id,
       name: business.name,
       description: business.description,
-      phone: business.phone,
-      address: business.address,
-      city: business.city,
+      address: businessAddressLine(business),
+      phone: businessPhoneNumber(business),
       website: business.website,
       instagram: business.instagram,
       logoUrl: business.logoUrl,
@@ -46,6 +49,7 @@ export class GetBusinessTool extends BaseToolHandler<GetBusinessArgs> {
       aboutContent: business.aboutContent,
       slug: business.slug,
       businessType: business.businessType?.name ?? null,
+      locations: business.locations ?? [],
     };
 
     const missing = Object.entries(profile)

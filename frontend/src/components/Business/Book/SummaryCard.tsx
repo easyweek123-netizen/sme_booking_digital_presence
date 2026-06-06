@@ -8,6 +8,7 @@ import {
   formatPrice,
   getInitials,
 } from '../utils';
+import { businessAddressLine } from '../utils/locationLookup';
 
 interface SummaryCardProps {
   business: Business;
@@ -52,7 +53,7 @@ export function SummaryCard({ business, service, date, slot, step }: SummaryCard
             {business.name}
           </Text>
           <Text fontSize="xs" color="gray.500" noOfLines={1}>
-            {[business.address, business.city].filter(Boolean).join(', ')}
+            {businessAddressLine(business)}
           </Text>
         </Box>
       </HStack>

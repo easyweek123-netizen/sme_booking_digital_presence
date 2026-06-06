@@ -94,6 +94,35 @@ export class LocationsService {
     }
   }
 
+  /**
+   * Update an existing location in place. Validates that the supplied DTO type
+   * matches the persisted row's type (you cannot morph an ADDRESS row into a
+   * PHONE row — delete it and create a new one instead). Reuses the existing
+   * de-dup behaviour from create*().
+   */
+  async update(
+    id: number,
+    businessId: number,
+    dto: CreateLocationDto,
+  ): Promise<LocationView> {
+    const existing = await this.repo.findOne({ where: { id, businessId } });
+    if (!existing) throw new NotFoundException('Location not found');
+    if (existing.type !== dto.type) {
+      throw new BadRequestException({
+        code: 'LOCATION_TYPE_MISMATCH',
+        message: `Cannot change location type from ${existing.type} to ${dto.type}. Delete and re-create instead.`,
+      });
+    }
+    switch (dto.type) {
+      case 'ADDRESS':
+        return this.updateAddress(existing, dto.data);
+      case 'PHONE':
+        return this.updatePhone(existing, dto.data);
+      case 'ONLINE':
+        return this.updateOnline(existing, dto.data.calendarId);
+    }
+  }
+
   private async createAddress(
     businessId: number,
     data: AddressInput,
@@ -128,6 +157,20 @@ export class LocationsService {
     return toLocationView(saved);
   }
 
+  private async updateAddress(
+    row: Location,
+    data: AddressInput,
+  ): Promise<LocationView> {
+    row.line1 = data.line1;
+    row.line2 = data.line2 ?? null;
+    row.city = data.city;
+    row.postalCode = data.postalCode ?? null;
+    row.countryCode = data.countryCode;
+    row.latitude = String(data.latitude);
+    row.longitude = String(data.longitude);
+    return toLocationView(await this.repo.save(row));
+  }
+
   private async createPhone(
     businessId: number,
     data: PhoneInput,
@@ -150,6 +193,21 @@ export class LocationsService {
       this.repo.create({ businessId, type: LocationType.PHONE, phoneNumber }),
     );
     return toLocationView(saved);
+  }
+
+  private async updatePhone(
+    row: Location,
+    data: PhoneInput,
+  ): Promise<LocationView> {
+    const parsed = parsePhoneNumberFromString(data.phoneNumber);
+    if (!parsed?.isValid()) {
+      throw new BadRequestException({
+        code: 'INVALID_PHONE_NUMBER',
+        message: 'Phone number is not valid.',
+      });
+    }
+    row.phoneNumber = parsed.format('E.164');
+    return toLocationView(await this.repo.save(row));
   }
 
   private async createOnline(
@@ -177,6 +235,25 @@ export class LocationsService {
       this.repo.create({ businessId, type: LocationType.ONLINE, calendarId }),
     );
     return toLocationView(saved);
+  }
+
+  private async updateOnline(
+    row: Location,
+    calendarId: number,
+  ): Promise<LocationView> {
+    const live = await this.calendarService.isConnectionLive(
+      calendarId,
+      row.businessId,
+    );
+    if (!live) {
+      throw new BadRequestException({
+        code: 'CALENDAR_NOT_AVAILABLE',
+        message:
+          'Calendar not found, not owned by this business, or connection is not live.',
+      });
+    }
+    row.calendarId = calendarId;
+    return toLocationView(await this.repo.save(row));
   }
 
   async remove(id: number, businessId: number): Promise<void> {

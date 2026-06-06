@@ -63,9 +63,9 @@ export function WebsiteCompletionProgress(
   const profileChecks = [
     filled(business.name),
     filled(business.description),
-    filled(business.phone),
-    filled(business.address),
-    filled(business.city),
+    business.locations.some((l) => l.type === 'PHONE'),
+    business.locations.some((l) => l.type === 'ADDRESS'),
+    business.locations.some((l) => l.type === 'ADDRESS'),
   ];
   const profileDone = profileChecks.filter(Boolean).length;
 

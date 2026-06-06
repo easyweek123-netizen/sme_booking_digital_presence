@@ -13,6 +13,7 @@ import {
   formatDuration,
   formatPrice,
 } from '../../utils';
+import { businessAddressLine } from '../../utils/locationLookup';
 import { LoginCard } from '../LoginCard';
 import type { BookingStepContext } from '../bookingFlow.types';
 
@@ -49,7 +50,7 @@ export function CheckoutStep({
               {business.name}
             </Text>
             <Text fontSize="13px" color="gray.500" mt={0.5}>
-              {[business.address, business.city].filter(Boolean).join(', ')}
+              {businessAddressLine(business)}
             </Text>
             <Box mt={1}>
               <Stars rating={rating} size={12} />

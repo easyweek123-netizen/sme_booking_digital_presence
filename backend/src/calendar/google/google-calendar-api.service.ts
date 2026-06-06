@@ -4,6 +4,10 @@ import { google, calendar_v3 } from 'googleapis';
 import { Booking } from '../../bookings/entities/booking.entity';
 import { LocationType } from '../../locations/entities/location.entity';
 import { locationToCalendarText } from '../../locations/types/location-formatters';
+import {
+  businessAddressLine,
+  businessPhoneNumber,
+} from '../../locations/types/business-location-lookup';
 import { toLocalIsoDateTime } from '../../common';
 
 export interface CalendarEventResult {
@@ -94,7 +98,7 @@ export class GoogleCalendarApiService {
     const description = [
       `Booking ${booking.reference}`,
       ...(booking.customerEmail ? [`Email: ${booking.customerEmail}`] : []),
-      ...(business?.phone ? [`Phone: ${business.phone}`] : []),
+      ...((business && businessPhoneNumber(business)) ? [`Phone: ${businessPhoneNumber(business)}`] : []),
       '',
       `Manage in BookEasy: ${this.frontendUrl}/dashboard/bookings/${booking.id}`,
     ].join('\n');
@@ -105,7 +109,7 @@ export class GoogleCalendarApiService {
       location: withMeeting
         ? undefined
         : (locationToCalendarText(service?.location) ??
-          business?.address ??
+          (business ? businessAddressLine(business) : null) ??
           undefined),
       start: {
         dateTime: toLocalIsoDateTime(booking.date, booking.startTime),

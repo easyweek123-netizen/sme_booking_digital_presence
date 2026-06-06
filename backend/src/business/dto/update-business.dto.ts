@@ -8,22 +8,7 @@ export class UpdateBusinessDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(20)
-  phone?: string;
-
-  @IsOptional()
-  @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  address?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  city?: string;
 
   @IsOptional()
   @IsString()

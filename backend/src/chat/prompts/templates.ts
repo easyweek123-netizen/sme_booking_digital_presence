@@ -1,4 +1,8 @@
 import type { Business } from '../../business/entities/business.entity';
+import {
+  businessAddressLine,
+  businessPhoneNumber,
+} from '../../locations/types/business-location-lookup';
 
 const PROMPT_TEMPLATE = `You are an expert in business development through digital marketing with more then 
 10 years of experience and you will help {owner}, who is owner of booking website "{name}". 
@@ -70,9 +74,8 @@ export function formatBusinessContext(
     `type: ${business.businessType?.name ?? 'not set'}`,
     `slug: ${business.slug}`,
     `services: ${svc}`,
-    `phone: ${val(business.phone)}`,
-    `address: ${val(business.address)}`,
-    `city: ${val(business.city)}`,
+    `phone: ${val(businessPhoneNumber(business))}`,
+    `address: ${val(businessAddressLine(business))}`,
     `description: ${val(business.description)}`,
     `aboutContent: ${about}`,
     `website: ${val(business.website)}`,

@@ -12,7 +12,7 @@ function isCanonicalPriceString(value: string): boolean {
 export const ServiceCoreFieldsObject = z.object({
   type: z.enum(SERVICE_TYPES),
   name: z.string().min(1).max(200),
-  description: z.string().max(2000).nullable().optional(),
+  description: z.string().max(750).nullable().optional(),
   capacity: z.number().int().min(1),
   durationMinutes: z.number().int().positive().optional(),
   pauseAfterMinutes: z.number().int().min(0).optional(),

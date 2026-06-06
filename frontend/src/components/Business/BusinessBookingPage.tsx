@@ -25,7 +25,6 @@ interface BusinessBookingPageProps {
   business: BusinessWithServices;
   categories: ServiceCategory[];
   businessTypeName?: string;
-  serviceVariant?: 'book' | 'preview';
   /** Required. The orchestrator decides what "desktop" means for its environment
    *  (viewport-driven for /book/:slug routes; canvas-pane-driven for previews). */
   isDesktop: boolean;
@@ -36,7 +35,6 @@ export function BusinessBookingPage({
   business,
   categories,
   businessTypeName,
-  serviceVariant = 'book',
   isDesktop,
   onBook,
 }: BusinessBookingPageProps) {
@@ -92,7 +90,6 @@ export function BusinessBookingPage({
             <ServicesSection
               services={business.services}
               categories={categories}
-              serviceVariant={serviceVariant}
               onBook={onBook}
             />
             <AboutSection aboutContent={business.aboutContent} />

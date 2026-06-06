@@ -2,7 +2,7 @@ import { SimpleGrid, VStack, useToken } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ColorField } from './form/ColorField';
-import { ImageUrlField } from './form/ImageUrlField';
+import { ImageUploadField } from './form/ImageUploadField';
 import { BRAND_COLOR_PRESETS } from '../../constants';
 import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 
@@ -24,21 +24,23 @@ export function BrandingFields() {
   return (
     <VStack spacing="space.stack.lg" align="stretch">
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing="space.stack.md">
-        <ImageUrlField
+        <ImageUploadField
           label="Logo"
+          folder="business"
           value={logoUrl ?? ''}
           onChange={(url) => setValue('branding.logoUrl', url, { shouldDirty: true })}
           placeholder="https://example.com/your-logo.png"
-          helperText="Paste a URL to your logo. Square images look best."
+          helperText="Upload or paste a URL. Square images look best."
           previewVariant="square"
           clearAriaLabel="Clear logo"
         />
-        <ImageUrlField
+        <ImageUploadField
           label="Cover image"
+          folder="business"
           value={coverImageUrl ?? ''}
           onChange={(url) => setValue('branding.coverImageUrl', url, { shouldDirty: true })}
           placeholder="https://example.com/cover-image.jpg"
-          helperText="Add a cover image for your booking page header. Leave empty to use a gradient based on your brand color."
+          helperText="Upload or paste a URL. Leave empty to use a gradient based on your brand color."
           previewVariant="banner"
           clearAriaLabel="Clear cover image"
         />

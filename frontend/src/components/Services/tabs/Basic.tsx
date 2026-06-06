@@ -39,7 +39,7 @@ export function Basic({ type }: BasicProps) {
           render={({ field, fieldState }) => {
             const value = (field.value as string | null) ?? '';
             const len = value.length;
-            const max = 280;
+            const max = 750;
             return (
               <FormControl isInvalid={!!fieldState.error}>
                 <FormLabelWithTooltip
@@ -55,8 +55,9 @@ export function Basic({ type }: BasicProps) {
                     onBlur={field.onBlur}
                     placeholder="30-minute one-on-one piano lessons over Google Meet. Beginners welcome."
                     maxLength={max}
-                    minH="100px"
+                    minH="180px"
                     pr="60px"
+                    rows={8}
                   />
                   <Text
                     position="absolute"

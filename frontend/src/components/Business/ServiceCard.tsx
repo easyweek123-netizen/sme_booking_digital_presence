@@ -14,7 +14,6 @@ import {
   ModalOverlay,
   Text,
   VStack,
-  useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
@@ -44,6 +43,7 @@ import {
 import { formatDuration, addDays } from './utils';
 import { ServiceDetailBody, type NextAvailableData } from './ServiceDetailBody';
 import { BrandProvider } from './brand';
+import { useDeviceMode } from './context/DeviceModeContext';
 
 interface ServiceCardProps {
   service: Service;
@@ -59,7 +59,7 @@ export function ServiceCard({
   onBook,
   onSelect,
 }: ServiceCardProps) {
-  const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
+  const isDesktop = useDeviceMode();
   const detail = useDisclosure();
   const slotsQuery = useGetSlotsQuery(
     {

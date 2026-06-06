@@ -4,15 +4,29 @@ import { softFromHex, washFromHex } from './softFromHex';
 
 interface BrandProviderProps extends BoxProps {
   brandColor?: string | null;
+  /**
+   * 'global' (default) mirrors brand CSS vars onto :root so portalled content
+   * (Modal/Drawer/Popover) inherits them. Use this for actual route renders.
+   *
+   * 'container' scopes brand vars to this wrapper only, leaving :root untouched.
+   * Use this inside live previews (e.g. WebsitePhonePreview) so a draft brand
+   * color does not leak into the rest of the dashboard chrome.
+   */
+  scope?: 'global' | 'container';
 }
 
-export function BrandProvider({ brandColor, children, ...rest }: BrandProviderProps) {
+export function BrandProvider({
+  brandColor,
+  scope = 'global',
+  children,
+  ...rest
+}: BrandProviderProps) {
   const accent = brandColor || '#2EB67D';
   const soft = softFromHex(accent);
   const wash = washFromHex(accent);
-  // Mirror the brand vars onto :root so portalled content (Modal, Drawer, Popover)
-  // inherits them too. Restore previous values on unmount.
+
   useLayoutEffect(() => {
+    if (scope !== 'global') return;
     const root = document.documentElement;
     const prev = {
       accent: root.style.getPropertyValue('--brand-accent'),
@@ -30,7 +44,7 @@ export function BrandProvider({ brandColor, children, ...rest }: BrandProviderPr
       root.style.setProperty('--brand-accent-wash', prev.wash);
       root.style.setProperty('--brand-on-accent', prev.on);
     };
-  }, [accent, soft, wash]);
+  }, [accent, soft, wash, scope]);
 
   return (
     <Box

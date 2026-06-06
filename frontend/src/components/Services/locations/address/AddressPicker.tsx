@@ -1,26 +1,22 @@
 import { Button, HStack, Spinner, Text, VStack } from '@chakra-ui/react';
-import { useFormContext, useWatch } from 'react-hook-form';
 import { LocateIcon, MapPinIcon } from '../../../icons';
 import { AddressSearchBox } from './AddressSearchBox';
 import { AddressMap } from './AddressMap';
 import { AddressEditableFields } from './AddressEditableFields';
 import { useAddressSearch } from './useAddressSearch';
-import type { AddressInput, ServiceFormInput } from '@bookeasy/shared';
+import type { AddressInput } from '@bookeasy/shared';
 
-export function AddressPicker() {
-  const { control, setValue } = useFormContext<ServiceFormInput>();
-  const location = useWatch({ control, name: 'location' });
-  const address = location?.type === 'ADDRESS' ? location.data : null;
+interface AddressPickerProps {
+  value: AddressInput | null;
+  onChange: (next: AddressInput | null) => void;
+}
 
-  const writeAddress = (next: AddressInput | null) => {
-    setValue('location', { type: 'ADDRESS', locationId: null, data: next }, { shouldDirty: true });
-  };
-
+export function AddressPicker({ value, onChange }: AddressPickerProps) {
   const {
     query, onQueryChange, candidates, isFetching,
     onSelectCandidate, onPinChange,
     locate, isGeoLoading, geoSupported,
-  } = useAddressSearch({ value: address, onChange: writeAddress });
+  } = useAddressSearch({ value, onChange });
 
   return (
     <VStack spacing={2} align="stretch">
@@ -47,11 +43,11 @@ export function AddressPicker() {
         isFetching={isFetching}
       />
 
-      {address && (
+      {value && (
         <>
           <AddressMap
-            latitude={address.latitude} longitude={address.longitude}
-            label={address.line1 || undefined}
+            latitude={value.latitude} longitude={value.longitude}
+            label={value.line1 || undefined}
             onPinChange={onPinChange}
           />
           <HStack spacing={1.5} justify="center" color="text.muted">
@@ -59,8 +55,8 @@ export function AddressPicker() {
             <Text fontSize="xs">Drag the pin or tap the map to set the exact spot</Text>
           </HStack>
           <AddressEditableFields
-            draft={address}
-            onChange={(key, value) => writeAddress({ ...address, [key]: value })}
+            draft={value}
+            onChange={(key, v) => onChange({ ...value, [key]: v })}
           />
         </>
       )}

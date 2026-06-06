@@ -1,12 +1,13 @@
 import { Box, Collapse, Heading, HStack, Spinner, Text, VStack } from '@chakra-ui/react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useListLocationsQuery } from '../../../store/api/locationsApi';
-import { LocationPicker } from './LocationPicker';
+import { BusinessLocationPicker } from '../../Locations/BusinessLocationPicker';
 import { LocationDropdown } from './LocationDropdown';
 import { Tiles } from '../fields/Tiles';
 import { LOCATION_TYPE_TILE_OPTIONS } from './locationTileOptions';
 import { emptyDraftForType, locationToDraft } from './shared/locationDraft';
 import type { ServiceFormInput } from '@bookeasy/shared';
+import type { LocationDraft } from '@bookeasy/shared';
 import type { LocationType, Location } from '../../../types/location';
 
 export interface LocationSelectProps {
@@ -29,6 +30,10 @@ export function LocationSelect({ allowedTypes = ALL_TYPES }: LocationSelectProps
 
   const handleLocationChange = (loc: Location | null) => {
     setValue('location', locationToDraft(loc), { shouldDirty: true });
+  };
+
+  const handleDraftChange = (next: LocationDraft | null) => {
+    setValue('location', next, { shouldDirty: true });
   };
 
   if (isLoading) return <Spinner size="sm" color="brand.500" />;
@@ -75,7 +80,11 @@ export function LocationSelect({ allowedTypes = ALL_TYPES }: LocationSelectProps
       <Collapse in={showPicker} animateOpacity>
         {showPicker && activeKind !== null && (
           <Box bg="surface.page" border="1px solid" borderColor="border.subtle" borderRadius="lg" p={5}>
-            <LocationPicker type={activeKind} />
+            <BusinessLocationPicker
+              type={activeKind}
+              value={location}
+              onChange={handleDraftChange}
+            />
           </Box>
         )}
       </Collapse>

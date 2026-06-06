@@ -3,7 +3,19 @@ import { useGetCalendarStatusQuery } from '../../../../store/api/calendarApi';
 import { ConnectCalendar } from '../../../calendar/ConnectCalendar';
 import { CheckIcon, VideoIcon } from '../../../icons';
 
-export function OnlinePicker() {
+interface OnlinePickerProps {
+  /**
+   * Online picker does not store calendar info in the draft — the calendar
+   * binding happens at save time via the connected calendar status. These
+   * props exist to keep BusinessLocationPicker's API symmetric with the
+   * other sub-pickers.
+   */
+  value?: null;
+  onChange?: (next: null) => void;
+}
+
+// Props exist for API symmetry; calendar state is read from the connected account.
+export function OnlinePicker({}: OnlinePickerProps) {
   const { data: calendarStatus, isLoading } = useGetCalendarStatusQuery();
 
   if (isLoading) return <Spinner size="sm" color="brand.500" />;

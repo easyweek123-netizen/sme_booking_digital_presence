@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { Box, FormControl, FormLabel, HStack, Text } from '@chakra-ui/react';
-import { useFormContext, useWatch } from 'react-hook-form';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import { PhoneField, type Country } from '../../../common/PhoneField';
 import { DEFAULT_PHONE_COUNTRY } from '../../../../lib/locale/getDefaultPhoneCountry';
 import { CheckIcon } from '../../../icons';
-import type { ServiceFormInput } from '@bookeasy/shared';
+import type { PhoneInput } from '@bookeasy/shared';
 
-export function PhonePicker() {
-  const { control, setValue } = useFormContext<ServiceFormInput>();
-  const location = useWatch({ control, name: 'location' });
-  const phoneNumber = location?.type === 'PHONE' ? (location.data?.phoneNumber ?? '') : '';
+interface PhonePickerProps {
+  value: PhoneInput | null;
+  onChange: (next: PhoneInput | null) => void;
+}
+
+export function PhonePicker({ value, onChange }: PhonePickerProps) {
+  const phoneNumber = value?.phoneNumber ?? '';
   const [country, setCountry] = useState<Country | undefined>(DEFAULT_PHONE_COUNTRY);
 
-  const writePhone = (value: string) => {
-    setValue('location', { type: 'PHONE', locationId: null, data: { phoneNumber: value } }, { shouldDirty: true });
+  const writePhone = (next: string) => {
+    onChange(next ? { phoneNumber: next } : null);
   };
 
   const isValid = isValidPhoneNumber(phoneNumber, country);

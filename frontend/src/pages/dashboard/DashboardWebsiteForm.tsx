@@ -11,57 +11,54 @@ import {
 import { useForm, FormProvider } from 'react-hook-form';
 import { useUpdateBusinessMutation } from '../../store/api/businessApi';
 import { useUpdateScheduleMutation } from '../../store/api/schedulesApi';
-import { BrandingFields } from '../../components/ui/BrandingFields';
 import {
   AboutContentFields,
-  BusinessProfileFields,
   WebsiteCompletionProgress,
   DashboardContentShell,
   DashboardTabs,
   DashboardFormActions,
   type DashboardTabSpec,
 } from '../../components/Dashboard';
+import { BasicTab } from '../../components/Dashboard/website';
 import { RecurringHoursEditor, DateSpecificHoursEditor } from '../../components/Availability';
 import { BookingLinkCard } from '../../components/QRCode';
 import { CheckIcon } from '../../components/icons';
 import { TOAST_DURATION } from '../../constants';
 import type { BusinessWithServices, AvailabilityInput } from '../../types';
 import type { WebsiteFormValues } from './websiteForm.types';
-type TabKey = 'profile' | 'branding' | 'hours' | 'about';
+
+type TabKey = 'basic' | 'hours' | 'about';
 const TABS: { key: TabKey; label: string }[] = [
-  { key: 'profile', label: 'Profile' },
-  { key: 'branding', label: 'Branding' },
-  { key: 'hours', label: 'Hours' },
+  { key: 'basic', label: 'Basic' },
+  { key: 'hours', label: 'Availability' },
   { key: 'about', label: 'About' },
 ];
+
 function businessToFormValues(
   b: BusinessWithServices,
   availability: AvailabilityInput[],
 ): WebsiteFormValues {
   return {
-    profile: {
+    basic: {
       name: b.name || '',
       description: b.description || '',
-      // phone: b.phone || '',
-      // address: b.address || '',
-      // city: b.city || '',
-      website: b.website || '',
-      instagram: b.instagram || '',
-    },
-    branding: {
       logoUrl: b.logoUrl || '',
       brandColor: b.brandColor || '',
       coverImageUrl: b.coverImageUrl || '',
+      website: b.website || '',
+      instagram: b.instagram || '',
     },
     about: { aboutContent: b.aboutContent || '' },
     availability,
   };
 }
+
 interface DashboardWebsiteFormProps {
   business: BusinessWithServices;
   initialAvailability: AvailabilityInput[];
   isDesktop?: boolean;
 }
+
 export function DashboardWebsiteForm({
   business,
   initialAvailability,
@@ -72,7 +69,7 @@ export function DashboardWebsiteForm({
   const desktopLayout = typeof isDesktop === 'boolean' ? isDesktop : viewportLgUp;
   const [updateBusiness, { isLoading: isUpdatingBusiness }] = useUpdateBusinessMutation();
   const [updateSchedule, { isLoading: isUpdatingSchedule }] = useUpdateScheduleMutation();
-  const [activeTab, setActiveTab] = useState<TabKey>('profile');
+  const [activeTab, setActiveTab] = useState<TabKey>('basic');
   const methods = useForm<WebsiteFormValues>({
     defaultValues: businessToFormValues(business, initialAvailability),
     mode: 'onBlur',
@@ -83,11 +80,11 @@ export function DashboardWebsiteForm({
   };
   const handleSave = methods.handleSubmit(async (values) => {
     try {
-      const businessFields = { ...values.profile, ...values.branding, ...values.about };
       const ops: Promise<unknown>[] = [];
-      const businessIsDirty =
-        !!dirtyFields.profile || !!dirtyFields.branding || !!dirtyFields.about;
-      if (businessIsDirty) ops.push(updateBusiness(businessFields).unwrap());
+      const businessIsDirty = !!dirtyFields.basic || !!dirtyFields.about;
+      if (businessIsDirty) {
+        ops.push(updateBusiness({ ...values.basic, ...values.about }).unwrap());
+      }
       if (dirtyFields.availability) {
         ops.push(
           updateSchedule({
@@ -113,23 +110,13 @@ export function DashboardWebsiteForm({
     const v = methods.watch();
     const filled = (s?: string) => !!(s && s.trim());
     return {
-      profile: {
-        done: [
-          v.profile.name,
-          v.profile.description,
-          // v.profile.phone,
-          // v.profile.address,
-          // v.profile.city,
-        ].filter(filled).length,
-        total: 5,
-      },
-      branding: {
-        done: [v.branding.logoUrl, v.branding.brandColor, v.branding.coverImageUrl].filter(
+      basic: {
+        done: [v.basic.name, v.basic.description, v.basic.logoUrl, v.basic.brandColor].filter(
           filled,
         ).length,
-        total: 3,
+        total: 4,
       },
-      hours: { done: 1, total: 1 },
+      hours: { done: v.availability.length > 0 ? 1 : 0, total: 1 },
       about: { done: filled(v.about.aboutContent) ? 1 : 0, total: 1 },
     };
   })();
@@ -176,6 +163,7 @@ export function DashboardWebsiteForm({
     label: t.label,
     badge: buildBadge(t.key),
   }));
+  
   return (
     <FormProvider {...methods}>
       <DashboardContentShell
@@ -195,14 +183,9 @@ export function DashboardWebsiteForm({
       >
         <SimpleGrid columns={desktopLayout ? 12 : 1} spacing={{ base: 4 }} alignItems="start">
           <GridItem colSpan={desktopLayout ? 8 : 12}>
-            {activeTab === 'profile' && (
+            {activeTab === 'basic' && (
               <Box {...sectionCardProps} p={{ base: 4 }}>
-                <BusinessProfileFields />
-              </Box>
-            )}
-            {activeTab === 'branding' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <BrandingFields />
+                <BasicTab />
               </Box>
             )}
             {activeTab === 'hours' && (

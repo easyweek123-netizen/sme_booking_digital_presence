@@ -27,7 +27,7 @@ export type BusinessProfile = z.infer<typeof BusinessProfileSchema>;
 // Field groups (single source of truth for UI section composition)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const BUSINESS_PROFILE_FIELDS = ['name', 'description', 'phone', 'address', 'city', 'website', 'instagram'] as const;
+export const BUSINESS_BASIC_FIELDS = ['name', 'description', 'logoUrl', 'brandColor', 'coverImageUrl', 'website', 'instagram'] as const;
 export const BUSINESS_BRANDING_FIELDS = ['logoUrl', 'brandColor', 'coverImageUrl'] as const;
 export const BUSINESS_ABOUT_FIELDS = ['aboutContent'] as const;
 

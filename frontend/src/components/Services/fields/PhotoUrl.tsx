@@ -19,10 +19,8 @@ export function PhotoUrl({ name = 'photoUrl', label = 'Photo' }: PhotoUrlProps) 
           folder="services"
           value={(field.value as string | null) ?? ''}
           onChange={(url) => field.onChange(url || null)}
-          previewVariant="cover"
-          placeholder="https://example.com/photo.jpg"
           helperText="PNG, JPG, or WEBP up to 4MB"
-          clearAriaLabel="Clear photo"
+          urlPlaceholder="https://example.com/photo.jpg"
         />
       )}
     />

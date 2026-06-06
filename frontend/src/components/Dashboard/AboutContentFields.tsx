@@ -178,16 +178,16 @@ function AboutEditorFields({
 export function AboutContentFields() {
   const { watch, setValue } = useFormContext<WebsiteFormValues>();
   const value = watch('about.aboutContent');
-  const brandColor = watch('branding.brandColor');
-  const businessName = watch('profile.name');
+  // const brandColor = watch('branding.brandColor');
+  // const businessName = watch('profile.name');
 
   const sanitizedHtml = useMemo(() => {
     if (!value) return '';
     return DOMPurify.sanitize(value, { ALLOWED_TAGS, ALLOWED_ATTR });
   }, [value]);
 
-  const accentColor = brandColor || 'brand.500';
-  const linkColor = brandColor || 'brand.600';
+  // const accentColor = brandColor || 'brand.500';
+  // const linkColor = brandColor || 'brand.600';
   const onChange = (v: string) => setValue('about.aboutContent', v, { shouldDirty: true });
 
   return (
@@ -203,15 +203,15 @@ export function AboutContentFields() {
               <AboutEditorFields
                 value={value}
                 onChange={onChange}
-                businessName={businessName}
+                // businessName={businessName}
               />
             </TabPanel>
             <TabPanel px={0}>
-              <AboutPreviewBox
+              {/* <AboutPreviewBox
                 sanitizedHtml={sanitizedHtml}
                 accentColor={accentColor}
                 linkColor={linkColor}
-              />
+              /> */}
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -223,12 +223,12 @@ export function AboutContentFields() {
         spacing="space.stack.md"
         alignItems="start"
       >
-        <AboutEditorFields value={value} onChange={onChange} businessName={businessName} />
-        <AboutPreviewBox
+        {/* <AboutEditorFields value={value} onChange={onChange} businessName={businessName} /> */}
+        {/* <AboutPreviewBox
           sanitizedHtml={sanitizedHtml}
           accentColor={accentColor}
           linkColor={linkColor}
-        />
+        /> */}
       </SimpleGrid>
     </>
   );

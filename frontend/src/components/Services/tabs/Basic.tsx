@@ -29,7 +29,7 @@ export function Basic({ type }: BasicProps) {
       <ServiceType />
 
       <Box mt={4}>
-        <TextField name="name" label="Service name" placeholder="e.g. Piano lesson" />
+        <TextField name="name" label="Service name" placeholder="e.g. Piano lesson" size="lg" />
       </Box>
 
       <Box mt={4}>

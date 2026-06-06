@@ -482,7 +482,7 @@ const shadows = {
   card:       '0 4px 12px rgba(31, 26, 67, 0.06), 0 2px 4px rgba(31, 26, 67, 0.04)',
   cardHover:  '0 12px 32px rgba(31, 26, 67, 0.08)',
   input:      '0 1px 2px rgba(31, 26, 67, 0.05)',
-  inputFocus: '0 0 0 3px rgba(107, 70, 193, 0.22)', // purple ring
+  inputFocus: '0 0 0 1px rgba(107, 70, 193, 0.7)', // purple ring
   modal:      '0 24px 48px rgba(31, 26, 67, 0.12)',
   popover:    '0 12px 32px rgba(31, 26, 67, 0.08)',
   outline:    '0 0 0 3px rgba(107, 70, 193, 0.22)', // focus ring
@@ -618,6 +618,11 @@ const components = {
             boxShadow: '0 0 0 3px rgba(184, 90, 64, 0.2)',
           },
         },
+      },
+      addon: {
+        bg: 'transparent',
+        border: 'none',
+        borderColor: 'transparent',
       },
     },
     defaultProps: { variant: 'outline' },

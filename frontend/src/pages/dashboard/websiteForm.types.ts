@@ -1,19 +1,14 @@
 import type { AvailabilityInput } from '../../types';
 
 export interface WebsiteFormValues {
-  profile: {
+  basic: {
     name: string;
     description: string;
-    // phone: string;
-    // address: string;
-    // city: string;
-    website: string;
-    instagram: string;
-  };
-  branding: {
     logoUrl: string;
     brandColor: string;
     coverImageUrl: string;
+    website: string;
+    instagram: string;
   };
   about: {
     aboutContent: string;

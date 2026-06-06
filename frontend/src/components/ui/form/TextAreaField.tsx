@@ -14,6 +14,7 @@ interface TextAreaFieldProps<TFormValues extends FieldValues> {
   label: string;
   placeholder?: string;
   helperText?: string;
+  labelSuffix?: string;
   isRequired?: boolean;
   rows?: number;
   maxLength?: number;
@@ -26,6 +27,7 @@ export function TextAreaField<TFormValues extends FieldValues>({
   label,
   placeholder,
   helperText,
+  labelSuffix,
   isRequired,
   rows,
   maxLength,
@@ -40,7 +42,30 @@ export function TextAreaField<TFormValues extends FieldValues>({
       control={control}
       render={({ field, fieldState }) => (
         <FormControl isInvalid={!!fieldState.error} isRequired={isRequired}>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel
+            display="flex"
+            alignItems="baseline"
+            justifyContent="space-between"
+            gap={2}
+            w="full"
+          >
+            <Text as="span" flex="1">
+              {label}
+              {labelSuffix && (
+                <>
+                  {' · '}
+                  <Text as="span" fontWeight="normal" color="text.muted">
+                    {labelSuffix}
+                  </Text>
+                </>
+              )}
+            </Text>
+            {showCount && maxLength && (
+              <Text as="span" fontSize="xs" color="text.muted" fontWeight="normal" flexShrink={0}>
+                {String(field.value ?? '').length}/{maxLength}
+              </Text>
+            )}
+          </FormLabel>
           <Textarea
             {...field}
             value={field.value ?? ''}
@@ -51,16 +76,7 @@ export function TextAreaField<TFormValues extends FieldValues>({
           />
           {fieldState.error ? (
             <FormErrorMessage>{fieldState.error.message}</FormErrorMessage>
-          ) : (
-            <Box display="flex" justifyContent="space-between" alignItems="center" mt={1}>
-              {helperText && <FormHelperText mt={0}>{helperText}</FormHelperText>}
-              {showCount && maxLength && (
-                <Text fontSize="xs" color="text.muted" ml="auto">
-                  {String(field.value ?? '').length}/{maxLength}
-                </Text>
-              )}
-            </Box>
-          )}
+          ) : helperText && <FormHelperText mt={0}>{helperText}</FormHelperText>}
         </FormControl>
       )}
     />

@@ -7,7 +7,6 @@ import { ServiceCard } from '../ServiceCard';
 interface ServicesSectionProps {
   services: Service[];
   categories: ServiceCategory[];
-  serviceVariant?: 'book' | 'preview';
   onBook: (s: Service) => void;
 }
 
@@ -48,7 +47,6 @@ function CategoryFilterChip({
 
 export function ServicesSection({
   services,
-  serviceVariant = 'book',
   onBook,
 }: ServicesSectionProps) {
   const [activeCat, setActiveCat] = useState<number | null>(null);
@@ -98,7 +96,6 @@ export function ServicesSection({
           <ServiceCard
             key={svc.id}
             service={svc}
-            variant={serviceVariant}
             onBook={onBook}
           />
         ))}

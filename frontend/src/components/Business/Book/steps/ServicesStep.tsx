@@ -12,7 +12,6 @@ export function ServicesStep({ flow, services }: BookingStepContext) {
             key={service.id}
             service={service}
             selected={isSelected}
-            variant="select"
             onSelect={() => {
               if (isSelected) flow.deselectService();
               else flow.selectService(service);

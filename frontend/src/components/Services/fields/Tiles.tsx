@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Box, HStack, SimpleGrid, Text, VStack } from '@chakra-ui/react';
+import { Box, HStack, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
 import type { ResponsiveValue } from '@chakra-ui/react';
 import type { TileOption } from './tileOptions';
 
@@ -27,7 +27,11 @@ function TileButton({ icon, title, sub, active, onClick }: TileButtonProps) {
       _hover={{ borderColor: 'border.strong' }}
     >
       {icon ? (
-        <HStack align="flex-start">
+        <Stack
+          direction={{ base: 'column', lg: 'row' }}
+          align={{ base: 'center', lg: 'flex-start' }}
+          spacing={{ base: 2, lg: 3 }}
+        >
           <Box
             w={8}
             h={8}
@@ -40,24 +44,24 @@ function TileButton({ icon, title, sub, active, onClick }: TileButtonProps) {
           >
             {icon}
           </Box>
-          <VStack align="flex-start" spacing={0}>
-            <Text fontWeight="600" fontSize="sm" color="text.heading">
+          <VStack align={{ base: 'center', lg: 'flex-start' }} spacing={0}>
+            <Text fontWeight="600" fontSize="sm" color="text.heading" textAlign={{ base: 'center', lg: 'left' }}>
               {title}
             </Text>
             {sub && (
-              <Text fontSize="xs" color="text.muted" textAlign="left">
+              <Text fontSize="xs" color="text.muted" textAlign={{ base: 'center', lg: 'left' }}>
                 {sub}
               </Text>
             )}
           </VStack>
-        </HStack>
+        </Stack>
       ) : (
-        <VStack align="flex-start" spacing={0}>
+        <VStack align="center" spacing={0}>
           <Text fontWeight="600" fontSize="sm" color="text.heading">
             {title}
           </Text>
           {sub && (
-            <Text fontSize="xs" color="text.muted" textAlign="left">
+            <Text fontSize="xs" color="text.muted" textAlign="center">
               {sub}
             </Text>
           )}

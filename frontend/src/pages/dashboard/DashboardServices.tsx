@@ -117,15 +117,7 @@ export function DashboardServices() {
             {services.map((service) => (
               <ServiceCard
                 key={service.id}
-                service={{
-                  id: service.id,
-                  name: service.name,
-                  price: Number(service.price) || 0,
-                  durationMinutes: service.durationMinutes,
-                  description: service.description,
-                  isActive: service.isActive,
-                  imageUrl: service.photoUrl,
-                }}
+                service={service}
                 onEdit={() => navigate(ROUTES.DASHBOARD.SERVICE_EDIT(service.id))}
                 onDelete={() => handleDeleteClick(service)}
                 onToggleActive={() => handleToggleActive(service)}

@@ -12,7 +12,13 @@ import { ServiceFormTabs } from './ServiceFormTabs';
 import { LivePreviewPane } from './LivePreviewPane';
 import type { ServiceTabKey } from './serviceTabs';
 
-export function ServiceFormMobile({ activeTab, isEdit }: { activeTab: ServiceTabKey, isEdit: boolean }) {
+export function ServiceFormMobile({
+  activeTab,
+  isEdit,
+}: {
+  activeTab: ServiceTabKey;
+  isEdit: boolean;
+}) {
   return (
     <Flex direction="column" h="100%" w="100%">
       <Tabs

@@ -57,16 +57,17 @@ export interface AddressMapProps {
   latitude: number;
   longitude: number;
   label?: string;
+  height?: number | string;
   onPinChange?: (lat: number, lng: number) => void;
 }
 
-export function AddressMap({ latitude, longitude, label, onPinChange }: AddressMapProps) {
+export function AddressMap({ latitude, longitude, label, height = 220, onPinChange }: AddressMapProps) {
   return (
     <MapContainer
       center={[latitude, longitude]}
       zoom={15}
       scrollWheelZoom={false}
-      style={{ height: '220px', width: '100%', borderRadius: '12px' }}
+      style={{ height: typeof height === 'number' ? `${height}px` : height, width: '100%', borderRadius: '12px' }}
       aria-label={label ?? 'Service location map'}
     >
       <TileLayer

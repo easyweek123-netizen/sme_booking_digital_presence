@@ -16,3 +16,5 @@ export { DayOfWeekSelect } from './DayOfWeekSelect';
 export type { DayOfWeekSelectProps } from './DayOfWeekSelect';
 export { FormLabelWithTooltip } from './FormLabelWithTooltip';
 export type { FormLabelWithTooltipProps } from './FormLabelWithTooltip';
+export { ImageUploadField } from './ImageUploadField';
+export type { ImageUploadFieldProps } from './ImageUploadField';

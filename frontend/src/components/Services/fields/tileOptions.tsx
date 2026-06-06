@@ -13,8 +13,8 @@ export interface TileOption<T extends string = string> {
 }
 
 export const SERVICE_TYPE_TILES: TileOption<ServiceTypeValue>[] = [
-  { value: 'APPOINTMENT', title: 'Appointment', sub: 'One-on-one · bookable slots', icon: <UserIcon size={18} /> },
-  { value: 'GROUP', title: 'Group class', sub: 'Multiple attendees · scheduled sessions', icon: <UsersIcon size={18} /> },
+  { value: 'APPOINTMENT', title: 'Appointment', sub: '1:1 · bookable slots', icon: <UserIcon size={18} /> },
+  { value: 'GROUP', title: 'Event', sub: 'Multiple attendees can book same slot', icon: <UsersIcon size={18} /> },
 ];
 
 export const PRICE_TYPE_TILES: TileOption<PriceTypeValue>[] = [

@@ -23,10 +23,9 @@ interface Props {
   service: Service;
   onEdit?: () => void;
   onDelete?: () => void;
-  onToggleActive?: () => void;
 }
 
-export function ServiceCard({ service, onEdit, onDelete, onToggleActive }: Props) {
+export function ServiceCard({ service, onEdit, onDelete }: Props) {
   const locationType = getLocationType(service);
   const days = getDaysLabel(service.schedule);
   const spots = getSpotsLabel(service);

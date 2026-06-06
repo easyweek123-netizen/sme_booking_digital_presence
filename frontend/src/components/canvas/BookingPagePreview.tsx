@@ -123,7 +123,6 @@ export function BookingPagePreview() {
       <BusinessBookingPage
         business={business}
         categories={categoriesQuery.data ?? []}
-        serviceVariant="preview"
         isDesktop={isDesktop}
         onBook={handleBook}
       />

@@ -14,3 +14,4 @@ export { WebsiteCompletionProgress } from './WebsiteCompletionProgress';
 export type { WebsiteCompletionProgressProps } from './WebsiteCompletionProgress';
 export { DashboardFormActions } from './DashboardFormActions';
 export type { DashboardFormActionsProps } from './DashboardFormActions';
+export { DashboardSectionCard } from './DashboardSectionCard';

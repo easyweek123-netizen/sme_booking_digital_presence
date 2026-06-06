@@ -1,7 +1,5 @@
-import { useMemo } from 'react';
 import {
   Box,
-  Text,
   FormControl,
   FormHelperText,
   Textarea,
@@ -13,27 +11,8 @@ import {
   SimpleGrid,
   Button,
 } from '@chakra-ui/react';
-import DOMPurify from 'dompurify';
 import { useFormContext } from 'react-hook-form';
 import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
-
-const ALLOWED_TAGS = [
-  'h2',
-  'h3',
-  'h4',
-  'p',
-  'br',
-  'strong',
-  'b',
-  'em',
-  'i',
-  'ul',
-  'ol',
-  'li',
-  'blockquote',
-  'a',
-];
-const ALLOWED_ATTR = ['href', 'target', 'rel'];
 
 function buildAboutContentTemplate(businessName?: string): string {
   const display = businessName?.trim() || 'Your Business';
@@ -57,79 +36,20 @@ const helperTextProps = {
   color: 'text.muted',
 };
 
-function AboutPreviewBox({
-  sanitizedHtml,
-  accentColor,
-  linkColor,
-}: {
-  sanitizedHtml: string;
-  accentColor: string;
-  linkColor: string;
-}) {
+export function AboutContentEditor() {
+  const { watch, setValue } = useFormContext<WebsiteFormValues>();
+  const value = watch('about.aboutContent');
+  const onChange = (v: string) => setValue('about.aboutContent', v, { shouldDirty: true });
+
   return (
-    <Box
-      p={5}
-      borderWidth={1}
-      borderStyle="solid"
-      borderColor="border.subtle"
-      borderRadius="lg"
-      minH={96}
-      sx={{
-        '& h2': {
-          fontSize: 'xl',
-          fontWeight: '700',
-          color: 'text.heading',
-          mb: 3,
-          mt: 4,
-          _first: { mt: 0 },
-        },
-        '& h3': {
-          fontSize: 'lg',
-          fontWeight: '600',
-          color: 'text.primary',
-          mb: 2,
-          mt: 4,
-        },
-        '& h4': {
-          fontSize: 'md',
-          fontWeight: '600',
-          color: 'text.strong',
-          mb: 2,
-          mt: 3,
-        },
-        '& p': {
-          fontSize: 'md',
-          color: 'text.secondary',
-          lineHeight: '1.7',
-          mb: 3,
-          _last: { mb: 0 },
-        },
-        '& ul, & ol': { pl: 5, mb: 3, color: 'text.secondary' },
-        '& li': { mb: 1, lineHeight: '1.6' },
-        '& blockquote': {
-          borderLeftWidth: '0.1875rem',
-          borderLeftColor: accentColor,
-          pl: 4,
-          py: 2,
-          my: 4,
-          bg: 'surface.alt',
-          borderRadius: 'md',
-          fontStyle: 'italic',
-          color: 'text.secondary',
-        },
-        '& a': { color: linkColor, textDecoration: 'underline' },
-        '& strong, & b': { fontWeight: '600', color: 'text.primary' },
-        '& em, & i': { fontStyle: 'italic' },
-      }}
-    >
-      {sanitizedHtml ? (
-        <Box dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
-      ) : (
-        <Text color="text.faint" fontStyle="italic">
-          Enter content in the editor to see a preview…
-        </Text>
-      )}
-    </Box>
+    <>
+      <Box display={{ base: 'block', md: 'none' }}>
+        <AboutEditorFields value={value} onChange={onChange} />
+      </Box>
+      <Box display={{ base: 'none', md: 'block' }}>
+        <AboutEditorFields value={value} onChange={onChange} />
+      </Box>
+    </>
   );
 }
 
@@ -180,11 +100,6 @@ export function AboutContentFields() {
   const value = watch('about.aboutContent');
   // const brandColor = watch('branding.brandColor');
   // const businessName = watch('profile.name');
-
-  const sanitizedHtml = useMemo(() => {
-    if (!value) return '';
-    return DOMPurify.sanitize(value, { ALLOWED_TAGS, ALLOWED_ATTR });
-  }, [value]);
 
   // const accentColor = brandColor || 'brand.500';
   // const linkColor = brandColor || 'brand.600';

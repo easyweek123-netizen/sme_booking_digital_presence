@@ -5,7 +5,6 @@ import {
   FormHelperText,
   Textarea,
   Text,
-  Box,
 } from '@chakra-ui/react';
 import { Controller, useFormContext, type FieldValues, type Path } from 'react-hook-form';
 

@@ -1,38 +1,35 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
-  Box,
-  VStack,
   useToast,
   SimpleGrid,
   GridItem,
   Badge,
   useBreakpointValue,
+  VStack,
 } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useUpdateBusinessMutation } from '../../store/api/businessApi';
 import { useUpdateScheduleMutation } from '../../store/api/schedulesApi';
 import {
-  AboutContentFields,
   WebsiteCompletionProgress,
   DashboardContentShell,
   DashboardTabs,
   DashboardFormActions,
   type DashboardTabSpec,
 } from '../../components/Dashboard';
-import { BasicTab } from '../../components/Dashboard/website';
-import { RecurringHoursEditor, DateSpecificHoursEditor } from '../../components/Availability';
+import {
+  WebsiteFormTabs,
+  WEBSITE_TABS,
+  type WebsiteTabKey,
+} from '../../components/Dashboard/website';
+import { useSaveBusinessLocations } from '../../components/Dashboard/website/useSaveBusinessLocations';
+import { locationToDraft } from '../../components/Services/locations/shared/locationDraft';
 import { BookingLinkCard } from '../../components/QRCode';
 import { CheckIcon } from '../../components/icons';
 import { TOAST_DURATION } from '../../constants';
+import type { LocationDraft } from '@bookeasy/shared';
 import type { BusinessWithServices, AvailabilityInput } from '../../types';
 import type { WebsiteFormValues } from './websiteForm.types';
-
-type TabKey = 'basic' | 'hours' | 'about';
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'basic', label: 'Basic' },
-  { key: 'hours', label: 'Availability' },
-  { key: 'about', label: 'About' },
-];
 
 function businessToFormValues(
   b: BusinessWithServices,
@@ -49,6 +46,11 @@ function businessToFormValues(
       instagram: b.instagram || '',
     },
     about: { aboutContent: b.aboutContent || '' },
+    location: {
+      locations: (b.locations ?? [])
+        .map((l) => locationToDraft(l))
+        .filter((d): d is LocationDraft => d != null),
+    },
     availability,
   };
 }
@@ -69,9 +71,17 @@ export function DashboardWebsiteForm({
   const desktopLayout = typeof isDesktop === 'boolean' ? isDesktop : viewportLgUp;
   const [updateBusiness, { isLoading: isUpdatingBusiness }] = useUpdateBusinessMutation();
   const [updateSchedule, { isLoading: isUpdatingSchedule }] = useUpdateScheduleMutation();
-  const [activeTab, setActiveTab] = useState<TabKey>('basic');
+  const saveLocations = useSaveBusinessLocations();
+  const [activeTab, setActiveTab] = useState<WebsiteTabKey>('basic');
+
+  const formValues = useMemo(
+    () => businessToFormValues(business, initialAvailability),
+    [business, initialAvailability],
+  );
+
   const methods = useForm<WebsiteFormValues>({
-    defaultValues: businessToFormValues(business, initialAvailability),
+    values: formValues,
+    resetOptions: { keepDirtyValues: true },
     mode: 'onBlur',
   });
   const { isDirty, dirtyFields } = methods.formState;
@@ -93,8 +103,15 @@ export function DashboardWebsiteForm({
           }).unwrap(),
         );
       }
+      if (dirtyFields.location) {
+        ops.push(
+          saveLocations.save(
+            values.location.locations,
+            dirtyFields.location?.locations as never,
+          ),
+        );
+      }
       await Promise.all(ops);
-      methods.reset(values);
       toast({ title: 'Website saved', status: 'success', duration: TOAST_DURATION.MEDIUM });
     } catch {
       toast({
@@ -105,8 +122,8 @@ export function DashboardWebsiteForm({
       });
     }
   });
-  const isSaving = isUpdatingBusiness || isUpdatingSchedule;
-  const tabStatus: Record<TabKey, { done: number; total: number }> = (() => {
+  const isSaving = isUpdatingBusiness || isUpdatingSchedule || saveLocations.isSaving;
+  const tabStatus: Record<WebsiteTabKey, { done: number; total: number }> = (() => {
     const v = methods.watch();
     const filled = (s?: string) => !!(s && s.trim());
     return {
@@ -116,17 +133,12 @@ export function DashboardWebsiteForm({
         ).length,
         total: 4,
       },
-      hours: { done: v.availability.length > 0 ? 1 : 0, total: 1 },
+      location: { done: v.location.locations.length > 0 ? 1 : 0, total: 1 },
+      availability: { done: v.availability.length > 0 ? 1 : 0, total: 1 },
       about: { done: filled(v.about.aboutContent) ? 1 : 0, total: 1 },
     };
   })();
-  const sectionCardProps = {
-    bg: 'surface.card' as const,
-    borderRadius: 'xl' as const,
-    border: '1px solid' as const,
-    borderColor: 'border.subtle' as const,
-  };
-  const buildBadge = (key: TabKey): ReactNode => {
+  const buildBadge = (key: WebsiteTabKey): ReactNode => {
     const { done, total } = tabStatus[key];
     const complete = done === total;
     return complete ? (
@@ -158,12 +170,12 @@ export function DashboardWebsiteForm({
       </Badge>
     );
   };
-  const websiteTabs: ReadonlyArray<DashboardTabSpec<TabKey>> = TABS.map((t) => ({
+  const websiteTabs: ReadonlyArray<DashboardTabSpec<WebsiteTabKey>> = WEBSITE_TABS.map((t) => ({
     key: t.key,
     label: t.label,
     badge: buildBadge(t.key),
   }));
-  
+
   return (
     <FormProvider {...methods}>
       <DashboardContentShell
@@ -183,36 +195,7 @@ export function DashboardWebsiteForm({
       >
         <SimpleGrid columns={desktopLayout ? 12 : 1} spacing={{ base: 4 }} alignItems="start">
           <GridItem colSpan={desktopLayout ? 8 : 12}>
-            {activeTab === 'basic' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <BasicTab />
-              </Box>
-            )}
-            {activeTab === 'hours' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <VStack align="stretch" spacing={6}>
-                  <RecurringHoursEditor
-                    name="availability"
-                    title="Weekly hours"
-                    description="Set when you are typically available."
-                    layout="day-grouped"
-                    showCopyToDays
-                  />
-                  <DateSpecificHoursEditor
-                    name="availability"
-                    title="Date-specific hours"
-                    description="Adjust hours for specific dates."
-                    addLabel="Hours"
-                    allowClosedToggle
-                  />
-                </VStack>
-              </Box>
-            )}
-            {activeTab === 'about' && (
-              <Box {...sectionCardProps} p={{ base: 4 }}>
-                <AboutContentFields />
-              </Box>
-            )}
+            <WebsiteFormTabs activeTab={activeTab} />
           </GridItem>
           <GridItem colSpan={desktopLayout ? 4 : 12}>
             <VStack

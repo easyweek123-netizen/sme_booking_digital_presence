@@ -2,12 +2,13 @@ import { VStack, Heading, Button, HStack } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { BUSINESS_BASIC_FIELDS, BUSINESS_ABOUT_FIELDS } from '@shared';
-import { BasicTab } from '../Dashboard/website/BasicTab';
+import { Basic } from '../Dashboard/website/tabs/Basic';
 import { AboutContentFields } from '../Dashboard/AboutContentFields';
 import { WorkingHoursEditor } from '../onboarding/WorkingHoursEditor';
 import { defaultWorkingHours } from '../../store/slices/onboardingSlice';
 import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 import type { WorkingHours } from '../../types';
+
 
 interface BusinessUpdateProposalProps {
   initialValues: Record<string, unknown>;
@@ -17,6 +18,11 @@ interface BusinessUpdateProposalProps {
   isLoading?: boolean;
 }
 
+const DEFAULT_LOCATIONS = {
+  ADDRESS: null,
+  PHONE: null,
+  ONLINE: null,
+};
 function toWebsiteFormValues(initial: Record<string, unknown>): WebsiteFormValues {
   return {
     basic: {
@@ -30,6 +36,9 @@ function toWebsiteFormValues(initial: Record<string, unknown>): WebsiteFormValue
     },
     about: {
       aboutContent: String(initial.aboutContent ?? ''),
+    },
+    location: {
+      locations: DEFAULT_LOCATIONS as any
     },
     availability: [],
   };
@@ -84,7 +93,7 @@ export function BusinessUpdateProposal({
             <Heading size="xs" color="text.secondary">
               Business basics
             </Heading>
-            <BasicTab />
+            <Basic />
           </VStack>
         )}
 

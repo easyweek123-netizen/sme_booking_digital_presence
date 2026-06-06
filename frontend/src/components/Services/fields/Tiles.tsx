@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Box, HStack, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
+import { Box, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
 import type { ResponsiveValue } from '@chakra-ui/react';
 import type { TileOption } from './tileOptions';
 

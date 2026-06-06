@@ -14,7 +14,7 @@ import {
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBusiness } from '../../contexts/useBusiness';
-import { useUpdateServiceMutation, useDeleteServiceMutation } from '../../store/api/servicesApi';
+import { useDeleteServiceMutation } from '../../store/api/servicesApi';
 import { PlusIcon, LayersIcon } from '../../components/icons';
 import { CategoryManagement, ServiceCard, DashboardContentShell } from '../../components/Dashboard';
 import { TOAST_DURATION } from '../../constants';
@@ -31,7 +31,6 @@ export function DashboardServices() {
 
   const [deletingService, setDeletingService] = useState<Service | null>(null);
 
-  const [updateService] = useUpdateServiceMutation();
   const [deleteService, { isLoading: isDeleting }] = useDeleteServiceMutation();
 
   const handleDeleteClick = (service: Service) => {
@@ -55,27 +54,6 @@ export function DashboardServices() {
         title: 'Error',
         description:
           error instanceof Error ? error.message : 'Something went wrong. Please try again.',
-        status: 'error',
-        duration: TOAST_DURATION.MEDIUM,
-      });
-    }
-  };
-
-  const handleToggleActive = async (service: Service) => {
-    try {
-      await updateService({
-        id: service.id,
-        data: { isActive: !service.isActive },
-      }).unwrap();
-      toast({
-        title: service.isActive ? 'Service hidden' : 'Service visible',
-        status: 'success',
-        duration: TOAST_DURATION.SHORT,
-      });
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Could not update service.',
         status: 'error',
         duration: TOAST_DURATION.MEDIUM,
       });
@@ -120,7 +98,6 @@ export function DashboardServices() {
                 service={service}
                 onEdit={() => navigate(ROUTES.DASHBOARD.SERVICE_EDIT(service.id))}
                 onDelete={() => handleDeleteClick(service)}
-                onToggleActive={() => handleToggleActive(service)}
               />
             ))}
           </SimpleGrid>

@@ -19,14 +19,11 @@ import {
   CloseIcon,
   MapPinIcon,
   PhoneIcon,
-  UserIcon,
-  UsersIcon,
   VideoIcon,
 } from '../icons';
 import { ServiceCoverImage } from '../Services/atoms/ServiceCoverImage';
 import { ServicePriceLabel } from '../Services/atoms/ServicePriceLabel';
 import {
-  getCapacityLabel,
   getDaysLabel,
   getLocationLabel,
   getLocationType,

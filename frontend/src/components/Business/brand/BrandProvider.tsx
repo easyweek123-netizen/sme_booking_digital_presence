@@ -3,7 +3,7 @@ import { useLayoutEffect } from 'react';
 import { softFromHex, washFromHex } from './softFromHex';
 
 interface BrandProviderProps extends BoxProps {
-  brandColor?: string;
+  brandColor?: string | null;
 }
 
 export function BrandProvider({ brandColor, children, ...rest }: BrandProviderProps) {

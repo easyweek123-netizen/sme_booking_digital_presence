@@ -11,7 +11,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { BusinessService } from './business.service';
-import { CreateBusinessDto, UpdateBusinessDto } from './dto';
+import { CreateBusinessDto } from './dto';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
+import { BusinessPatchSchema, type BusinessPatchInput } from '@bookeasy/shared';
 import { FirebaseAuthGuard } from '../auth/guards';
 import {
   BusinessId,
@@ -45,7 +47,7 @@ export class BusinessController {
   @UseGuards(FirebaseAuthGuard, OwnerResolverGuard, BusinessOwnershipGuard)
   async update(
     @BusinessId() businessId: number,
-    @Body() updateBusinessDto: UpdateBusinessDto,
+    @Body(new ZodValidationPipe(BusinessPatchSchema)) updateBusinessDto: BusinessPatchInput,
   ): Promise<Business> {
     return this.businessService.update(businessId, updateBusinessDto);
   }

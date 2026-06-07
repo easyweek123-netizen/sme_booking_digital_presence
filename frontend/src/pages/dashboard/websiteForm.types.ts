@@ -14,4 +14,8 @@ export interface WebsiteFormValues {
   location: { locations: LocationDraft[] };
   about: { aboutContent: string };
   availability: AvailabilityInput[];
+  workingHoursVisibilityOnBookingPage: {
+    showNextAvailable: boolean;
+    showWeeklyHours: boolean;
+  };
 }

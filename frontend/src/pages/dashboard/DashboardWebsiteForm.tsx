@@ -52,6 +52,10 @@ function businessToFormValues(
         .filter((d): d is LocationDraft => d != null),
     },
     availability,
+    workingHoursVisibilityOnBookingPage: {
+      showNextAvailable: b.showNextAvailable ?? true,
+      showWeeklyHours: b.showWeeklyHours ?? true,
+    },
   };
 }
 
@@ -91,9 +95,18 @@ export function DashboardWebsiteForm({
   const handleSave = methods.handleSubmit(async (values) => {
     try {
       const ops: Promise<unknown>[] = [];
-      const businessIsDirty = !!dirtyFields.basic || !!dirtyFields.about;
+      const businessIsDirty =
+        !!dirtyFields.basic ||
+        !!dirtyFields.about ||
+        !!dirtyFields.workingHoursVisibilityOnBookingPage;
       if (businessIsDirty) {
-        ops.push(updateBusiness({ ...values.basic, ...values.about }).unwrap());
+        ops.push(
+          updateBusiness({
+            ...values.basic,
+            ...values.about,
+            ...values.workingHoursVisibilityOnBookingPage,
+          }).unwrap(),
+        );
       }
       if (dirtyFields.availability) {
         ops.push(

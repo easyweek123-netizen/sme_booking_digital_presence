@@ -12,7 +12,7 @@ import { Schedule } from '../schedule/entities/schedule.entity';
 import { Availability } from '../schedule/entities/availability.entity';
 import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto, ServiceDto } from './dto/create-business.dto';
-import { UpdateBusinessDto } from './dto/update-business.dto';
+import type { BusinessPatchInput } from '@bookeasy/shared';
 import type { WorkingHours } from './types/working-hours';
 import { toLocationView } from '../locations/types/location-view';
 
@@ -246,7 +246,7 @@ export class BusinessService {
    */
   async update(
     id: number,
-    updateBusinessDto: UpdateBusinessDto,
+    updateBusinessDto: BusinessPatchInput,
   ): Promise<Business> {
     const business = await this.findOne(id);
 
@@ -285,6 +285,12 @@ export class BusinessService {
         }
       }
       business.timezone = updateBusinessDto.timezone;
+    }
+    if (updateBusinessDto.showNextAvailable !== undefined) {
+      business.showNextAvailable = updateBusinessDto.showNextAvailable;
+    }
+    if (updateBusinessDto.showWeeklyHours !== undefined) {
+      business.showWeeklyHours = updateBusinessDto.showWeeklyHours;
     }
 
     await this.businessRepository.save(business);

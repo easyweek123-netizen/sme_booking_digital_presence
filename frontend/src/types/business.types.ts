@@ -1,3 +1,4 @@
+import type { BusinessPatchInput } from '@bookeasy/shared';
 import type { Location } from './location';
 
 export interface DaySchedule {
@@ -165,18 +166,7 @@ export interface CreateBusinessRequest {
   services?: ServiceDto[];
 }
 
-export interface UpdateBusinessRequest {
-  name?: string;
-  description?: string;
-  website?: string;
-  instagram?: string;
-  logoUrl?: string;
-  brandColor?: string;
-  workingHours?: WorkingHours;
-  coverImageUrl?: string | null;
-  aboutContent?: string | null;
-  timezone?: string;
-}
+export type UpdateBusinessRequest = BusinessPatchInput;
 
 // Onboarding types
 export interface BusinessProfile {

@@ -11,6 +11,7 @@ export * from './schemas/location.schema';
 export * from './schemas/booking.schema';
 export * from './schemas/inquiry.schema';
 export * from './schemas/schedule.schema';
+export * from './schemas/business.schema';
 export {
   ServiceCreateSchema,
   ServicePatchSchema,

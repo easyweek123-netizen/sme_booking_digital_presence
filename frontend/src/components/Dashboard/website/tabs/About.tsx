@@ -1,10 +1,5 @@
-import { DashboardSectionCard } from '../../DashboardSectionCard';
-import { AboutContentFields } from '../../AboutContentFields';
+import { AboutEditor } from '../about/AboutEditor';
 
 export function About() {
-  return (
-    <DashboardSectionCard>
-      <AboutContentFields />
-    </DashboardSectionCard>
-  );
+  return <AboutEditor />;
 }

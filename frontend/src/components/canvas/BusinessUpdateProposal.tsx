@@ -3,7 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { BUSINESS_BASIC_FIELDS, BUSINESS_ABOUT_FIELDS } from '@shared';
 import { Basic } from '../Dashboard/website/tabs/Basic';
-import { AboutContentFields } from '../Dashboard/AboutContentFields';
+import { AboutEditor } from '../Dashboard/website/about/AboutEditor';
 import { WorkingHoursEditor } from '../onboarding/WorkingHoursEditor';
 import { defaultWorkingHours } from '../../store/slices/onboardingSlice';
 import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
@@ -106,7 +106,7 @@ export function BusinessUpdateProposal({
             <Heading size="xs" color="text.secondary">
               About Section
             </Heading>
-            <AboutContentFields />
+            <AboutEditor />
           </VStack>
         )}
 

@@ -13,8 +13,21 @@ import { Availability } from '../schedule/entities/availability.entity';
 import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto, ServiceDto } from './dto/create-business.dto';
 import type { BusinessPatchInput } from '@bookeasy/shared';
+import {
+  ABOUT_ALLOWED_TAGS,
+  ABOUT_ALLOWED_ATTRS,
+} from '@bookeasy/shared';
 import type { WorkingHours } from './types/working-hours';
 import { toLocationView } from '../locations/types/location-view';
+import sanitizeHtml from 'sanitize-html';
+
+function sanitizeAboutHtml(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [...ABOUT_ALLOWED_TAGS],
+    allowedAttributes: ABOUT_ALLOWED_ATTRS as Record<string, string[]>,
+    disallowedTagsMode: 'discard',
+  });
+}
 
 @Injectable()
 export class BusinessService {
@@ -272,7 +285,9 @@ export class BusinessService {
       business.coverImageUrl = updateBusinessDto.coverImageUrl || null;
     }
     if (updateBusinessDto.aboutContent !== undefined) {
-      business.aboutContent = updateBusinessDto.aboutContent || null;
+      business.aboutContent = updateBusinessDto.aboutContent
+        ? sanitizeAboutHtml(updateBusinessDto.aboutContent)
+        : null;
     }
     if (updateBusinessDto.timezone !== undefined) {
       if (updateBusinessDto.timezone) {

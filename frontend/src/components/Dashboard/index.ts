@@ -9,7 +9,7 @@ export { MobileNav } from './MobileNav';
 export { StatsCard } from './StatsCard';
 export { ServiceCard } from './ServiceCard';
 export type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
-export { AboutContentFields } from './AboutContentFields';
+export { AboutEditor } from './website/about/AboutEditor';
 export { WebsiteCompletionProgress } from './WebsiteCompletionProgress';
 export type { WebsiteCompletionProgressProps } from './WebsiteCompletionProgress';
 export { DashboardFormActions } from './DashboardFormActions';

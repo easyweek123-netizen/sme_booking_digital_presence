@@ -1,3 +1,4 @@
+export * from './about/AboutEditor';
 export * from './PageVisibilitySection';
 export * from './BusinessLocationsField';
 export * from './BusinessLocationSection';

@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -19,12 +19,13 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { ChevronDownIcon, MapPinIcon, TrashIcon, XIcon } from '../../icons';
+import { ChevronDownIcon, MapPinIcon, TrashIcon, XIcon } from '../icons';
+import { IconTile } from '../ui';
 import { locationIcon, locationLabel, locationTypeLabel } from './locationDisplay';
-import { useDeleteLocationMutation } from '../../../store/api/locationsApi';
-import { TOAST_DURATION } from '../../../constants';
-import { getErrorMessage, isRtkQueryError } from '../../../types';
-import type { Location } from '../../../types/location';
+import { useDeleteLocationMutation } from '../../store/api/locationsApi';
+import { TOAST_DURATION } from '../../constants';
+import { getErrorMessage, isRtkQueryError } from '../../types';
+import type { Location } from '../../types/location';
 
 interface Props {
   locations: Location[];
@@ -43,31 +44,13 @@ function extractDeleteError(error: unknown): string {
   return getErrorMessage(error, 'Could not delete location.');
 }
 
-function IconTile({ children }: { children: ReactNode }) {
-  return (
-    <Box
-      w={9}
-      h={9}
-      borderRadius="sm"
-      bg="surface.muted"
-      color="text.muted"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      flexShrink={0}
-    >
-      {children}
-    </Box>
-  );
-}
-
 function LocationRow({ loc }: { loc: Location }) {
   const title = loc.label ?? locationLabel(loc);
   const subtitle = loc.label ? locationLabel(loc) : null;
 
   return (
     <HStack spacing={3} w="100%" minW={0} borderRadius="sm" textAlign="left">
-      <IconTile>{locationIcon(loc.type, 18)}</IconTile>
+      <IconTile size="sm">{locationIcon(loc.type, 18)}</IconTile>
       <Box flex={1} minW={0}>
         <Text fontSize="sm" fontWeight="600" color="text.heading" noOfLines={1}>
           {title}
@@ -170,7 +153,7 @@ export function LocationDropdown({
                   <LocationRow loc={selected} />
                 ) : (
                   <HStack w="100%" textAlign="left">
-                    <IconTile>
+                    <IconTile size="sm">
                       <MapPinIcon size={18} />
                     </IconTile>
                     <Text flex={1} fontSize="sm" color="text.muted" noOfLines={1}>
@@ -199,7 +182,7 @@ export function LocationDropdown({
                   _hover={{ bg: 'surface.alt' }}
                 >
                   <HStack spacing={3} w="100%">
-                    <IconTile>
+                    <IconTile size="sm">
                       <XIcon size={18} />
                     </IconTile>
                     <Text fontSize="sm">Clear selection</Text>
@@ -226,7 +209,7 @@ export function LocationDropdown({
                       variant="ghost"
                       color="text.muted"
                       flexShrink={0}
-                      _hover={{ color: 'red.500', bg: 'red.50' }}
+                      _hover={{ color: 'feedback.danger.fg', bg: 'feedback.danger.bg' }}
                       onClick={(e) => handleDeleteClick(e, loc)}
                     />
                   </HStack>

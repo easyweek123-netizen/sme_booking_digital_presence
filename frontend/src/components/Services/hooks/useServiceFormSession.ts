@@ -1,7 +1,7 @@
 import { useGetServiceByIdQuery } from '../../../store/api/servicesApi';
 import { useGetScheduleQuery } from '../../../store/api/schedulesApi';
 import { useBusiness } from '../../../contexts/useBusiness';
-import { locationToDraft } from '../locations/shared/locationDraft';
+import { locationToDraft } from '../../Locations';
 import type { LocationDraft } from '@bookeasy/shared';
 import type { Business, Service, AvailabilityInput } from '../../../types';
 

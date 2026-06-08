@@ -35,8 +35,6 @@ export function AboutToolbar({ editor, onPickImage, uploading }: Props) {
       { key: 'h3', label: 'Heading 3', child: 'H3',
         isActive: editor.isActive('heading', { level: 3 }),
         onMouseDown: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
-    ],
-    [
       { key: 'b', label: 'Bold',      child: <b>B</b>,
         isActive: editor.isActive('bold'),
         onMouseDown: () => editor.chain().focus().toggleBold().run() },
@@ -46,8 +44,6 @@ export function AboutToolbar({ editor, onPickImage, uploading }: Props) {
       { key: 'u', label: 'Underline', child: <u>U</u>,
         isActive: editor.isActive('underline'),
         onMouseDown: () => editor.chain().focus().toggleUnderline().run() },
-    ],
-    [
       { key: 'quote', label: 'Quote', child: 'Quote',
         isActive: editor.isActive('blockquote'),
         onMouseDown: () => editor.chain().focus().toggleBlockquote().run() },

@@ -2,7 +2,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  Grid,
+  HStack,
   VStack,
 } from '@chakra-ui/react';
 import {
@@ -22,10 +22,9 @@ export interface ImageUploadFieldProps {
   folder: string;
   helperText?: string;
   /**
-   * Drives both preview shape and grid layout.
-   *   - aspectRatio <= 1  → compact square preview (boxSize 24, 'auto' column)
-   *   - aspectRatio  > 1  → wide preview ('2fr' column, default 16/9)
-   * Defaults to 16/9.
+   * Aspect ratio of the preview. The preview always fills the parent's width
+   * at this ratio. The parent decides the actual width by wrapping the field
+   * in a Box of the desired size. Defaults to 16/9.
    */
   aspectRatio?: number;
   /** URL paste toggle. Defaults true. */
@@ -45,8 +44,6 @@ export function ImageUploadField({
   urlPlaceholder,
 }: ImageUploadFieldProps) {
   const field = useImageField({ value, onChange, folder });
-  const isCompact = aspectRatio <= 1;
-  const previewSpan = isCompact ? 'auto' : '2fr';
 
   return (
     <FormControl>
@@ -57,18 +54,12 @@ export function ImageUploadField({
 
         <HiddenInput field={field} />
 
-        <Grid templateColumns={`${previewSpan} 1fr`} gap={4} alignItems="center">
-          <Preview
-            field={field}
-            aspectRatio={aspectRatio}
-            aria-label={`Upload ${label}`}
-            {...(isCompact ? { boxSize: 24, flexShrink: 0 } : { w: 'full', minW: 0 })}
-          />
-          <VStack align="flex-start" spacing={2} justify="center" pt={1}>
-            <UploadButton field={field} />
-            {allowUrlPaste && <UrlPaste field={field} placeholder={urlPlaceholder} />}
-          </VStack>
-        </Grid>
+        <Preview field={field} aspectRatio={aspectRatio} aria-label={`Upload ${label}`} />
+
+        <HStack spacing={2} align="center">
+          <UploadButton field={field} />
+          {allowUrlPaste && <UrlPaste field={field} placeholder={urlPlaceholder} />}
+        </HStack>
 
         <Status field={field} />
 

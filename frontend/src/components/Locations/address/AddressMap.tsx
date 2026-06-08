@@ -67,7 +67,7 @@ export function AddressMap({ latitude, longitude, label, height = 220, onPinChan
       center={[latitude, longitude]}
       zoom={15}
       scrollWheelZoom={false}
-      style={{ height: typeof height === 'number' ? `${height}px` : height, width: '100%', borderRadius: '12px' }}
+      style={{ height: typeof height === 'number' ? `${height}px` : height, width: '100%', borderRadius: 'var(--chakra-radii-lg)' }}
       aria-label={label ?? 'Service location map'}
     >
       <TileLayer

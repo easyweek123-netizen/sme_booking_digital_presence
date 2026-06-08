@@ -6,7 +6,7 @@ import {
   useCreateServiceMutation,
   useUpdateServiceMutation,
 } from '../../../store/api/servicesApi';
-import { useCreateLocation } from '../locations/shared/useCreateLocation';
+import { useCreateLocation } from '../../Locations';
 import {
   SERVICE_FORM_FIELD_KEYS,
   type CreatingLocation,

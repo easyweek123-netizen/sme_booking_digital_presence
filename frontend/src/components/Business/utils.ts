@@ -3,7 +3,7 @@ import type { Location } from '../../types/location';
 import {
   LOCATION_TYPE_PRESENTATION,
   type LocationTypeIconName,
-} from '../Services/locations/locationDisplay';
+} from '../Locations/locationDisplay';
 
 export const DAY_LONG = [
   'Sunday',

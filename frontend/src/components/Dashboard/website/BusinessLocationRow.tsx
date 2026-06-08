@@ -1,31 +1,34 @@
-import { Box, HStack, IconButton, Text } from '@chakra-ui/react';
-import { BusinessLocationPicker } from '../../Locations/BusinessLocationPicker';
+import { Box, Flex, IconButton } from '@chakra-ui/react';
+import { BusinessLocationPicker } from '../../Locations';
 import { TrashIcon } from '../../icons';
 import type { LocationDraft } from '@bookeasy/shared';
 import type { LocationType } from '../../../types/location';
 
 interface Props {
-  number: number;
   type: LocationType;
   value: LocationDraft;
   onChange: (next: LocationDraft) => void;
   onRemove: () => void;
-  isRemoving?: boolean;
 }
 
-export function BusinessLocationRow({
-  number,
-  type,
-  value,
-  onChange,
-  onRemove,
-  isRemoving,
-}: Props) {
+/**
+ * Row layout:
+ *   base: full-width picker, delete button below right
+ *   md+:  picker + right-aligned delete in one row
+ *
+ * The leading "1." number was removed — the parent section header already
+ * names the channel (In person / By phone / Online), and the backend's
+ * (businessId, type) unique constraint means there's typically one row
+ * per section anyway.
+ */
+export function BusinessLocationRow({ type, value, onChange, onRemove }: Props) {
   return (
-    <HStack align="flex-start" spacing={3} py={3}>
-      <Text fontSize="sm" fontWeight="600" color="text.muted" mt={2} minW={5} textAlign="right">
-        {number}.
-      </Text>
+    <Flex
+      direction={{ base: 'column', md: 'row' }}
+      align={{ base: 'stretch', md: 'flex-start' }}
+      gap={2}
+      py={3}
+    >
       <Box flex={1} minW={0}>
         <BusinessLocationPicker
           type={type}
@@ -33,15 +36,16 @@ export function BusinessLocationRow({
           onChange={(next) => onChange(next ?? value)}
         />
       </Box>
-      <IconButton
-        aria-label="Remove location"
-        icon={<TrashIcon size={16} />}
-        size="sm"
-        variant="ghost"
-        colorScheme="gray"
-        isLoading={isRemoving}
-        onClick={onRemove}
-      />
-    </HStack>
+      <Flex justify={{ base: 'flex-end', md: 'flex-start' }}>
+        <IconButton
+          aria-label="Remove location"
+          icon={<TrashIcon size={16} />}
+          size="sm"
+          variant="ghost"
+          colorScheme="gray"
+          onClick={onRemove}
+        />
+      </Flex>
+    </Flex>
   );
 }

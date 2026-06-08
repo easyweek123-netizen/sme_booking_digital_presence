@@ -1,9 +1,18 @@
-import { AspectRatio, Box, Image, IconButton, Text, VStack, type BoxProps } from '@chakra-ui/react';
-import type { MouseEvent } from 'react';
+import {
+  AspectRatio,
+  Box,
+  Icon,
+  IconButton,
+  Image,
+  Text,
+  VStack,
+  type BoxProps,
+} from '@chakra-ui/react';
+import { useState, type DragEvent, type MouseEvent } from 'react';
 import { CloseIcon, UploadIcon } from '../../../icons';
 import type { ImageField } from './types';
 
-export interface PreviewProps extends Omit<BoxProps, 'onClick'> {
+export interface PreviewProps extends Omit<BoxProps, 'onClick' | 'onDrop' | 'onDragOver' | 'onDragLeave'> {
   field: ImageField;
   /** Defaults to 16/9. Pass 1 for a square preview. */
   aspectRatio?: number;
@@ -20,62 +29,97 @@ export function Preview({
   'aria-label': ariaLabel = 'Upload image',
   ...box
 }: PreviewProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const filled = field.hasImage;
+
   const onClear = (e: MouseEvent) => {
     e.stopPropagation();
     field.clear();
+  };
+
+  const onDragOver = (e: DragEvent<HTMLDivElement>) => {
+    if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    if (!isDragOver) setIsDragOver(true);
+  };
+
+  const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    // Ignore drag-leave events from child elements (relatedTarget is still inside).
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+    setIsDragOver(false);
+  };
+
+  const onDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) void field.handleFile(file);
   };
 
   return (
     <Box
       position="relative"
       borderRadius="lg"
-      borderWidth={1}
-      borderColor={field.hasImage ? 'border.accent' : 'border.subtle'}
-      bg="surface.card"
+      borderWidth={filled ? '1px' : '2px'}
+      borderStyle={filled ? 'solid' : 'dashed'}
+      borderColor={
+        isDragOver ? 'brand.500'
+        : filled ? 'border.accent'
+        : 'border.strong'
+      }
+      bg={isDragOver ? 'brand.50' : filled ? 'surface.card' : 'surface.muted'}
       overflow="hidden"
       cursor="pointer"
       role="button"
       aria-label={ariaLabel}
+      transition="border-color 0.15s, background-color 0.15s"
+      _hover={!filled ? { borderColor: 'brand.500', bg: 'brand.50' } : undefined}
       onClick={field.openPicker}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
       {...box}
     >
-      {field.hasImage ? (
-        <>
+      <AspectRatio ratio={aspectRatio} w="full">
+        {filled ? (
           <Image
             src={field.value}
             alt="Preview"
-            w="full"
-            h="full"
             objectFit="cover"
             onError={field.markLoadError}
             onLoad={field.markLoaded}
           />
-          {showOverlayClear && (
-            <IconButton
-              aria-label="Clear image"
-              icon={<CloseIcon size={14} />}
-              size="xs"
-              position="absolute"
-              top={1.5}
-              right={1.5}
-              borderRadius="full"
-              bg="blackAlpha.600"
-              color="white"
-              _hover={{ bg: 'blackAlpha.700' }}
-              onClick={onClear}
-            />
-          )}
-        </>
-      ) : (
-        <AspectRatio ratio={aspectRatio} w="full">
-          <VStack spacing={1} color="text.faint" justify="center">
-            <UploadIcon size={20} />
-            <Text fontSize="xs">{field.loadError ? 'Could not load image' : 'No image'}</Text>
+        ) : (
+          <VStack spacing={2} color="text.muted" justify="center" px={3}>
+            <Icon as={UploadIcon as never} boxSize={5} color="brand.500" />
+            <VStack spacing={0.5}>
+              <Text fontSize="xs" fontWeight="600" color="text.heading" textAlign="center">
+                {field.loadError ? 'Could not load image' : 'Click or drop a file'}
+              </Text>
+              <Text fontSize="2xs" color="text.muted" textAlign="center">
+                PNG, JPG or WEBP
+              </Text>
+            </VStack>
           </VStack>
-        </AspectRatio>
+        )}
+      </AspectRatio>
+
+      {filled && showOverlayClear && (
+        <IconButton
+          aria-label="Remove image"
+          icon={<CloseIcon size={16} />}
+          size="sm"
+          position="absolute"
+          top={2}
+          right={2}
+          borderRadius="full"
+          bg="blackAlpha.700"
+          color="white"
+          boxShadow="md"
+          _hover={{ bg: 'blackAlpha.800' }}
+          _active={{ bg: 'blackAlpha.900' }}
+          onClick={onClear}
+        />
       )}
     </Box>
   );

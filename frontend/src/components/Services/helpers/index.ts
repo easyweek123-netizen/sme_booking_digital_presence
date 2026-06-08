@@ -1,7 +1,7 @@
 import { theme } from '../../../theme';
 import type { Service } from '../../../types';
 import type { ServiceDraft } from '../types';
-import { locationFromDraft } from '../locations/shared/locationDraft';
+import { locationFromDraft } from '../../Locations';
 
 export const SERVICE_ACCENT_FALLBACK = theme.colors.brand[500] as string;
 

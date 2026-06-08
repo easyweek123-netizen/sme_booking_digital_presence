@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ImageUploadField } from '../../ui/form';
 
@@ -14,14 +15,16 @@ export function PhotoUrl({ name = 'photoUrl', label = 'Photo' }: PhotoUrlProps) 
       control={control}
       name={name}
       render={({ field }) => (
-        <ImageUploadField
-          label={label}
-          folder="services"
-          value={(field.value as string | null) ?? ''}
-          onChange={(url) => field.onChange(url || null)}
-          helperText="PNG, JPG, or WEBP up to 4MB"
-          urlPlaceholder="https://example.com/photo.jpg"
-        />
+        <Box maxW={{ base: 'full', md: '320px' }}>
+          <ImageUploadField
+            label={label}
+            folder="services"
+            value={(field.value as string | null) ?? ''}
+            onChange={(url) => field.onChange(url || null)}
+            helperText="16:9 · PNG, JPG or WEBP up to 4 MB. Shown on the booking page card."
+            urlPlaceholder="https://example.com/photo.jpg"
+          />
+        </Box>
       )}
     />
   );

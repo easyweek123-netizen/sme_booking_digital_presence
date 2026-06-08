@@ -42,7 +42,7 @@ export function ColorField({
           )}
         </FormLabel>
       )}
-      <HStack spacing={2}>
+      <HStack spacing={2} flexWrap="wrap">
         {presets.map((c) => {
           const isActive =
             current?.toLowerCase?.() === c.toLowerCase?.() || current === c;

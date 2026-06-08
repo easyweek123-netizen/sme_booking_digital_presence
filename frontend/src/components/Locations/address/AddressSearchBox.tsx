@@ -9,8 +9,8 @@ import {
   Spinner,
   Text,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '../../../icons';
-import type { AddressCandidate } from '../../../../types/location';
+import { ChevronDownIcon } from '../../icons';
+import type { AddressCandidate } from '../../../types/location';
 
 interface Props {
   value: string;

@@ -1,21 +1,10 @@
 import { Box, HStack, Spinner, Text, VStack } from '@chakra-ui/react';
-import { useGetCalendarStatusQuery } from '../../../../store/api/calendarApi';
-import { ConnectCalendar } from '../../../calendar/ConnectCalendar';
-import { CheckIcon, VideoIcon } from '../../../icons';
+import { useGetCalendarStatusQuery } from '../../../store/api/calendarApi';
+import { ConnectCalendar } from '../../calendar/ConnectCalendar';
+import { CheckIcon, VideoIcon } from '../../icons';
+import { IconTile } from '../../ui';
 
-interface OnlinePickerProps {
-  /**
-   * Online picker does not store calendar info in the draft — the calendar
-   * binding happens at save time via the connected calendar status. These
-   * props exist to keep BusinessLocationPicker's API symmetric with the
-   * other sub-pickers.
-   */
-  value?: null;
-  onChange?: (next: null) => void;
-}
-
-// Props exist for API symmetry; calendar state is read from the connected account.
-export function OnlinePicker({}: OnlinePickerProps) {
+export function OnlinePicker() {
   const { data: calendarStatus, isLoading } = useGetCalendarStatusQuery();
 
   if (isLoading) return <Spinner size="sm" color="brand.500" />;
@@ -26,9 +15,7 @@ export function OnlinePicker({}: OnlinePickerProps) {
     return (
       <Box bg="surface.card" border="1px solid" borderColor="border.subtle" borderRadius="lg" p={4}>
         <HStack align="flex-start" spacing={3} mb={3}>
-          <Box w={10} h={10} borderRadius="md" bg="surface.muted" color="text.muted" display="flex" alignItems="center" justifyContent="center" flexShrink={0}>
-            <VideoIcon size={20} />
-          </Box>
+          <IconTile><VideoIcon size={20} /></IconTile>
           <VStack align="flex-start" spacing={0.5}>
             <Text fontWeight="700" fontSize="sm" color="text.heading">No calendar connected</Text>
             <Text fontSize="sm" color="text.muted">
@@ -47,8 +34,8 @@ export function OnlinePicker({}: OnlinePickerProps) {
         <Text fontSize="xs" color="text.muted" mb={0.5}>Connected calendar</Text>
         <Text fontSize="sm" fontWeight="600" color="text.heading">{calendarStatus.email}</Text>
         <HStack spacing={1.5} mt={2}>
-          <Box color="green.500"><CheckIcon size={14} /></Box>
-          <Text fontSize="sm" color="green.600">Calendar will be linked when you save the service.</Text>
+          <Box color="feedback.success.fg"><CheckIcon size={14} /></Box>
+          <Text fontSize="sm" color="feedback.success.fg">Calendar will be linked when you save the service.</Text>
         </HStack>
       </Box>
     </VStack>

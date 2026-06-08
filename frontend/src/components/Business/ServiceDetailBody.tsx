@@ -31,7 +31,7 @@ import {
 } from '../Services/helpers';
 import { addDays, formatDuration } from './utils';
 import { toLocalYmd } from '../../utils/format';
-import { AddressMap } from '../Services/locations/address/AddressMap';
+import { AddressMap } from '../Locations/address/AddressMap';
 import { ServiceDescriptionContainer } from '../Services/atoms/ServiceDescriptionContainer';
 import { DescriptionItem, ServiceDescription } from '../Services/atoms/ServiceDescription';
 import { ServiceCapacityBadge } from '../Services/atoms/ServiceCapacityBadge';

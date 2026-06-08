@@ -1,5 +1,5 @@
 import type { AddressInput } from '@bookeasy/shared';
-import type { AddressLocation } from '../../../../types/location';
+import type { AddressLocation } from '../../../types/location';
 
 export function addressLocationToInput(l: AddressLocation): AddressInput {
   return {

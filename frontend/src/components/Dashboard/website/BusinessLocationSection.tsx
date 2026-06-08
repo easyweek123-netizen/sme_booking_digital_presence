@@ -1,5 +1,6 @@
-import { Box, Collapse, HStack, Switch, Text, VStack } from '@chakra-ui/react';
+import { Box, Collapse, Flex, HStack, Stack, Switch, Text, VStack } from '@chakra-ui/react';
 import { MapPinIcon, PhoneIcon, VideoIcon } from '../../icons';
+import { IconTile } from '../../ui';
 import type { LocationType } from '../../../types/location';
 import type { ReactNode } from 'react';
 
@@ -44,35 +45,33 @@ export function BusinessLocationSection({ type, expanded, onToggle, children }: 
       overflow="hidden"
       bg="surface.card"
     >
-      <HStack align="flex-start" spacing={3} p={4} bg="brand.50">
-        <Box
-          w={10}
-          h={10}
-          borderRadius="md"
-          bg="surface.card"
-          color="brand.600"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          flexShrink={0}
-        >
-          {meta.icon}
-        </Box>
-        <VStack align="stretch" spacing={1} flex={1} minW={0}>
-          <Text fontWeight="700" color="text.heading">
-            {meta.title}
-          </Text>
-          <Text fontSize="sm" color="text.muted" lineHeight="1.4">
-            {meta.helper}
-          </Text>
-        </VStack>
-        <Switch
-          isChecked={expanded}
-          onChange={(e) => onToggle(e.target.checked)}
-          colorScheme="brand"
-          size="md"
-        />
-      </HStack>
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        align={{ base: 'stretch', md: 'flex-start' }}
+        spacing={2}
+        p={4}
+        bg="brand.50"
+      >
+        <HStack spacing={3} flex={1} minW={0} align="flex-start">
+          <IconTile tone="brand">{meta.icon}</IconTile>
+          <VStack align="stretch" spacing={1} flex={1} minW={0}>
+            <Flex align="center" gap={3}>
+              <Text fontWeight="700" color="text.heading" flex={1}>
+                {meta.title}
+              </Text>
+              <Switch
+                isChecked={expanded}
+                onChange={(e) => onToggle(e.target.checked)}
+                colorScheme="brand"
+                size="md"
+              />
+            </Flex>
+            <Text fontSize="sm" color="text.muted" lineHeight="1.4">
+              {meta.helper}
+            </Text>
+          </VStack>
+        </HStack>
+      </Stack>
       <Collapse in={expanded} animateOpacity>
         <Box p={4}>{children}</Box>
       </Collapse>

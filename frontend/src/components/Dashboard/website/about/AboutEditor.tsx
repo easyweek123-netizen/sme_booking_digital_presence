@@ -9,24 +9,28 @@ import { aboutProseStyles } from './aboutProseStyles';
 import { AboutToolbar } from './AboutToolbar';
 
 export function AboutEditor() {
-  const { watch, setValue } = useFormContext<WebsiteFormValues>();
-  const formValue = watch('about.aboutContent') || '';
-  const imageUpload = useImageUpload({ folder: 'business' });
+  const { getValues, setValue, watch } = useFormContext<WebsiteFormValues>();
+  const imageUpload = useImageUpload({ folder: 'business/about' });
 
   const editor = useEditor({
     extensions: aboutEditorExtensions({ withPlaceholder: true }),
-    content: formValue,
+    content: getValues('about.aboutContent') || '',
     onUpdate: ({ editor }) => {
       setValue('about.aboutContent', editor.getHTML(), { shouldDirty: true });
     },
   });
 
-  // Re-hydrate on external reset (Discard, business reload). No-op during normal typing
-  // because we wrote `formValue` ourselves and getHTML() will already match.
+  // Re-hydrate on external reset (Discard, business reload). Subscribe via
+  // watch() so we react to RHF changes without re-rendering on every keystroke.
   useEffect(() => {
     if (!editor) return;
-    if (editor.getHTML() !== formValue) editor.commands.setContent(formValue, false);
-  }, [editor, formValue]);
+    const sub = watch((values, { name, type }) => {
+      if (type === 'change' && name === 'about.aboutContent') return;
+      const next = values.about?.aboutContent ?? '';
+      if (editor.getHTML() !== next) editor.commands.setContent(next, false);
+    });
+    return () => sub.unsubscribe();
+  }, [editor, watch]);
 
   const handlePickImage = async (file: File) => {
     const url = await imageUpload.upload(file);
@@ -35,13 +39,7 @@ export function AboutEditor() {
   };
 
   return (
-    <Box
-      borderRadius="xl"
-      border="1px solid"
-      borderColor="border.subtle"
-      bg="surface.card"
-      overflow="hidden"
-    >
+    <Box borderRadius="xl" border="1px solid" borderColor="border.subtle" bg="surface.card" overflow="hidden">
       <AboutToolbar editor={editor} onPickImage={handlePickImage} uploading={imageUpload.uploading} />
       <Box px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }} sx={aboutProseStyles}>
         <EditorContent editor={editor} />

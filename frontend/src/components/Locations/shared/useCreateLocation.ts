@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { useCreateLocationMutation } from '../../../../store/api/locationsApi';
-import { useGetCalendarStatusQuery } from '../../../../store/api/calendarApi';
+import { useCreateLocationMutation } from '../../../store/api/locationsApi';
+import { useGetCalendarStatusQuery } from '../../../store/api/calendarApi';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 import type { CreatingLocation, CreateLocationDto } from '@bookeasy/shared';
 

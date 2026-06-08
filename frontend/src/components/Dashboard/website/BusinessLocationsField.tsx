@@ -1,13 +1,11 @@
-import { useMemo, useState } from 'react';
-import { Box, Button, Text, useToast, VStack } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { Box, Button, Text, VStack } from '@chakra-ui/react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { BusinessLocationSection } from './BusinessLocationSection';
 import { BusinessLocationRow } from './BusinessLocationRow';
-import { LocationTabInfoBanner } from './LocationTabInfoBanner';
-import { useDeleteLocationMutation } from '../../../store/api/locationsApi';
-import { emptyDraftForType } from '../../Services/locations/shared/locationDraft';
+import { InfoBanner } from '../../ui';
+import { emptyDraftForType } from '../../Locations';
 import { PlusIcon } from '../../icons';
-import { TOAST_DURATION } from '../../../constants';
 import type { LocationType } from '../../../types/location';
 import type { WebsiteFormValues } from '../../../pages/dashboard/websiteForm.types';
 
@@ -18,14 +16,12 @@ const SECTIONS: Array<{ type: LocationType; addLabel: string; emptyHint: string 
 ];
 
 export function BusinessLocationsField() {
-  const toast = useToast();
   const { control } = useFormContext<WebsiteFormValues>();
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'location.locations',
     keyName: '_key',
   });
-  const [deleteLocation, { isLoading: isDeleting }] = useDeleteLocationMutation();
 
   const indexByType = useMemo(() => {
     const out: Record<LocationType, Array<{ field: (typeof fields)[number]; index: number }>> = {
@@ -37,60 +33,46 @@ export function BusinessLocationsField() {
     return out;
   }, [fields]);
 
-  const [expanded, setExpanded] = useState<Record<LocationType, boolean>>(() => ({
-    ADDRESS: indexByType.ADDRESS.length > 0,
-    PHONE: indexByType.PHONE.length > 0,
-    ONLINE: indexByType.ONLINE.length > 0,
-  }));
-
-  const handleRemove = async (field: (typeof fields)[number], index: number) => {
-    if (field.locationId != null) {
-      try {
-        await deleteLocation(field.locationId).unwrap();
-      } catch (err: unknown) {
-        const message =
-          err && typeof err === 'object' && 'data' in err
-            ? (err as { data?: { message?: string } }).data?.message
-            : undefined;
-        toast({
-          title: 'Could not remove location',
-          description: message ?? 'This location may be in use by a service.',
-          status: 'error',
-          duration: TOAST_DURATION.MEDIUM,
-        });
-        return;
-      }
-    }
-    remove(index);
-  };
-
   return (
     <VStack spacing={5} align="stretch">
-      <LocationTabInfoBanner />
+      <InfoBanner>
+        Turn on each channel your business uses. They appear as separate rows on your
+        booking page under <Text as="span" fontWeight="700">How to reach us</Text>.
+        Empty channels are hidden automatically.
+      </InfoBanner>
       {SECTIONS.map(({ type, addLabel, emptyHint }) => {
         const rows = indexByType[type];
+        // Derived expansion — no useState. Section is "open" if it has rows.
+        const expanded = rows.length > 0;
+        const onToggle = (next: boolean) => {
+          if (!next) {
+            // Switch off → mark all rows for deletion (drop from field array).
+            // Deletes are persisted on Save in `useSaveBusinessLocations`.
+            [...rows].reverse().forEach(({ index }) => remove(index));
+          } else if (rows.length === 0) {
+            append(emptyDraftForType(type));
+          }
+        };
         return (
           <BusinessLocationSection
             key={type}
             type={type}
-            expanded={expanded[type]}
-            onToggle={(on) => setExpanded((s) => ({ ...s, [type]: on }))}
+            expanded={expanded}
+            onToggle={onToggle}
           >
-            <VStack align="stretch" spacing={0} divider={undefined}>
+            <VStack align="stretch" spacing={0}>
               {rows.length === 0 ? (
                 <Text fontSize="sm" color="text.muted" py={2}>
                   {emptyHint}
                 </Text>
               ) : (
-                rows.map(({ field, index }, i) => (
+                rows.map(({ field, index }) => (
                   <BusinessLocationRow
                     key={field._key}
-                    number={i + 1}
                     type={type}
                     value={field}
                     onChange={(next) => update(index, next)}
-                    onRemove={() => handleRemove(field, index)}
-                    isRemoving={isDeleting}
+                    onRemove={() => remove(index)}
                   />
                 ))
               )}
@@ -99,10 +81,7 @@ export function BusinessLocationsField() {
                   size="sm"
                   variant="outline"
                   leftIcon={<PlusIcon size={14} />}
-                  onClick={() => {
-                    append(emptyDraftForType(type));
-                    setExpanded((s) => ({ ...s, [type]: true }));
-                  }}
+                  onClick={() => append(emptyDraftForType(type))}
                 >
                   {addLabel}
                 </Button>

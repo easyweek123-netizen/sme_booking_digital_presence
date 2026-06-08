@@ -1,5 +1,5 @@
 import { HStack, Tag, Text } from '@chakra-ui/react';
-import { LOCATION_TYPE_PRESENTATION } from '../locations/locationDisplay';
+import { LOCATION_TYPE_PRESENTATION } from '../../Locations/locationDisplay';
 import type { LocationType } from '../../../types/location';
 
 export function LocationChip({ type }: { type?: LocationType }) {

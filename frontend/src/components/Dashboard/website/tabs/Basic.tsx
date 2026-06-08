@@ -3,9 +3,8 @@ import { DashboardSectionCard } from '../../DashboardSectionCard';
 import { TextField, TextAreaField } from '../../../ui/form';
 import { BrandingFields } from '../../../ui/BrandingFields';
 import { GlobeIcon, InstagramIcon, TagIcon } from '../../../icons';
+import { TEXT_LIMITS } from '../../../../constants';
 import type { WebsiteFormValues } from '../../../../pages/dashboard/websiteForm.types';
-
-const TAGLINE_MAX = 120;
 
 export function Basic() {
   return (
@@ -25,8 +24,7 @@ export function Basic() {
           name="basic.description"
           label="Tagline"
           labelSuffix="Shown beneath the name on your booking page"
-          placeholder=""
-          maxLength={TAGLINE_MAX}
+          maxLength={TEXT_LIMITS.BUSINESS_TAGLINE}
           showCount
           rows={3}
         />

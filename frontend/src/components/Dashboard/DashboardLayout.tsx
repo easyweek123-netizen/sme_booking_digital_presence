@@ -38,6 +38,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         flex={1}
         ml={{ base: 0, lg: sidebarWidth }}
         h="100dvh"
+        minW={0}
         transition="margin-left 200ms ease"
       >
         {/* Mobile Navigation — always mounted on mobile via CSS so Drawer state survives breakpoint rerenders */}

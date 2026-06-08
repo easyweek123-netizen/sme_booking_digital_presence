@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
-import { MapPinIcon, PhoneIcon, VideoIcon } from '../../icons';
-import type { Location, LocationType } from '../../../types/location';
+import { MapPinIcon, PhoneIcon, VideoIcon } from '../icons';
+import type { Location, LocationType } from '../../types/location';
 
 export type LocationTypeIconName = 'pin' | 'phone' | 'globe';
 

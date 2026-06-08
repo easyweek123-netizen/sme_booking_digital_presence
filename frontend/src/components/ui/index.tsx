@@ -3,3 +3,7 @@ export { PrimaryButton } from './PrimaryButton';
 export { BrandingFields } from './BrandingFields';
 export { PageHeader } from './PageHeader';
 export { Section } from './Section';
+export { SectionLabel } from './SectionLabel';
+export { BrandPillBadge } from './BrandPillBadge';
+export { IconTile } from './IconTile';
+export { InfoBanner } from './InfoBanner';

@@ -10,8 +10,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { ChevronDownIcon, NoteIcon } from '../../../icons';
-import type { AddressInput } from '../../../../types/location';
+import { ChevronDownIcon, NoteIcon } from '../../icons';
+import type { AddressInput } from '../../../types/location';
 
 interface Props {
   draft: AddressInput;

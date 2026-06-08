@@ -3,4 +3,5 @@ export * from './booking';
 export * from './colors';
 export * from './status';
 export * from './ui';
+export * from './limits';
 

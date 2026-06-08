@@ -4,10 +4,10 @@ import {
   Text,
   VStack,
   Divider,
-  Badge,
 } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { DashboardSectionCard } from '../DashboardSectionCard';
+import { BrandPillBadge, SectionLabel } from '../../ui';
 import type { WebsiteFormValues } from '../../../pages/dashboard/websiteForm.types';
 
 interface VisibilityRowProps {
@@ -32,20 +32,7 @@ function VisibilityRow({ name, title, helper, recommended }: VisibilityRowProps)
               <Text fontWeight="700" color="text.heading">
                 {title}
               </Text>
-              {recommended && (
-                <Badge
-                  bg="brand.50"
-                  color="brand.700"
-                  borderRadius="full"
-                  px={2}
-                  py={0.5}
-                  fontSize="2xs"
-                  fontWeight="600"
-                  textTransform="none"
-                >
-                  Recommended
-                </Badge>
-              )}
+              {recommended && <BrandPillBadge>Recommended</BrandPillBadge>}
             </HStack>
             <Text fontSize="sm" color="text.muted" lineHeight="1.5">
               {helper}
@@ -68,17 +55,8 @@ export function PageVisibilitySection() {
     <DashboardSectionCard>
       <VStack align="stretch" spacing={0}>
         <HStack spacing={2} align="center">
-          <Text
-            fontSize="xs"
-            fontWeight="700"
-            color="text.muted"
-            letterSpacing="0.08em"
-            textTransform="uppercase"
-            whiteSpace="nowrap"
-          >
-            Page visibility
-          </Text>
-          <Text fontSize="sm" color="text.muted" whiteSpace="nowrap">
+          <SectionLabel letterSpacing="0.08em">Page visibility</SectionLabel>
+          <Text fontSize="sm" color="text.muted">
             Apply to your booking page — not the scheduler
           </Text>
           <Divider flex={1} borderColor="border.subtle" />

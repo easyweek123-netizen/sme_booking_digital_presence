@@ -1,5 +1,6 @@
 import { Button, HStack, Spinner, Text, VStack } from '@chakra-ui/react';
-import { LocateIcon, MapPinIcon } from '../../../icons';
+import { SectionLabel } from '../../ui';
+import { LocateIcon, MapPinIcon } from '../../icons';
 import { AddressSearchBox } from './AddressSearchBox';
 import { AddressMap } from './AddressMap';
 import { AddressEditableFields } from './AddressEditableFields';
@@ -21,9 +22,7 @@ export function AddressPicker({ value, onChange }: AddressPickerProps) {
   return (
     <VStack spacing={2} align="stretch">
       <HStack justify="space-between">
-        <Text fontSize="xs" fontWeight="700" color="text.muted" textTransform="uppercase" letterSpacing="0.04em">
-          Location address
-        </Text>
+        <SectionLabel>Location address</SectionLabel>
         <Button
           variant="ghost" size="xs" color="brand.600"
           leftIcon={isGeoLoading ? <Spinner size="xs" color="brand.500" /> : <LocateIcon size={14} />}

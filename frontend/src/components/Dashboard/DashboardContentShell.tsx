@@ -31,12 +31,14 @@ export function DashboardContentShell({
   children,
 }: DashboardContentShellProps) {
   return (
-    <Flex direction="column" h="100%" minH={0}>
+    <Flex direction="column" h="100%" minW={0} minH={0} overflow="hidden">
       <Box
         flexShrink={0}
         position={stickyHeader ? 'sticky' : 'static'}
         top={0}
         zIndex={5}
+        minW={0}
+        overflow="hidden"
         bg="surface.page"
         borderBottom="1px solid"
         borderColor="border.subtle"
@@ -56,6 +58,7 @@ export function DashboardContentShell({
       <Box
         flex={1}
         minH={0}
+        minW={0}
         overflow={bodyOverflow}
         px={{ base: 4, md: 6, lg: 8 }}
         py={4}

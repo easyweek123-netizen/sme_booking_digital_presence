@@ -1,6 +1,6 @@
-import { AddressPicker } from '../Services/locations/address/AddressPicker';
-import { PhonePicker } from '../Services/locations/phone/PhonePicker';
-import { OnlinePicker } from '../Services/locations/online/OnlinePicker';
+import { AddressPicker } from './address/AddressPicker';
+import { PhonePicker } from './phone/PhonePicker';
+import { OnlinePicker } from './online/OnlinePicker';
 import type { LocationDraft } from '@bookeasy/shared';
 import type { LocationType } from '../../types/location';
 

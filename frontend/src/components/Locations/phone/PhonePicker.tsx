@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Box, FormControl, FormLabel, HStack, Text } from '@chakra-ui/react';
 import { isValidPhoneNumber } from 'react-phone-number-input';
-import { PhoneField, type Country } from '../../../common/PhoneField';
-import { DEFAULT_PHONE_COUNTRY } from '../../../../lib/locale/getDefaultPhoneCountry';
-import { CheckIcon } from '../../../icons';
+import { SectionLabel } from '../../ui';
+import { PhoneField, type Country } from '../../common/PhoneField';
+import { DEFAULT_PHONE_COUNTRY } from '../../../lib/locale/getDefaultPhoneCountry';
+import { CheckIcon } from '../../icons';
 import type { PhoneInput } from '@bookeasy/shared';
 
 interface PhonePickerProps {
@@ -25,29 +26,24 @@ export function PhonePicker({ value, onChange }: PhonePickerProps) {
   return (
     <Box bg="surface.card" border="1px solid" borderColor="border.subtle" borderRadius="lg" p={4}>
       <FormControl>
-        <FormLabel
-          fontSize="xs" fontWeight="700" color="text.muted"
-          textTransform="uppercase" letterSpacing="0.04em" mb={2}
-        >
-          Phone number
-        </FormLabel>
+        <SectionLabel as={FormLabel} mb={2}>Phone number</SectionLabel>
         <PhoneField
           value={phoneNumber}
           onChange={writePhone}
           onCountryChange={setCountry}
           isInvalid={showInvalidHint}
           placeholder="660 123 4567"
-          rightElement={isValid ? <Box color="green.500"><CheckIcon size={20} /></Box> : undefined}
+          rightElement={isValid ? <Box color="feedback.success.fg"><CheckIcon size={20} /></Box> : undefined}
         />
         {showInvalidHint && (
-          <Text fontSize="sm" color="red.500" mt={2}>
+          <Text fontSize="sm" color="feedback.danger.fg" mt={2}>
             Enter a valid phone number for the selected country.
           </Text>
         )}
         {isValid && (
           <HStack spacing={1.5} mt={2}>
-            <Box color="green.500"><CheckIcon size={14} /></Box>
-            <Text fontSize="sm" color="green.600">Looks good — saved when you create the service.</Text>
+            <Box color="feedback.success.fg"><CheckIcon size={14} /></Box>
+            <Text fontSize="sm" color="feedback.success.fg">Looks good — saved when you create the service.</Text>
           </HStack>
         )}
       </FormControl>

@@ -1,6 +1,6 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { FormControl, FormErrorMessage } from '@chakra-ui/react';
-import { LocationSelect } from '../locations/LocationSelect';
+import { LocationSelect } from '../../Locations';
 import type { ServiceFormInput } from '@bookeasy/shared';
 
 export function Location() {

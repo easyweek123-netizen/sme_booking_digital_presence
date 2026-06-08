@@ -1,14 +1,15 @@
 import { Box, Collapse, Heading, HStack, Spinner, Text, VStack } from '@chakra-ui/react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { useListLocationsQuery } from '../../../store/api/locationsApi';
-import { BusinessLocationPicker } from '../../Locations/BusinessLocationPicker';
+import { useListLocationsQuery } from '../../store/api/locationsApi';
+import { SectionLabel } from '../ui';
+import { BusinessLocationPicker } from './BusinessLocationPicker';
 import { LocationDropdown } from './LocationDropdown';
-import { Tiles } from '../fields/Tiles';
+import { Tiles } from '../Services/fields/Tiles';
 import { LOCATION_TYPE_TILE_OPTIONS } from './locationTileOptions';
 import { emptyDraftForType, locationToDraft } from './shared/locationDraft';
 import type { ServiceFormInput } from '@bookeasy/shared';
 import type { LocationDraft } from '@bookeasy/shared';
-import type { LocationType, Location } from '../../../types/location';
+import type { LocationType, Location } from '../../types/location';
 
 export interface LocationSelectProps {
   allowedTypes?: LocationType[];
@@ -41,10 +42,6 @@ export function LocationSelect({ allowedTypes = ALL_TYPES }: LocationSelectProps
   const visibleTypes = ALL_TYPES.filter((t) => allowedTypes.includes(t));
   const visibleOptions = LOCATION_TYPE_TILE_OPTIONS.filter((o) => visibleTypes.includes(o.value));
   const showPicker = activeKind !== null;
-  const sectionLabelProps = {
-    fontSize: 'xs', fontWeight: '700', color: 'text.muted',
-    textTransform: 'uppercase' as const, letterSpacing: '0.04em',
-  };
 
   return (
     <VStack spacing={5} align="stretch">
@@ -54,7 +51,7 @@ export function LocationSelect({ allowedTypes = ALL_TYPES }: LocationSelectProps
       </Box>
 
       <Box>
-        <Text {...sectionLabelProps} mb={2}>Your locations</Text>
+        <SectionLabel mb={2}>Your locations</SectionLabel>
         <LocationDropdown
           locations={locations}
           selectedId={selectedId}

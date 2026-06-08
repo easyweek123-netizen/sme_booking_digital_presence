@@ -200,6 +200,9 @@ export class BusinessService {
       relations: [
         'services',
         'services.category',
+        'services.location',
+        'services.schedule',
+        'services.schedule.availabilities',
         'businessType',
         'defaultSchedule',
         'defaultSchedule.availabilities',
@@ -216,6 +219,11 @@ export class BusinessService {
         ? toLocationView(business.defaultLocation)
         : null,
       locations: (business.locations ?? []).map(toLocationView),
+      services: (business.services ?? []).map((s) =>
+        s.location
+          ? Object.assign(s, { location: toLocationView(s.location) })
+          : s,
+      ),
     });
   }
 

@@ -2,13 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   useSearchAddressQuery,
   useLazyReverseAddressQuery,
-} from '../../../../store/api/locationsApi';
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+} from '../../../store/api/locationsApi';
+import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 import type {
   AddressCandidate,
   AddressInput,
   AddressLocation,
-} from '../../../../types/location';
+} from '../../../types/location';
 
 const MIN_SEARCH_LEN = 3;
 const SEARCH_DELAY_MS = 400;

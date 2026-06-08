@@ -1,4 +1,4 @@
-import { SimpleGrid, VStack, useToken } from '@chakra-ui/react';
+import { Box, SimpleGrid, VStack, useToken } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ColorField } from './form/ColorField';
@@ -22,15 +22,17 @@ export function BrandingFields() {
   return (
     <VStack spacing="space.stack.md" align="stretch">
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing="space.stack.md" alignItems="start">
-        <ImageUploadField
-          label="Logo"
-          folder="business"
-          value={logoUrl ?? ''}
-          onChange={(url) => setValue('basic.logoUrl', url, { shouldDirty: true })}
-          helperText="Square · PNG/SVG · under 2 MB. Recommended 512 × 512."
-          aspectRatio={1}
-          urlPlaceholder="https://example.com/your-logo.png"
-        />
+        <Box maxW={{ base: '52', md: '180px' }}>
+          <ImageUploadField
+            label="Logo"
+            folder="business"
+            value={logoUrl ?? ''}
+            onChange={(url) => setValue('basic.logoUrl', url, { shouldDirty: true })}
+            helperText="Square · PNG/SVG · under 2 MB. Recommended 512 × 512."
+            aspectRatio={1}
+            urlPlaceholder="https://example.com/your-logo.png"
+          />
+        </Box>
 
         <Controller
           control={control}
@@ -48,14 +50,16 @@ export function BrandingFields() {
         />
       </SimpleGrid>
 
-      <ImageUploadField
-        label="Cover image"
-        folder="business"
-        value={coverImageUrl ?? ''}
-        onChange={(url) => setValue('basic.coverImageUrl', url, { shouldDirty: true })}
-        helperText="16:9 · under 4 MB. Leave empty to use a gradient based on your brand color."
-        urlPlaceholder="https://example.com/cover-image.jpg"
-      />
+      <Box maxW={{ base: 'full', md: '320px' }}>
+        <ImageUploadField
+          label="Cover image"
+          folder="business"
+          value={coverImageUrl ?? ''}
+          onChange={(url) => setValue('basic.coverImageUrl', url, { shouldDirty: true })}
+          helperText="16:9 · under 4 MB. Leave empty to use a gradient based on your brand color."
+          urlPlaceholder="https://example.com/cover-image.jpg"
+        />
+      </Box>
     </VStack>
   );
 }

@@ -528,6 +528,11 @@ const semanticTokens = {
     'success.soft':     { default: 'sage.100',  _dark: 'sage.800'  },
     'warning.primary':  { default: 'amber.500', _dark: 'amber.400' },
     'warning.soft':     { default: 'amber.100', _dark: 'amber.800' },
+
+    'feedback.success.fg': { default: 'green.600', _dark: 'green.300' },
+    'feedback.success.bg': { default: 'green.50',  _dark: 'green.900' },
+    'feedback.danger.fg':  { default: 'red.500',   _dark: 'red.300' },
+    'feedback.danger.bg':  { default: 'red.50',    _dark: 'red.900' },
   },
 };
 

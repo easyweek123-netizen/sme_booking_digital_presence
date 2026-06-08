@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Box, Flex, VStack, HStack, Heading, Text, Link as ChakraLink } from '@chakra-ui/react';
+import { Box, Flex, VStack, Heading, Text, Link as ChakraLink } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ChevronLeftIcon } from '../icons';
 
@@ -50,11 +50,7 @@ export function PageHeader({
             </Text>
           )}
         </VStack>
-        {actions && (
-          <HStack spacing={2} flexShrink={0}>
-            {actions}
-          </HStack>
-        )}
+        {actions && <>{actions}</>}
       </Flex>
       {children && <Box mt={4}>{children}</Box>}
     </Box>

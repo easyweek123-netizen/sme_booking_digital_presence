@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBusiness } from '../../contexts/useBusiness';
+import { useBusiness } from '../../contexts/business';
 import { useDeleteServiceMutation } from '../../store/api/servicesApi';
 import { PlusIcon, LayersIcon } from '../../components/icons';
 import { CategoryManagement, ServiceCard, DashboardContentShell } from '../../components/Dashboard';

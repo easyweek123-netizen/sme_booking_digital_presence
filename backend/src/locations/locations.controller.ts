@@ -38,7 +38,6 @@ export class LocationsController {
   ) {}
 
   @Get('address/search')
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   searchAddress(@Query('q') q: string): Promise<AddressCandidate[]> {
     return this.geocoding.search(q ?? '');
   }

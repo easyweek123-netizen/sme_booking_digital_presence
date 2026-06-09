@@ -7,7 +7,6 @@ import {
   Spinner,
   Text,
   VStack,
-  useBreakpointValue,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -24,8 +23,6 @@ import type { Service } from '../../types';
 export function ServiceBookingPage() {
   const { slug, serviceId } = useParams<{ slug: string; serviceId?: string }>();
   const navigate = useNavigate();
-  const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
-
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
 
@@ -88,7 +85,6 @@ export function ServiceBookingPage() {
       isAuthenticated={auth.isAuthenticated}
       userEmail={auth.userEmail}
       signingIn={signingIn}
-      isDesktop={isDesktop}
       onSignIn={signIn}
       onSubmit={handleSubmit}
       onClose={handleClose}

@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -8,10 +7,6 @@ import {
   type LocationDraft,
 } from '@bookeasy/shared';
 import { serviceTypeRegistry } from '../serviceTypeRegistry';
-import {
-  // useDraftPersistence, readDraft, 
-  clearStoredDraft,
-} from '../../../hooks/useDraftPersistence';
 import type {
   Business, Service, ServiceTypeValue, AvailabilityInput,
 } from '../../../types';
@@ -26,7 +21,6 @@ interface UseServiceFormParams {
 
 export interface UseServiceFormResult {
   methods: UseFormReturn<ServiceFormInput>;
-  clearDraft: () => void;
 }
 
 const FIELD_DEFAULTS = {
@@ -55,25 +49,16 @@ export function useServiceForm({
   const type: ServiceTypeValue = initialValues?.type ?? service?.type ?? 'APPOINTMENT';
   const fields = service ? fromService(service) : (makeServiceDefaults(type) as ServiceFormFieldsInput);
 
-  const draftKey = service ? `service:draft:${service.id}` : 'service:draft:new';
-  // const persisted = readDraft<Partial<ServiceFormInput>>(draftKey);
-
   const methods = useForm<ServiceFormInput>({
     resolver: zodResolver(ServiceFormSchema),
     defaultValues: {
       ...fields,
       availability,
       location,
-      // ...(persisted ?? {}),
       ...initialValues,
     },
     mode: 'onBlur',
   });
 
-  // useDraftPersistence(methods, draftKey);
-
-  return {
-    methods,
-    clearDraft: useCallback(() => clearStoredDraft(draftKey), [draftKey]),
-  };
+  return { methods };
 }

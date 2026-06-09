@@ -23,7 +23,6 @@ export type { ImageUploadFieldProps } from './ImageUploadField';
 // Headless primitives for bespoke image-upload layouts.
 export {
   useImageField,
-  HiddenInput as ImageFieldHiddenInput,
   Preview as ImageFieldPreview,
   UploadButton as ImageFieldUploadButton,
   RemoveButton as ImageFieldRemoveButton,

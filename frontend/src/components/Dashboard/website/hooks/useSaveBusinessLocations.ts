@@ -1,62 +1,106 @@
 import { useCallback } from 'react';
 import {
   useCreateLocationMutation,
-  usePatchLocationMutation,
   useDeleteLocationMutation,
 } from '../../../../store/api/locationsApi';
-import { useGetCalendarStatusQuery } from '../../../../store/api/calendarApi';
-import type { CreateLocationDto, LocationDraft } from '@bookeasy/shared';
+import { deepEqual } from '../../../../lib/deepEqual';
+import { locationToDraft } from '../../../Locations';
+import {
+  CreateLocationSchema,
+  type CreateLocationDto,
+  type LocationDraft,
+} from '@bookeasy/shared';
 import type { Location } from '../../../../types/location';
 
-function toDto(draft: LocationDraft, calendarId: number | null): CreateLocationDto {
-  if (draft.type === 'ONLINE') return { type: 'ONLINE', data: { calendarId: calendarId ?? 0 } };
-  return { type: draft.type, data: draft.data! } as CreateLocationDto;
+export interface DesiredLocations {
+  ADDRESS: LocationDraft[];
+  PHONE: LocationDraft[];
+  ONLINE: LocationDraft | null;
 }
 
-export type LocationDirtyMaskEntry =
-  | boolean
-  | undefined
-  | Record<string, unknown>;
+/**
+ * Build a CreateLocationDto from a draft and validate it against the shared
+ * schema. Returns null if the draft isn't filled in enough to save — the
+ * saver skips those rows silently.
+ */
+function toDto(draft: LocationDraft): CreateLocationDto | null {
+  const candidate =
+    draft.type === 'ONLINE'
+      ? draft.data?.calendarId
+        ? { type: 'ONLINE', data: { calendarId: draft.data.calendarId } }
+        : null
+      : draft.data
+        ? { type: draft.type, data: draft.data }
+        : null;
+  if (!candidate) return null;
+  const parsed = CreateLocationSchema.safeParse(candidate);
+  return parsed.success ? parsed.data : null;
+}
 
-export type LocationDirtyMask = LocationDirtyMaskEntry[] | undefined;
-
-interface SaveParams {
-  current: Location[];
-  drafts: LocationDraft[];
-  dirtyMask: LocationDirtyMask;
+function flatten(d: DesiredLocations): LocationDraft[] {
+  return [...d.ADDRESS, ...d.PHONE, ...(d.ONLINE ? [d.ONLINE] : [])];
 }
 
 export function useSaveBusinessLocations() {
   const [createLocation, createState] = useCreateLocationMutation();
-  const [patchLocation, patchState] = usePatchLocationMutation();
   const [deleteLocation, deleteState] = useDeleteLocationMutation();
-  const { data: calendarStatus } = useGetCalendarStatusQuery();
-  const calendarId = calendarStatus?.connected ? (calendarStatus.calendarId ?? null) : null;
 
   const save = useCallback(
-    async ({ current, drafts, dirtyMask }: SaveParams) => {
-      // Deletes: rows present in `current` but missing from `drafts`.
-      const keptIds = new Set(drafts.map((d) => d.locationId).filter((id): id is number => id != null));
+    async (desired: DesiredLocations, current: Location[]) => {
+      const drafts = flatten(desired);
+      const keptIds = new Set<number>(
+        drafts.map((d) => d.locationId).filter((id): id is number => id != null),
+      );
+
+      const toDelete: number[] = [];
       for (const loc of current) {
-        if (!keptIds.has(loc.id)) {
-          await deleteLocation(loc.id).unwrap();
-        }
+        if (!keptIds.has(loc.id)) toDelete.push(loc.id);
       }
-      // Creates + patches
-      for (let i = 0; i < drafts.length; i++) {
-        const draft = drafts[i];
+
+      const toCreate: CreateLocationDto[] = [];
+      for (const draft of drafts) {
+        const dto = toDto(draft);
+        if (!dto) continue;
         if (draft.locationId == null) {
-          await createLocation(toDto(draft, calendarId)).unwrap();
-        } else if (dirtyMask?.[i]) {
-          await patchLocation({ id: draft.locationId, body: toDto(draft, calendarId) }).unwrap();
+          toCreate.push(dto);
+          continue;
+        }
+        const orig = current.find((c) => c.id === draft.locationId);
+        const origDraft = orig ? locationToDraft(orig) : null;
+        if (origDraft && !deepEqual(draft, origDraft)) {
+          toDelete.push(draft.locationId);
+          toCreate.push(dto);
         }
       }
+
+      const errors: unknown[] = [];
+
+      for (const id of toDelete) {
+        try {
+          await deleteLocation(id).unwrap();
+        } catch (err) {
+          errors.push(err);
+        }
+      }
+      for (const dto of toCreate) {
+        try {
+          await createLocation(dto).unwrap();
+        } catch (err) {
+          errors.push(err);
+        }
+      }
+
+      if (errors.length === 0) return;
+      const conflict = errors.find(
+        (e) => (e as { data?: { code?: string } })?.data?.code === 'LOCATION_IN_USE',
+      );
+      throw conflict ?? errors[0];
     },
-    [calendarId, createLocation, patchLocation, deleteLocation],
+    [createLocation, deleteLocation],
   );
 
   return {
     save,
-    isSaving: createState.isLoading || patchState.isLoading || deleteState.isLoading,
+    isSaving: createState.isLoading || deleteState.isLoading,
   };
 }

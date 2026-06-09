@@ -1,5 +1,3 @@
-import type { RefObject } from 'react';
-
 export interface ImageField {
   // state
   value: string;
@@ -10,15 +8,14 @@ export interface ImageField {
   error: string | null;
   urlMode: boolean;
 
+  // id shared between the file input and any <label htmlFor> trigger
+  inputId: string;
+
   // handlers
-  openPicker: () => void;
   setUrl: (next: string) => void;
   toggleUrlMode: () => void;
   clear: () => void;
   markLoadError: () => void;
   markLoaded: () => void;
-
-  // internal — used by <HiddenInput>
-  fileInputRef: RefObject<HTMLInputElement | null>;
   handleFile: (file: File | undefined) => Promise<void>;
 }

@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { UploadIcon } from '../../../icons';
 import type { ImageField } from './types';
 
-export interface UploadButtonProps extends Omit<ButtonProps, 'onClick' | 'isLoading' | 'loadingText'> {
+export interface UploadButtonProps
+  extends Omit<ButtonProps, 'onClick' | 'isLoading' | 'loadingText' | 'as' | 'htmlFor'> {
   field: ImageField;
   /** Override the auto-derived label. Defaults to "Upload" when empty, "Replace" when filled. */
   children?: ReactNode;
@@ -11,15 +12,16 @@ export interface UploadButtonProps extends Omit<ButtonProps, 'onClick' | 'isLoad
 
 export function UploadButton({ field, children, ...rest }: UploadButtonProps) {
   const label = children ?? (field.hasImage ? 'Replace' : 'Upload');
-
   return (
     <Button
+      as="label"
+      htmlFor={field.inputId}
       leftIcon={<UploadIcon size={16} />}
       size="sm"
       variant="ghost"
-      onClick={field.openPicker}
       isLoading={field.isUploading}
       loadingText="Uploading"
+      cursor="pointer"
       {...rest}
     >
       {label}

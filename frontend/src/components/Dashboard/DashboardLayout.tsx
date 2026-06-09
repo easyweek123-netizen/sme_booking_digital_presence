@@ -3,7 +3,6 @@ import { Sidebar } from './Sidebar';
 import { SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './constants';
 import { MobileNav } from './MobileNav';
 import { useSidebarCollapsed } from '../../hooks';
-import { useBusinessOptional } from '../../contexts/useBusiness';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -11,7 +10,6 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { isCollapsed } = useSidebarCollapsed({ isMobile: false });
-  const { business } = useBusinessOptional();
 
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
 
@@ -43,7 +41,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         {/* Mobile Navigation — always mounted on mobile via CSS so Drawer state survives breakpoint rerenders */}
         <Box position="relative" display={{ base: 'block', lg: 'none' }}>
-          <MobileNav businessName={business?.name} />
+          <MobileNav />
         </Box>
 
         {/* Page content - fills remaining space */}

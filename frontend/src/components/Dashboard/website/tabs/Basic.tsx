@@ -1,7 +1,7 @@
 import { SimpleGrid, VStack } from '@chakra-ui/react';
 import { DashboardSectionCard } from '../../DashboardSectionCard';
 import { TextField, TextAreaField } from '../../../ui/form';
-import { BrandingFields } from '../../../ui/BrandingFields';
+import { BrandingFields } from '../BrandingFields';
 import { GlobeIcon, InstagramIcon, TagIcon } from '../../../icons';
 import { TEXT_LIMITS } from '../../../../constants';
 import type { WebsiteFormValues } from '../../../../pages/dashboard/websiteForm.types';

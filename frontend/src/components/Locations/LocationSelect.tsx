@@ -34,7 +34,8 @@ export function LocationSelect({ allowedTypes = ALL_TYPES }: LocationSelectProps
   };
 
   const handleDraftChange = (next: LocationDraft | null) => {
-    setValue('location', next, { shouldDirty: true });
+    const detached = next ? { ...next, locationId: null } : null;
+    setValue('location', detached, { shouldDirty: true });
   };
 
   if (isLoading) return <Spinner size="sm" color="brand.500" />;

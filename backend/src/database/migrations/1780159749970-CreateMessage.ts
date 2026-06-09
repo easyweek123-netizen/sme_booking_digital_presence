@@ -27,7 +27,9 @@ export class CreateMessage1780159749970 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_message_conversation_createdAt"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_message_conversation_createdAt"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "message"`);
   }
 }

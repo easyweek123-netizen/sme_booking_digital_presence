@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
-import { useBusiness } from '../../contexts/useBusiness';
+import { useBusiness } from '../../contexts/business';
 import { useAppDispatch } from '../../store/hooks';
 import { addProposals, setPreviewContext } from '../../store/slices/canvasSlice';
 import { AllMessages } from './AllMessages';

@@ -1,31 +1,34 @@
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import {
-  Center,
-  VStack,
-  Box,
-  Heading,
-  Text,
-  Divider,
-  HStack,
-  Circle,
-  Button,
+  Box, Button, Center, Circle, Divider, HStack, Heading, Text, VStack,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import { useBusinessOptional } from '../../contexts/useBusiness';
-import { PageLoading } from '../ui/states';
-import { ROUTES } from '../../config/routes';
-import { CalendarIcon, CheckIcon } from '../icons';
+import { useGetMyBusinessQuery } from '../store/api/businessApi';
+import { PageLoading } from '../components/ui/states';
+import { ROUTES } from '../config/routes';
+import { CalendarIcon, CheckIcon } from '../components/icons';
+import type { BusinessWithServices } from '../types';
 
-interface BusinessGateProps {
-  children: ReactNode;
-}
+const BusinessContext = createContext<BusinessWithServices | null>(null);
 
-export function BusinessGate({ children }: BusinessGateProps) {
-  const { business, isLoading, error } = useBusinessOptional();
-
+/**
+ * Fetches the current owner's business and gates its children on a successful
+ * load. While loading, renders <PageLoading />. On error or missing business,
+ * renders the "complete your setup" CTA. Children only mount when `business`
+ * is defined — that's why `useBusiness()` below never returns null.
+ */
+export function BusinessProvider({ children }: { children: ReactNode }) {
+  const { data: business, isLoading, error } = useGetMyBusinessQuery();
   if (isLoading) return <PageLoading variant="list" />;
   if (error || !business) return <NoBusinessBody />;
-  return <>{children}</>;
+  return <BusinessContext.Provider value={business}>{children}</BusinessContext.Provider>;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useBusiness(): BusinessWithServices {
+  const ctx = useContext(BusinessContext);
+  if (!ctx) throw new Error('useBusiness must be used within <BusinessProvider>.');
+  return ctx;
 }
 
 function NoBusinessBody() {
@@ -148,4 +151,3 @@ function NoBusinessBody() {
     </Center>
   );
 }
-

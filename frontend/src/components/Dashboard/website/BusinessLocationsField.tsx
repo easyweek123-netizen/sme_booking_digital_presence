@@ -1,37 +1,37 @@
-import { useMemo } from 'react';
-import { Box, Button, Text, VStack } from '@chakra-ui/react';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import { Box, Button, HStack, IconButton, Text, VStack } from '@chakra-ui/react';
+import {
+  Controller, useFieldArray, useFormContext,
+} from 'react-hook-form';
+import type { LocationDraft } from '@bookeasy/shared';
 import { BusinessLocationSection } from './BusinessLocationSection';
-import { BusinessLocationRow } from './BusinessLocationRow';
+import { BusinessLocationPicker, emptyDraftForType } from '../../Locations';
 import { InfoBanner } from '../../ui';
-import { emptyDraftForType } from '../../Locations';
-import { PlusIcon } from '../../icons';
-import type { LocationType } from '../../../types/location';
+import { PlusIcon, TrashIcon } from '../../icons';
 import type { WebsiteFormValues } from '../../../pages/dashboard/websiteForm.types';
 
-const SECTIONS: Array<{ type: LocationType; addLabel: string; emptyHint: string }> = [
-  { type: 'ADDRESS', addLabel: 'Add address', emptyHint: 'No addresses yet.' },
-  { type: 'PHONE', addLabel: 'Add phone', emptyHint: 'No phone numbers yet.' },
-  { type: 'ONLINE', addLabel: 'Add online channel', emptyHint: 'No online channels yet.' },
-];
+type ArrayType = 'ADDRESS' | 'PHONE';
+
+const ADD_LABEL: Record<ArrayType | 'ONLINE', string> = {
+  ADDRESS: 'Add address',
+  PHONE: 'Add phone',
+  ONLINE: 'Add online channel',
+};
+
+interface FieldArrayHelpers {
+  fields: { id: string }[];
+  append: (value: LocationDraft) => void;
+  remove: (index: number) => void;
+}
 
 export function BusinessLocationsField() {
   const { control } = useFormContext<WebsiteFormValues>();
-  const { fields, append, remove, update } = useFieldArray({
-    control,
-    name: 'location.locations',
-    keyName: '_key',
-  });
+  const addresses = useFieldArray({ control, name: 'location.byType.ADDRESS' });
+  const phones = useFieldArray({ control, name: 'location.byType.PHONE' });
 
-  const indexByType = useMemo(() => {
-    const out: Record<LocationType, Array<{ field: (typeof fields)[number]; index: number }>> = {
-      ADDRESS: [],
-      PHONE: [],
-      ONLINE: [],
-    };
-    fields.forEach((field, index) => out[field.type].push({ field, index }));
-    return out;
-  }, [fields]);
+  const arraySections: ReadonlyArray<{ type: ArrayType; array: FieldArrayHelpers }> = [
+    { type: 'ADDRESS', array: addresses },
+    { type: 'PHONE', array: phones },
+  ];
 
   return (
     <VStack spacing={5} align="stretch">
@@ -40,56 +40,93 @@ export function BusinessLocationsField() {
         booking page under <Text as="span" fontWeight="700">How to reach us</Text>.
         Empty channels are hidden automatically.
       </InfoBanner>
-      {SECTIONS.map(({ type, addLabel, emptyHint }) => {
-        const rows = indexByType[type];
-        // Derived expansion — no useState. Section is "open" if it has rows.
-        const expanded = rows.length > 0;
-        const onToggle = (next: boolean) => {
-          if (!next) {
-            // Switch off → mark all rows for deletion (drop from field array).
-            // Deletes are persisted on Save in `useSaveBusinessLocations`.
-            [...rows].reverse().forEach(({ index }) => remove(index));
-          } else if (rows.length === 0) {
-            append(emptyDraftForType(type));
+
+      {arraySections.map(({ type, array }) => (
+        <BusinessLocationSection
+          key={type}
+          type={type}
+          actions={
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<PlusIcon size={14} />}
+              onClick={() => array.append(emptyDraftForType(type))}
+            >
+              {ADD_LABEL[type]}
+            </Button>
           }
-        };
-        return (
+        >
+          {array.fields.length === 0 ? null : (
+            <VStack spacing={4} align="stretch">
+              {array.fields.map((f, i) => (
+                <Controller
+                  key={f.id}
+                  control={control}
+                  name={`location.byType.${type}.${i}`}
+                  render={({ field }) => (
+                    <HStack align="flex-start" spacing={2}>
+                      <Box flex={1} minW={0}>
+                        <BusinessLocationPicker
+                          type={type}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </Box>
+                      <IconButton
+                        aria-label={`Remove ${type.toLowerCase()}`}
+                        icon={<TrashIcon size={16} />}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="gray"
+                        onClick={() => array.remove(i)}
+                      />
+                    </HStack>
+                  )}
+                />
+              ))}
+            </VStack>
+          )}
+        </BusinessLocationSection>
+      ))}
+
+      <Controller
+        control={control}
+        name="location.byType.ONLINE"
+        render={({ field }) => (
           <BusinessLocationSection
-            key={type}
-            type={type}
-            expanded={expanded}
-            onToggle={onToggle}
-          >
-            <VStack align="stretch" spacing={0}>
-              {rows.length === 0 ? (
-                <Text fontSize="sm" color="text.muted" py={2}>
-                  {emptyHint}
-                </Text>
+            type="ONLINE"
+            actions={
+              field.value ? (
+                <IconButton
+                  aria-label="Remove online channel"
+                  icon={<TrashIcon size={16} />}
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="gray"
+                  onClick={() => field.onChange(null)}
+                />
               ) : (
-                rows.map(({ field, index }) => (
-                  <BusinessLocationRow
-                    key={field._key}
-                    type={type}
-                    value={field}
-                    onChange={(next) => update(index, next)}
-                    onRemove={() => remove(index)}
-                  />
-                ))
-              )}
-              <Box pt={2}>
                 <Button
                   size="sm"
                   variant="outline"
                   leftIcon={<PlusIcon size={14} />}
-                  onClick={() => append(emptyDraftForType(type))}
+                  onClick={() => field.onChange(emptyDraftForType('ONLINE'))}
                 >
-                  {addLabel}
+                  {ADD_LABEL.ONLINE}
                 </Button>
-              </Box>
-            </VStack>
+              )
+            }
+          >
+            {field.value ? (
+              <BusinessLocationPicker
+                type="ONLINE"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            ) : null}
           </BusinessLocationSection>
-        );
-      })}
+        )}
+      />
     </VStack>
   );
 }

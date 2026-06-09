@@ -133,7 +133,6 @@ export interface Business {
   id: number;
   slug: string;
   defaultScheduleId: number;
-  defaultLocation?: Location | null;
   locations: Location[];
   plan?: 'free' | 'pro';
   timezone: string;

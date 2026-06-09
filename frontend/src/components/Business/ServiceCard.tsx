@@ -15,6 +15,7 @@ import {
   Text,
   VStack,
   useDisclosure,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import type { Service } from '../../types';
@@ -43,7 +44,6 @@ import {
 import { formatDuration, addDays } from './utils';
 import { ServiceDetailBody, type NextAvailableData } from './ServiceDetailBody';
 import { BrandProvider } from './brand';
-import { useDeviceMode } from './context/DeviceModeContext';
 
 interface ServiceCardProps {
   service: Service;
@@ -59,7 +59,14 @@ export function ServiceCard({
   onBook,
   onSelect,
 }: ServiceCardProps) {
-  const isDesktop = useDeviceMode();
+  /**
+   * The card's layout follows container width (useDeviceMode), but the
+   * detail dialog choice follows the *viewport* — a desktop user always
+   * gets the centered Modal even when the card is rendered inside a
+   * narrow preview container, so the Drawer never blows past the preview
+   * onto the rest of the dashboard.
+   */
+  const isViewportDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
   const detail = useDisclosure();
   const slotsQuery = useGetSlotsQuery(
     {
@@ -97,7 +104,7 @@ export function ServiceCard({
         tabIndex={0}
         textAlign="left"
         w="100%"
-        p={{ base: 3, md: 4 }}
+        p={{ base: 4 }}
         overflow="hidden"
         borderWidth="1px"
         borderColor={selected ? 'var(--brand-accent)' : 'gray.200'}
@@ -114,8 +121,8 @@ export function ServiceCard({
         onClick={handleCardClick}
         onKeyDown={handleCardKeyDown}
       >
-        <HStack align="center" spacing={4} w="100%" minW={0}>
-          <ServiceMediaTile service={service} locationType={locationType} size={isDesktop ? 84 : 72} />
+        <HStack align="center" spacing={2} w="100%" minW={0} wrap="wrap">
+          <ServiceMediaTile service={service} locationType={locationType} size={84} />
 
           <VStack align="stretch" spacing={3} flex={1} minW={0}>
             <Text fontSize="md" fontWeight={700} color="gray.900" noOfLines={1}>{service.name}</Text>
@@ -183,7 +190,7 @@ export function ServiceCard({
         </HStack>
       </Box>
 
-      {isDesktop ? (
+      {isViewportDesktop ? (
         <Modal
           isOpen={detail.isOpen}
           onClose={detail.onClose}

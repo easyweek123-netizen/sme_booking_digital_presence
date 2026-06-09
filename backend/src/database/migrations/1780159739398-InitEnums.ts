@@ -37,10 +37,14 @@ export class InitEnums1780159739398 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TYPE IF EXISTS "public"."bookings_status_enum"`);
+    await queryRunner.query(
+      `DROP TYPE IF EXISTS "public"."bookings_status_enum"`,
+    );
     await queryRunner.query(`DROP TYPE IF EXISTS "public"."invoice_status"`);
     await queryRunner.query(`DROP TYPE IF EXISTS "public"."sub_status"`);
-    await queryRunner.query(`DROP TYPE IF EXISTS "public"."billing_provider_id"`);
+    await queryRunner.query(
+      `DROP TYPE IF EXISTS "public"."billing_provider_id"`,
+    );
     await queryRunner.query(`DROP TYPE IF EXISTS "public"."billing_cycle"`);
     await queryRunner.query(`DROP TYPE IF EXISTS "public"."plan_enum"`);
   }

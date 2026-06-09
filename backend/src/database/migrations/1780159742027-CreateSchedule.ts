@@ -24,7 +24,9 @@ export class CreateSchedule1780159742027 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."idx_schedule_business"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."idx_schedule_business"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "schedule"`);
   }
 }

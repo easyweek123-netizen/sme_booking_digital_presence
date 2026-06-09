@@ -1,7 +1,6 @@
-import { GridItem, SimpleGrid, VStack } from '@chakra-ui/react';
-import { BookingLinkCard } from '../../QRCode';
-import { WebsiteCompletionProgress } from '../WebsiteCompletionProgress';
+import { Box, GridItem, SimpleGrid } from '@chakra-ui/react';
 import { WebsiteFormTabs } from './WebsiteFormTabs';
+import { WebsitePreview } from './preview/WebsitePreview';
 import type { WebsiteTabKey } from './websiteTabs';
 import type { BusinessWithServices } from '../../../types';
 
@@ -12,21 +11,26 @@ interface Props {
 
 export function WebsiteFormDesktop({ activeTab, business }: Props) {
   return (
-    <SimpleGrid columns={12} spacing={4} alignItems="start">
-      <GridItem colSpan={8}>
+    <SimpleGrid columns={2} gap={6}>
+      <GridItem>
         <WebsiteFormTabs activeTab={activeTab} />
       </GridItem>
-      <GridItem colSpan={4}>
-        <VStack
-          spacing="space.stack.lg"
-          align="stretch"
-          position="sticky"
-          top={4}
-          py={4}
-        >
-          <BookingLinkCard slug={business.slug} />
-          <WebsiteCompletionProgress business={business} onScrollToSection={() => undefined} />
-        </VStack>
+      <GridItem>
+      <Box
+        position="sticky"
+        top={0}
+        display="flex"
+        flexDirection="column"
+        h="calc(100dvh - var(--chakra-sizes-dashboard-headerOffset))"
+        overflow="hidden"
+        bg="surface.card"
+        p={6}
+        borderRadius="lg"
+        borderWidth={1}
+        borderColor="border.subtle"
+      >
+          <WebsitePreview business={business} />
+        </Box>
       </GridItem>
     </SimpleGrid>
   );

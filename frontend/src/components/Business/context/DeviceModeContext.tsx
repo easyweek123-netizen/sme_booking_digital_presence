@@ -1,40 +1,84 @@
-/* eslint-disable react-refresh/only-export-components -- context provider and hook live together per phase-1 spec */
-import { createContext, useContext, type ReactNode } from 'react';
-import { useBreakpointValue } from '@chakra-ui/react';
+import { Box, type BoxProps } from '@chakra-ui/react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
-interface DeviceMode {
-  /**
-   * True when the surrounding container should render the "desktop" variant
-   * (full sidebar, modal-style service detail). When false, components render
-   * the mobile variant (sticky CTA, bottom-sheet drawers). This is decoupled
-   * from the viewport breakpoint so live previews can force a phone layout
-   * regardless of the actual browser size.
-   */
-  isDesktop: boolean;
-}
+const DeviceModeContext = createContext<boolean | null>(null);
 
-const DeviceModeContext = createContext<DeviceMode | null>(null);
+type DeviceModeProviderProps = { children: ReactNode } & (
+  | { isDesktop: boolean; desktopMinWidth?: never; boxProps?: never }
+  | { desktopMinWidth: number; isDesktop?: never; boxProps?: BoxProps }
+);
 
-interface DeviceModeProviderProps {
-  isDesktop: boolean;
-  children: ReactNode;
-}
-
-export function DeviceModeProvider({ isDesktop, children }: DeviceModeProviderProps) {
+/**
+ * Provides "is this subtree rendering at desktop scale?" to descendants
+ * (notably ServiceCard's modal-vs-drawer choice). Use one of:
+ *
+ *   <DeviceModeProvider isDesktop={value}>           // caller-told
+ *   <DeviceModeProvider desktopMinWidth={992}>       // observes its own wrapper
+ *
+ * Descendants read with useDeviceMode(). They must NOT call useBreakpointValue
+ * below this provider — the surface size is not the viewport size.
+ */
+export function DeviceModeProvider(props: DeviceModeProviderProps) {
+  if ('desktopMinWidth' in props && props.desktopMinWidth != null) {
+    return (
+      <MeasuredProvider threshold={props.desktopMinWidth} boxProps={props.boxProps}>
+        {props.children}
+      </MeasuredProvider>
+    );
+  }
   return (
-    <DeviceModeContext.Provider value={{ isDesktop }}>
-      {children}
+    <DeviceModeContext.Provider value={props.isDesktop}>
+      {props.children}
     </DeviceModeContext.Provider>
   );
 }
 
+function MeasuredProvider({
+  threshold, boxProps, children,
+}: { threshold: number; boxProps?: BoxProps; children: ReactNode }) {
+  const [el, setEl] = useState<HTMLDivElement | null>(null);
+  const isDesktop = useIsWiderThan(el, threshold);
+  return (
+    <Box ref={setEl} h="100%" w="100%" {...boxProps}>
+      <DeviceModeContext.Provider value={isDesktop}>
+        {children}
+      </DeviceModeContext.Provider>
+    </Box>
+  );
+}
+
 /**
- * Reads device mode from the nearest DeviceModeProvider. When no provider is
- * present (legacy callers, isolated component tests), falls back to the
- * viewport breakpoint at lg (992px) — preserves prior `ServiceCard` behaviour.
+ * Subscribes to the element's size via ResizeObserver through
+ * useSyncExternalStore. No effects, no setState in the observer, no debounce —
+ * the browser already batches ResizeObserver callbacks per animation frame.
  */
+function useIsWiderThan(el: Element | null, threshold: number): boolean {
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      if (!el) return () => {};
+      const obs = new ResizeObserver(notify);
+      obs.observe(el);
+      return () => obs.disconnect();
+    },
+    [el],
+  );
+  const getSnapshot = useCallback(
+    () => (el ? el.getBoundingClientRect().width >= threshold : false),
+    [el, threshold],
+  );
+  // SSR snapshot: no DOM, assume mobile.
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
+}
+
 export function useDeviceMode(): boolean {
   const ctx = useContext(DeviceModeContext);
-  const fallback = useBreakpointValue({ base: false, lg: true }) ?? false;
-  return ctx ? ctx.isDesktop : fallback;
+  if (ctx === null) throw new Error('useDeviceMode must be used within <DeviceModeProvider>.');
+  return ctx;
 }

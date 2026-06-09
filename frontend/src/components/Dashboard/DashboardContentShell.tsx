@@ -42,8 +42,7 @@ export function DashboardContentShell({
         bg="surface.page"
         borderBottom="1px solid"
         borderColor="border.subtle"
-        px={{ base: 4, md: 6, lg: 8 }}
-        pt={{ base: 4 }}
+        p={{ base: 4 }}
       >
         <PageHeader
           title={title}
@@ -60,8 +59,7 @@ export function DashboardContentShell({
         minH={0}
         minW={0}
         overflow={bodyOverflow}
-        px={{ base: 4, md: 6, lg: 8 }}
-        py={4}
+        p={{ base: 4 }}
       >
         {children}
       </Box>

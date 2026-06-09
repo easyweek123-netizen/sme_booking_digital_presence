@@ -34,6 +34,7 @@ export function Preview({
 
   const onClear = (e: MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     field.clear();
   };
 
@@ -44,7 +45,6 @@ export function Preview({
   };
 
   const onDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    // Ignore drag-leave events from child elements (relatedTarget is still inside).
     if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
     setIsDragOver(false);
   };
@@ -58,7 +58,10 @@ export function Preview({
 
   return (
     <Box
+      as="label"
+      htmlFor={field.inputId}
       position="relative"
+      display="block"
       borderRadius="lg"
       borderWidth={filled ? '1px' : '2px'}
       borderStyle={filled ? 'solid' : 'dashed'}
@@ -70,11 +73,9 @@ export function Preview({
       bg={isDragOver ? 'brand.50' : filled ? 'surface.card' : 'surface.muted'}
       overflow="hidden"
       cursor="pointer"
-      role="button"
       aria-label={ariaLabel}
       transition="border-color 0.15s, background-color 0.15s"
       _hover={!filled ? { borderColor: 'brand.500', bg: 'brand.50' } : undefined}
-      onClick={field.openPicker}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}

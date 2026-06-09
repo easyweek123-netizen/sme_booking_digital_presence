@@ -55,11 +55,10 @@ export function ServicePage({ isEdit }: ServicePageProps) {
       onError={onError}
       onInvalid={onInvalid}
     >
-      {({ methods, activeTab, setActiveTab, isSaving, onSave, clearDraft, tabs }) => (
+      {({ methods, activeTab, setActiveTab, isSaving, onSave, tabs }) => (
         <DashboardContentShell
           title={session.service?.name ?? 'New service'}
           backHref={ROUTES.DASHBOARD.SERVICES}
-          onBackClick={clearDraft}
           bodyOverflow={isDesktop ? 'auto' : 'hidden'}
           tabs={<DashboardTabs tabs={tabs} activeKey={activeTab} onChange={setActiveTab} />}
           actions={
@@ -67,10 +66,7 @@ export function ServicePage({ isEdit }: ServicePageProps) {
               isDirty={methods.formState.isDirty}
               isSaving={isSaving}
               onSave={onSave}
-              onDiscard={() => {
-                methods.reset();
-                clearDraft();
-              }}
+              onDiscard={() => methods.reset()}
               saveLabel={isEdit ? 'Save changes' : 'Create service'}
             />
           }

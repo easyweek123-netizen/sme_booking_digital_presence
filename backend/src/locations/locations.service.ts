@@ -147,13 +147,6 @@ export class LocationsService {
       longitude: String(data.longitude),
     });
     const saved = await this.repo.save(location);
-    const business = await this.businessRepo.findOne({
-      where: { id: businessId },
-    });
-    if (business && business.defaultLocationId === null) {
-      business.defaultLocationId = saved.id;
-      await this.businessRepo.save(business);
-    }
     return toLocationView(saved);
   }
 
@@ -260,23 +253,21 @@ export class LocationsService {
     const location = await this.repo.findOne({ where: { id, businessId } });
     if (!location) throw new NotFoundException('Location not found');
 
-    const inUse = await this.serviceRepo.count({
-      where: { locationId: id, businessId },
+    const blocking = await this.serviceRepo.find({
+      where: { locationId: id, businessId, isActive: true },
+      select: { id: true, name: true },
     });
-    if (inUse > 0) {
+    if (blocking.length > 0) {
+      const names = blocking.map((s) => s.name).join(', ');
       throw new ConflictException({
         code: 'LOCATION_IN_USE',
-        message: `This location is used by ${inUse} service${inUse > 1 ? 's' : ''}. Update those services before deleting it.`,
-        count: inUse,
+        message:
+          `This location is used by ${blocking.length} active service` +
+          `${blocking.length > 1 ? 's' : ''}: ${names}. ` +
+          `Reassign or delete ${blocking.length > 1 ? 'them' : 'it'} first.`,
+        count: blocking.length,
+        services: blocking,
       });
-    }
-
-    const business = await this.businessRepo.findOne({
-      where: { id: businessId },
-    });
-    if (business?.defaultLocationId === id) {
-      business.defaultLocationId = null;
-      await this.businessRepo.save(business);
     }
 
     await this.repo.remove(location);

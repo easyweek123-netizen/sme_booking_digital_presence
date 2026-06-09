@@ -1,5 +1,4 @@
 export { CategoryManagement } from './CategoryManagement';
-export { BusinessGate } from './BusinessGate';
 export { DashboardLayout } from './DashboardLayout';
 export { DashboardContentShell } from './DashboardContentShell';
 export { DashboardTabs } from './DashboardTabs';
@@ -10,8 +9,6 @@ export { StatsCard } from './StatsCard';
 export { ServiceCard } from './ServiceCard';
 export type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
 export { AboutEditor } from './website/about/AboutEditor';
-export { WebsiteCompletionProgress } from './WebsiteCompletionProgress';
-export type { WebsiteCompletionProgressProps } from './WebsiteCompletionProgress';
 export { DashboardFormActions } from './DashboardFormActions';
 export type { DashboardFormActionsProps } from './DashboardFormActions';
 export { DashboardSectionCard } from './DashboardSectionCard';

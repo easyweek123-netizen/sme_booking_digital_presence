@@ -18,11 +18,6 @@ interface BusinessUpdateProposalProps {
   isLoading?: boolean;
 }
 
-const DEFAULT_LOCATIONS = {
-  ADDRESS: null,
-  PHONE: null,
-  ONLINE: null,
-};
 function toWebsiteFormValues(initial: Record<string, unknown>): WebsiteFormValues {
   return {
     basic: {
@@ -38,12 +33,18 @@ function toWebsiteFormValues(initial: Record<string, unknown>): WebsiteFormValue
       aboutContent: String(initial.aboutContent ?? ''),
     },
     location: {
-      locations: DEFAULT_LOCATIONS as any
+      byType: {
+        ADDRESS: [],
+        PHONE: [],
+        ONLINE: null,
+      },
     },
-    availability: [],
-    workingHoursVisibilityOnBookingPage: {
-      showNextAvailable: Boolean(initial.showNextAvailable ?? true),
-      showWeeklyHours: Boolean(initial.showWeeklyHours ?? true),
+    availability: {
+      hours: [],
+      visibility: {
+        showNextAvailable: Boolean(initial.showNextAvailable ?? true),
+        showWeeklyHours: Boolean(initial.showWeeklyHours ?? true),
+      },
     },
   };
 }

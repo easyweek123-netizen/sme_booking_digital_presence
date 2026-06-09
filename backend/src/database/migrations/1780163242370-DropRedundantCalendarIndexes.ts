@@ -19,8 +19,12 @@ export class DropRedundantCalendarIndexes1780163242370 implements MigrationInter
   name = 'DropRedundantCalendarIndexes1780163242370';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_calendar_business"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_calendar_event_calendar"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_calendar_business"`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_calendar_event_calendar"`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

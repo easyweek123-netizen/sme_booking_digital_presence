@@ -1,21 +1,9 @@
-import type { AvailabilityInput } from '../../types';
-import type { LocationDraft } from '@bookeasy/shared';
+import type { WebsiteFormInput } from '@bookeasy/shared';
 
-export interface WebsiteFormValues {
-  basic: {
-    name: string;
-    description: string;
-    logoUrl: string;
-    brandColor: string;
-    coverImageUrl: string;
-    website: string;
-    instagram: string;
-  };
-  location: { locations: LocationDraft[] };
-  about: { aboutContent: string };
-  availability: AvailabilityInput[];
-  workingHoursVisibilityOnBookingPage: {
-    showNextAvailable: boolean;
-    showWeeklyHours: boolean;
-  };
-}
+/**
+ * The Website form's value shape. Sourced from `WebsiteFormSchema` in
+ * `@bookeasy/shared/schemas/website.schema.ts` — Zod is the single source
+ * of truth. Aliased to `WebsiteFormValues` for backwards compatibility
+ * with existing imports in the website folder.
+ */
+export type WebsiteFormValues = WebsiteFormInput;

@@ -1,23 +1,15 @@
 import { Box, SimpleGrid, VStack, useToken } from '@chakra-ui/react';
-import { useEffect } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ColorField } from './form/ColorField';
-import { ImageUploadField } from './form/ImageUploadField';
-import { BRAND_COLOR_PRESETS } from '../../constants';
-import type { WebsiteFormValues } from '../../pages/dashboard/websiteForm.types';
+import { ColorField } from '../../ui/form/ColorField';
+import { ImageUploadField } from '../../ui/form/ImageUploadField';
+import { BRAND_COLOR_PRESETS } from '../../../constants';
+import type { WebsiteFormValues } from '../../../pages/dashboard/websiteForm.types';
 
 export function BrandingFields() {
   const { control, watch, setValue } = useFormContext<WebsiteFormValues>();
   const logoUrl = watch('basic.logoUrl');
   const coverImageUrl = watch('basic.coverImageUrl');
-  const brandColor = watch('basic.brandColor');
   const presetHexes = useToken('colors', [...BRAND_COLOR_PRESETS]);
-
-  useEffect(() => {
-    if (!brandColor && presetHexes[0]) {
-      setValue('basic.brandColor', presetHexes[0], { shouldDirty: false });
-    }
-  }, [brandColor, presetHexes, setValue]);
 
   return (
     <VStack spacing="space.stack.md" align="stretch">

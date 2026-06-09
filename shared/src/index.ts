@@ -26,4 +26,6 @@ export type {
   ServiceFormFieldsInput,
   ServiceFormInput,
 } from './schemas/service.schema';
+export { WebsiteFormSchema } from './schemas/website.schema';
+export type { WebsiteFormInput } from './schemas/website.schema';
 export * from './about/aboutAllowlist';

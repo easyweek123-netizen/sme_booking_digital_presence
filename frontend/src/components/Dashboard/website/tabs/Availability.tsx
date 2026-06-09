@@ -8,16 +8,16 @@ export function Availability() {
     <VStack align="stretch" spacing={4}>
       <PageVisibilitySection />
       <DashboardSectionCard>
-        <VStack align="stretch" spacing={6}>
+        <VStack align="stretch" spacing={4}>
           <RecurringHoursEditor
-            name="availability"
+            name="availability.hours"
             title="Weekly hours"
             description="Set when you are typically available."
             layout="day-grouped"
             showCopyToDays
           />
           <DateSpecificHoursEditor
-            name="availability"
+            name="availability.hours"
             title="One-off hours"
             description="Adjust hours for specific dates."
             addLabel="Hours"

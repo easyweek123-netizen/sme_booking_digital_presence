@@ -36,7 +36,7 @@ export function ServiceMediaTile({ service, locationType, size = 72 }: Props) {
   );
 
   return (
-    <Box position="relative" w={`${width}px`} h={`${size}px`} flexShrink={0}>
+    <Box position="relative" w={`${width}px`} maxH={`${size}px`} flexShrink={0}>
       <SmartImage
         src={service.photoUrl}
         alt={service.name}

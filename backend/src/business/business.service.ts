@@ -13,10 +13,7 @@ import { Availability } from '../schedule/entities/availability.entity';
 import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto, ServiceDto } from './dto/create-business.dto';
 import type { BusinessPatchInput } from '@bookeasy/shared';
-import {
-  ABOUT_ALLOWED_TAGS,
-  ABOUT_ALLOWED_ATTRS,
-} from '@bookeasy/shared';
+import { ABOUT_ALLOWED_TAGS, ABOUT_ALLOWED_ATTRS } from '@bookeasy/shared';
 import type { WorkingHours } from './types/working-hours';
 import { toLocationView } from '../locations/types/location-view';
 import sanitizeHtml from 'sanitize-html';
@@ -206,7 +203,6 @@ export class BusinessService {
         'businessType',
         'defaultSchedule',
         'defaultSchedule.availabilities',
-        'defaultLocation',
         'locations',
       ],
     });
@@ -215,9 +211,6 @@ export class BusinessService {
       workingHours: this.buildWorkingHours(
         business.defaultSchedule?.availabilities,
       ),
-      defaultLocation: business.defaultLocation
-        ? toLocationView(business.defaultLocation)
-        : null,
       locations: (business.locations ?? []).map(toLocationView),
       services: (business.services ?? []).map((s) =>
         s.location

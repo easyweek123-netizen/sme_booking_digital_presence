@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 import { useImageUpload } from '../../../../lib/useImageUpload';
 import type { ImageField } from './types';
 
@@ -9,14 +9,12 @@ export interface UseImageFieldOptions {
 }
 
 export function useImageField({ value, onChange, folder }: UseImageFieldOptions): ImageField {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
   const [loadError, setLoadError] = useState(false);
   const [urlMode, setUrlMode] = useState(false);
   const { upload, uploading, progress, error, reset } = useImageUpload({ folder });
 
   const hasImage = !!value && !loadError;
-
-  const openPicker = useCallback(() => fileInputRef.current?.click(), []);
 
   const handleFile = useCallback(
     async (file: File | undefined) => {
@@ -58,13 +56,12 @@ export function useImageField({ value, onChange, folder }: UseImageFieldOptions)
     progress,
     error,
     urlMode,
-    openPicker,
+    inputId,
     setUrl,
     toggleUrlMode,
     clear,
     markLoadError,
     markLoaded,
-    fileInputRef,
     handleFile,
   };
 }

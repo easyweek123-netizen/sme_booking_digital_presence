@@ -50,7 +50,9 @@ export class CreateBusiness1780159741505 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_business_plan"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_business_plan"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "business"`);
   }
 }

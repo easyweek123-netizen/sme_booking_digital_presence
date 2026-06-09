@@ -31,7 +31,9 @@ export class CreateCalendarSyncLog1780159751885 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_sync_log_calendar_created"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_sync_log_calendar_created"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "calendar_sync_log"`);
   }
 }

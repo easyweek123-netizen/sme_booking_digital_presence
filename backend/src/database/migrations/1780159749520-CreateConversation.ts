@@ -26,7 +26,9 @@ export class CreateConversation1780159749520 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_conversation_owner_lastMessage"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_conversation_owner_lastMessage"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "conversation"`);
   }
 }

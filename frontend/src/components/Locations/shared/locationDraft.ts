@@ -20,7 +20,7 @@ export function locationToDraft(loc: Location | null | undefined): LocationDraft
   switch (loc.type) {
     case 'ADDRESS': return { type: 'ADDRESS', locationId: loc.id, data: addressLocationToInput(loc) };
     case 'PHONE':   return { type: 'PHONE',   locationId: loc.id, data: { phoneNumber: loc.phoneNumber } };
-    case 'ONLINE':  return { type: 'ONLINE',  locationId: loc.id };
+    case 'ONLINE':  return { type: 'ONLINE',  locationId: loc.id, data: { calendarId: loc.calendarId } };
   }
 }
 
@@ -37,31 +37,18 @@ export function locationFromDraft(draft: LocationDraft | null | undefined): Loca
     case 'ADDRESS':
       if (!draft.data) return null;
       return {
-        type: 'ADDRESS',
-        id: draft.locationId ?? 0,
-        label: null,
-        line1: draft.data.line1,
-        line2: draft.data.line2,
-        city: draft.data.city,
-        postalCode: draft.data.postalCode,
-        countryCode: draft.data.countryCode,
-        latitude: draft.data.latitude,
-        longitude: draft.data.longitude,
+        type: 'ADDRESS', id: draft.locationId ?? -1, label: null,
+        line1: draft.data.line1, line2: draft.data.line2, city: draft.data.city,
+        postalCode: draft.data.postalCode, countryCode: draft.data.countryCode,
+        latitude: draft.data.latitude, longitude: draft.data.longitude,
       } satisfies AddressLocation;
     case 'PHONE':
       if (!draft.data) return null;
-      return {
-        type: 'PHONE',
-        id: draft.locationId ?? 0,
-        label: null,
-        phoneNumber: draft.data.phoneNumber,
-      };
+      return { type: 'PHONE', id: draft.locationId ?? -1, label: null, phoneNumber: draft.data.phoneNumber };
     case 'ONLINE':
       return {
-        type: 'ONLINE',
-        id: draft.locationId ?? 0,
-        label: null,
-        calendarId: 0,
+        type: 'ONLINE', id: draft.locationId ?? -1, label: null,
+        calendarId: draft.data?.calendarId ?? 0,
       };
   }
 }
@@ -70,6 +57,6 @@ export function emptyDraftForType(type: LocationType): LocationDraft {
   switch (type) {
     case 'ADDRESS': return { type: 'ADDRESS', locationId: null, data: null };
     case 'PHONE':   return { type: 'PHONE',   locationId: null, data: null };
-    case 'ONLINE':  return { type: 'ONLINE',  locationId: null };
+    case 'ONLINE':  return { type: 'ONLINE',  locationId: null, data: undefined };
   }
 }

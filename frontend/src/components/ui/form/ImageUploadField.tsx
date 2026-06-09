@@ -48,7 +48,7 @@ export function ImageUploadField({
   return (
     <FormControl>
       <VStack align="stretch" spacing="space.stack.xs">
-        <FormLabel fontSize="sm" fontWeight="600" color="text.primary" m={0}>
+        <FormLabel htmlFor={field.inputId} fontSize="sm" fontWeight="600" color="text.primary" m={0}>
           {label}
         </FormLabel>
 

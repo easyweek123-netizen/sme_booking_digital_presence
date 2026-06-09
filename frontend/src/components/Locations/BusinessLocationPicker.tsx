@@ -28,7 +28,7 @@ export function BusinessLocationPicker({ type, value, onChange }: BusinessLocati
         <AddressPicker
           value={data}
           onChange={(next) =>
-            onChange(next ? { type: 'ADDRESS', locationId: value?.locationId ?? null, data: next } : null)
+            onChange({ type: 'ADDRESS', locationId: value?.locationId ?? null, data: next })
           }
         />
       );
@@ -39,13 +39,22 @@ export function BusinessLocationPicker({ type, value, onChange }: BusinessLocati
         <PhonePicker
           value={data}
           onChange={(next) =>
-            onChange(next ? { type: 'PHONE', locationId: value?.locationId ?? null, data: next } : null)
+            onChange({ type: 'PHONE', locationId: value?.locationId ?? null, data: next })
           }
         />
       );
     }
-    case 'ONLINE':
-      return <OnlinePicker />;
+    case 'ONLINE': {
+      const data = value?.type === 'ONLINE' ? value.data ?? null : null;
+      return (
+        <OnlinePicker
+          value={data}
+          onChange={(next) =>
+            onChange({ type: 'ONLINE', locationId: value?.locationId ?? null, data: next ?? undefined })
+          }
+        />
+      );
+    }
     default: {
       const exhaustive: never = type;
       throw new Error(`BusinessLocationPicker: type "${String(exhaustive)}" not implemented`);

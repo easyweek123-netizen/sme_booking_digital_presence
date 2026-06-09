@@ -10,7 +10,7 @@ export function AboutSection({ aboutContent }: AboutSectionProps) {
       <SectionHeading id="section-about">About</SectionHeading>
       {aboutContent
         ? <AboutContent html={aboutContent} />
-        : <Text color="gray.500">No description yet.</Text>}
+        : <Text color="text.muted">No description yet.</Text>}
     </Box>
   );
 }

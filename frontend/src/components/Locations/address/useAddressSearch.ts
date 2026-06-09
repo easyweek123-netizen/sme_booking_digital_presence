@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   useSearchAddressQuery,
   useLazyReverseAddressQuery,
@@ -98,15 +98,6 @@ export function useAddressSearch({ value, onChange }: Params): Result {
       setIsGeoLoading(false);
     }
   }, [requestPosition, reverse, onChange]);
-
-  // Auto-locate exactly once when the picker mounts with no address set.
-  // Empty deps captures the initial `value`/`locate`; subsequent value
-  // changes never re-trigger. Sticky form state means a remount after
-  // tab-switching already sees `value != null` and skips.
-  useEffect(() => {
-    if (!value && geoSupported) locate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const onQueryChange = useCallback(
     (q: string) => {

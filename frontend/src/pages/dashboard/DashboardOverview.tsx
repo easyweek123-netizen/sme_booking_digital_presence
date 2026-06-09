@@ -19,7 +19,7 @@ import {
   GlobeIcon,
 } from '../../components/icons';
 import { BookingLinkCard } from '../../components/QRCode';
-import { useBusiness } from '../../contexts/useBusiness';
+import { useBusiness } from '../../contexts/business';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
 import { ROUTES } from '../../config/routes';
 import { EmptyState } from '../../components/ui/states';

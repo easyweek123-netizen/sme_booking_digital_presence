@@ -5,9 +5,15 @@ export class BusinessLocationsRevamp1780743823537 implements MigrationInterface 
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // 2. Drop legacy flat contact columns on business.
-    await queryRunner.query(`ALTER TABLE "business" DROP COLUMN IF EXISTS "address"`);
-    await queryRunner.query(`ALTER TABLE "business" DROP COLUMN IF EXISTS "city"`);
-    await queryRunner.query(`ALTER TABLE "business" DROP COLUMN IF EXISTS "phone"`);
+    await queryRunner.query(
+      `ALTER TABLE "business" DROP COLUMN IF EXISTS "address"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "business" DROP COLUMN IF EXISTS "city"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "business" DROP COLUMN IF EXISTS "phone"`,
+    );
 
     // 3. Add page-visibility flags. Saved this sprint, consumed in a later phase
     //    by the public booking page.
@@ -22,8 +28,12 @@ export class BusinessLocationsRevamp1780743823537 implements MigrationInterface 
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "business" DROP COLUMN IF EXISTS "show_weekly_hours"`);
-    await queryRunner.query(`ALTER TABLE "business" DROP COLUMN IF EXISTS "show_next_available"`);
+    await queryRunner.query(
+      `ALTER TABLE "business" DROP COLUMN IF EXISTS "show_weekly_hours"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "business" DROP COLUMN IF EXISTS "show_next_available"`,
+    );
     await queryRunner.query(`
       ALTER TABLE "business" ADD COLUMN IF NOT EXISTS "phone" character varying(20)
     `);

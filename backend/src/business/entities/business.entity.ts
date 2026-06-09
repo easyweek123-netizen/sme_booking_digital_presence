@@ -84,13 +84,6 @@ export class Business {
   @JoinColumn({ name: 'default_schedule_id' })
   defaultSchedule: Schedule | null;
 
-  @Column({ name: 'default_location_id', type: 'int', nullable: true })
-  defaultLocationId: number | null;
-
-  @ManyToOne(() => Location, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'default_location_id' })
-  defaultLocation: Location | null;
-
   @OneToMany(() => Location, (location) => location.business)
   locations: Location[];
 

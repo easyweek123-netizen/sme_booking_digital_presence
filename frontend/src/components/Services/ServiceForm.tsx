@@ -12,7 +12,6 @@ export interface ServiceFormRenderArgs {
   setActiveTab: (k: ServiceTabKey) => void;
   isSaving: boolean;
   onSave: () => void;
-  clearDraft: () => void;
   tabs: typeof SERVICE_TABS;
 }
 
@@ -31,13 +30,13 @@ export function ServiceForm({
   onSuccess, onError, onInvalid, children,
 }: ServiceFormProps) {
   const [activeTab, setActiveTab] = useState<ServiceTabKey>(initialActiveTab);
-  const { methods, onSave, isSaving, clearDraft } = useSaveServiceForm({
+  const { methods, onSave, isSaving } = useSaveServiceForm({
     session, initialValues, onSuccess, onError, onInvalid,
   });
 
   return (
     <FormProvider {...methods}>
-      {children({ methods, activeTab, setActiveTab, isSaving, onSave, clearDraft, tabs: SERVICE_TABS })}
+      {children({ methods, activeTab, setActiveTab, isSaving, onSave, tabs: SERVICE_TABS })}
     </FormProvider>
   );
 }

@@ -12,6 +12,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetBusinessBySlugQuery } from '../../store/api';
 import { BusinessBookingPage as BusinessBookingPageView } from '../../components/Business/BusinessBookingPage';
+import { DeviceModeProvider } from '../../components/Business/context/DeviceModeContext';
 import { ROUTES } from '../../config/routes';
 import type { Service } from '../../types';
 
@@ -66,11 +67,12 @@ export function BusinessLandingPage() {
   };
 
   return (
-    <BusinessBookingPageView
-      business={business}
-      categories={[]}
-      isDesktop={isDesktop}
-      onBook={handleBook}
-    />
+    <DeviceModeProvider isDesktop={isDesktop}>
+      <BusinessBookingPageView
+        business={business}
+        categories={[]}
+        onBook={handleBook}
+      />
+    </DeviceModeProvider>
   );
 }

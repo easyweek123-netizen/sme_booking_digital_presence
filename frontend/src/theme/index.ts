@@ -460,6 +460,10 @@ const space = {
   'space.page.xLg': '2.5rem', // 40 — horizontal page gutters (desktop)
 };
 
+const sizes = {
+  'dashboard.headerOffset': '120px',
+};
+
 // ------------------------------------------------------------
 // Shape
 // ------------------------------------------------------------
@@ -747,7 +751,7 @@ export const theme = extendTheme({
   radii,
   shadows,
   space,
-  // sizes,
+  sizes,
   semanticTokens,
   components,
   styles,

@@ -1,6 +1,6 @@
 import { useGetServiceByIdQuery } from '../../../store/api/servicesApi';
 import { useGetScheduleQuery } from '../../../store/api/schedulesApi';
-import { useBusiness } from '../../../contexts/useBusiness';
+import { useBusiness } from '../../../contexts/business';
 import { locationToDraft } from '../../Locations';
 import type { LocationDraft } from '@bookeasy/shared';
 import type { Business, Service, AvailabilityInput } from '../../../types';
@@ -35,7 +35,7 @@ export function useServiceFormSession(serviceId?: number): ServiceFormSession {
 
   const location = isEdit
     ? locationToDraft(service?.location)
-    : locationToDraft(business.defaultLocation);
+    : locationToDraft(business.locations?.[0] ?? null);
 
   return {
     business,

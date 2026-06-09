@@ -12,8 +12,8 @@ import type { WebsiteFormValues } from '../../../pages/dashboard/websiteForm.typ
 
 interface VisibilityRowProps {
   name:
-    | 'workingHoursVisibilityOnBookingPage.showNextAvailable'
-    | 'workingHoursVisibilityOnBookingPage.showWeeklyHours';
+    | 'availability.visibility.showNextAvailable'
+    | 'availability.visibility.showWeeklyHours';
   title: string;
   helper: React.ReactNode;
   recommended?: boolean;
@@ -56,19 +56,16 @@ export function PageVisibilitySection() {
       <VStack align="stretch" spacing={0}>
         <HStack spacing={2} align="center">
           <SectionLabel letterSpacing="0.08em">Page visibility</SectionLabel>
-          <Text fontSize="sm" color="text.muted">
-            Apply to your booking page — not the scheduler
-          </Text>
           <Divider flex={1} borderColor="border.subtle" />
         </HStack>
 
         <VisibilityRow
-          name="workingHoursVisibilityOnBookingPage.showNextAvailable"
+          name="availability.visibility.showNextAvailable"
           title='Show "Next available" on cover'
           recommended
           helper={
             <>
-              Soonest bookable slot, shown beside your business name.
+              Soonest bookable slot, shown beside your business name (e.g. Today · 14:00).
               Turn off if your services are by enquiry only.
             </>
           }
@@ -77,11 +74,12 @@ export function PageVisibilitySection() {
         <Divider />
 
         <VisibilityRow
-          name="workingHoursVisibilityOnBookingPage.showWeeklyHours"
+          name="availability.visibility.showWeeklyHours"
           title="Show weekly hours table"
           helper={
             <>
-              The Mon–Sun list at the bottom of your page. Hours are still used by the scheduler.
+              The Mon–Sun list at the bottom of your page. Off for online-only providers — hours
+              are still used by the scheduler.
             </>
           }
         />

@@ -1,26 +1,34 @@
-import { Box, Image } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import { SmartImage } from '../ui/SmartImage';
+import { useDeviceMode } from './context/DeviceModeContext';
 
 interface BusinessHeroProps {
   coverImageUrl: string | null;
   enabled: boolean;
-  isDesktop: boolean;
 }
 
-export function BusinessHero({ coverImageUrl, enabled, isDesktop }: BusinessHeroProps) {
-  if (!enabled || !coverImageUrl) {
-    return <Box h={isDesktop ? '80px' : '16px'} />;
-  }
+/**
+ * Cover image + the "pull next sibling up" overlap. The overlap lives here
+ * (not in BusinessHeader) so the header has no idea whether a cover exists —
+ * when this component renders nothing, the negative margin disappears with it.
+ */
+export function BusinessHero({ coverImageUrl, enabled }: BusinessHeroProps) {
+  const isDesktop = useDeviceMode();
+  if (!enabled || !coverImageUrl) return null;
+
   return (
     <Box
-      position="relative"
-      w="100%"
-      maxW="1240px"
-      mx="auto"
-      h={isDesktop ? '360px' : '220px'}
+      borderBottomRadius={isDesktop ? 'lg' : 0}
       overflow="hidden"
-      borderRadius={isDesktop ? '0 0 16px 16px' : 0}
     >
-      <Image src={coverImageUrl} alt="" w="100%" h="100%" objectFit="cover" display="block" />
+      <SmartImage
+        src={coverImageUrl}
+        alt=""
+        objectFit="contain"
+        ratio={5 / 2}
+        borderRadius={0}
+        eager
+      />
     </Box>
   );
 }

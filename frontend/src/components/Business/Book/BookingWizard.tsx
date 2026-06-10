@@ -37,7 +37,7 @@ export function BookingWizard({
 
   if (state.succeeded && state.service && state.slot) {
     return (
-      <BrandProvider brandColor={business.brandColor} bg="white" minH="100vh">
+      <BrandProvider brandColor={business.brandColor} bg="surface.card" minH="100vh">
         <SuccessStep
           business={business}
           service={state.service}
@@ -55,7 +55,7 @@ export function BookingWizard({
   const canContinue = currentStep.isComplete(state);
 
   return (
-    <BrandProvider brandColor={business.brandColor} bg="white" minH="100vh">
+    <BrandProvider brandColor={business.brandColor} bg="surface.card" minH="100vh">
       <WizardStepLayout
         business={business}
         steps={BOOKING_STEPS}

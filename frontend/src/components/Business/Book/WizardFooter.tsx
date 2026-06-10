@@ -31,7 +31,7 @@ export function WizardFooter({
       bg="whiteAlpha.900"
       backdropFilter="blur(10px)"
       borderTop="1px solid"
-      borderColor="gray.200"
+      borderColor="border.subtle"
       px={{ base: 4, lg: 12 }}
       py={3}
     >
@@ -39,15 +39,15 @@ export function WizardFooter({
         <Box>
           {service ? (
             <>
-              <Text fontSize="12px" color="gray.500">
+              <Text fontSize="12px" color="text.muted">
                 {step === 1 ? 'Selected' : 'Total'}
               </Text>
-              <Text fontSize="lg" fontWeight={700} color="gray.900">
+              <Text fontSize="lg" fontWeight={700} color="text.heading">
                 {formatPrice(service)}
               </Text>
             </>
           ) : (
-            <Text fontSize="13px" color="gray.500">
+            <Text fontSize="13px" color="text.muted">
               Select a service to continue
             </Text>
           )}

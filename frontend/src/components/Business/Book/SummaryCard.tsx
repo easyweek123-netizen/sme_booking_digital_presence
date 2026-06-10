@@ -21,9 +21,9 @@ interface SummaryCardProps {
 export function SummaryCard({ business, service, date, slot, step }: SummaryCardProps) {
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       border="1px solid"
-      borderColor="gray.200"
+      borderColor="border.subtle"
       borderRadius="12px"
       p={4}
       position="sticky"
@@ -34,7 +34,7 @@ export function SummaryCard({ business, service, date, slot, step }: SummaryCard
           boxSize="40px"
           borderRadius="8px"
           overflow="hidden"
-          bg="gray.100"
+          bg="surface.muted"
           flexShrink={0}
           display="flex"
           alignItems="center"
@@ -43,16 +43,16 @@ export function SummaryCard({ business, service, date, slot, step }: SummaryCard
           {business.logoUrl ? (
             <Image src={business.logoUrl} alt="" w="100%" h="100%" objectFit="cover" />
           ) : (
-            <Text fontSize="14px" fontWeight={700} color="gray.500">
+            <Text fontSize="14px" fontWeight={700} color="text.muted">
               {getInitials(business.name)}
             </Text>
           )}
         </Box>
         <Box flex="1" minW={0}>
-          <Text fontSize="sm" fontWeight={600} color="gray.900" noOfLines={1}>
+          <Text fontSize="sm" fontWeight={600} color="text.heading" noOfLines={1}>
             {business.name}
           </Text>
-          <Text fontSize="xs" color="gray.500" noOfLines={1}>
+          <Text fontSize="xs" color="text.muted" noOfLines={1}>
             {businessAddressLine(business)}
           </Text>
         </Box>
@@ -62,15 +62,15 @@ export function SummaryCard({ business, service, date, slot, step }: SummaryCard
 
       {step >= 2 && slot && (
         <>
-          <Box fontSize="sm" color="gray.900">
+          <Box fontSize="sm" color="text.heading">
             <HStack spacing={2} mb={1.5}>
-              <Box color="gray.500">
+              <Box color="text.muted">
                 <CalendarIcon size={14} />
               </Box>
               <Text as="span">{formatDateLong(date)}</Text>
             </HStack>
             <HStack spacing={2}>
-              <Box color="gray.500">
+              <Box color="text.muted">
                 <ClockIcon size={14} />
               </Box>
               <Text as="span">
@@ -84,14 +84,14 @@ export function SummaryCard({ business, service, date, slot, step }: SummaryCard
 
       <Flex justify="space-between" gap={3}>
         <Box minW={0}>
-          <Text fontSize="sm" fontWeight={600} color="gray.900" noOfLines={1}>
+          <Text fontSize="sm" fontWeight={600} color="text.heading" noOfLines={1}>
             {service.name}
           </Text>
-          <Text fontSize="xs" color="gray.500" mt={0.5}>
+          <Text fontSize="xs" color="text.muted" mt={0.5}>
             {formatDuration(service.durationMinutes)}
           </Text>
         </Box>
-        <Text fontSize="sm" fontWeight={700} whiteSpace="nowrap" color="gray.900">
+        <Text fontSize="sm" fontWeight={700} whiteSpace="nowrap" color="text.heading">
           {formatPrice(service)}
         </Text>
       </Flex>

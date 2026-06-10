@@ -1,18 +1,24 @@
 import { Box, Divider, HStack, Link, Text, VStack } from '@chakra-ui/react';
 import {
-  ClockIcon,
   MapPinIcon,
   PhoneIcon,
   GlobeIcon,
   ShieldIcon,
+  VideoIcon,
 } from '../../icons';
 import { BrandButton } from '../brand';
-import type { Business, Service } from '../../../types';
+import type { Business, BusinessWithServices, Service } from '../../../types';
+import type { Location } from '../../../types/location';
 import type { OpenStatus } from '../utils';
-import { businessAddressLocation, businessPhoneNumber } from '../utils/locationLookup';
+import {
+  formatAddressLines,
+  formatPhoneTel,
+  onlineProviderLabel,
+} from '../utils/locationDisplay';
+import { NextAvailablePill } from './NextAvailablePill';
 
 interface DesktopBookingCardProps {
-  business: Business;
+  business: BusinessWithServices;
   services: Service[];
   status: OpenStatus;
   onBookNow: () => void;
@@ -25,20 +31,24 @@ export function DesktopBookingCard({
   onBookNow,
 }: DesktopBookingCardProps) {
   const cheapest = findCheapest(services);
-  const address = businessAddressLocation(business);
-  const phone = businessPhoneNumber(business);
   return (
     <Box as="aside" alignSelf="start" position="sticky" top="100px">
-      <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="16px" p={6}>
+      <Box
+        bg="surface.card"
+        border="1px solid"
+        borderColor="border.subtle"
+        borderRadius="16px"
+        p={6}
+      >
         {cheapest && (
           <>
-            <Text fontSize="sm" color="gray.500" mb={1}>
+            <Text fontSize="sm" color="text.muted" mb={1}>
               Starting from
             </Text>
-            <Text fontSize="26px" fontWeight={700} letterSpacing="-0.02em">
+            <Text fontSize="26px" fontWeight={700} letterSpacing="-0.02em" color="text.heading">
               €{cheapest}
             </Text>
-            <Text fontSize="13px" color="gray.500" mt={0.5}>
+            <Text fontSize="13px" color="text.muted" mt={0.5}>
               {services.length} services available
             </Text>
           </>
@@ -53,19 +63,14 @@ export function DesktopBookingCard({
         <Divider my={5} />
 
         <VStack align="stretch" spacing={3.5} fontSize="sm">
-          <InfoRow
-            icon={<ClockIcon size={16} />}
-            color={status.open ? 'green.600' : 'orange.500'}
-          >
-            {status.line}
-          </InfoRow>
-          {address && (
-            <InfoRow icon={<MapPinIcon size={16} />} link="Get directions">
-              <Text>{address.line1}</Text>
-              <Text>{address.city}</Text>
-            </InfoRow>
-          )}
-          {phone && <InfoRow icon={<PhoneIcon size={16} />}>{phone}</InfoRow>}
+          <HStack flexWrap="wrap">
+            {business.showNextAvailable ? (
+              <NextAvailablePill business={business} status={status} />
+            ) : null}
+          </HStack>
+          {business.locations.map((loc) => (
+            <LocationInfoRow key={loc.id} location={loc} />
+          ))}
           {business.website && (
             <InfoRow icon={<GlobeIcon size={16} />} link={business.website}>
               {business.website}
@@ -75,12 +80,40 @@ export function DesktopBookingCard({
 
         <Divider my={5} />
 
-        <HStack color="gray.700" fontSize="13px" spacing={2.5}>
+        <HStack color="text.strong" fontSize="13px" spacing={2.5}>
           <ShieldIcon size={14} />
           <Text as="span">Free cancellation up to 24h before</Text>
         </HStack>
       </Box>
     </Box>
+  );
+}
+
+function LocationInfoRow({ location }: { location: Location }) {
+  if (location.type === 'ADDRESS') {
+    const { primary, secondary } = formatAddressLines(location);
+    return (
+      <InfoRow icon={<MapPinIcon size={16} />} link="Get directions">
+        <Text>{primary}</Text>
+        {secondary && <Text>{secondary}</Text>}
+      </InfoRow>
+    );
+  }
+
+  if (location.type === 'PHONE') {
+    return (
+      <InfoRow icon={<PhoneIcon size={16} />}>
+        <Link href={`tel:${formatPhoneTel(location.phoneNumber)}`} color="inherit">
+          {location.phoneNumber}
+        </Link>
+      </InfoRow>
+    );
+  }
+
+  return (
+    <InfoRow icon={<VideoIcon size={16} />}>
+      {onlineProviderLabel(location)}
+    </InfoRow>
   );
 }
 
@@ -97,10 +130,10 @@ function InfoRow({
 }) {
   return (
     <HStack align="flex-start" spacing={3}>
-      <Box color={color ?? 'gray.500'} mt="2px">
+      <Box color={color ?? 'text.muted'} mt="2px">
         {icon}
       </Box>
-      <Box flex="1" color={color ?? 'gray.900'} lineHeight={1.4}>
+      <Box flex="1" color={color ?? 'text.heading'} lineHeight={1.4}>
         <Box>{children}</Box>
         {link && (
           <Link

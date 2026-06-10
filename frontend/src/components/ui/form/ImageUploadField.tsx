@@ -1,6 +1,6 @@
 import {
   FormControl,
-  FormHelperText,
+  Text,
   FormLabel,
   HStack,
   VStack,
@@ -47,7 +47,7 @@ export function ImageUploadField({
 
   return (
     <FormControl>
-      <VStack align="stretch" spacing="space.stack.xs">
+      <VStack align="stretch">
         <FormLabel htmlFor={field.inputId} fontSize="sm" fontWeight="600" color="text.primary" m={0}>
           {label}
         </FormLabel>
@@ -64,9 +64,9 @@ export function ImageUploadField({
         <Status field={field} />
 
         {helperText && (
-          <FormHelperText fontSize="xs" color="text.muted">
+          <Text fontSize="xs" color="text.muted">
             {helperText}
-          </FormHelperText>
+          </Text>
         )}
       </VStack>
     </FormControl>

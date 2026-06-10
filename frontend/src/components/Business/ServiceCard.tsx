@@ -107,9 +107,9 @@ export function ServiceCard({
         p={{ base: 4 }}
         overflow="hidden"
         borderWidth="1px"
-        borderColor={selected ? 'var(--brand-accent)' : 'gray.200'}
-        bg={selected ? 'var(--brand-accent-soft)' : 'white'}
-        color="gray.700"
+        borderColor={selected ? 'var(--brand-accent)' : 'border.subtle'}
+        bg={selected ? 'var(--brand-accent-soft)' : 'surface.card'}
+        color="text.strong"
         borderRadius="14px"
         cursor="pointer"
         _hover={{ borderColor: 'var(--brand-accent)' }}
@@ -121,11 +121,15 @@ export function ServiceCard({
         onClick={handleCardClick}
         onKeyDown={handleCardKeyDown}
       >
-        <HStack align="center" spacing={2} w="100%" minW={0} wrap="wrap">
-          <ServiceMediaTile service={service} locationType={locationType} size={84} />
+        <HStack align="center" spacing={{ base: 3, md: 4 }} w="100%" minW={0}>
+          <ServiceMediaTile
+            service={service}
+            locationType={locationType}
+            h={{ base: '56px', md: '84px' }}
+          />
 
           <VStack align="stretch" spacing={3} flex={1} minW={0}>
-            <Text fontSize="md" fontWeight={700} color="gray.900" noOfLines={1}>{service.name}</Text>
+            <Text fontSize="md" fontWeight={700} color="text.heading" noOfLines={1}>{service.name}</Text>
 
             <ServiceDescription>
               <DescriptionItem icon={<ClockIcon size={14} />} label={formatDuration(service.durationMinutes)} />
@@ -173,10 +177,10 @@ export function ServiceCard({
                 display="inline-flex"
                 alignItems="center"
                 justifyContent="center"
-                bg={selected ? 'var(--brand-accent)' : 'white'}
-                color={selected ? 'var(--brand-on-accent)' : 'gray.500'}
+                bg={selected ? 'var(--brand-accent)' : 'surface.card'}
+                color={selected ? 'var(--brand-on-accent)' : 'text.muted'}
                 border="1.5px solid"
-                borderColor={selected ? 'var(--brand-accent)' : 'gray.300'}
+                borderColor={selected ? 'var(--brand-accent)' : 'border.subtle'}
                 transition="all .15s"
                 _hover={{
                   borderColor: 'var(--brand-accent)',
@@ -198,7 +202,7 @@ export function ServiceCard({
           isCentered
         >
           <ModalOverlay bg="blackAlpha.500" />
-            <ModalContent borderRadius="18px" overflow="hidden" maxW="560px">
+            <ModalContent borderRadius="18px" overflow="hidden" maxW="860px">
               <BrandProvider brandColor={service.color ?? undefined}>
                 <ModalHeader p={0} />
                 <ModalBody p={0}>

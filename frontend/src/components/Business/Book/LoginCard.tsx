@@ -10,7 +10,7 @@ interface LoginCardProps {
 export function LoginCard({ loading, onGoogle }: LoginCardProps) {
   return (
     <Box
-      bg="white"
+      bg="surface.card"
       border="1.5px solid"
       borderColor="var(--brand-accent)"
       borderRadius="14px"
@@ -31,10 +31,10 @@ export function LoginCard({ loading, onGoogle }: LoginCardProps) {
           <LockIcon size={16} />
         </Flex>
         <Box flex="1">
-          <Text fontSize="15px" fontWeight={600} color="gray.900">
+          <Text fontSize="15px" fontWeight={600} color="text.heading">
             Sign in to confirm
           </Text>
-          <Text fontSize="13px" color="gray.500" mt={0.5} lineHeight={1.45}>
+          <Text fontSize="13px" color="text.muted" mt={0.5} lineHeight={1.45}>
             Sign in with your Google account so we can save your booking and send you a
             confirmation.
           </Text>
@@ -52,7 +52,7 @@ export function LoginCard({ loading, onGoogle }: LoginCardProps) {
         Continue with Google
       </BrandButton>
 
-      <Text m="14px 0 0" fontSize="12px" color="gray.500" lineHeight={1.5} textAlign="center">
+      <Text m="14px 0 0" fontSize="12px" color="text.muted" lineHeight={1.5} textAlign="center">
         By continuing, you agree to Book Easy's{' '}
         <Link color="var(--brand-accent)" fontWeight={600}>
           Terms of Service

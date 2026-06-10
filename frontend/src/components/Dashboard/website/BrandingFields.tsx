@@ -14,13 +14,13 @@ export function BrandingFields() {
   return (
     <VStack spacing="space.stack.md" align="stretch">
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing="space.stack.md" alignItems="start">
-        <Box maxW={{ base: '52', md: '180px' }}>
+        <Box maxW={{ base: '180px' }}>
           <ImageUploadField
             label="Logo"
             folder="business"
             value={logoUrl ?? ''}
             onChange={(url) => setValue('basic.logoUrl', url, { shouldDirty: true })}
-            helperText="Square · PNG/SVG · under 2 MB. Recommended 512 × 512."
+            helperText="1:1. JPG or PNG, up to 5 MB."
             aspectRatio={1}
             urlPlaceholder="https://example.com/your-logo.png"
           />
@@ -46,9 +46,10 @@ export function BrandingFields() {
         <ImageUploadField
           label="Cover image"
           folder="business"
+          aspectRatio={5 / 2}
           value={coverImageUrl ?? ''}
           onChange={(url) => setValue('basic.coverImageUrl', url, { shouldDirty: true })}
-          helperText="16:9 · under 4 MB. Leave empty to use a gradient based on your brand color."
+          helperText="5:2. JPG or PNG, up to 5 MB."
           urlPlaceholder="https://example.com/cover-image.jpg"
         />
       </Box>

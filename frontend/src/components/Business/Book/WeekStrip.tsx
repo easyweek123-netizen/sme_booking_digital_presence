@@ -22,7 +22,7 @@ export function WeekStrip({
   return (
     <Box>
       <Flex align="center" justify="space-between" mb={3}>
-        <Text fontSize="sm" fontWeight={600} color="gray.700">
+        <Text fontSize="sm" fontWeight={600} color="text.strong">
           {MONTH_SHORT[weekStart.getMonth()]} {weekStart.getFullYear()}
         </Text>
         <HStack spacing={2}>
@@ -32,10 +32,10 @@ export function WeekStrip({
             icon={<ChevronLeftIcon size={16} />}
             size="sm"
             borderRadius="full"
-            bg="gray.100"
-            color="gray.700"
-            _hover={{ bg: 'gray.200' }}
-            _active={{ bg: 'gray.300' }}
+            bg="surface.muted"
+            color="text.strong"
+            _hover={{ bg: 'border.subtle' }}
+            _active={{ bg: 'border.subtle' }}
             boxShadow="sm"
           />
           <IconButton
@@ -44,10 +44,10 @@ export function WeekStrip({
             icon={<ChevronRightIcon size={16} />}
             size="sm"
             borderRadius="full"
-            bg="gray.100"
-            color="gray.700"
-            _hover={{ bg: 'gray.200' }}
-            _active={{ bg: 'gray.300' }}
+            bg="surface.muted"
+            color="text.strong"
+            _hover={{ bg: 'border.subtle' }}
+            _active={{ bg: 'border.subtle' }}
             boxShadow="sm"
           />
         </HStack>
@@ -66,10 +66,10 @@ export function WeekStrip({
               gap={0.5}
               py={3}
               borderRadius="12px"
-              bg={active ? 'var(--brand-accent)' : 'white'}
-              color={active ? 'var(--brand-on-accent)' : 'gray.900'}
+              bg={active ? 'var(--brand-accent)' : 'surface.card'}
+              color={active ? 'var(--brand-on-accent)' : 'text.heading'}
               border="1px solid"
-              borderColor={active ? 'var(--brand-accent)' : 'gray.200'}
+              borderColor={active ? 'var(--brand-accent)' : 'border.subtle'}
               transition="all .15s"
             >
               <Text fontSize="12px" fontWeight={500} opacity={active ? 0.85 : 0.7}>

@@ -64,7 +64,7 @@ export function WizardStepLayout({
             {current.title}
           </Heading>
           {current.subtitle && (
-            <Text color="gray.600" mb={5}>
+            <Text color="text.secondary" mb={5}>
               {current.subtitle}
             </Text>
           )}

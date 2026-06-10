@@ -34,7 +34,7 @@ export function CheckoutStep({
 
   return (
     <Box>
-      <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="14px" p={5}>
+      <Box bg="surface.card" border="1px solid" borderColor="border.subtle" borderRadius="14px" p={5}>
         <HStack spacing={3.5} align="center">
           {business.logoUrl && (
             <Image
@@ -46,10 +46,10 @@ export function CheckoutStep({
             />
           )}
           <Box flex="1" minW={0}>
-            <Text fontSize="15px" fontWeight={600} color="gray.900">
+            <Text fontSize="15px" fontWeight={600} color="text.heading">
               {business.name}
             </Text>
-            <Text fontSize="13px" color="gray.500" mt={0.5}>
+            <Text fontSize="13px" color="text.muted" mt={0.5}>
               {businessAddressLine(business)}
             </Text>
             <Box mt={1}>
@@ -60,15 +60,15 @@ export function CheckoutStep({
 
         <Divider my={4.5} />
 
-        <Box fontSize="sm" color="gray.900">
+        <Box fontSize="sm" color="text.heading">
           <HStack spacing={2.5} mb={2.5}>
-            <Box color="gray.500">
+            <Box color="text.muted">
               <CalendarIcon size={16} />
             </Box>
             <Text as="span">{formatDateLong(date)}</Text>
           </HStack>
           <HStack spacing={2.5}>
-            <Box color="gray.500">
+            <Box color="text.muted">
               <ClockIcon size={16} />
             </Box>
             <Text as="span">
@@ -82,14 +82,14 @@ export function CheckoutStep({
 
         <Flex justify="space-between" gap={3}>
           <Box minW={0}>
-            <Text fontSize="15px" fontWeight={600} color="gray.900">
+            <Text fontSize="15px" fontWeight={600} color="text.heading">
               {service.name}
             </Text>
-            <Text fontSize="13px" color="gray.500" mt={0.5}>
+            <Text fontSize="13px" color="text.muted" mt={0.5}>
               {formatDuration(service.durationMinutes)}
             </Text>
           </Box>
-          <Text fontSize="15px" fontWeight={700} color="gray.900">
+          <Text fontSize="15px" fontWeight={700} color="text.heading">
             {formatPrice(service)}
           </Text>
         </Flex>
@@ -113,9 +113,9 @@ export function CheckoutStep({
       ) : (
         <Flex
           mt={4}
-          bg="white"
+          bg="surface.card"
           border="1px solid"
-          borderColor="gray.200"
+          borderColor="border.subtle"
           borderRadius="14px"
           p={4}
           gap={3}
@@ -134,10 +134,10 @@ export function CheckoutStep({
             <CheckIcon size={16} />
           </Flex>
           <Box flex="1">
-            <Text fontSize="sm" fontWeight={600} color="gray.900">
+            <Text fontSize="sm" fontWeight={600} color="text.heading">
               {userEmail ? `Signed in as ${userEmail}` : 'Signed in'}
             </Text>
-            <Text fontSize="13px" color="gray.500">
+            <Text fontSize="13px" color="text.muted">
               You'll receive a confirmation email after booking.
             </Text>
           </Box>
@@ -152,20 +152,20 @@ export function CheckoutStep({
         mt={7}
         mb={3}
         letterSpacing="-0.01em"
-        color="gray.900"
+        color="text.heading"
       >
         More details
       </Heading>
-      <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="14px" p={5}>
+      <Box bg="surface.card" border="1px solid" borderColor="border.subtle" borderRadius="14px" p={5}>
         <HStack align="flex-start" spacing={3}>
-          <Box color="gray.500" mt="2px">
+          <Box color="text.muted" mt="2px">
             <ShieldIcon size={16} />
           </Box>
           <Box>
-            <Text fontSize="15px" fontWeight={600} mb={1} color="gray.900">
+            <Text fontSize="15px" fontWeight={600} mb={1} color="text.heading">
               Cancellation policy
             </Text>
-            <Text fontSize="sm" color="gray.700" lineHeight={1.55}>
+            <Text fontSize="sm" color="text.strong" lineHeight={1.55}>
               {cancellationPolicy}
             </Text>
           </Box>
@@ -174,17 +174,17 @@ export function CheckoutStep({
 
       <HStack
         align="flex-start"
-        bg="white"
+        bg="surface.card"
         border="1px solid"
-        borderColor="gray.200"
+        borderColor="border.subtle"
         borderRadius="14px"
         p={4}
         mt={3}
         spacing={2.5}
         fontSize="13px"
-        color="gray.700"
+        color="text.strong"
       >
-        <Box color="gray.500" flexShrink={0}>
+        <Box color="text.muted" flexShrink={0}>
           <InfoIcon size={16} />
         </Box>
         <Text as="span">

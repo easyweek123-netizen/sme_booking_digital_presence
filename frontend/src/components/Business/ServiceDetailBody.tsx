@@ -60,7 +60,7 @@ function getSlotChipLabel(dateStr: string, timeStr: string): string {
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <Text fontSize="10px" fontWeight={700} letterSpacing="wider" color="gray.500">
+    <Text fontSize="10px" fontWeight={700} letterSpacing="wider" color="text.muted">
       {children}
     </Text>
   );
@@ -96,7 +96,7 @@ function IconTile({
 function NextAvailableChips({ data }: { data?: NextAvailableData }) {
   if (!data) {
     return (
-      <Text fontSize="xs" color="gray.400">
+      <Text fontSize="xs" color="text.faint">
         —
       </Text>
     );
@@ -116,7 +116,7 @@ function NextAvailableChips({ data }: { data?: NextAvailableData }) {
 
   if (shown.length === 0) {
     return (
-      <Text fontSize="xs" color="gray.400">
+      <Text fontSize="xs" color="text.faint">
         No upcoming slots
       </Text>
     );
@@ -134,9 +134,9 @@ function NextAvailableChips({ data }: { data?: NextAvailableData }) {
               py={1}
               borderRadius="full"
               borderWidth="1px"
-              borderColor={isFirst ? 'var(--brand-accent)' : 'gray.200'}
-              bg={isFirst ? 'var(--brand-accent-wash)' : 'white'}
-              color={isFirst ? 'var(--brand-accent)' : 'gray.700'}
+              borderColor={isFirst ? 'var(--brand-accent)' : 'border.subtle'}
+              bg={isFirst ? 'var(--brand-accent-wash)' : 'surface.card'}
+              color={isFirst ? 'var(--brand-accent)' : 'text.strong'}
               fontSize="xs"
               fontWeight={600}
               whiteSpace="nowrap"
@@ -236,8 +236,8 @@ function ServiceDetailFacts({
       p={4}
       borderRadius="14px"
       borderWidth="1px"
-      borderColor="gray.200"
-      bg="white"
+      borderColor="border.subtle"
+      bg="surface.card"
       flex={{ base: '1', md: '0 0 220px' }}
       >
         <HStack spacing={2} align="center">
@@ -246,7 +246,7 @@ function ServiceDetailFacts({
           </IconTile>
           <SectionLabel>DURATION</SectionLabel>
         </HStack>
-        <Text fontSize="2xl" fontWeight={700} color="gray.900" lineHeight={1}>
+        <Text fontSize="2xl" fontWeight={700} color="text.heading" lineHeight={1}>
           {formatDuration(service.durationMinutes)}
         </Text>
       </VStack>
@@ -258,8 +258,8 @@ function ServiceDetailFacts({
         p={4}
         borderRadius="14px"
         borderWidth="1px"
-        borderColor="gray.200"
-        bg="white"
+        borderColor="border.subtle"
+        bg="surface.card"
         flex="1"
       >
         <HStack spacing={2} align="center">
@@ -291,7 +291,7 @@ function InPersonBlock({ location }: { location: AddressLocation | null | undefi
     <VStack align="stretch" spacing={3}>
       <SectionLabel>WHERE YOU'LL MEET</SectionLabel>
 
-      <Box borderRadius="10px" overflow="hidden" h="140px" bg="gray.100" flexShrink={0}>
+      <Box borderRadius="10px" overflow="hidden" h="340px" bg="surface.muted" flexShrink={0}>
         {hasCoords ? (
           <AddressMap
             latitude={location!.latitude}
@@ -300,7 +300,7 @@ function InPersonBlock({ location }: { location: AddressLocation | null | undefi
             height="100%"
           />
         ) : (
-          <Flex h="100%" align="center" justify="center" color="gray.300">
+          <Flex h="100%" align="center" justify="center" color="border.subtle">
             <MapPinIcon size={36} />
           </Flex>
         )}
@@ -312,11 +312,11 @@ function InPersonBlock({ location }: { location: AddressLocation | null | undefi
             <MapPinIcon size={14} />
           </Box>
           <VStack align="stretch" spacing={0.5}>
-            <Text fontSize="sm" fontWeight={600} color="gray.900">
+            <Text fontSize="sm" fontWeight={600} color="text.heading">
               {location?.label ?? addressLine}
             </Text>
             {location?.label && (
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="text.muted">
                 {addressLine}
               </Text>
             )}
@@ -371,7 +371,7 @@ function HowItWorksStepper({ steps }: { steps: [string, string, string] }) {
       {steps.map((label, i) => (
         <Flex key={label} align="center" gap={1}>
           {i > 0 && (
-            <Box color="gray.400">
+            <Box color="text.faint">
               <ArrowRightIcon size={11} />
             </Box>
           )}
@@ -389,7 +389,7 @@ function HowItWorksStepper({ steps }: { steps: [string, string, string] }) {
             >
               {i + 1}
             </Flex>
-            <Text fontSize="xs" color="gray.700">
+            <Text fontSize="xs" color="text.strong">
               {label}
             </Text>
           </HStack>
@@ -406,8 +406,8 @@ function HowItWorksBlock({ kind }: { kind: HowItWorksKind }) {
       align="stretch"
       borderRadius="14px"
       borderWidth="1px"
-      borderColor="gray.200"
-      bg="white"
+      borderColor="border.subtle"
+      bg="surface.card"
       overflow="hidden"
     >
       {/* Left rail — brand-wash background with white icon tile */}
@@ -423,7 +423,7 @@ function HowItWorksBlock({ kind }: { kind: HowItWorksKind }) {
           w={{ base: '56px', md: '68px' }}
           h={{ base: '56px', md: '68px' }}
           borderRadius="14px"
-          bg="white"
+          bg="surface.card"
           color="var(--brand-accent)"
           align="center"
           justify="center"
@@ -436,10 +436,10 @@ function HowItWorksBlock({ kind }: { kind: HowItWorksKind }) {
       {/* Right content — white background */}
       <VStack align="stretch" spacing={1.5} flex={1} minW={0} p={4}>
         <SectionLabel>HOW IT WORKS</SectionLabel>
-        <Text fontSize="md" fontWeight={700} color="gray.900">
+        <Text fontSize="md" fontWeight={700} color="text.heading">
           {title}
         </Text>
-        <Text fontSize="sm" color="gray.600" lineHeight={1.6}>
+        <Text fontSize="sm" color="text.secondary" lineHeight={1.6}>
           {description}
         </Text>
         <HowItWorksStepper steps={steps} />
@@ -480,13 +480,17 @@ export function ServiceDetailBody({
 
   return (
     <Flex direction="column" h="100%" maxH="92vh">
-      <Box flex="1" minH={0} overflowY="auto">
+      <Box flex="1" minH={0} overflowY="auto" css={{
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none',
+          '&::-webkit-scrollbar': { display: 'none' },
+        }}>
         <ServiceDetailHero service={service} locationType={locationType} onClose={onClose} />
 
         <Box flex="1" px={5} pt={5} pb={5}>
           <VStack align="stretch" spacing={5}>
             {service.description && (
-              <Text color="gray.700" fontSize="sm" lineHeight={1.7} whiteSpace="pre-wrap">
+              <Text color="text.strong" fontSize="sm" lineHeight={1.7} whiteSpace="pre-wrap">
                 {service.description}
               </Text>
             )}
@@ -507,13 +511,13 @@ export function ServiceDetailBody({
         px={5}
         py={4}
         borderTop="1px solid"
-        borderColor="gray.100"
-        bg="white"
+        borderColor="surface.muted"
+        bg="surface.card"
         flexShrink={0}
       >
         <Box>
           <ServicePriceLabel service={service} />
-          <Text fontSize="xs" color="gray.500">
+          <Text fontSize="xs" color="text.muted">
             {formatDuration(service.durationMinutes)} session
           </Text>
         </Box>

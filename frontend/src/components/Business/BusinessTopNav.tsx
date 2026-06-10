@@ -1,13 +1,15 @@
-import { Box, HStack, Image, Text } from '@chakra-ui/react';
+import { Box, HStack, Text } from '@chakra-ui/react';
 import type { Business } from '../../types';
 import { BrandButton } from './brand';
 import type { SectionTab } from './SectionTabs';
 import { getInitials } from './utils';
+import { SmartImage } from '../ui/SmartImage';
+import { BusinessPageContainer } from './atoms/BusinessPageContainer';
+import { useDeviceMode } from './context/DeviceModeContext';
 
 interface BusinessTopNavProps {
   business: Business;
   visible: boolean;
-  isDesktop: boolean;
   tabs: readonly SectionTab[];
   activeId: string;
   onSelect: (id: string) => void;
@@ -17,13 +19,14 @@ interface BusinessTopNavProps {
 export function BusinessTopNav({
   business,
   visible,
-  isDesktop,
   tabs,
   activeId,
   onSelect,
   onBookNow,
 }: BusinessTopNavProps) {
+  const isDesktop = useDeviceMode();
   if (!visible) return null;
+
   return (
     <Box
       position="fixed"
@@ -34,43 +37,46 @@ export function BusinessTopNav({
       bg="whiteAlpha.900"
       backdropFilter="blur(10px)"
       borderBottom="1px solid"
-      borderColor="gray.200"
+      borderColor="border.subtle"
     >
-      <HStack
-        maxW="1240px"
-        mx="auto"
-        px={isDesktop ? 12 : 4}
+      <BusinessPageContainer
+        as={HStack}
         py={isDesktop ? 0 : 3}
         minH={isDesktop ? '64px' : '60px'}
-        justify="space-between"
+        justifyContent="space-between"
         gap={3}
       >
         <HStack spacing={3} minW={0} flex="1">
-          <Box
-            w="36px"
-            h="36px"
-            borderRadius="full"
-            overflow="hidden"
-            flexShrink={0}
-            bg="gray.100"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            {business.logoUrl ? (
-              <Image src={business.logoUrl} alt="" w="100%" h="100%" objectFit="cover" />
-            ) : (
-              <Text fontSize="13px" fontWeight={700} color="gray.500">
-                {getInitials(business.name)}
-              </Text>
-            )}
+          <Box w="36px" h="36px" borderRadius="full" overflow="hidden" flexShrink={0}>
+            <SmartImage
+              src={business.logoUrl}
+              alt=""
+              ratio={1}
+              borderRadius="full"
+              eager
+              fallback={
+                <Box
+                  w="100%"
+                  h="100%"
+                  bg="surface.muted"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Text fontSize="13px" fontWeight={700} color="text.muted">
+                    {getInitials(business.name)}
+                  </Text>
+                </Box>
+              }
+            />
           </Box>
           <Box minW={0}>
-            <Text fontSize="sm" fontWeight={600} noOfLines={1}>
+            <Text fontSize="sm" fontWeight={600} noOfLines={1} color="text.heading">
               {business.name}
             </Text>
           </Box>
         </HStack>
+
         {isDesktop && (
           <HStack spacing={6} overflowX="auto">
             {tabs.map((tab) => {
@@ -85,29 +91,23 @@ export function BusinessTopNav({
                   position="relative"
                   fontSize="sm"
                   fontWeight={active ? 600 : 500}
-                  color={active ? 'gray.900' : 'gray.500'}
+                  color={active ? 'text.heading' : 'text.muted'}
                   whiteSpace="nowrap"
                 >
                   {tab.label}
                   {active && (
-                    <Box
-                      position="absolute"
-                      left={0}
-                      right={0}
-                      bottom={0}
-                      h="2px"
-                      bg="gray.900"
-                    />
+                    <Box position="absolute" left={0} right={0} bottom={0} h="2px" bg="text.heading" />
                   )}
                 </Box>
               );
             })}
           </HStack>
         )}
+
         <BrandButton size="sm" onClick={onBookNow}>
           Book now
         </BrandButton>
-      </HStack>
+      </BusinessPageContainer>
     </Box>
   );
 }

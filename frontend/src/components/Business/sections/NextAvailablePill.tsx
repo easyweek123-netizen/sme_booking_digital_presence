@@ -2,7 +2,6 @@ import { HStack, Skeleton, Text } from '@chakra-ui/react';
 import { CalendarIcon } from '../../icons';
 import { useNextAvailableSlot } from '../../../hooks/useNextAvailableSlot';
 import { formatRelativeSlot } from '../utils/nextSlotFormat';
-import { StatusInline } from './StatusInline';
 import type { BusinessWithServices } from '../../../types';
 import type { OpenStatus } from '../utils';
 
@@ -11,7 +10,7 @@ interface Props {
   status: OpenStatus;
 }
 
-export function NextAvailablePill({ business, status }: Props) {
+export function NextAvailablePill({ business }: Props) {
   const { data, isLoading } = useNextAvailableSlot({
     showNextAvailable: business.showNextAvailable,
     services: business.services,

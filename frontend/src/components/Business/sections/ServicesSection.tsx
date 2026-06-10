@@ -1,7 +1,6 @@
 import { Box, HStack, useDisclosure, VStack } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 import type { Service, ServiceCategory } from '../../../types';
-import { SectionHeading } from '../SectionHeading';
 import { ServiceCard } from '../ServiceCard';
 
 interface ServicesSectionProps {

@@ -7,7 +7,7 @@ import {
   VideoIcon,
 } from '../../icons';
 import { BrandButton } from '../brand';
-import type { Business, BusinessWithServices, Service } from '../../../types';
+import type { BusinessWithServices, Service } from '../../../types';
 import type { Location } from '../../../types/location';
 import type { OpenStatus } from '../utils';
 import {

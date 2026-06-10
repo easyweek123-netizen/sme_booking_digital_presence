@@ -151,7 +151,7 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
       <Divider borderColor="border.subtle" />
 
       {/* Navigation */}
-      <VStack spacing={1} align="stretch" flex={1} p={isCollapsed ? 2 : 4}>
+      <VStack spacing={1} align="stretch" flex={1} p={2}>
         {navItems.map((item) => {
           const active = isActive(item.path);
           const badgeCount = getBadgeCount(item.badgeKey);

@@ -28,7 +28,6 @@ export function WebsitePreview({ business }: Props) {
         justify="space-between"
         align="center"
         spacing={5}
-        p={{ base: 2 }}
         bg={{ base: 'surface.card', lg: 'transparent' }}
         flexShrink={0}
       >

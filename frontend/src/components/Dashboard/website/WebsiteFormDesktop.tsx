@@ -24,7 +24,7 @@ export function WebsiteFormDesktop({ activeTab, business }: Props) {
         h="calc(100dvh - var(--chakra-sizes-dashboard-headerOffset))"
         overflow="hidden"
         bg="surface.card"
-        p={6}
+        p={4}
         borderRadius="lg"
         borderWidth={1}
         borderColor="border.subtle"

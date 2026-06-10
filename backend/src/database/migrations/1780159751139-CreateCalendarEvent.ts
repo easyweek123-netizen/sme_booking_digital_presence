@@ -37,7 +37,9 @@ export class CreateCalendarEvent1780159751139 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_calendar_event_booking"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_calendar_event_booking"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "calendar_event"`);
   }
 }

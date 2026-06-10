@@ -14,8 +14,8 @@ import {
   ModalOverlay,
   Text,
   VStack,
-  useBreakpointValue,
   useDisclosure,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import type { Service } from '../../types';
@@ -59,7 +59,14 @@ export function ServiceCard({
   onBook,
   onSelect,
 }: ServiceCardProps) {
-  const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
+  /**
+   * The card's layout follows container width (useDeviceMode), but the
+   * detail dialog choice follows the *viewport* — a desktop user always
+   * gets the centered Modal even when the card is rendered inside a
+   * narrow preview container, so the Drawer never blows past the preview
+   * onto the rest of the dashboard.
+   */
+  const isViewportDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
   const detail = useDisclosure();
   const slotsQuery = useGetSlotsQuery(
     {
@@ -97,12 +104,12 @@ export function ServiceCard({
         tabIndex={0}
         textAlign="left"
         w="100%"
-        p={{ base: 3, md: 4 }}
+        p={{ base: 4 }}
         overflow="hidden"
         borderWidth="1px"
-        borderColor={selected ? 'var(--brand-accent)' : 'gray.200'}
-        bg={selected ? 'var(--brand-accent-soft)' : 'white'}
-        color="gray.700"
+        borderColor={selected ? 'var(--brand-accent)' : 'border.subtle'}
+        bg={selected ? 'var(--brand-accent-soft)' : 'surface.card'}
+        color="text.strong"
         borderRadius="14px"
         cursor="pointer"
         _hover={{ borderColor: 'var(--brand-accent)' }}
@@ -114,11 +121,15 @@ export function ServiceCard({
         onClick={handleCardClick}
         onKeyDown={handleCardKeyDown}
       >
-        <HStack align="center" spacing={4} w="100%" minW={0}>
-          <ServiceMediaTile service={service} locationType={locationType} size={isDesktop ? 84 : 72} />
+        <HStack align="center" spacing={{ base: 3, md: 4 }} w="100%" minW={0}>
+          <ServiceMediaTile
+            service={service}
+            locationType={locationType}
+            h={{ base: '56px', md: '84px' }}
+          />
 
           <VStack align="stretch" spacing={3} flex={1} minW={0}>
-            <Text fontSize="md" fontWeight={700} color="gray.900" noOfLines={1}>{service.name}</Text>
+            <Text fontSize="md" fontWeight={700} color="text.heading" noOfLines={1}>{service.name}</Text>
 
             <ServiceDescription>
               <DescriptionItem icon={<ClockIcon size={14} />} label={formatDuration(service.durationMinutes)} />
@@ -166,10 +177,10 @@ export function ServiceCard({
                 display="inline-flex"
                 alignItems="center"
                 justifyContent="center"
-                bg={selected ? 'var(--brand-accent)' : 'white'}
-                color={selected ? 'var(--brand-on-accent)' : 'gray.500'}
+                bg={selected ? 'var(--brand-accent)' : 'surface.card'}
+                color={selected ? 'var(--brand-on-accent)' : 'text.muted'}
                 border="1.5px solid"
-                borderColor={selected ? 'var(--brand-accent)' : 'gray.300'}
+                borderColor={selected ? 'var(--brand-accent)' : 'border.subtle'}
                 transition="all .15s"
                 _hover={{
                   borderColor: 'var(--brand-accent)',
@@ -183,7 +194,7 @@ export function ServiceCard({
         </HStack>
       </Box>
 
-      {isDesktop ? (
+      {isViewportDesktop ? (
         <Modal
           isOpen={detail.isOpen}
           onClose={detail.onClose}
@@ -191,7 +202,7 @@ export function ServiceCard({
           isCentered
         >
           <ModalOverlay bg="blackAlpha.500" />
-            <ModalContent borderRadius="18px" overflow="hidden" maxW="560px">
+            <ModalContent borderRadius="18px" overflow="hidden" maxW="860px">
               <BrandProvider brandColor={service.color ?? undefined}>
                 <ModalHeader p={0} />
                 <ModalBody p={0}>

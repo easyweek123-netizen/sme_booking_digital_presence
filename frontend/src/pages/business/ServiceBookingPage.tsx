@@ -15,6 +15,7 @@ import {
   useGetBusinessServicesQuery,
 } from '../../store/api';
 import { BookingWizard } from '../../components/Business/Book';
+import { DeviceModeProvider } from '../../components/Business/context/DeviceModeContext';
 import { useBookingAuth } from '../../components/Business/Book/hooks/useBookingAuth';
 import { useGoogleSignIn } from '../../components/Business/Book/hooks/useGoogleSignIn';
 import { useSubmitBooking } from '../../components/Business/Book/hooks/useSubmitBooking';
@@ -25,7 +26,6 @@ export function ServiceBookingPage() {
   const { slug, serviceId } = useParams<{ slug: string; serviceId?: string }>();
   const navigate = useNavigate();
   const isDesktop = useBreakpointValue({ base: false, lg: true }) ?? false;
-
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
 
@@ -80,18 +80,19 @@ export function ServiceBookingPage() {
   };
 
   return (
-    <BookingWizard
-      business={business}
-      services={business.services}
-      categories={categoriesQuery.data ?? []}
-      initialService={initialService}
-      isAuthenticated={auth.isAuthenticated}
-      userEmail={auth.userEmail}
-      signingIn={signingIn}
-      isDesktop={isDesktop}
-      onSignIn={signIn}
-      onSubmit={handleSubmit}
-      onClose={handleClose}
-    />
+    <DeviceModeProvider isDesktop={isDesktop}>
+      <BookingWizard
+        business={business}
+        services={business.services}
+        categories={categoriesQuery.data ?? []}
+        initialService={initialService}
+        isAuthenticated={auth.isAuthenticated}
+        userEmail={auth.userEmail}
+        signingIn={signingIn}
+        onSignIn={signIn}
+        onSubmit={handleSubmit}
+        onClose={handleClose}
+      />
+    </DeviceModeProvider>
   );
 }

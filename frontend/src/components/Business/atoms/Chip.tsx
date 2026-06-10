@@ -7,7 +7,7 @@ interface ChipProps extends Omit<TagProps, 'children'> {
 
 export function Chip({ label, tone = 'neutral', ...rest }: ChipProps) {
   const palette = {
-    neutral: { bg: 'gray.100', color: 'gray.700' },
+    neutral: { bg: 'surface.muted', color: 'text.strong' },
     success: { bg: 'green.50', color: 'green.700' },
     warning: { bg: 'orange.50', color: 'orange.700' },
     brand: { bg: 'var(--brand-accent-soft)', color: 'var(--brand-accent)' },

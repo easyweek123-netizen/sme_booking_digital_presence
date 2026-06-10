@@ -11,7 +11,7 @@ export function ExpandableText({ text, lines = 4 }: ExpandableTextProps) {
   return (
     <Box>
       <Text
-        color="gray.700"
+        color="text.strong"
         whiteSpace="pre-wrap"
         noOfLines={open ? undefined : lines}
       >

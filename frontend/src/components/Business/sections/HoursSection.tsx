@@ -10,9 +10,9 @@ export function HoursSection({ hours }: { hours: WorkingHours | null }) {
     <Box as="section" pt={8}>
       <SectionHeading id="section-hours">Opening hours</SectionHeading>
       <Box
-        bg="white"
+        bg="surface.card"
         border="1px solid"
-        borderColor="gray.200"
+        borderColor="border.subtle"
         borderRadius="14px"
         overflow="hidden"
       >
@@ -27,10 +27,10 @@ export function HoursSection({ hours }: { hours: WorkingHours | null }) {
               px="18px"
               py="14px"
               borderTop={idx === 0 ? 0 : '1px solid'}
-              borderColor="gray.100"
-              bg={isToday ? 'gray.50' : 'transparent'}
+              borderColor="surface.muted"
+              bg={isToday ? 'surface.alt' : 'transparent'}
             >
-              <Text fontSize="15px" fontWeight={isToday ? 600 : 500} color="gray.900">
+              <Text fontSize="15px" fontWeight={isToday ? 600 : 500} color="text.heading">
                 {DAY_LONG[dayOfWeek]}
                 {isToday && (
                   <Text as="span" color="var(--brand-accent)" ml={1.5} fontSize="13px" fontWeight={600}>
@@ -38,7 +38,7 @@ export function HoursSection({ hours }: { hours: WorkingHours | null }) {
                   </Text>
                 )}
               </Text>
-              <Text fontSize="15px" color={closed ? 'gray.500' : 'gray.900'}>
+              <Text fontSize="15px" color={closed ? 'text.muted' : 'text.heading'}>
                 {closed ? 'Closed' : `${day!.openTime} – ${day!.closeTime}`}
               </Text>
             </Flex>

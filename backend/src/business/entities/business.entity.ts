@@ -40,15 +40,6 @@ export class Business {
   description: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  address: string | null;
-
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  city: string | null;
-
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phone: string | null;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
   website: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
@@ -69,6 +60,12 @@ export class Business {
   @Column({ type: 'text', nullable: true })
   aboutContent: string | null;
 
+  @Column({ name: 'show_next_available', type: 'boolean', default: true })
+  showNextAvailable: boolean;
+
+  @Column({ name: 'show_weekly_hours', type: 'boolean', default: true })
+  showWeeklyHours: boolean;
+
   @Column({
     type: 'enum',
     enum: Plan,
@@ -87,12 +84,8 @@ export class Business {
   @JoinColumn({ name: 'default_schedule_id' })
   defaultSchedule: Schedule | null;
 
-  @Column({ name: 'default_location_id', type: 'int', nullable: true })
-  defaultLocationId: number | null;
-
-  @ManyToOne(() => Location, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'default_location_id' })
-  defaultLocation: Location | null;
+  @OneToMany(() => Location, (location) => location.business)
+  locations: Location[];
 
   @OneToOne(() => Subscription, (subscription) => subscription.business, {
     nullable: true,

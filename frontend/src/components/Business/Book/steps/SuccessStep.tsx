@@ -3,6 +3,7 @@ import { CalendarIcon, CheckIcon, ClockIcon, MapPinIcon } from '../../../icons';
 import type { Business, Service } from '../../../../types';
 import { BrandButton } from '../../brand';
 import { endTimeFromSlot, formatDateLong } from '../../utils';
+import { businessAddressLine } from '../../utils/locationLookup';
 
 interface SuccessStepProps {
   business: Business;
@@ -21,14 +22,15 @@ export function SuccessStep({
   isDesktop,
   onDone,
 }: SuccessStepProps) {
+  const addressLine = businessAddressLine(business);
   return (
     <Flex flex="1" align="center" justify="center" p={6} minH="60vh">
       <Box
         w="100%"
         maxW="480px"
-        bg="white"
+        bg="surface.card"
         border="1px solid"
-        borderColor="gray.200"
+        borderColor="border.subtle"
         borderRadius="16px"
         p={isDesktop ? 8 : 6}
         textAlign="center"
@@ -52,37 +54,35 @@ export function SuccessStep({
           fontWeight={700}
           letterSpacing="-0.02em"
           m="0 0 8px"
-          color="gray.900"
+          color="text.heading"
         >
           You're booked!
         </Heading>
-        <Text color="gray.700" fontSize="md" lineHeight={1.5} m="0 0 24px">
+        <Text color="text.strong" fontSize="md" lineHeight={1.5} m="0 0 24px">
           Your appointment for <strong>{service.name}</strong> on {formatDateLong(date)} at{' '}
           {slot} is confirmed. We've sent a confirmation to your email.
         </Text>
-        <Box bg="gray.50" borderRadius="12px" p={4} mb={5} textAlign="left" color="gray.900">
+        <Box bg="surface.alt" borderRadius="12px" p={4} mb={5} textAlign="left" color="text.heading">
           <HStack spacing={2.5} mb={2} fontSize="sm">
-            <Box color="gray.500">
+            <Box color="text.muted">
               <CalendarIcon size={14} />
             </Box>
             <Text as="span">{formatDateLong(date)}</Text>
           </HStack>
           <HStack spacing={2.5} mb={2} fontSize="sm">
-            <Box color="gray.500">
+            <Box color="text.muted">
               <ClockIcon size={14} />
             </Box>
             <Text as="span">
               {slot} – {endTimeFromSlot(slot, service.durationMinutes)}
             </Text>
           </HStack>
-          {(business.address || business.city) && (
+          {addressLine && (
             <HStack spacing={2.5} fontSize="sm">
-              <Box color="gray.500">
+              <Box color="text.muted">
                 <MapPinIcon size={14} />
               </Box>
-              <Text as="span">
-                {[business.address, business.city].filter(Boolean).join(', ')}
-              </Text>
+              <Text as="span">{addressLine}</Text>
             </HStack>
           )}
         </Box>

@@ -31,7 +31,9 @@ export class CreateInvoice1780159744322 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_invoice_subscription_createdAt"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_invoice_subscription_createdAt"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "invoice"`);
   }
 }

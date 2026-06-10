@@ -14,6 +14,7 @@ import { MenuIcon } from '../icons';
 import { Sidebar } from './Sidebar';
 import { ROUTES } from '../../config/routes';
 import { Logo } from '../ui';
+import { useBusiness } from '../../contexts/business';
 
 // Get current page title based on route
 function getPageTitle(pathname: string): string {
@@ -27,11 +28,8 @@ function getPageTitle(pathname: string): string {
   return 'Dashboard';
 }
 
-interface MobileNavProps {
-  businessName?: string;
-}
-
-export function MobileNav({ businessName }: MobileNavProps) {
+export function MobileNav() {
+  const { name: businessName } = useBusiness();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
   const navigate = useNavigate();

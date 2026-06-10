@@ -11,11 +11,11 @@ export function Stars({ rating, size = 14 }: StarsProps) {
   return (
     <HStack spacing={0.5}>
       {Array.from({ length: 5 }).map((_, i) => (
-        <Box key={i} color={i < full ? 'yellow.400' : 'gray.300'} lineHeight={0}>
+        <Box key={i} color={i < full ? 'yellow.400' : 'border.subtle'} lineHeight={0}>
           <StarIcon size={size} />
         </Box>
       ))}
-      <Text ml={1} fontSize="sm" color="gray.700" fontWeight={600}>
+      <Text ml={1} fontSize="sm" color="text.strong" fontWeight={600}>
         {rating.toFixed(1)}
       </Text>
     </HStack>

@@ -1,5 +1,6 @@
 import type { Business, Service, ServiceCategory } from '../../../types';
 import { BrandProvider } from '../brand';
+import { useDeviceMode } from '../context/DeviceModeContext';
 import { WizardStepLayout } from './WizardStepLayout';
 import { SuccessStep } from './steps/SuccessStep';
 import { useBookingFlow } from './hooks/useBookingFlow';
@@ -13,8 +14,6 @@ interface BookingWizardProps {
   isAuthenticated: boolean;
   userEmail?: string | null;
   signingIn?: boolean;
-  /** Required. Orchestrator supplies - viewport for live routes, canvas-pane for previews. */
-  isDesktop: boolean;
   onSignIn: () => void;
   onSubmit: (payload: { service: Service; date: Date; slot: string }) => Promise<void> | void;
   onClose: () => void;
@@ -28,17 +27,17 @@ export function BookingWizard({
   isAuthenticated,
   userEmail,
   signingIn,
-  isDesktop,
   onSignIn,
   onSubmit,
   onClose,
 }: BookingWizardProps) {
+  const isDesktop = useDeviceMode();
   const flow = useBookingFlow({ initialService, steps: BOOKING_STEPS, onSubmit });
   const { state } = flow;
 
   if (state.succeeded && state.service && state.slot) {
     return (
-      <BrandProvider brandColor={business.brandColor} bg="white" minH="100vh">
+      <BrandProvider brandColor={business.brandColor} bg="surface.card" minH="100vh">
         <SuccessStep
           business={business}
           service={state.service}
@@ -56,7 +55,7 @@ export function BookingWizard({
   const canContinue = currentStep.isComplete(state);
 
   return (
-    <BrandProvider brandColor={business.brandColor} bg="white" minH="100vh">
+    <BrandProvider brandColor={business.brandColor} bg="surface.card" minH="100vh">
       <WizardStepLayout
         business={business}
         steps={BOOKING_STEPS}

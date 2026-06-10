@@ -16,6 +16,11 @@ export const PhoneInputSchema = z.object({
   phoneNumber: z.string(),
 });
 
+export const OnlineInputSchema = z.object({
+  calendarId: z.number().int().positive(),
+});
+export type OnlineInput = z.infer<typeof OnlineInputSchema>;
+
 export const ActiveLocationKindSchema = z.enum(['ADDRESS', 'PHONE', 'ONLINE']);
 
 export type AddressInput = z.infer<typeof AddressInputSchema>;
@@ -34,10 +39,7 @@ export type CreatingLocation =
 export const CreateLocationSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('ADDRESS'), data: AddressInputSchema }),
   z.object({ type: z.literal('PHONE'),   data: PhoneInputSchema }),
-  z.object({
-    type: z.literal('ONLINE'),
-    data: z.object({ calendarId: z.number().int().positive() }),
-  }),
+  z.object({ type: z.literal('ONLINE'), data: OnlineInputSchema }),
 ]);
 
 export type CreateLocationDto = z.infer<typeof CreateLocationSchema>;
@@ -56,6 +58,7 @@ export const LocationDraftSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('ONLINE'),
     locationId: z.number().int().positive().nullable(),
+    data: OnlineInputSchema.optional(),
   }),
 ]);
 

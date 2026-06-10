@@ -56,7 +56,7 @@ function App() {
           <Route path={ROUTES.IMPRESSUM} element={<Impressum />} />
         </Route>
 
-{/* Protected routes - Dashboard has its own layout */}
+        {/* Protected routes - Dashboard has its own layout */}
         <Route
           path={`${ROUTES.DASHBOARD.ROOT}/*`}
           element={

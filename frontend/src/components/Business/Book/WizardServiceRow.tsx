@@ -18,9 +18,9 @@ export function WizardServiceRow({ service, selected, onSelect }: WizardServiceR
     <Box
       onClick={() => onSelect(service)}
       role="button"
-      bg="white"
+      bg="surface.card"
       border="1.5px solid"
-      borderColor={selected ? 'var(--brand-accent)' : 'gray.200'}
+      borderColor={selected ? 'var(--brand-accent)' : 'border.subtle'}
       boxShadow={selected ? '0 0 0 3px var(--brand-accent-soft)' : 'none'}
       borderRadius="14px"
       p={4.5}
@@ -30,18 +30,18 @@ export function WizardServiceRow({ service, selected, onSelect }: WizardServiceR
       <Flex align="flex-start" gap={4}>
         <Box flex="1" minW={0}>
           <Flex align="center" justify="space-between" gap={3}>
-            <Text fontSize="md" fontWeight={600} color="gray.900">
+            <Text fontSize="md" fontWeight={600} color="text.heading">
               {service.name}
             </Text>
-            <Text fontSize="md" fontWeight={700} color="gray.900" whiteSpace="nowrap">
+            <Text fontSize="md" fontWeight={700} color="text.heading" whiteSpace="nowrap">
               {formatPrice(service)}
             </Text>
           </Flex>
-          <HStack spacing={2.5} fontSize="13px" color="gray.500" mt={1.5} flexWrap="wrap">
+          <HStack spacing={2.5} fontSize="13px" color="text.muted" mt={1.5} flexWrap="wrap">
             <Text as="span">{formatDuration(service.durationMinutes)}</Text>
             {loc && (
               <>
-                <Text as="span" color="gray.300">·</Text>
+                <Text as="span" color="border.subtle">·</Text>
                 <HStack as="span" spacing={1}>
                   <MapPinIcon size={12} />
                   <Text as="span">{loc.label}</Text>
@@ -50,7 +50,7 @@ export function WizardServiceRow({ service, selected, onSelect }: WizardServiceR
             )}
             {service.type === 'GROUP' && (
               <>
-                <Text as="span" color="gray.300">·</Text>
+                <Text as="span" color="border.subtle">·</Text>
                 <HStack as="span" spacing={1}>
                   <UsersIcon size={12} />
                   <Text as="span">Group · up to {service.capacity}</Text>
@@ -62,7 +62,7 @@ export function WizardServiceRow({ service, selected, onSelect }: WizardServiceR
             <>
               <Text
                 m="10px 0 0"
-                color="gray.600"
+                color="text.secondary"
                 fontSize="sm"
                 lineHeight={1.5}
                 sx={{
@@ -97,9 +97,9 @@ export function WizardServiceRow({ service, selected, onSelect }: WizardServiceR
           h="26px"
           borderRadius="full"
           flexShrink={0}
-          bg={selected ? 'var(--brand-accent)' : 'white'}
+          bg={selected ? 'var(--brand-accent)' : 'surface.card'}
           border="1.5px solid"
-          borderColor={selected ? 'var(--brand-accent)' : 'gray.300'}
+          borderColor={selected ? 'var(--brand-accent)' : 'border.subtle'}
           align="center"
           justify="center"
           color="var(--brand-on-accent)"

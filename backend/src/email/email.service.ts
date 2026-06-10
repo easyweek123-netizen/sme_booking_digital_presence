@@ -6,6 +6,10 @@ import { Business } from '../business/entities/business.entity';
 import { Owner } from '../owner/entities/owner.entity';
 import { generateGoogleCalendarLink } from '../common/utils/calendar';
 import { locationToCalendarText } from '../locations/types/location-formatters';
+import {
+  businessAddressLine,
+  businessPhoneNumber,
+} from '../locations/types/business-location-lookup';
 import { newBookingAlertTemplate } from './templates/new-booking-alert';
 import { bookingConfirmedTemplate } from './templates/booking-confirmed';
 import { bookingCancelledTemplate } from './templates/booking-cancelled';
@@ -109,7 +113,7 @@ export class EmailService {
       location:
         meetLink ??
         serviceLocationText ??
-        business.address ??
+        businessAddressLine(business) ??
         undefined,
       description: meetLink
         ? `Reference: ${booking.reference}\nJoin: ${meetLink}`
@@ -125,8 +129,8 @@ export class EmailService {
       reference: booking.reference,
       address: meetLink
         ? undefined
-        : (serviceLocationText ?? business.address ?? undefined),
-      phone: business.phone || undefined,
+        : (serviceLocationText ?? businessAddressLine(business) ?? undefined),
+      phone: businessPhoneNumber(business) || undefined,
       calendarLink,
       meetLink,
     });

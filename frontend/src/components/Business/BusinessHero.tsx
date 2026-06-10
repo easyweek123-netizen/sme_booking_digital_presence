@@ -1,38 +1,34 @@
-import { Box, HStack, Image } from '@chakra-ui/react';
-import { ArrowLeftIcon } from '../icons';
-import { RoundIconButton } from './atoms';
+import { Box } from '@chakra-ui/react';
+import { SmartImage } from '../ui/SmartImage';
+import { useDeviceMode } from './context/DeviceModeContext';
 
 interface BusinessHeroProps {
   coverImageUrl: string | null;
   enabled: boolean;
-  isDesktop: boolean;
-  onBack?: () => void;
 }
 
-export function BusinessHero({ coverImageUrl, enabled, isDesktop, onBack }: BusinessHeroProps) {
-  if (!enabled || !coverImageUrl) {
-    return <Box h={isDesktop ? '80px' : '16px'} />;
-  }
+/**
+ * Cover image + the "pull next sibling up" overlap. The overlap lives here
+ * (not in BusinessHeader) so the header has no idea whether a cover exists —
+ * when this component renders nothing, the negative margin disappears with it.
+ */
+export function BusinessHero({ coverImageUrl, enabled }: BusinessHeroProps) {
+  const isDesktop = useDeviceMode();
+  if (!enabled || !coverImageUrl) return null;
+
   return (
     <Box
-      position="relative"
-      w="100%"
-      maxW="1240px"
-      mx="auto"
-      h={isDesktop ? '360px' : '220px'}
+      borderBottomRadius={isDesktop ? 'lg' : 0}
       overflow="hidden"
-      borderRadius={isDesktop ? '0 0 16px 16px' : 0}
     >
-      <Image src={coverImageUrl} alt="" w="100%" h="100%" objectFit="cover" display="block" />
-      {!isDesktop && (
-        <HStack position="absolute" top={3} left={3} right={3} justify="space-between">
-          <RoundIconButton aria-label="Back" icon={<ArrowLeftIcon size={18} />} onClick={onBack} size="sm" />
-          {/* <HStack spacing={2}>
-            <RoundIconButton aria-label="Share" icon={<ShareIcon size={18} />} size="sm" />
-            <RoundIconButton aria-label="Save" icon={<HeartIcon size={18} />} size="sm" />
-          </HStack> */}
-        </HStack>
-      )}
+      <SmartImage
+        src={coverImageUrl}
+        alt=""
+        objectFit="contain"
+        ratio={5 / 2}
+        borderRadius={0}
+        eager
+      />
     </Box>
   );
 }

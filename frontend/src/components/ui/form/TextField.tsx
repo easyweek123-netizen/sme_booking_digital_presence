@@ -5,8 +5,9 @@ import {
   FormHelperText,
   Input,
   InputGroup,
-  InputLeftAddon,
-  InputRightAddon,
+  Text,
+  InputLeftElement,
+  InputRightElement,
 } from '@chakra-ui/react';
 import { Controller, useFormContext, type FieldValues, type Path } from 'react-hook-form';
 
@@ -21,6 +22,7 @@ interface TextFieldProps<TFormValues extends FieldValues> {
   isRequired?: boolean;
   autoComplete?: string;
   size?: 'sm' | 'md' | 'lg';
+  optionalBadge?: boolean;
 }
 
 export function TextField<TFormValues extends FieldValues>({
@@ -34,6 +36,7 @@ export function TextField<TFormValues extends FieldValues>({
   isRequired,
   autoComplete,
   size = 'md',
+  optionalBadge,
 }: TextFieldProps<TFormValues>) {
   const { control } = useFormContext<TFormValues>();
 
@@ -43,18 +46,34 @@ export function TextField<TFormValues extends FieldValues>({
       control={control}
       render={({ field, fieldState }) => (
         <FormControl isInvalid={!!fieldState.error} isRequired={isRequired}>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>
+            {label}
+            {optionalBadge && (
+              <Text as="span" fontSize="xs" color="text.muted" ml={2}>
+                Optional
+              </Text>
+            )}
+          </FormLabel>
           {leftAddon || rightAddon ? (
             <InputGroup size={size}>
-              {leftAddon && <InputLeftAddon>{leftAddon}</InputLeftAddon>}
+              {leftAddon && (
+                <InputLeftElement pointerEvents="none" color="text.muted">
+                  {leftAddon}
+                </InputLeftElement>
+              )}
               <Input
                 {...field}
                 value={field.value ?? ''}
                 type={type}
                 placeholder={placeholder}
                 autoComplete={autoComplete}
+                borderRadius="md"
               />
-              {rightAddon && <InputRightAddon>{rightAddon}</InputRightAddon>}
+              {rightAddon && (
+                <InputRightElement pointerEvents="none" color="text.muted">
+                  {rightAddon}
+                </InputRightElement>
+              )}
             </InputGroup>
           ) : (
             <Input
@@ -64,6 +83,7 @@ export function TextField<TFormValues extends FieldValues>({
               placeholder={placeholder}
               size={size}
               autoComplete={autoComplete}
+              borderRadius="md"
             />
           )}
           {fieldState.error ? (

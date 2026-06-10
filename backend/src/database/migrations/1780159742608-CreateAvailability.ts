@@ -32,8 +32,12 @@ export class CreateAvailability1780159742608 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."idx_avail_schedule_date"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."idx_avail_schedule_recur"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."idx_avail_schedule_date"`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."idx_avail_schedule_recur"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "availability"`);
   }
 }

@@ -4,9 +4,9 @@ export function RoundIconButton(props: IconButtonProps) {
   return (
     <IconButton
       borderRadius="full"
-      bg="white"
+      bg="surface.card"
       shadow="sm"
-      _hover={{ bg: 'gray.50' }}
+      _hover={{ bg: 'surface.alt' }}
       {...props}
     />
   );

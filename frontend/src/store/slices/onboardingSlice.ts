@@ -102,10 +102,7 @@ const onboardingSlice = createSlice({
       } else {
         state.businessProfile = {
           name: '',
-          phone: '',
           description: '',
-          address: '',
-          city: '',
           logoUrl: '',
           brandColor: '',
           workingHours: defaultWorkingHours,

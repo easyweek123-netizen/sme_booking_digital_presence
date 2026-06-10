@@ -36,8 +36,12 @@ export class CreateSubscription1780159743633 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_subscription_status"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_subscription_periodEnd"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_subscription_status"`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_subscription_periodEnd"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "subscription"`);
   }
 }

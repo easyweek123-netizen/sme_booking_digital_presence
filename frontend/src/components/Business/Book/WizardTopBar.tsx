@@ -32,9 +32,9 @@ export function WizardTopBar({
       position="sticky"
       top={0}
       zIndex={20}
-      bg="white"
+      bg="surface.card"
       borderBottom="1px solid"
-      borderColor="gray.100"
+      borderColor="surface.muted"
       px={{ base: 3, lg: 6 }}
       py={3}
     >
@@ -64,7 +64,7 @@ export function WizardTopBar({
                   onClick={() => clickable && onCrumbClick(idx)}
                   fontSize="sm"
                   fontWeight={active ? 600 : 500}
-                  color={active ? 'gray.900' : 'gray.500'}
+                  color={active ? 'text.heading' : 'text.muted'}
                   cursor={clickable || active ? 'pointer' : 'default'}
                   position="relative"
                   py={2}
@@ -77,7 +77,7 @@ export function WizardTopBar({
                       right={0}
                       bottom={0}
                       h="2px"
-                      bg="gray.900"
+                      bg="text.heading"
                       borderRadius="full"
                     />
                   )}
@@ -107,7 +107,7 @@ export function WizardTopBar({
                   h="6px"
                   w={active ? '24px' : '6px'}
                   borderRadius="full"
-                  bg={active || done ? 'gray.900' : 'gray.300'}
+                  bg={active || done ? 'text.heading' : 'border.subtle'}
                   transition="all .15s"
                 />
               );

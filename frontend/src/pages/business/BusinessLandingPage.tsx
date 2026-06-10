@@ -10,8 +10,9 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetBusinessBySlugQuery, useGetBusinessServicesQuery } from '../../store/api';
+import { useGetBusinessBySlugQuery } from '../../store/api';
 import { BusinessBookingPage as BusinessBookingPageView } from '../../components/Business/BusinessBookingPage';
+import { DeviceModeProvider } from '../../components/Business/context/DeviceModeContext';
 import { ROUTES } from '../../config/routes';
 import type { Service } from '../../types';
 
@@ -22,10 +23,6 @@ export function BusinessLandingPage() {
 
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
-
-  const categoriesQuery = useGetBusinessServicesQuery(business?.id ?? 0, {
-    skip: !business?.id,
-  });
 
   if (businessQuery.isLoading) {
     return (
@@ -70,11 +67,12 @@ export function BusinessLandingPage() {
   };
 
   return (
-    <BusinessBookingPageView
-      business={business}
-      categories={categoriesQuery.data ?? []}
-      isDesktop={isDesktop}
-      onBook={handleBook}
-    />
+    <DeviceModeProvider isDesktop={isDesktop}>
+      <BusinessBookingPageView
+        business={business}
+        categories={[]}
+        onBook={handleBook}
+      />
+    </DeviceModeProvider>
   );
 }

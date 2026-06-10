@@ -14,11 +14,9 @@ interface SectionTabsProps {
 export function SectionTabs({ tabs, activeId, onSelect }: SectionTabsProps) {
   return (
     <HStack
-      spacing={7}
+      spacing={4}
       borderBottom="1px solid"
-      borderColor="gray.200"
-      mt={6}
-      mb={0}
+      borderColor="border.subtle"
     >
       {tabs.map((tab) => {
         const active = tab.id === activeId;
@@ -32,7 +30,7 @@ export function SectionTabs({ tabs, activeId, onSelect }: SectionTabsProps) {
             px={0.5}
             fontSize="15px"
             fontWeight={active ? 600 : 500}
-            color={active ? 'gray.900' : 'gray.500'}
+            color={active ? 'text.heading' : 'text.muted'}
           >
             {tab.label}
             {active && (
@@ -42,7 +40,7 @@ export function SectionTabs({ tabs, activeId, onSelect }: SectionTabsProps) {
                 right={0}
                 bottom="-1px"
                 h="2px"
-                bg="gray.900"
+                bg="text.heading"
                 borderRadius="1px"
               />
             )}

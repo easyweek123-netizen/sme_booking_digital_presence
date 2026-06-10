@@ -1,7 +1,7 @@
 import { Text, Center, VStack, Box, HStack } from '@chakra-ui/react';
 import { useAppDispatch } from '../../store/hooks';
 import { setActiveTab, clearProposals, removeProposal } from '../../store/slices/canvasSlice';
-import { useBusiness } from '../../contexts/useBusiness';
+import { useBusiness } from '../../contexts/business';
 import { useProposalExecution } from '../../hooks';
 import { CanvasActionsContainer } from './CanvasActionsContainer';
 import { ActionErrorBoundary } from './ActionErrorBoundary';

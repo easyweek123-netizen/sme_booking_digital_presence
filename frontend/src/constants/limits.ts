@@ -1,0 +1,5 @@
+export const TEXT_LIMITS = {
+  BUSINESS_TAGLINE: 120,
+  SERVICE_DESCRIPTION: 750,
+  BUSINESS_NAME: 80,
+} as const;

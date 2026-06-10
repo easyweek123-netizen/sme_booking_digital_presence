@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -37,7 +38,6 @@ export class LocationsController {
   ) {}
 
   @Get('address/search')
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   searchAddress(@Query('q') q: string): Promise<AddressCandidate[]> {
     return this.geocoding.search(q ?? '');
   }
@@ -75,6 +75,15 @@ export class LocationsController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<LocationView> {
     return this.locationsService.findByIdForBusiness(id, businessId);
+  }
+
+  @Patch(':id')
+  update(
+    @BusinessId() businessId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ZodValidationPipe(CreateLocationSchema)) dto: CreateLocationDto,
+  ): Promise<LocationView> {
+    return this.locationsService.update(id, businessId, dto);
   }
 
   @Delete(':id')

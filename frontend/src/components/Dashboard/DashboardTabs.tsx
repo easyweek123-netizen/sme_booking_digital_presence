@@ -30,6 +30,9 @@ export function DashboardTabs<K extends string>({
   return (
     <Box
       overflowX="auto"
+      minW={0}
+      maxW="100%"
+      w="100%"  
       pb={2}
       css={{
         '&::-webkit-scrollbar': { display: 'none' },
@@ -70,7 +73,7 @@ export function DashboardTabs<K extends string>({
               transition="all 0.2s"
               flexShrink={0}
             >
-              <HStack spacing={1.5}>
+              <HStack spacing={1}>
                 <Box as="span">{tab.label}</Box>
                 {tab.badge}
               </HStack>

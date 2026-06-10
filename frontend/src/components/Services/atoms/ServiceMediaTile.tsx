@@ -1,4 +1,5 @@
 import { Box } from '@chakra-ui/react';
+import type { BoxProps, ResponsiveValue } from '@chakra-ui/react';
 import type { Service } from '../../../types';
 import { ServiceLocationIcon } from './ServiceLocationIcon';
 import { getServiceAccent, type LocationType } from '../helpers';
@@ -8,16 +9,27 @@ import { SmartImage } from '../../ui/SmartImage';
 interface Props {
   service: Service;
   locationType: LocationType;
-  /** Height in px. Width is derived as size * 1.6 (16:10 landscape). Default 72. */
-  size?: number;
+  /**
+   * Tile height as a Chakra dimension value (CSS string or theme token).
+   * Accepts responsive values so callers can shrink the tile on narrow
+   * containers, e.g. `h={{ base: '56px', md: '84px' }}`. Default '72px'.
+   */
+  h?: BoxProps['h'];
+  /**
+   * Aspect ratio (width / height). Default 16:10 (landscape).
+   * Pass `1` for a square tile if that suits the surface better.
+   */
+  ratio?: ResponsiveValue<number>;
 }
 
-const TILE_RATIO = 16 / 10;
-
-export function ServiceMediaTile({ service, locationType, size = 72 }: Props) {
+export function ServiceMediaTile({
+  service,
+  locationType,
+  h = '72px',
+  ratio = 16 / 10,
+}: Props) {
   const accent = getServiceAccent(service);
   const soft = service.color ? softFromHex(service.color) : 'brand.50';
-  const width = Math.round(size * TILE_RATIO);
 
   const fallback = (
     <Box
@@ -36,11 +48,16 @@ export function ServiceMediaTile({ service, locationType, size = 72 }: Props) {
   );
 
   return (
-    <Box position="relative" w={`${width}px`} h={`${size}px`} flexShrink={0}>
+    <Box
+      position="relative"
+      h={h}
+      sx={{ aspectRatio: ratio as number }}
+      flexShrink={0}
+    >
       <SmartImage
         src={service.photoUrl}
         alt={service.name}
-        ratio={TILE_RATIO}
+        ratio={ratio}
         borderRadius="12px"
         fallback={fallback}
       />
@@ -52,7 +69,7 @@ export function ServiceMediaTile({ service, locationType, size = 72 }: Props) {
           w="26px"
           h="26px"
           borderRadius="full"
-          bg="white"
+          bg="surface.card"
           boxShadow="sm"
           display="flex"
           alignItems="center"

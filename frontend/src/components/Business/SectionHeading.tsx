@@ -15,7 +15,7 @@ export function SectionHeading({ id, children }: SectionHeadingProps) {
       fontWeight={700}
       letterSpacing="-0.02em"
       m="0 0 16px"
-      color="gray.900"
+      color="text.heading"
     >
       {children}
     </Heading>

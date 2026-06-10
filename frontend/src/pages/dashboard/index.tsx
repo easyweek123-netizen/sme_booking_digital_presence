@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { DashboardLayout, BusinessGate } from '../../components/Dashboard';
-import { BusinessProvider } from '../../contexts/BusinessContext';
+import { DashboardLayout } from '../../components/Dashboard';
+import { BusinessProvider } from '../../contexts/business';
 import { ROUTES } from '../../config/routes';
 
 import { DashboardOverview } from './DashboardOverview';
@@ -41,9 +41,7 @@ export function DashboardPage() {
   return (
     <BusinessProvider>
       <DashboardLayout>
-        <BusinessGate>
-          <DashboardRoutes />
-        </BusinessGate>
+        <DashboardRoutes />
       </DashboardLayout>
     </BusinessProvider>
   );

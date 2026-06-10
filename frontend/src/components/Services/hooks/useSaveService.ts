@@ -6,7 +6,7 @@ import {
   useCreateServiceMutation,
   useUpdateServiceMutation,
 } from '../../../store/api/servicesApi';
-import { useCreateLocation } from '../locations/shared/useCreateLocation';
+import { useCreateLocation } from '../../Locations';
 import {
   SERVICE_FORM_FIELD_KEYS,
   type CreatingLocation,
@@ -15,26 +15,7 @@ import {
   type ServiceFormInput,
 } from '@bookeasy/shared';
 import type { Business, Service, AvailabilityInput } from '../../../types';
-
-function deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (typeof a !== typeof b) return false;
-  if (typeof a !== 'object' || a === null || b === null) return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) return false;
-    return a.every((item, i) => deepEqual(item, (b as unknown[])[i]));
-  }
-  const aKeys = Object.keys(a as object);
-  const bKeys = Object.keys(b as object);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((k) =>
-    deepEqual(
-      (a as Record<string, unknown>)[k],
-      (b as Record<string, unknown>)[k],
-    ),
-  );
-}
+import { deepEqual } from '../../../lib/deepEqual';
 
 export class InvalidLocationError extends Error {}
 
@@ -79,6 +60,9 @@ export function useSaveService({
     }
 
     const locationId = await resolveLocationId(values.location, createLocation);
+    if (!Number.isInteger(locationId) || locationId <= 0) {
+      throw new InvalidLocationError('Pick or create a location.');
+    }
 
     const payload = { ...serviceFields, scheduleId, locationId };
     if (service) {

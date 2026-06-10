@@ -1,30 +1,48 @@
-import { Spinner, Center } from '@chakra-ui/react';
-import { useBusiness } from '../../contexts/useBusiness';
-import { useGetScheduleQuery } from '../../store/api/schedulesApi';
-import { DashboardWebsiteForm } from './DashboardWebsiteForm';
+import { useBreakpointValue } from '@chakra-ui/react';
+import { PageLoading } from '../../components/ui/states';
+import { DashboardContentShell, DashboardFormActions, DashboardTabs } from '../../components/Dashboard';
+import { WebsiteForm } from '../../components/Dashboard/website/WebsiteForm';
+import { WebsiteFormDesktop } from '../../components/Dashboard/website/WebsiteFormDesktop';
+import { WebsiteFormMobile } from '../../components/Dashboard/website/WebsiteFormMobile';
+import { TabCompletionBadge } from '../../components/Dashboard/website/TabCompletionBadge';
+import { useWebsiteFormSession } from '../../components/Dashboard/website/hooks';
 
-interface DashboardWebsiteProps {
-  isDesktop?: boolean;
-}
+export function DashboardWebsite() {
+  const isDesktop = useBreakpointValue({ base: false, lg: true }, { ssr: false });
+  const session = useWebsiteFormSession();
+  if (session.isLoading) return <PageLoading variant="form" />;
 
-export function DashboardWebsite({ isDesktop }: DashboardWebsiteProps) {
-  const business = useBusiness();
-  const { data: schedule, isLoading } = useGetScheduleQuery(business.defaultScheduleId);
-
-  if (isLoading || !schedule) {
-    return (
-      <Center py={12}>
-        <Spinner size="sm" color="brand.500" />
-      </Center>
-    );
-  }
+  const Layout = isDesktop ? WebsiteFormDesktop : WebsiteFormMobile;
 
   return (
-    <DashboardWebsiteForm
-      key={business.id}
-      business={business}
-      initialAvailability={schedule.availability ?? []}
-      isDesktop={isDesktop}
-    />
+    <WebsiteForm session={session}>
+      {({ methods, activeTab, setActiveTab, isSaving, onSave, resetToInitial, tabs }) => (
+        <DashboardContentShell
+          title="Website"
+          description="Build and customize your booking page"
+          actions={
+            <DashboardFormActions
+              isDirty={methods.formState.isDirty}
+              isSaving={isSaving}
+              onSave={onSave}
+              onDiscard={resetToInitial}
+            />
+          }
+          tabs={
+            <DashboardTabs
+              tabs={tabs.map((t) => ({
+                key: t.key,
+                label: t.label,
+                badge: <TabCompletionBadge tabKey={t.key} />,
+              }))}
+              activeKey={activeTab}
+              onChange={setActiveTab}
+            />
+          }
+        >
+          <Layout activeTab={activeTab} business={session.business} />
+        </DashboardContentShell>
+      )}
+    </WebsiteForm>
   );
 }

@@ -460,6 +460,10 @@ const space = {
   'space.page.xLg': '2.5rem', // 40 — horizontal page gutters (desktop)
 };
 
+const sizes = {
+  'dashboard.headerOffset': '120px',
+};
+
 // ------------------------------------------------------------
 // Shape
 // ------------------------------------------------------------
@@ -482,7 +486,7 @@ const shadows = {
   card:       '0 4px 12px rgba(31, 26, 67, 0.06), 0 2px 4px rgba(31, 26, 67, 0.04)',
   cardHover:  '0 12px 32px rgba(31, 26, 67, 0.08)',
   input:      '0 1px 2px rgba(31, 26, 67, 0.05)',
-  inputFocus: '0 0 0 3px rgba(107, 70, 193, 0.22)', // purple ring
+  inputFocus: '0 0 0 1px rgba(107, 70, 193, 0.7)', // purple ring
   modal:      '0 24px 48px rgba(31, 26, 67, 0.12)',
   popover:    '0 12px 32px rgba(31, 26, 67, 0.08)',
   outline:    '0 0 0 3px rgba(107, 70, 193, 0.22)', // focus ring
@@ -528,6 +532,11 @@ const semanticTokens = {
     'success.soft':     { default: 'sage.100',  _dark: 'sage.800'  },
     'warning.primary':  { default: 'amber.500', _dark: 'amber.400' },
     'warning.soft':     { default: 'amber.100', _dark: 'amber.800' },
+
+    'feedback.success.fg': { default: 'green.600', _dark: 'green.300' },
+    'feedback.success.bg': { default: 'green.50',  _dark: 'green.900' },
+    'feedback.danger.fg':  { default: 'red.500',   _dark: 'red.300' },
+    'feedback.danger.bg':  { default: 'red.50',    _dark: 'red.900' },
   },
 };
 
@@ -618,6 +627,11 @@ const components = {
             boxShadow: '0 0 0 3px rgba(184, 90, 64, 0.2)',
           },
         },
+      },
+      addon: {
+        bg: 'transparent',
+        border: 'none',
+        borderColor: 'transparent',
       },
     },
     defaultProps: { variant: 'outline' },
@@ -737,7 +751,7 @@ export const theme = extendTheme({
   radii,
   shadows,
   space,
-  // sizes,
+  sizes,
   semanticTokens,
   components,
   styles,

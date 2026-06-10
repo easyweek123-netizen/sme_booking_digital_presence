@@ -49,13 +49,13 @@ export function TimeStep({ flow }: BookingStepContext) {
       />
 
       <Box>
-        <Heading as="h3" fontSize="16px" fontWeight={600} m="0 0 12px" color="gray.900">
+        <Heading as="h3" fontSize="16px" fontWeight={600} m="0 0 12px" color="text.heading">
           Pick a time
         </Heading>
         {slotsQuery.isLoading ? (
           <HStack spacing={2}>
             <Spinner size="sm" />
-            <Text color="gray.500">Loading slots…</Text>
+            <Text color="text.muted">Loading slots…</Text>
           </HStack>
         ) : (
           <TimeSlotPicker slots={slots} selectedSlot={state.slot} onSelect={selectSlot} />

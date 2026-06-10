@@ -12,9 +12,19 @@ import { Schedule } from '../schedule/entities/schedule.entity';
 import { Availability } from '../schedule/entities/availability.entity';
 import { DEFAULT_BUSINESS_HOURS } from '../schedule/defaults';
 import { CreateBusinessDto, ServiceDto } from './dto/create-business.dto';
-import { UpdateBusinessDto } from './dto/update-business.dto';
+import type { BusinessPatchInput } from '@bookeasy/shared';
+import { ABOUT_ALLOWED_TAGS, ABOUT_ALLOWED_ATTRS } from '@bookeasy/shared';
 import type { WorkingHours } from './types/working-hours';
 import { toLocationView } from '../locations/types/location-view';
+import sanitizeHtml from 'sanitize-html';
+
+function sanitizeAboutHtml(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [...ABOUT_ALLOWED_TAGS],
+    allowedAttributes: ABOUT_ALLOWED_ATTRS as Record<string, string[]>,
+    disallowedTagsMode: 'discard',
+  });
+}
 
 @Injectable()
 export class BusinessService {
@@ -63,10 +73,7 @@ export class BusinessService {
         ownerId,
         name: dto.name,
         slug: this.generateSlug(dto.name),
-        phone: dto.phone ?? null,
         description: dto.description ?? null,
-        address: dto.address ?? null,
-        city: dto.city ?? null,
         logoUrl: dto.logoUrl ?? null,
         brandColor: dto.brandColor ?? null,
         businessTypeId: dto.businessTypeId ?? null,
@@ -178,9 +185,10 @@ export class BusinessService {
     return hours;
   }
 
-  /** Single read path used by every business lookup. Loads the default
-   *  schedule's recurring availability and attaches `workingHours` so the
-   *  public booking page can render hours instead of "Closed on all days". */
+  /** Single read path used by every business lookup. Loads default schedule
+   *  availability + all locations and projects them so the public booking page
+   *  / API consumers receive workingHours and locations[] (LocationView shape).
+   */
   private async loadBusiness(
     where: FindOptionsWhere<Business>,
   ): Promise<Business> {
@@ -189,10 +197,13 @@ export class BusinessService {
       relations: [
         'services',
         'services.category',
+        'services.location',
+        'services.schedule',
+        'services.schedule.availabilities',
         'businessType',
         'defaultSchedule',
         'defaultSchedule.availabilities',
-        'defaultLocation',
+        'locations',
       ],
     });
     if (!business) throw new NotFoundException('Business not found');
@@ -200,9 +211,12 @@ export class BusinessService {
       workingHours: this.buildWorkingHours(
         business.defaultSchedule?.availabilities,
       ),
-      defaultLocation: business.defaultLocation
-        ? toLocationView(business.defaultLocation)
-        : null,
+      locations: (business.locations ?? []).map(toLocationView),
+      services: (business.services ?? []).map((s) =>
+        s.location
+          ? Object.assign(s, { location: toLocationView(s.location) })
+          : s,
+      ),
     });
   }
 
@@ -220,6 +234,7 @@ export class BusinessService {
         'owner',
         'defaultSchedule',
         'defaultSchedule.availabilities',
+        'locations',
       ],
     });
     if (!business) return null;
@@ -227,6 +242,7 @@ export class BusinessService {
       workingHours: this.buildWorkingHours(
         business.defaultSchedule?.availabilities,
       ),
+      locations: (business.locations ?? []).map(toLocationView),
     });
   }
 
@@ -244,24 +260,15 @@ export class BusinessService {
    */
   async update(
     id: number,
-    updateBusinessDto: UpdateBusinessDto,
+    updateBusinessDto: BusinessPatchInput,
   ): Promise<Business> {
     const business = await this.findOne(id);
 
     if (updateBusinessDto.name !== undefined) {
       business.name = updateBusinessDto.name;
     }
-    if (updateBusinessDto.phone !== undefined) {
-      business.phone = updateBusinessDto.phone || null;
-    }
     if (updateBusinessDto.description !== undefined) {
       business.description = updateBusinessDto.description || null;
-    }
-    if (updateBusinessDto.address !== undefined) {
-      business.address = updateBusinessDto.address || null;
-    }
-    if (updateBusinessDto.city !== undefined) {
-      business.city = updateBusinessDto.city || null;
     }
     if (updateBusinessDto.website !== undefined) {
       business.website = updateBusinessDto.website || null;
@@ -279,7 +286,9 @@ export class BusinessService {
       business.coverImageUrl = updateBusinessDto.coverImageUrl || null;
     }
     if (updateBusinessDto.aboutContent !== undefined) {
-      business.aboutContent = updateBusinessDto.aboutContent || null;
+      business.aboutContent = updateBusinessDto.aboutContent
+        ? sanitizeAboutHtml(updateBusinessDto.aboutContent)
+        : null;
     }
     if (updateBusinessDto.timezone !== undefined) {
       if (updateBusinessDto.timezone) {
@@ -292,6 +301,12 @@ export class BusinessService {
         }
       }
       business.timezone = updateBusinessDto.timezone;
+    }
+    if (updateBusinessDto.showNextAvailable !== undefined) {
+      business.showNextAvailable = updateBusinessDto.showNextAvailable;
+    }
+    if (updateBusinessDto.showWeeklyHours !== undefined) {
+      business.showWeeklyHours = updateBusinessDto.showWeeklyHours;
     }
 
     await this.businessRepository.save(business);

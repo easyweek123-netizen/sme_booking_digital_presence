@@ -33,8 +33,12 @@ export class CreateBillingEvent1780159745088 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_billing_event_owner_createdAt"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "public"."IDX_billing_event_type"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_billing_event_owner_createdAt"`,
+    );
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "public"."IDX_billing_event_type"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "billing_event"`);
   }
 }

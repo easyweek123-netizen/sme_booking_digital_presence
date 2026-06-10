@@ -2,7 +2,6 @@ import { Box, VStack, Text, Flex, Divider, Badge, Tooltip, IconButton, Button } 
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
 import {
-  // MessageSquareIcon,
   SparkleIcon,
   HomeIcon,
   CalendarIcon,
@@ -17,7 +16,6 @@ import {
 import { ROUTES } from '../../config/routes';
 import { useAppDispatch } from '../../store/hooks';
 import { resetStore } from '../../store/actions';
-import { useBusinessOptional } from '../../contexts/useBusiness';
 import { useGetBookingStatsQuery } from '../../store/api/bookingsApi';
 import { useSidebarCollapsed } from '../../hooks';
 import { SIDEBAR_EXPANDED_WIDTH, SIDEBAR_COLLAPSED_WIDTH } from './constants';
@@ -55,10 +53,7 @@ export function Sidebar({ onClose, isInDrawer }: SidebarProps) {
     isMobile: !!isInDrawer,
   });
 
-  const { business } = useBusinessOptional();
-  const { data: stats } = useGetBookingStatsQuery(undefined, {
-    skip: !business?.id,
-  });
+  const { data: stats } = useGetBookingStatsQuery();
   const pendingCount = stats?.pending || 0;
 
   const handleNavigate = (path: string) => {

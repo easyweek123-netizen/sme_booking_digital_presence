@@ -3,7 +3,7 @@ import type { ServiceFormInput } from '@bookeasy/shared';
 import type { Service } from '../../../types';
 import { useServiceForm } from './useServiceForm';
 import { useSaveService, InvalidLocationError } from './useSaveService';
-import { InvalidCreatingLocationError } from '../locations/shared/useCreateLocation';
+import { InvalidCreatingLocationError } from '../../Locations';
 import type { ServiceFormSession } from './useServiceFormSession';
 
 interface Params {
@@ -17,7 +17,7 @@ interface Params {
 export function useSaveServiceForm({
   session, initialValues, onSuccess, onError, onInvalid,
 }: Params) {
-  const { methods, clearDraft } = useServiceForm({
+  const { methods } = useServiceForm({
     service: session.service,
     business: session.business,
     availability: session.availability,
@@ -35,7 +35,6 @@ export function useSaveServiceForm({
     async (values) => {
       try {
         const saved = await saveService(values);
-        clearDraft();
         onSuccess?.(saved);
       } catch (err) {
         if (err instanceof InvalidCreatingLocationError) {
@@ -53,5 +52,5 @@ export function useSaveServiceForm({
     (errors) => onInvalid?.(errors),
   );
 
-  return { methods, onSave, isSaving, clearDraft } as const;
+  return { methods, onSave, isSaving } as const;
 }

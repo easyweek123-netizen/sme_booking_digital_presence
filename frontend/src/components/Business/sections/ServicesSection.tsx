@@ -32,13 +32,13 @@ function CategoryFilterChip({
       borderRadius="full"
       fontSize="sm"
       fontWeight={500}
-      bg={active ? 'gray.900' : 'white'}
-      color={active ? 'white' : 'gray.900'}
+      bg={active ? 'text.heading' : 'surface.card'}
+      color={active ? 'white' : 'text.heading'}
       border="1px solid"
-      borderColor={active ? 'gray.900' : 'gray.300'}
+      borderColor={active ? 'text.heading' : 'border.subtle'}
       whiteSpace="nowrap"
       transition="all .15s"
-      _hover={{ borderColor: active ? 'gray.900' : 'gray.400' }}
+      _hover={{ borderColor: active ? 'text.heading' : 'text.faint' }}
     >
       {children}
     </Box>
@@ -73,8 +73,8 @@ export function ServicesSection({
   };
 
   return (
-    <Box as="section" pt={{ base: 2, md: 4 }}>
-      <SectionHeading id="section-services">Services</SectionHeading>
+    <Box as="section" pt={{ base: 2 }}>
+      {/* <SectionHeading id="section-services">Services</SectionHeading> */}
 
       <HStack spacing={2} overflowX="auto" pb={1} mb={4} sx={{ scrollbarWidth: 'none' }}>
         <CategoryFilterChip active={activeCat == null} onClick={() => selectCat(null)}>
@@ -109,9 +109,9 @@ export function ServicesSection({
           py={2.5}
           borderRadius="full"
           border="1px solid"
-          borderColor="gray.300"
-          bg="white"
-          color="gray.900"
+          borderColor="border.subtle"
+          bg="surface.card"
+          color="text.heading"
           fontSize="sm"
           fontWeight={600}
           onClick={onToggle}

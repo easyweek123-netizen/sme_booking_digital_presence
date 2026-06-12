@@ -1,4 +1,4 @@
-import { Flex, Box, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import type { ComponentType, ReactNode } from 'react';
 import { SparkIcon } from '@/components/icons';
 

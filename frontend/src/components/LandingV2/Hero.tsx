@@ -1,4 +1,4 @@
-import { Stack, Heading, Text, Flex, Button, Box, Image } from '@chakra-ui/react';
+import { Stack, Heading, Text, Flex, Button, Box } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { SectionShell } from './shared/SectionShell';
 import { HeroGridBackdrop } from './shared/HeroGridBackdrop';

@@ -13,38 +13,19 @@ import { motion } from 'framer-motion';
 
 const MotionBox = motion.create(Box);
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
+export type FAQItem = { question: string; answer: string };
 
-const faqs: FAQItem[] = [
-  {
-    question: 'Is BookEasy really free?',
-    answer:
-      'Yes, completely free! No hidden fees, no credit card required. Create your booking page, add unlimited services, and accept unlimited bookings — all at no cost.',
-  },
-  {
-    question: 'How do customers book appointments?',
-    answer:
-      'Customers visit your unique booking page, browse your services, select a date and time, and verify their identity with Google or email. You get notified instantly!',
-  },
-  {
-    question: 'Can I customize my booking page?',
-    answer:
-      'Absolutely! Add your logo, choose a brand color, upload a cover image, write an About section, and organize services into categories. Make it truly yours.',
-  },
-  {
-    question: 'How do I get notified of new bookings?',
-    answer:
-      'You receive email notifications for every new booking, cancellation, or status change. Your customers also get confirmation emails automatically.',
-  },
-  {
-    question: 'Is my data secure?',
-    answer:
-      'Yes, we take security seriously. We use industry-standard encryption, secure authentication via Google, and never share your data with third parties.',
-  },
-];
+type Props = {
+  items: readonly FAQItem[];
+  headline: string;
+  subhead?: string;
+  /** Section background. Default: `surface.muted`. */
+  bg?: string;
+  /** Initially open item index. Default: 0 (first item open). Pass `null` for all closed. */
+  defaultOpen?: number | null;
+  /** id used for in-page anchor links (e.g. header nav). Default: 'faq'. */
+  id?: string;
+};
 
 function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
   return (
@@ -52,7 +33,7 @@ function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
       w="28px"
       h="28px"
       borderRadius="full"
-      bg={isOpen ? 'brand.500' : 'surface.muted'}
+      bg={isOpen ? 'accent.primary' : 'surface.muted'}
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -66,7 +47,7 @@ function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
           left="0"
           w="12px"
           h="2px"
-          bg={isOpen ? 'white' : 'text.secondary'}
+          bg={isOpen ? 'surface.card' : 'text.secondary'}
           borderRadius="full"
           transform="translateY(-50%)"
         />
@@ -76,7 +57,7 @@ function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
           left="50%"
           w="2px"
           h="12px"
-          bg={isOpen ? 'white' : 'text.secondary'}
+          bg={isOpen ? 'surface.card' : 'text.secondary'}
           borderRadius="full"
           transform={`translateX(-50%) scaleY(${isOpen ? 0 : 1})`}
           transition="transform 0.2s ease"
@@ -98,7 +79,6 @@ function FAQCard({
   index: number;
 }) {
   const panelId = `faq-panel-${index}`;
-
   return (
     <MotionBox
       initial={{ opacity: 0, y: 20 }}
@@ -138,6 +118,7 @@ function FAQCard({
             fontSize={{ base: 'md', md: 'lg' }}
             pr={4}
             lineHeight="1.4"
+            color="text.heading"
           >
             {item.question}
           </Text>
@@ -150,6 +131,7 @@ function FAQCard({
             <Text
               lineHeight="1.7"
               fontSize={{ base: 'sm', md: 'md' }}
+              color="text.secondary"
             >
               {item.answer}
             </Text>
@@ -160,15 +142,22 @@ function FAQCard({
   );
 }
 
-export function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+export function FAQ({
+  items,
+  headline,
+  subhead,
+  bg = 'surface.muted',
+  defaultOpen = 0,
+  id = 'faq',
+}: Props) {
+  const [openIndex, setOpenIndex] = useState<number | null>(defaultOpen);
 
-  const handleToggle = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+  const handleToggle = (i: number) => {
+    setOpenIndex(openIndex === i ? null : i);
   };
 
   return (
-    <Box id="faq" py={{ base: 16, md: 24 }} bg="surface.muted">
+    <Box id={id} py={{ base: 16, md: 24 }} bg={bg}>
       <Container maxW="container.md">
         <VStack spacing={{ base: 10, md: 14 }}>
           <VStack spacing={4} textAlign="center">
@@ -181,27 +170,30 @@ export function FAQ() {
                 as="h2"
                 fontSize={{ base: '2xl', md: '3xl', lg: '4xl' }}
                 fontWeight="700"
+                color="text.heading"
               >
-                Frequently Asked Questions
+                {headline}
               </Heading>
             </MotionBox>
-            <MotionBox
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
-              <Text fontSize={{ base: 'md', md: 'lg' }}>
-                Everything you need to know about BookEasy
-              </Text>
-            </MotionBox>
+            {subhead && (
+              <MotionBox
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                <Text fontSize={{ base: 'md', md: 'lg' }} color="text.secondary">
+                  {subhead}
+                </Text>
+              </MotionBox>
+            )}
           </VStack>
 
           <VStack spacing={4} w="full">
-            {faqs.map((faq, index) => (
+            {items.map((item, index) => (
               <FAQCard
                 key={index}
-                item={faq}
+                item={item}
                 isOpen={openIndex === index}
                 onToggle={() => handleToggle(index)}
                 index={index}

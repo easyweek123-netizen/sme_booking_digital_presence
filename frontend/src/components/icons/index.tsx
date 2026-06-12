@@ -134,6 +134,25 @@ export const ClockIcon = ({ size = 32 }: { size?: number }) => (
   </svg>
 );
 
+export const GiftIcon = ({ size = 24 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="20 12 20 22 4 22 4 12" />
+    <rect x="2" y="7" width="20" height="5" />
+    <line x1="12" y1="22" x2="12" y2="7" />
+    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+    <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+  </svg>
+);
+
 export const ChevronLeftIcon = ({ size = 20 }: { size?: number }) => (
   <svg
     width={size}
@@ -750,6 +769,20 @@ export const SparkleIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 );
 
+// Single 4-point spark — used by LandingV2 EyebrowLabel
+// Vertical 4-point spark — taller than wide, Gemini-style twinkle.
+// Used by LandingV2 EyebrowLabel.
+// Single 4-point spark (Gemini-style twinkle) — used by LandingV2 EyebrowLabel.
+export const SparkIcon = ({ size = 24 }: { size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="-4 0 34 34"
+    fill="currentColor"
+  >
+    <path d="M13.95 6.805l.654 3.06c.593 2.773 2.759 4.939 5.532 5.532l3.06.654c1.024.219 1.024 1.68 0 1.899l-3.06.654c-2.773.593-4.939 2.759-5.532 5.532l-.654 3.06c-.219 1.024-1.68 1.024-1.899 0l-.654-3.06c-.593-2.773-2.759-4.939-5.532-5.532l-3.06-.654c-1.024-.219-1.024-1.68 0-1.899l3.06-.654c2.773-.593 4.939-2.759 5.532-5.532l.654-3.06C12.269 5.781 13.731 5.781 13.95 6.805z" />
+  </svg>
+);
 // Note/Document icon
 export const NoteIcon = ({ size = 20 }: { size?: number }) => (
   <svg

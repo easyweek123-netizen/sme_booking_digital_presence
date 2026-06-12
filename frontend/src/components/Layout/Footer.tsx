@@ -26,7 +26,7 @@ function FooterLink({ to, children, isExternal }: FooterLinkProps) {
         href={to}
         color="text.faint"
         fontSize="sm"
-        _hover={{ color: 'white' }}
+        _hover={{ color: 'surface.card' }}
         transition="color 0.2s"
         isExternal
       >
@@ -40,7 +40,7 @@ function FooterLink({ to, children, isExternal }: FooterLinkProps) {
       to={to}
       color="text.faint"
       fontSize="sm"
-      _hover={{ color: 'white' }}
+      _hover={{ color: 'surface.card' }}
       transition="color 0.2s"
     >
       {children}
@@ -61,7 +61,7 @@ function FooterSection({ title, children }: { title: string; children: React.Rea
       }}
     >
       <Text
-        color="white"
+        color="surface.card"
         fontWeight="600"
         fontSize="sm"
         textTransform="uppercase"
@@ -90,7 +90,7 @@ export function Footer() {
   return (
     <Box
       as="footer"
-      bg="gray.900"
+      bg="surface.inverted"
       pt={{ base: 12, md: 16 }}
       pb={{ base: 8, md: 10 }}
       // Make the footer its own CSS container so the layout below adapts to
@@ -170,7 +170,7 @@ export function Footer() {
               <Link
                 href="mailto:easyweek123@gmail.com"
                 fontSize="sm"
-                _hover={{ color: 'white' }}
+                _hover={{ color: 'surface.card' }}
                 transition="color 0.2s"
                 overflowWrap="anywhere"
                 wordBreak="break-word"
@@ -182,7 +182,7 @@ export function Footer() {
           </FooterSection>
         </Grid>
 
-        <Divider borderColor="gray.800" />
+        <Divider borderColor="whiteAlpha.200" />
 
         {/* Bottom row: copyright + "built by". Stacks under the footer's
             container width threshold, side-by-side above it. */}

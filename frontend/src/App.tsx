@@ -8,6 +8,8 @@ import { GlobalModals } from './components/GlobalModals';
 
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import('./pages/landing').then(m => ({ default: m.LandingPage })));
+const LandingV2Page = lazy(() => import('./pages/landing-v2'));
+const USE_LANDING_V2 = import.meta.env.VITE_USE_LANDING_V2 === 'true';
 const LoginPage = lazy(() => import('./pages/login').then(m => ({ default: m.LoginPage })));
 const OnboardingPage = lazy(() => import('./pages/onboarding').then(m => ({ default: m.OnboardingPage })));
 const OnboardingV2Page = lazy(() =>
@@ -48,7 +50,7 @@ function App() {
 
         {/* Public routes with consistent header */}
         <Route element={<PublicLayout />}>
-          <Route path={ROUTES.HOME} element={<LandingPage />} />
+          <Route path={ROUTES.HOME} element={USE_LANDING_V2 ? <LandingV2Page /> : <LandingPage />} />
           <Route path={ROUTES.PRICING} element={<PricingPage />} />
           <Route path={ROUTES.SERVICES} element={<ServicesPage />} />
           <Route path={ROUTES.PRIVACY} element={<PrivacyPolicy />} />

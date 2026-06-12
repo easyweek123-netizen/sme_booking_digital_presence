@@ -1,75 +1,7 @@
-import type { ReactNode } from 'react';
-import { Box, SimpleGrid, Stack, Text, VStack } from '@chakra-ui/react';
+import { SimpleGrid } from '@chakra-ui/react';
 import type { ResponsiveValue } from '@chakra-ui/react';
+import { Tile } from '@/components/ui/Tile';
 import type { TileOption } from './tileOptions';
-
-interface TileButtonProps {
-  icon?: ReactNode;
-  title: string;
-  sub?: string;
-  active: boolean;
-  onClick: () => void;
-}
-
-function TileButton({ icon, title, sub, active, onClick }: TileButtonProps) {
-  return (
-    <VStack
-      as="button"
-      type="button"
-      onClick={onClick}
-      align="stretch"
-      p={2}
-      borderRadius="lg"
-      borderWidth={active ? 2 : 1}
-      borderColor={active ? 'brand.500' : 'border.subtle'}
-      bg={active ? 'brand.50' : 'surface.card'}
-      transition="all 0.15s"
-      _hover={{ borderColor: 'border.strong' }}
-    >
-      {icon ? (
-        <Stack
-          direction={{ base: 'column', lg: 'row' }}
-          align={{ base: 'center', lg: 'flex-start' }}
-          spacing={{ base: 2, lg: 3 }}
-        >
-          <Box
-            w={8}
-            h={8}
-            borderRadius="md"
-            bg="surface.muted"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            flexShrink={0}
-          >
-            {icon}
-          </Box>
-          <VStack align={{ base: 'center', lg: 'flex-start' }} spacing={0}>
-            <Text fontWeight="600" fontSize="sm" color="text.heading" textAlign={{ base: 'center', lg: 'left' }}>
-              {title}
-            </Text>
-            {sub && (
-              <Text fontSize="xs" color="text.muted" textAlign={{ base: 'center', lg: 'left' }}>
-                {sub}
-              </Text>
-            )}
-          </VStack>
-        </Stack>
-      ) : (
-        <VStack align="center" spacing={0}>
-          <Text fontWeight="600" fontSize="sm" color="text.heading">
-            {title}
-          </Text>
-          {sub && (
-            <Text fontSize="xs" color="text.muted" textAlign="center">
-              {sub}
-            </Text>
-          )}
-        </VStack>
-      )}
-    </VStack>
-  );
-}
 
 interface TilesProps<T extends string> {
   options: readonly TileOption<T>[];
@@ -78,22 +10,19 @@ interface TilesProps<T extends string> {
   columns?: ResponsiveValue<number>;
 }
 
-export function Tiles<T extends string>({
-  options,
-  value,
-  onChange,
-  columns = 2,
-}: TilesProps<T>) {
+export function Tiles<T extends string>({ options, value, onChange, columns = 2 }: TilesProps<T>) {
   return (
     <SimpleGrid columns={columns} spacing={3}>
-      {options.map((o) => (
-        <TileButton
+      {options.map(o => (
+        <Tile
           key={o.value}
           icon={o.icon}
           title={o.title}
           sub={o.sub}
           active={value === o.value}
           onClick={() => onChange(o.value)}
+          iconBg="accent.primary"
+          iconColor="surface.card"
         />
       ))}
     </SimpleGrid>

@@ -10,6 +10,7 @@ import {
   type PreviewContext,
   type ToolResult,
   type Suggestion,
+  ChatCard,
 } from '@bookeasy/shared';
 import type { ToolContext } from '../common';
 import { systemPrompt } from './prompts';
@@ -162,6 +163,7 @@ export class ChatService {
     toolCalls: ToolCallSummary[],
   ): Promise<ChatResponseDto> {
     const allProposals: ChatAction[] = [];
+    const allCards: ChatCard[] = [];
     let previewContext: PreviewContext | undefined;
     let currentToolCalls = toolCalls;
 
@@ -181,11 +183,12 @@ export class ChatService {
         await turn.memory.append({
           role: 'tool',
           tool_call_id: toolCall.id,
-          content: JSON.stringify(result),
+          content: JSON.stringify({ ...result }),
         } satisfies ChatCompletionMessageParamWithSuggestions);
         if (result.success) {
           if (result.proposals) allProposals.push(...result.proposals);
           if (result.previewContext) previewContext = result.previewContext;
+          if (result.cards) allCards.push(...result.cards);
         }
       }
 
@@ -199,7 +202,7 @@ export class ChatService {
           currentToolCalls = next.toolCalls;
           continue;
         }
-        const response = await this.buildResponse(turn, next.content);
+        const response = await this.buildResponse(turn, next.content, allCards);
         response.proposals = allProposals.length > 0 ? allProposals : undefined;
         response.previewContext = previewContext;
         return response;
@@ -211,6 +214,7 @@ export class ChatService {
           content: 'I prepared that for you, but had an issue generating my response.',
           proposals: allProposals.length > 0 ? allProposals : undefined,
           previewContext,
+          cards: allCards.length > 0 ? allCards : undefined,
         };
       }
     }
@@ -222,6 +226,7 @@ export class ChatService {
       content: 'I gathered the information but hit a processing limit. Here is what I have so far.',
       proposals: allProposals.length > 0 ? allProposals : undefined,
       previewContext,
+      cards: allCards.length > 0 ? allCards : undefined,
     };
   }
 
@@ -230,7 +235,9 @@ export class ChatService {
   private async buildResponse(
     turn: ChatTurn,
     rawContent: string | null,
+    cards?: ChatCard[],     
   ): Promise<ChatResponseDto> {
+    const outCards = cards && cards.length > 0 ? cards : undefined;
     const fallback = { content: "I'm here to help!", suggestions: null };
     let parsed: { content: string; suggestions: Suggestion[] | null };
     try {
@@ -247,10 +254,11 @@ export class ChatService {
       role: 'assistant',
       content: parsed.content,
       suggestions,
+      cards: outCards,
     });
     await turn.memory.finish();
 
-    return { role: 'bot', content: parsed.content, suggestions };
+    return { role: 'bot', content: parsed.content, suggestions, cards: outCards };
   }
 
   private buildConfirmedFeedback(dto: ActionResultDto): string {

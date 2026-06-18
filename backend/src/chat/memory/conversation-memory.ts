@@ -1,8 +1,9 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
-import type { Suggestion } from '@bookeasy/shared';
+import type { Suggestion, ChatCard } from '@bookeasy/shared'; 
 
 export type ChatCompletionMessageParamWithSuggestions = ChatCompletionMessageParam & {
   suggestions?: Suggestion[];
+  cards?: ChatCard[]; 
 };
 
 export interface Turn {

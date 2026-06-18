@@ -1,4 +1,5 @@
 import type { ChatAction, PreviewContext } from './index';
+import type { ChatCard } from './cards.tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Proposal Builder
@@ -41,17 +42,18 @@ export function createProposal<T extends ChatAction>(
 // ToolResult Builder
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface ToolResultError {
+  success: false;
+  error: string;
+}
+
 export interface ToolResultSuccess {
   success: true;
   message: string;
   data?: Record<string, unknown>;
   proposals?: ChatAction[];
   previewContext?: PreviewContext;
-}
-
-export interface ToolResultError {
-  success: false;
-  error: string;
+  cards?: ChatCard[];
 }
 
 export type ToolResultType = ToolResultSuccess | ToolResultError;
@@ -93,12 +95,19 @@ export const ToolResult = {
   /**
    * Success with preview switch
    */
-    withPreview(
-      message: string,
-      previewContext?: PreviewContext
-    ): ToolResultSuccess {
-      return { success: true, message, previewContext };
-    },
+  withPreview(
+    message: string,
+    previewContext?: PreviewContext
+  ): ToolResultSuccess {
+    return { success: true, message, previewContext };
+  },
+
+  /**
+   * Success with cards
+   */
+  withCards(cards: ChatCard | ChatCard[], message: string): ToolResultSuccess {
+    return { success: true, message, cards: Array.isArray(cards) ? cards : [cards] };
+  },
 
   /**
    * Error result

@@ -56,7 +56,7 @@ export class PersistentConversationMemory implements ConversationMemory {
       history,
 
       append: async (msg: ChatCompletionMessageParamWithSuggestions) => {
-        const { suggestions: _suggestions, ...providerMsg } = msg;
+        const { suggestions: _suggestions, cards: _cards, ...providerMsg } = msg;
         history.push(providerMsg);
         await this.messages.append(conversationId, msg);
         appended = true;

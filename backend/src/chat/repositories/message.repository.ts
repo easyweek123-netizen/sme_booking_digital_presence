@@ -92,6 +92,7 @@ function toMessageRow(
       toolCallId: (msg as { tool_call_id?: string }).tool_call_id ?? null,
       toolCallsJson: null,
       suggestions: null,
+      cards: null,
     };
   }
   if (msg.role === 'assistant') {
@@ -107,6 +108,7 @@ function toMessageRow(
         msg.suggestions && msg.suggestions.length > 0
           ? JSON.stringify(msg.suggestions)
           : null,
+      cards: msg.cards && msg.cards.length > 0 ? JSON.stringify(msg.cards) : null,
     };
   }
   return {

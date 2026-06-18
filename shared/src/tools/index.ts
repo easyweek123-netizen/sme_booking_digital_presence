@@ -9,6 +9,7 @@ export * from './booking.tools';
 export * from './business.tools';
 export * from './customer.tools';
 export * from './note.tools';
+export * from './cards.tools';
 import {
   ServiceCreateActionSchema,
   ServiceUpdateActionSchema,
@@ -22,6 +23,7 @@ import {
   NoteUpdateActionSchema,
   NoteDeleteActionSchema,
 } from './note.tools';
+import { ChatCardSchema } from './cards.tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat Action Union
@@ -77,6 +79,7 @@ export const ToolResultSchema = z.object({
   message: z.string().optional(),
   data: z.record(z.unknown()).optional(),
   proposals: z.array(ChatActionSchema).optional(),
+  cards: z.array(ChatCardSchema).optional(),
   previewContext: PreviewContextSchema.optional(),
   error: z.string().optional(),
 });
@@ -101,6 +104,7 @@ export const MessageSchema = z.object({
   content: z.string(),
   suggestions: z.array(SuggestionSchema).optional(),
   proposals: z.array(ChatActionSchema).optional(),
+  cards: z.array(ChatCardSchema).optional(),
   previewContext: PreviewContextSchema.optional(),
 });
 export type Message = z.infer<typeof MessageSchema>;
@@ -109,6 +113,7 @@ export const ChatResponseSchema = z.object({
   role: z.literal('bot'),
   content: z.string(),
   proposals: z.array(ChatActionSchema).optional(),
+  cards: z.array(ChatCardSchema).optional(),
   previewContext: PreviewContextSchema.optional(),
 });
 export type ChatResponse = z.infer<typeof ChatResponseSchema>;

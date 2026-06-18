@@ -3,6 +3,8 @@ import {
   businessAddressLine,
   businessPhoneNumber,
 } from '../../locations/types/business-location-lookup';
+import { ONBOARDING_PRESETS } from '@bookeasy/shared';
+import { computeFlowProgress, FLOW_META } from '../tools/onboarding-flows';
 
 const PROMPT_TEMPLATE = `You are an expert in business development through digital marketing with more then 
 10 years of experience and you will help {owner}, who is owner of booking website "{name}". 
@@ -85,51 +87,42 @@ export function formatBusinessContext(
   ].join('\n');
 }
 
-export function systemPrompt(
-  business: Business | null,
-  appUrl: string,
-): string {
-  return PROMPT_TEMPLATE.replace('{name}', business?.name ?? 'New Business')
+export function systemPrompt(business: Business | null, appUrl: string): string {
+  const base = PROMPT_TEMPLATE.replace('{name}', business?.name ?? 'New Business')
     .replace('{context}', formatBusinessContext(business, appUrl))
     .replace('{slug}', business?.slug ?? '')
     .replace('{owner}', business?.owner?.name ?? 'the owner');
+
+  // Append first-time-setup guidance while onboarding is incomplete (null once all flows done).
+  const guidance = onboardingGuidance(business);
+  return guidance ? `${base}\n\n${guidance}` : base;
 }
 
-// Analyse tools available and business profile carefully for reasoning.
-// You need to own this business like an nice employee who is passionate about the business.
-// Be concise (1-3 sentences) and helpful.
-
-// You can help them by:
-// 1- Booking page setup: Customising their professional booking page for their bussiness.
-// 2- Grow bussiness: Helping them grow, by staying on top of their bussiness.
-
-// Proposal lifecycle (Actions panel):
-// 1. You call a tool that returns a proposal → the app shows an editable card in the Actions panel
-// (nothing is saved to the database yet).
-// 2. The user confirms or cancels on that card → only then does the change apply (or get discarded).
-// 3. Chat messages like "yes" or "confirm" are not a substitute for pressing Confirm on the card.
-// 4. As soon as user request to update something, show them the proposal card in the Actions panel and
-// tell them to edit.
-// 5. After you create a proposal, tell the user to review the Actions panel and use Confirm or Cancel;
-// do not say the change is already live until they confirm.
-
-// Booking page setup:
-// 1- Check business profile and reason over what configuration user is missing to setup their booking page.
-// Booking page should look professional and aesthetic after all configs in Business profile are present.
-// 2- Use tools to get and set data. Never make up data.
-// 3- When you want user to create/update/delete data, use tools for creating proposals.
-// User can confirm, cancel or ask followup questions about proposal.
-// 4- Be proactive about what user should do next.
-// 5- For better analysis business brand, start with adding desciption and services
-// so you know what their bussiness is about and then suggest proposals for contact
-// info, working hours, about content all other fields in business profile.
-// 6- On landing greet user with webpage since its live but encourage
-// them to update so it can be useful. Its easy to update and you can do it in a few minutes.
-// 7- Share the booking link from business profile bookingPageUrl. To get feedback and celebrate.
-
-// Grow bussiness:
-// 1- Help user by staying on top of their bussiness.
-// 2- Answer their questions in relevent domain.
-// 3- Provide realistic, next steps to grow their bussiness.
-// 4- Brainstorm ideas with user.
-// 5- Analyse data through tools and reason to come with useful stats i.e. Pending Requests, Todays Bookings, Upcoming bookings etc.
+export function onboardingGuidance(business: Business | null): string | null {
+  const done = computeFlowProgress(business);
+  if (ONBOARDING_PRESETS.every((p) => done[p])) return null;   // setup complete → omit section
+  const status = ONBOARDING_PRESETS
+    .map((p) => `${FLOW_META[p].label}: ${done[p] ? 'done' : 'not done'}`)
+    .join(', ');
+  return [
+    '## First-time setup (inline cards)',
+    `Current setup — ${status}.`,
+    'Inline setup tools render cards directly in the chat:',
+    '- show_progress() — progress card (Branding / Business spot / First service).',
+    '- show_tiles("setup_flows") — the three tappable setup tiles.',
+    '- open_wizard(submitAction, preset, suggestions?) — multi-step inline form. Presets:',
+    '    branding & location → submitAction "business:update"; service → "service:create".',
+    '- show_summary(preset) — ✓ card after a step saves; preset "all" = final share card.',
+    '',
+    'Rules:',
+    '1. On [Chat opened] with setup incomplete: send ONE short greeting, then call show_progress and',
+    '   show_tiles("setup_flows"). Exactly one of each — no duplicates, no placeholder/bracket text.',
+    '2. When the user taps a tile or asks to set up/edit a flow, call open_wizard with the matching',
+    '   preset and helpful `suggestions` for empty fields only.',
+    '3. After [Action confirmed] (a wizard Apply): call show_summary(preset), then show_progress. If',
+    '   another flow is not done, open_wizard for it; if all are done, call show_summary("all").',
+    '4. After [Action cancelled] (a Skip): call show_progress and move on; do not reopen it unprompted.',
+    '5. Prefer these inline tools over Actions-panel proposals for first-time setup. Never say a change',
+    '   is saved unless the latest user line is [Action confirmed].',
+  ].join('\n');
+}

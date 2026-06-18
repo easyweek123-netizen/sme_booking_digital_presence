@@ -38,6 +38,10 @@ export class Message {
   @Column({ type: 'text', nullable: true })
   suggestions: string | null;
 
+  /** Cards from tools. */
+  @Column({ type: 'text', nullable: true }) 
+  cards: string | null; 
+
   /** For role='tool' rows, the id of the assistant tool_call this answers. */
   @Column({ type: 'varchar', length: 64, nullable: true })
   toolCallId: string | null;

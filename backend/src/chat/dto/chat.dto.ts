@@ -10,6 +10,7 @@ import type {
   PreviewContext,
   ActionResultStatus,
   Suggestion,
+  ChatCard,
 } from '@bookeasy/shared';
 
 // Re-export types from shared for convenience
@@ -46,6 +47,9 @@ export class ChatResponseDto {
 
   /** Contextual suggestions for the user */
   suggestions?: Suggestion[];
+
+  /** Visual cards rendered inline inside this bot message. */
+  cards?: ChatCard[];
 }
 
 /**

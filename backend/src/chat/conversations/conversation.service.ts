@@ -11,7 +11,7 @@ import {
   ConversationDto,
 } from '../dto/conversation.dto';
 import { ChatMessageDto } from '../dto/message.dto';
-import type { Suggestion } from '@bookeasy/shared';
+import type { Suggestion, ChatCard } from '@bookeasy/shared';
 
 @Injectable()
 export class ConversationService {
@@ -90,6 +90,10 @@ export class ConversationService {
           r.role === 'assistant' && r.suggestions
             ? safeParseSuggestions(r.suggestions)
             : undefined,
+        cards:                                                         // ← NEW
+            r.role === 'assistant' && r.cards
+              ? safeParseCards(r.cards)
+              : undefined,
       }));
   }
 }
@@ -98,6 +102,15 @@ function safeParseSuggestions(raw: string): Suggestion[] | undefined {
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as Suggestion[]) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function safeParseCards(raw: string): ChatCard[] | undefined {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as ChatCard[]) : undefined;
   } catch {
     return undefined;
   }

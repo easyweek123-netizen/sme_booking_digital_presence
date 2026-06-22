@@ -11,6 +11,8 @@ import {
   type ToolResult,
   type Suggestion,
   ChatCard,
+  Wizard,
+  ActionResult
 } from '@bookeasy/shared';
 import type { ToolContext } from '../common';
 import { systemPrompt } from './prompts';
@@ -105,15 +107,19 @@ export class ChatService {
 
   async processActionResult(
     ownerId: number,
-    dto: ActionResultDto & { conversationId: number },
+    dto: ActionResult & { conversationId: number },
   ): Promise<ChatResponseDto> {
     const turn = await this.prepareContext(ownerId, dto.conversationId);
-    const feedback =
-      dto.status === 'confirmed'
-        ? this.buildConfirmedFeedback(dto)
-        : `[Action cancelled] — no changes were made.`;
-    await turn.memory.append({ role: 'user', content: feedback } satisfies ChatCompletionMessageParamWithSuggestions);
+    await turn.memory.append({
+      role: 'user', content: this.submissionMarker(dto),
+    } satisfies ChatCompletionMessageParamWithSuggestions);
     return this.runChatTurn(turn);
+  }
+  
+  private submissionMarker(dto: ActionResult): string {
+    return dto.status === 'confirmed' ? `[Action confirmed] — changes applied.`   // proposal confirm/cancel
+      : dto.status === 'modified' ? `[Action modified] — custom changes were applied.`
+      : `[Action cancelled] — no changes were made.`;
   }
 
   // ── context preparation ────────────────────────────────────────────
@@ -164,6 +170,7 @@ export class ChatService {
   ): Promise<ChatResponseDto> {
     const allProposals: ChatAction[] = [];
     const allCards: ChatCard[] = [];
+    let wizard: Wizard | undefined;
     let previewContext: PreviewContext | undefined;
     let currentToolCalls = toolCalls;
 
@@ -183,12 +190,13 @@ export class ChatService {
         await turn.memory.append({
           role: 'tool',
           tool_call_id: toolCall.id,
-          content: JSON.stringify({ ...result }),
+          content: JSON.stringify({ ...result, cards: undefined, wizard: undefined })
         } satisfies ChatCompletionMessageParamWithSuggestions);
         if (result.success) {
           if (result.proposals) allProposals.push(...result.proposals);
           if (result.previewContext) previewContext = result.previewContext;
-          if (result.cards) allCards.push(...result.cards);
+          if (result.cards)  allCards.push(...result.cards);
+          if (result.wizard) wizard = result.wizard; 
         }
       }
 
@@ -205,6 +213,7 @@ export class ChatService {
         const response = await this.buildResponse(turn, next.content, allCards);
         response.proposals = allProposals.length > 0 ? allProposals : undefined;
         response.previewContext = previewContext;
+        response.wizard = wizard;
         return response;
       } catch (error) {
         this.logger.error('AI API error (tool chain):', error);

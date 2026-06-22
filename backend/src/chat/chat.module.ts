@@ -18,10 +18,8 @@ import { PersistentConversationMemory } from './memory';
 import { ConversationCounter } from './conversations/conversation.counter';
 import { COUNTER_TOKEN } from '../entitlements/counters/usage-counter.registry';
 import { CounterKey } from '../entitlements/config/counter-keys';
-import { OpenWizardTool } from './tools/open-wizard';
-import { ShowProgressTool } from './tools/progress.tool';
-import { ShowTilesTool } from './tools/tiles.tool';
-import { ShowSummaryTool } from './tools/summary-tool';
+import { OpenWorkflowTool } from './tools/open-workflow';
+import { ShowWorkflowSummaryTool } from './tools/show-workflow-summary';
 
 @Module({
   imports: [
@@ -37,11 +35,9 @@ import { ShowSummaryTool } from './tools/summary-tool';
   ],
   controllers: [ConversationController],
   providers: [
-    OpenAIChatProvider,
-    ShowProgressTool, 
-    ShowTilesTool, 
-    OpenWizardTool, 
-    ShowSummaryTool,
+    OpenAIChatProvider, 
+    OpenWorkflowTool, 
+    ShowWorkflowSummaryTool,
     {
       provide: ChatCompletionProvider,
       useExisting: OpenAIChatProvider,

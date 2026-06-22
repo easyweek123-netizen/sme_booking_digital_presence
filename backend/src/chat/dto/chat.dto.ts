@@ -11,6 +11,7 @@ import type {
   ActionResultStatus,
   Suggestion,
   ChatCard,
+  Wizard
 } from '@bookeasy/shared';
 
 // Re-export types from shared for convenience
@@ -50,6 +51,8 @@ export class ChatResponseDto {
 
   /** Visual cards rendered inline inside this bot message. */
   cards?: ChatCard[];
+
+  wizard?: Wizard;
 }
 
 /**
@@ -66,4 +69,8 @@ export class ActionResultDto {
   @IsOptional()
   @IsObject()
   result?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsObject() 
+  wizard?: { stepId?: string };
 }

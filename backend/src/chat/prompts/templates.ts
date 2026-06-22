@@ -3,8 +3,8 @@ import {
   businessAddressLine,
   businessPhoneNumber,
 } from '../../locations/types/business-location-lookup';
-import { ONBOARDING_PRESETS } from '@bookeasy/shared';
-import { computeFlowProgress, FLOW_META } from '../tools/onboarding-flows';
+import { selectActiveWorkflowId, WORKFLOWS, STEPS } from '@bookeasy/shared';
+import { toSetupState } from '../tools/workflow-helper';
 
 const PROMPT_TEMPLATE = `You are an expert in business development through digital marketing with more then 
 10 years of experience and you will help {owner}, who is owner of booking website "{name}". 
@@ -98,31 +98,24 @@ export function systemPrompt(business: Business | null, appUrl: string): string 
   return guidance ? `${base}\n\n${guidance}` : base;
 }
 
-export function onboardingGuidance(business: Business | null): string | null {
-  const done = computeFlowProgress(business);
-  if (ONBOARDING_PRESETS.every((p) => done[p])) return null;   // setup complete → omit section
-  const status = ONBOARDING_PRESETS
-    .map((p) => `${FLOW_META[p].label}: ${done[p] ? 'done' : 'not done'}`)
-    .join(', ');
+function onboardingGuidance(business: Business | null): string | null {
+  const state = toSetupState(business);
+  const id = selectActiveWorkflowId(state);
+  if (!id) return null;
+  const wf = WORKFLOWS[id];
+  const status = wf.steps.map((s) => `${STEPS[s].label}: ${STEPS[s].done(state) ? 'done' : 'not done'}`).join(', ');
   return [
-    '## First-time setup (inline cards)',
-    `Current setup — ${status}.`,
-    'Inline setup tools render cards directly in the chat:',
-    '- show_progress() — progress card (Branding / Business spot / First service).',
-    '- show_tiles("setup_flows") — the three tappable setup tiles.',
-    '- open_wizard(submitAction, preset, suggestions?) — multi-step inline form. Presets:',
-    '    branding & location → submitAction "business:update"; service → "service:create".',
-    '- show_summary(preset) — ✓ card after a step saves; preset "all" = final share card.',
-    '',
+    '## First-time setup',
+    `Active workflow "${wf.label}" (id: ${id}) — ${status}.`,
+    'Tools:',
+    '- open_workflow({}) — pin the whole setup workflow. Use on [Chat opened] when setup is incomplete, ' +
+      'or when the owner asks to start/resume. The UI handles step navigation and ticking — do NOT re-open after a save.',
+    '- show_workflow_summary({ workflow_id }) — emit the completion card. Call once, right after the ' +
+      'LAST step is saved and every step shows done.',
     'Rules:',
-    '1. On [Chat opened] with setup incomplete: send ONE short greeting, then call show_progress and',
-    '   show_tiles("setup_flows"). Exactly one of each — no duplicates, no placeholder/bracket text.',
-    '2. When the user taps a tile or asks to set up/edit a flow, call open_wizard with the matching',
-    '   preset and helpful `suggestions` for empty fields only.',
-    '3. After [Action confirmed] (a wizard Apply): call show_summary(preset), then show_progress. If',
-    '   another flow is not done, open_wizard for it; if all are done, call show_summary("all").',
-    '4. After [Action cancelled] (a Skip): call show_progress and move on; do not reopen it unprompted.',
-    '5. Prefer these inline tools over Actions-panel proposals for first-time setup. Never say a change',
-    '   is saved unless the latest user line is [Action confirmed].',
+    '1. On [Chat opened] with setup incomplete: greet in ONE short line, then open_workflow({}).',
+    '2. After a [Saved: <step>] message: reply in ONE short encouraging line (nudge the next step). Do not re-open the wizard.',
+    `3. When every step is done: call show_workflow_summary({ workflow_id: "${id}" }) and congratulate briefly.`,
+    '4. Never claim something is saved before the [Saved] marker.',
   ].join('\n');
 }

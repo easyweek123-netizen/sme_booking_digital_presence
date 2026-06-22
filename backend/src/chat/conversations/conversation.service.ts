@@ -80,8 +80,8 @@ export class ConversationService {
     return rows
       .filter(
         (r) =>
-          (r.role === 'user' && r.content !== '[Chat opened]') ||
-          (r.role === 'assistant' && !r.toolCallsJson && r.content),
+          (r.role === 'user' && !/^\[[^\]]*\]$/.test(r.content.trim())) ||
+          (r.role === 'assistant' && !r.toolCallsJson && (r.content || r.cards)),
       )
       .map((r) => ({
         role: r.role === 'user' ? 'user' : 'bot',

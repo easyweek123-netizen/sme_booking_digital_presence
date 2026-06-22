@@ -1,5 +1,6 @@
 import type { ChatAction, PreviewContext } from './index';
-import type { ChatCard } from './cards.tools';
+import type { ChatCard } from '../wizard/card.schema';
+import type { Wizard } from '../wizard/wizard.schema';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Proposal Builder
@@ -54,6 +55,7 @@ export interface ToolResultSuccess {
   proposals?: ChatAction[];
   previewContext?: PreviewContext;
   cards?: ChatCard[];
+  wizard?: Wizard;
 }
 
 export type ToolResultType = ToolResultSuccess | ToolResultError;
@@ -103,10 +105,23 @@ export const ToolResult = {
   },
 
   /**
+   * Success with wizard
+   */
+  withWizard(
+    wizard: Wizard, 
+    message: string
+  ): ToolResultSuccess { 
+    return { success: true, message, wizard }; 
+  },
+  
+  /**
    * Success with cards
    */
-  withCards(cards: ChatCard | ChatCard[], message: string): ToolResultSuccess {
-    return { success: true, message, cards: Array.isArray(cards) ? cards : [cards] };
+  withCards(
+    cards: ChatCard[], 
+    message: string
+  ): ToolResultSuccess { 
+    return { success: true, message, cards }; 
   },
 
   /**

@@ -5,6 +5,7 @@
  */
 
 export * from './tools';
+export * from './wizard';
 export * from './schemas/types';
 export * from './schemas/availability.schema';
 export * from './schemas/location.schema';

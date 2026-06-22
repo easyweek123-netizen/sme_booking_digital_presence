@@ -9,7 +9,9 @@ export * from './booking.tools';
 export * from './business.tools';
 export * from './customer.tools';
 export * from './note.tools';
-export * from './cards.tools';
+export * from '../wizard';
+import { ChatCardSchema } from '../wizard/card.schema';
+import { WizardSchema } from '../wizard/wizard.schema';
 import {
   ServiceCreateActionSchema,
   ServiceUpdateActionSchema,
@@ -23,7 +25,6 @@ import {
   NoteUpdateActionSchema,
   NoteDeleteActionSchema,
 } from './note.tools';
-import { ChatCardSchema } from './cards.tools';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chat Action Union
@@ -80,6 +81,7 @@ export const ToolResultSchema = z.object({
   data: z.record(z.unknown()).optional(),
   proposals: z.array(ChatActionSchema).optional(),
   cards: z.array(ChatCardSchema).optional(),
+  wizard: WizardSchema.optional(),
   previewContext: PreviewContextSchema.optional(),
   error: z.string().optional(),
 });
@@ -115,6 +117,7 @@ export const ChatResponseSchema = z.object({
   proposals: z.array(ChatActionSchema).optional(),
   cards: z.array(ChatCardSchema).optional(),
   previewContext: PreviewContextSchema.optional(),
+  wizard: WizardSchema.optional(),
 });
 export type ChatResponse = z.infer<typeof ChatResponseSchema>;
 
@@ -127,8 +130,9 @@ export type ActionResultStatus = z.infer<typeof ActionResultStatusSchema>;
 
 export const ActionResultSchema = z.object({
   proposalId: z.string().uuid(),
-  status: ActionResultStatusSchema,
+  status: ActionResultStatusSchema,            // 'confirmed' | 'cancelled' | 'modified' (reused)
   result: z.record(z.unknown()).optional(),
+  wizard: z.object({ stepId: z.string().optional() }).optional(),  // present on wizard saves
 });
 export type ActionResult = z.infer<typeof ActionResultSchema>;
 

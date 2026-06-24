@@ -10,6 +10,9 @@ import { BREAKPOINTS } from '../../utils/breakpoints';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../types';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { dismissSetupHint } from '../../store/slices/previewSlice';
+import { useBookingPageSections, type SectionId } from '../Business/hooks/useBookingPageSections';
+import { PreviewSetupBanner } from '../Business/PreviewSetupBanner';
+import { ServicesPlaceholder, AboutPlaceholder, ContactPlaceholder, HoursPlaceholder } from '../Business/sections/SectionPlaceholders';
 
 interface BookingPreviewProps {
   /**
@@ -51,6 +54,20 @@ export function BookingPreview({
   const contextBusiness = useBusiness();
   const business = businessOverride ?? contextBusiness;
 
+  const isCanvas = businessOverride == null;          // canvas pulls from context
+  const showSetupHints = !setupHintDismissed;
+  const { sections, registerSection } = useBookingPageSections(business, {
+    autoScrollOnAppear: isCanvas,
+  });
+
+  const PLACEHOLDERS: Record<SectionId, React.ReactNode> = {
+    'section-services': <ServicesPlaceholder />,
+    'section-about': <AboutPlaceholder />,
+    'section-contact': <ContactPlaceholder />,
+    'section-hours': <HoursPlaceholder />,
+  };
+  const renderPlaceholder = (id: SectionId) => showSetupHints ? PLACEHOLDERS[id] : null;
+
   const categoriesQuery = useGetBusinessServicesQuery(business.id, {
     skip: categoriesOverride != null,
   });
@@ -75,6 +92,7 @@ export function BookingPreview({
     setWizardService(service ?? null);
     setWizardOpen(true);
   };
+
   const handleClose = () => {
     setWizardOpen(false);
     setWizardService(null);
@@ -100,8 +118,13 @@ export function BookingPreview({
             business={business}
             categories={categories}
             onBook={handleBook}
-            showSetupHints={!setupHintDismissed}
-            onDismissPreview={() => dispatch(dismissSetupHint())}
+            sections={sections}
+            registerSection={registerSection}
+            renderPlaceholder={renderPlaceholder}
+            showSetupHints={showSetupHints}
+            banner={showSetupHints
+              ? <PreviewSetupBanner onDismiss={() => dispatch(dismissSetupHint())} />
+              : undefined}
           />
         )}
       </BrandProvider>

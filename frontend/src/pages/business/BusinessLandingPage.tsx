@@ -11,10 +11,11 @@ import {
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetBusinessBySlugQuery } from '../../store/api';
-import { BusinessBookingPage as BusinessBookingPageView } from '../../components/Business/BusinessBookingPage';
+import { BusinessBookingPage } from '../../components/Business/BusinessBookingPage';
 import { DeviceModeProvider } from '../../components/Business/context/DeviceModeContext';
 import { ROUTES } from '../../config/routes';
 import type { Service } from '../../types';
+import { useBookingPageSections } from '../../components/Business/hooks/useBookingPageSections';
 
 export function BusinessLandingPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +24,7 @@ export function BusinessLandingPage() {
 
   const businessQuery = useGetBusinessBySlugQuery(slug ?? '', { skip: !slug });
   const business = businessQuery.data;
+  const { sections } = useBookingPageSections(business);
 
   if (businessQuery.isLoading) {
     return (
@@ -68,10 +70,11 @@ export function BusinessLandingPage() {
 
   return (
     <DeviceModeProvider isDesktop={isDesktop}>
-      <BusinessBookingPageView
+      <BusinessBookingPage
         business={business}
         categories={[]}
         onBook={handleBook}
+        sections={sections}
       />
     </DeviceModeProvider>
   );

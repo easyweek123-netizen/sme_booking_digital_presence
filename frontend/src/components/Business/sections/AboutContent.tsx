@@ -11,7 +11,7 @@ interface Props { html: string; }
  * Shares the editor's schema → schema-cleans anything the user couldn't have produced
  * in the editor (defense alongside backend sanitize). No dangerouslySetInnerHTML.
  */
-export function AboutContent({ html }: Props) {
+export function AboutContent({ html = '' }: Props) {
   const editor = useEditor({
     extensions: aboutEditorExtensions(),
     content: html,
@@ -19,7 +19,8 @@ export function AboutContent({ html }: Props) {
   });
 
   useEffect(() => {
-    if (editor && editor.getHTML() !== html) editor.commands.setContent(html, false);
+    if (editor && editor.getHTML() !== html) 
+        editor.commands.setContent(html, false);
   }, [editor, html]);
 
   return (

@@ -8,6 +8,8 @@ import { BrandProvider } from '../Business/brand';
 import { DeviceModeProvider } from '../Business/context/DeviceModeContext';
 import { BREAKPOINTS } from '../../utils/breakpoints';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../types';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { dismissSetupHint } from '../../store/slices/previewSlice';
 
 interface BookingPreviewProps {
   /**
@@ -44,6 +46,8 @@ export function BookingPreview({
   onSubmit,
 }: BookingPreviewProps) {
   const toast = useToast();
+  const dispatch = useAppDispatch();
+  const setupHintDismissed = useAppSelector((s) => s.preview.setupHintDismissed);
   const contextBusiness = useBusiness();
   const business = businessOverride ?? contextBusiness;
 
@@ -96,6 +100,8 @@ export function BookingPreview({
             business={business}
             categories={categories}
             onBook={handleBook}
+            showSetupHints={!setupHintDismissed}
+            onDismissPreview={() => dispatch(dismissSetupHint())}
           />
         )}
       </BrandProvider>

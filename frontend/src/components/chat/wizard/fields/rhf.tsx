@@ -17,7 +17,7 @@ export function RhfColorField({ name, label }: { name: string; label: string }) 
       showCheckmark />)} 
     />;
 }
-export function RhfImageField({ name, label, aspectRatio }: { name: string; label: string; aspectRatio: number }) {
+export function RhfImageField({ name, label, aspectRatio, maxW }: { name: string; label: string; aspectRatio: number; maxW?: any; }) {
   const { control } = useFormContext();
   return  <Controller control={control} name={name} render={({ field }) => (
       <ImageUploadField 
@@ -25,7 +25,9 @@ export function RhfImageField({ name, label, aspectRatio }: { name: string; labe
         folder="business" 
         aspectRatio={aspectRatio}
         value={field.value ?? ''} 
-        onChange={field.onChange} />)} 
+        onChange={field.onChange}
+        maxW={maxW}
+      />)} 
       />;
 }
 export function RhfLocationField({ name, type }: { name: string; type: 'ADDRESS' | 'PHONE' }) {

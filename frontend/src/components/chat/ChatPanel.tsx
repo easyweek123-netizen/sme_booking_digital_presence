@@ -11,6 +11,7 @@ import { TypingIndicator } from './TypingIndicator';
 import { SparkleIcon } from '../icons';
 import { useConversation } from './hooks/useConversation';
 import { WorkflowExecutionWizard } from './wizard/WorkflowExecutionWizard';
+import { openCanvas } from '../../store/slices/previewSlice';
 
 export function ChatPanel() {
   const dispatch = useAppDispatch();
@@ -31,11 +32,12 @@ export function ChatPanel() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-create first conversation (idempotent inside the hook)
+  // Auto-create first conversation
   useEffect(() => {
     (async () => {
       const reply = await startChat();
       if (reply?.wizard) dispatch(setActiveWizard(reply.wizard));
+      if (reply) dispatch(openCanvas());
       if (reply?.previewContext) dispatch(setPreviewContext(reply.previewContext));
       if (reply?.proposals?.length) dispatch(addProposals(reply.proposals));
     })();
@@ -81,7 +83,7 @@ export function ChatPanel() {
       </HStack>
 
       <Box flex={1} overflow="auto" px={4}>
-        <VStack spacing={4} align="stretch" py={6}>
+        <VStack spacing={4} align="stretch" py={4}>
           {showEmptyState && (
             <Flex
               direction="column"
@@ -115,7 +117,7 @@ export function ChatPanel() {
       </Box>
 
       <Stack px={4} py={2} overflow="auto">
-        {activeWizard && <WorkflowExecutionWizard key={activeWizard.proposalId} wizard={activeWizard} />}.
+        {activeWizard && <WorkflowExecutionWizard key={activeWizard.proposalId} wizard={activeWizard} />}
         <ChatInput
           placeholder="Ask me anything..."
           onSubmit={handleSubmit}

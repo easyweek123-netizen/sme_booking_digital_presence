@@ -1,12 +1,11 @@
 import { Box, Flex, Grid, useDisclosure } from '@chakra-ui/react';
-import { useMemo } from 'react';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../types';
-import { BrandProvider } from './brand';
+import { BrandButton, BrandProvider } from './brand';
 import { useDeviceMode } from './context/DeviceModeContext';
 import { BusinessHero } from './BusinessHero';
 import { BusinessHeader } from './BusinessHeader';
 import { BusinessTopNav } from './BusinessTopNav';
-import { SectionTabs, type SectionTab } from './SectionTabs';
+import { SectionTabs } from './SectionTabs';
 import { ServicesSection } from './sections/ServicesSection';
 import { AboutSection } from './sections/AboutSection';
 import { ContactSection } from './sections/ContactSection';
@@ -16,29 +15,37 @@ import { BusinessPageContainer } from './atoms/BusinessPageContainer';
 import { computeOpenStatus } from './utils';
 import { useScrollSpy } from './hooks/useScrollSpy';
 import { Footer } from '../Layout';
-
-const TABS: readonly SectionTab[] = [
-  { id: 'section-services', label: 'Services' },
-  { id: 'section-about', label: 'About' },
-  { id: 'section-contact', label: 'Contact' },
-  { id: 'section-hours', label: 'Opening hours' },
-];
+import { useBookingPageSections } from './hooks/useBookingPageSections';
+import { PreviewSetupBanner } from './PreviewSetupBanner';
+import { ServicesPlaceholder, AboutPlaceholder, HoursPlaceholder, ContactPlaceholder } from './sections/SectionPlaceholders';
 
 interface BusinessBookingPageProps {
   business: BusinessWithServices;
   categories: ServiceCategory[];
   businessTypeName?: string;
   onBook: (service?: Service) => void;
+  showSetupHints?: boolean;
+  onDismissPreview?: () => void;
 }
 
 export function BusinessBookingPage({
   business,
   categories,
-  businessTypeName,
   onBook,
+  showSetupHints = false,
+  onDismissPreview,
 }: BusinessBookingPageProps) {
   const isDesktop = useDeviceMode();
-  const sectionIds = useMemo(() => TABS.map((t) => t.id), []);
+  
+  const {
+    tabs,
+    sectionIds,
+    hasServices,
+    hasAbout,
+    hasContact,
+    hasHours,
+  } = useBookingPageSections(business);
+  
   const { activeId, scrolled, scrollTo } = useScrollSpy({
     sectionIds,
     scrolledThreshold: isDesktop ? 480 : 120,
@@ -49,58 +56,79 @@ export function BusinessBookingPage({
   });
 
   const status = computeOpenStatus(business.workingHours);
-
   return (
     <>
     <BrandProvider brandColor={business.brandColor} pb={10} bg="surface.card">
       <BusinessTopNav
         business={business}
         visible={scrolled}
-        tabs={TABS}
+        tabs={tabs}
         activeId={activeId}
         onSelect={scrollTo}
         onBookNow={() => onBook()}
       />
     
       <BusinessPageContainer>
-        <Flex direction="column" gap={2}>
-          <BusinessHero coverImageUrl={business.coverImageUrl} enabled={coverEnabled} />
-            <BusinessHeader
-              business={business}
-              status={status}
-              businessType={businessTypeName}
-              onBookNow={() => onBook()}
-            />
+        <Flex direction="column" gap={6} py={4}>
+          <BusinessHeader business={business} />
 
-            
-            {isDesktop && <SectionTabs tabs={TABS} activeId={activeId} onSelect={scrollTo} />}
+          {showSetupHints && onDismissPreview && (
+            <PreviewSetupBanner onDismiss={onDismissPreview} />
+          )}
 
-            <Grid
-              templateColumns={isDesktop ? 'minmax(0,1fr) 360px' : '1fr'}
-              gap={isDesktop ? 12 : 0}
-            >
-              <Box>
-                <ServicesSection
-                  services={business.services}
-                  categories={categories}
-                  onBook={onBook}
-                />
-                <AboutSection aboutContent={business.aboutContent} />
-                <ContactSection business={business} />
-                {business.showWeeklyHours && <HoursSection hours={business.workingHours} />}
-              </Box>
-              {isDesktop && (
-                <DesktopBookingCard
-                  business={business}
-                  services={business.services}
-                  status={status}
-                  onBookNow={() => onBook()}
-                />
+          <BusinessHero 
+            coverImageUrl={business.coverImageUrl} 
+            enabled={coverEnabled}
+            showSetupHints={showSetupHints}
+          />
+
+          {!isDesktop && (
+            <BrandButton size="lg" w="100%" onClick={() => onBook()}>
+              Book now
+            </BrandButton>
+          )}
+
+          {isDesktop && tabs.length > 0 && (
+            <SectionTabs tabs={tabs} activeId={activeId} onSelect={scrollTo} />
+          )}
+
+          <Grid
+            templateColumns={isDesktop ? 'minmax(0,1fr) 360px' : '1fr'}
+            gap={isDesktop ? 12 : 0}
+          >
+            <Box>
+              {hasServices ? (
+                <ServicesSection services={business.services} categories={categories} onBook={onBook} />
+              ) : (
+                showSetupHints && <ServicesPlaceholder />
               )}
-            </Grid>
+              {hasAbout ? (
+                <AboutSection aboutContent={business.aboutContent} />
+              ) : (
+                showSetupHints && <AboutPlaceholder />
+              )}
+              {hasContact ? (
+                <ContactSection business={business} />
+              ) : (
+                showSetupHints && <ContactPlaceholder />
+              )}
+              {hasHours ? (
+                <HoursSection hours={business.workingHours} />
+              ) : (
+                showSetupHints && <HoursPlaceholder />
+              )}
+            </Box>
+            {isDesktop && business.services.length > 0 && (
+              <DesktopBookingCard
+                business={business}
+                services={business.services}
+                status={status}
+                onBookNow={() => onBook()}
+              />
+            )}
+          </Grid>
         </Flex>
       </BusinessPageContainer>
-
     </BrandProvider>
     <Footer />
     </>

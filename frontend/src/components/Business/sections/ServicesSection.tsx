@@ -2,6 +2,7 @@ import { Box, HStack, useDisclosure, VStack } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 import type { Service, ServiceCategory } from '../../../types';
 import { ServiceCard } from '../ServiceCard';
+import { SectionHeading } from '../SectionHeading';
 
 interface ServicesSectionProps {
   services: Service[];
@@ -73,9 +74,9 @@ export function ServicesSection({
 
   return (
     <Box as="section" pt={{ base: 2 }}>
-      {/* <SectionHeading id="section-services">Services</SectionHeading> */}
+      <SectionHeading id="section-services">Services</SectionHeading>
 
-      <HStack spacing={2} overflowX="auto" pb={1} mb={4} sx={{ scrollbarWidth: 'none' }}>
+      {derivedCategories.length > 0 && <HStack spacing={2} overflowX="auto" pb={1} mb={4} sx={{ scrollbarWidth: 'none' }}>
         <CategoryFilterChip active={activeCat == null} onClick={() => selectCat(null)}>
           Featured
         </CategoryFilterChip>
@@ -88,7 +89,7 @@ export function ServicesSection({
             {c.name}
           </CategoryFilterChip>
         ))}
-      </HStack>
+      </HStack>}
 
       <VStack spacing={3} align="stretch">
         {display.map((svc) => (

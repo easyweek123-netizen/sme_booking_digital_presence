@@ -31,6 +31,8 @@ export interface ImageUploadFieldProps {
   allowUrlPaste?: boolean;
   /** Placeholder shown inside the Paste URL input. */
   urlPlaceholder?: string;
+  /** Maximum width of the preview. */
+  maxW?: React.CSSProperties['maxWidth'];
 }
 
 export function ImageUploadField({
@@ -42,6 +44,7 @@ export function ImageUploadField({
   aspectRatio = 16 / 9,
   allowUrlPaste = true,
   urlPlaceholder,
+  maxW,
 }: ImageUploadFieldProps) {
   const field = useImageField({ value, onChange, folder });
 
@@ -54,7 +57,7 @@ export function ImageUploadField({
 
         <HiddenInput field={field} />
 
-        <Preview field={field} aspectRatio={aspectRatio} aria-label={`Upload ${label}`} />
+        <Preview field={field} aspectRatio={aspectRatio} aria-label={`Upload ${label}`} maxW={maxW} />
 
         <HStack spacing={2} align="center">
           <UploadButton field={field} />

@@ -11,6 +11,8 @@ interface Props {
 }
 
 export function ContactSection({ business }: Props) {
+  if (!business.locations || business.locations.length === 0) return null;
+
   const address = businessAddressLocation(business);
   const phone = findBusinessLocation(business, 'PHONE');
   const online = findBusinessLocation(business, 'ONLINE');

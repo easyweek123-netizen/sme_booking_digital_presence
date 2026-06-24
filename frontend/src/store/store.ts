@@ -22,6 +22,7 @@ import onboardingReducer from './slices/onboardingSlice';
 import chatReducer from './slices/chatSlice';
 import canvasReducer from './slices/canvasSlice';
 import billingReducer from './slices/billingSlice';
+import previewReducer from './slices/previewSlice';
 import type { BillingUiState } from './slices/billingSlice';
 import { baseApi } from './api/baseApi';
 import { RESET_STORE } from './actions';
@@ -36,6 +37,7 @@ const appReducer = combineReducers({
   chat: chatReducer,
   canvas: canvasReducer,
   billing: billingReducer,
+  preview: previewReducer,
   [baseApi.reducerPath]: baseApi.reducer,
 });
 
@@ -53,7 +55,7 @@ const persistConfig = {
   key: 'bookeasy',
   version: 1,
   storage,
-  whitelist: ['auth', 'onboarding', 'chat', 'canvas', 'billing'],
+  whitelist: ['auth', 'onboarding', 'chat', 'canvas', 'billing', 'preview'],
   transforms: [
     createTransform<BillingUiState, BillingUiState>(
       (inboundState, key) => {

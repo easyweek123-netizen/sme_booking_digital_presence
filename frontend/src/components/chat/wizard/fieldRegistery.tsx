@@ -1,4 +1,4 @@
-import { Box, HStack, Text } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { TextField, TextAreaField } from '../../ui/form';
 import { AboutEditor } from '../../Dashboard';
 import { RecurringHoursEditor } from '../../Availability/RecurringHoursEditor';
@@ -13,42 +13,6 @@ import { ServiceCategory } from '../../Services/fields/ServiceCategory';
 import { RhfColorField, RhfImageField, RhfLocationField } from './fields/rhf';
 import type { FieldId } from '@shared';
 
-function WizardFieldCard({
-  title,
-  hint,
-  children,
-}: {
-  title?: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Box
-      border="1px"
-      borderColor="border.subtle"
-      borderRadius="md"
-      bg="surface.card"
-      px={3}
-      py={3}
-    >
-      {/* {(title || hint) && (
-        <Box mb={2}>
-          {title && (
-            <Text fontSize="xs" fontWeight="600" color="text.heading">
-              {title}
-            </Text>
-          )}
-          {hint && (
-            <Text fontSize="2xs" color="text.secondary" mt={0.5}>
-              {hint}
-            </Text>
-          )}
-        </Box>
-      )} */}
-      {children}
-    </Box>
-  );
-}
 
 // One render registry for every field the BE can put in a wizard step.
 // website.* bind to WebsiteFormValues paths; service.* bind to ServiceFormInput paths.
@@ -74,13 +38,12 @@ export const FIELD_REGISTRY: Partial<Record<FieldId, () => React.JSX.Element>> =
   'website.about': () => <AboutEditor />,
   
   'website.logo': () => (
-      <Box maxW={{ sm: '86px', md: '124px' }}>
-        <RhfImageField
-          name="basic.logoUrl"
-          label="Logo"
-          aspectRatio={1}
-        />
-      </Box>
+      <RhfImageField
+        name="basic.logoUrl"
+        label="Logo"
+        aspectRatio={1}
+        maxW={{ sm: '86px', md: '124px' }}
+      />
   ),
 
   'website.brandColor': () => (

@@ -14,7 +14,7 @@ export function ChannelChipRow({ locations }: { locations: Location[] }) {
   const present = new Set(locations.map((l) => l.type));
   if (present.size < 2) return null;
   return (
-    <HStack spacing={2} flexWrap="wrap" mt={2.5}>
+    <HStack spacing={2}>
       {ORDER.filter((t) => present.has(t)).map((t) => {
         const { label, Icon } = CHIP_CONFIG[t];
         return (
@@ -25,8 +25,9 @@ export function ChannelChipRow({ locations }: { locations: Location[] }) {
             bg="var(--brand-accent-wash)"
             color="var(--brand-accent)"
             fontWeight={500}
+
           >
-            <HStack spacing={1.5}>
+            <HStack spacing={1} textAlign="left">
               <Icon size={13} />
               <span>{label}</span>
             </HStack>

@@ -5,6 +5,8 @@ import { AboutContent } from './AboutContent';
 interface AboutSectionProps { aboutContent: string | null; }
 
 export function AboutSection({ aboutContent }: AboutSectionProps) {
+  if (!aboutContent || aboutContent === '<p></p>') return null;
+
   return (
     <Box as="section" pt={8}>
       <SectionHeading id="section-about">About</SectionHeading>

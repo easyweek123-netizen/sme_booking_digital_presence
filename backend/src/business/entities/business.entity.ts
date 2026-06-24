@@ -63,7 +63,7 @@ export class Business {
   @Column({ name: 'show_next_available', type: 'boolean', default: true })
   showNextAvailable: boolean;
 
-  @Column({ name: 'show_weekly_hours', type: 'boolean', default: true })
+  @Column({ name: 'show_weekly_hours', type: 'boolean', default: false })
   showWeeklyHours: boolean;
 
   @Column({

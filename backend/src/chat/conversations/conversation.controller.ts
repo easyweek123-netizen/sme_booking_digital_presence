@@ -17,7 +17,7 @@ import { ConversationService } from './conversation.service';
 import { ChatService } from '../chat.service';
 import { ConversationDto } from '../dto/conversation.dto';
 import { ChatMessageDto } from '../dto/message.dto';
-import { SendMessageDto, ActionResultDto, ChatResponseDto } from '../dto/chat.dto';
+import { SendMessageDto, ChatResponseDto, ActionResultDto } from '../dto/chat.dto';
 
 @Controller('chat/conversations')
 @UseGuards(FirebaseAuthGuard, OwnerResolverGuard)

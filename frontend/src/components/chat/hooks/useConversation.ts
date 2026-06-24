@@ -24,7 +24,7 @@ export interface UseConversationResult {
   messages: Message[];
   isSendingMessage: boolean;
 
-  startChat: () => Promise<void>;
+  startChat: () => Promise<Message | undefined>;
   sendText: (text: string) => Promise<Message | null>;
 }
 
@@ -66,7 +66,7 @@ export function useConversation(): UseConversationResult {
     dispatch(openTab(created.id));
     dispatch(setActiveTab(created.id));
 
-    await sendMessageMutation({
+    return sendMessageMutation({
       conversationId: created.id,
       message: null,
     }).unwrap();

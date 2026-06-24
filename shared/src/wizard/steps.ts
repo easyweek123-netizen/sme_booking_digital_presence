@@ -21,7 +21,14 @@ export const STEPS = {
   branding: {
     label: 'Branding', 
     hint: 'Name, look, color, about',
-    fields: ['business.name', 'business.tagline', 'business.logo', 'business.brandColor', 'business.cover', 'business.about'] as FieldId[],
+    fields: [
+      'business.name', 
+      'business.tagline', 
+      'business.logo', 
+      'business.brandColor', 
+      'business.cover', 
+      'business.about'
+    ] as FieldId[],
     done: (s: SetupState) => !!(s.description || s.brandColor || s.logoUrl || s.coverImageUrl || s.aboutContent),
   },
   business_spot: {

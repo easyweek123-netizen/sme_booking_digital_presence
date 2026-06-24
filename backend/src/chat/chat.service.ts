@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { BusinessService } from '../business/business.service';
 import { ToolRegistry } from '../common/tools';
 import type { Business } from '../business/entities/business.entity';
-import { ChatResponseDto, ActionResultDto } from './dto/chat.dto';
+import { ChatResponseDto } from './dto/chat.dto';
 import {
   ToolResultHelpers,
   type ChatAction,
@@ -23,8 +23,6 @@ import {
 } from './providers';
 import { PersistentConversationMemory, type Turn as MemoryTurn } from './memory';
 import type { ChatCompletionMessageParamWithSuggestions } from './memory/conversation-memory';
-
-// ── Response schema ─────────────────────────────────────────────────
 
 const SUGGESTION_ITEM_SCHEMA = {
   type: 'object',
@@ -93,8 +91,6 @@ export class ChatService {
     return this.toolRegistry.getToolDefinitions() as ChatToolDefinition[];
   }
 
-  // ── public entry points ────────────────────────────────────────────
-
   async sendMessage(
     ownerId: number,
     dto: { message: string | null; conversationId: number },
@@ -117,12 +113,10 @@ export class ChatService {
   }
   
   private submissionMarker(dto: ActionResult): string {
-    return dto.status === 'confirmed' ? `[Action confirmed] — changes applied.`   // proposal confirm/cancel
+    return dto.status === 'confirmed' ? `[Action confirmed] — changes applied.`
       : dto.status === 'modified' ? `[Action modified] — custom changes were applied.`
       : `[Action cancelled] — no changes were made.`;
   }
-
-  // ── context preparation ────────────────────────────────────────────
 
   private async prepareContext(
     ownerId: number,
@@ -144,8 +138,6 @@ export class ChatService {
       business,
     };
   }
-
-  // ── turn loop ─────────────────────────────────────────────────────
 
   private async runChatTurn(turn: ChatTurn): Promise<ChatResponseDto> {
     try {
@@ -210,7 +202,9 @@ export class ChatService {
           currentToolCalls = next.toolCalls;
           continue;
         }
-        const response = await this.buildResponse(turn, next.content, allCards);
+        const response = await this.buildResponse(turn, next.content, allCards, {
+          suppressSuggestions: allProposals.length > 0 || !!wizard,
+        });
         response.proposals = allProposals.length > 0 ? allProposals : undefined;
         response.previewContext = previewContext;
         response.wizard = wizard;
@@ -239,12 +233,11 @@ export class ChatService {
     };
   }
 
-  // ── helpers ───────────────────────────────────────────────────────
-
   private async buildResponse(
     turn: ChatTurn,
     rawContent: string | null,
-    cards?: ChatCard[],     
+    cards?: ChatCard[],
+    options?: { suppressSuggestions?: boolean },   
   ): Promise<ChatResponseDto> {
     const outCards = cards && cards.length > 0 ? cards : undefined;
     const fallback = { content: "I'm here to help!", suggestions: null };
@@ -254,10 +247,9 @@ export class ChatService {
     } catch {
       parsed = { content: rawContent || fallback.content, suggestions: null };
     }
-    const suggestions =
-      parsed.suggestions == null || parsed.suggestions.length === 0
-        ? undefined
-        : parsed.suggestions;
+    const suggestions = this.normalizeSuggestions(parsed.suggestions, {
+      suppress: options?.suppressSuggestions === true,
+    });
 
     await turn.memory.append({
       role: 'assistant',
@@ -268,14 +260,6 @@ export class ChatService {
     await turn.memory.finish();
 
     return { role: 'bot', content: parsed.content, suggestions, cards: outCards };
-  }
-
-  private buildConfirmedFeedback(dto: ActionResultDto): string {
-    const fields =
-      dto.result && Object.keys(dto.result).length > 0
-        ? Object.keys(dto.result).join(', ')
-        : 'see proposal type';
-    return `[Action confirmed] — changes applied.`;
   }
 
   private async processToolCall(
@@ -294,5 +278,36 @@ export class ChatService {
       );
     }
     return this.toolRegistry.process(toolCall.function.name, args, toolContext);
+  }
+
+  private normalizeSuggestions(
+    raw: Suggestion[] | null | undefined,
+    options: { suppress: boolean },
+  ): Suggestion[] | undefined {
+    if (!raw || raw.length === 0) return undefined;
+    if (options.suppress) return undefined;
+  
+    const seen = new Set<string>();
+    const cleaned: Suggestion[] = [];
+  
+    for (const s of raw) {
+      const label = (s.label ?? '').trim();
+      const value = (s.value ?? '').trim();
+      if (!label || !value) continue;
+  
+      const key = `${label.toLowerCase()}::${value.toLowerCase()}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+  
+      cleaned.push({
+        ...s,
+        label,
+        value,
+      });
+  
+      if (cleaned.length >= 3) break;
+    }
+  
+    return cleaned.length > 0 ? cleaned : undefined;
   }
 }

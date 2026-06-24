@@ -61,6 +61,13 @@ export {
   useGetCustomerQuery,
 } from './customersApi';
 
+// Schedules
+export {
+  useGetScheduleQuery,
+  useCreateScheduleMutation,
+  useUpdateScheduleMutation,
+} from './schedulesApi';
+
 // Locations
 export {
   useListLocationsQuery,

@@ -1,4 +1,4 @@
-import type { ChatAction, PreviewContext, Suggestion } from '@shared';
+import type { ChatAction, PreviewContext, Suggestion, ChatCard, Wizard } from '@shared';
 
 /**
  * Chat message structure (frontend-specific)
@@ -11,6 +11,8 @@ export interface Message {
   suggestions?: Suggestion[];
   proposals?: ChatAction[];
   previewContext?: PreviewContext;
+  cards?: ChatCard[];
+  wizard?: Wizard;
 }
 
 /**
@@ -21,6 +23,7 @@ export interface ActionResultRequest {
   proposalId: string;
   status: 'confirmed' | 'cancelled' | 'modified';
   result?: Record<string, unknown>;
+  wizard?: { stepId?: string };
 }
 
 export interface Conversation {

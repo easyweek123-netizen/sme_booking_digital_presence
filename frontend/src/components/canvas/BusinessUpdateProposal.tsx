@@ -43,7 +43,7 @@ function toWebsiteFormValues(initial: Record<string, unknown>): WebsiteFormValue
       hours: [],
       visibility: {
         showNextAvailable: Boolean(initial.showNextAvailable ?? true),
-        showWeeklyHours: Boolean(initial.showWeeklyHours ?? true),
+        showWeeklyHours: Boolean(initial.showWeeklyHours ?? false),
       },
     },
   };

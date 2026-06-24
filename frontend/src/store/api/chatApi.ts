@@ -100,7 +100,6 @@ export const chatApi = baseApi.injectEndpoints({
         }
       },
     }),
-
     sendActionResult: builder.mutation<Message, ActionResultRequest>({
       query: ({ conversationId, ...body }) => ({
         url: `/chat/conversations/${conversationId}/actions`,
@@ -111,34 +110,64 @@ export const chatApi = baseApi.injectEndpoints({
         { conversationId, status },
         { dispatch, queryFulfilled },
       ) {
-        const optimisticUserMessage = actionStatusToUserMessage(status);
-
-        const optimisticPatch = dispatch(
-          chatApi.util.updateQueryData(
-            'getConversationMessages',
-            conversationId,
-            (draft) => {
-              draft.push({ role: 'user', content: optimisticUserMessage });
-            },
-          ),
-        );
-
         try {
           const { data: reply } = await queryFulfilled;
+          const confirmedUserMessage = actionStatusToUserMessage(status);
+    
           dispatch(
             chatApi.util.updateQueryData(
               'getConversationMessages',
               conversationId,
               (draft) => {
+                // Add confirmation only after backend action succeeds
+                draft.push({ role: 'user', content: confirmedUserMessage });
                 draft.push(reply);
               },
             ),
           );
-        } catch {
-          optimisticPatch.undo();
+        } catch(error) {
+          console.error('Error sending action result', error);
         }
       },
     }),
+    // sendActionResult: builder.mutation<Message, ActionResultRequest>({
+    //   query: ({ conversationId, ...body }) => ({
+    //     url: `/chat/conversations/${conversationId}/actions`,
+    //     method: 'POST',
+    //     body,
+    //   }),
+    //   async onQueryStarted(
+    //     { conversationId, status },
+    //     { dispatch, queryFulfilled },
+    //   ) {
+    //     const optimisticUserMessage = actionStatusToUserMessage(status);
+
+    //     const optimisticPatch = dispatch(
+    //       chatApi.util.updateQueryData(
+    //         'getConversationMessages',
+    //         conversationId,
+    //         (draft) => {
+    //           draft.push({ role: 'user', content: optimisticUserMessage });
+    //         },
+    //       ),
+    //     );
+
+    //     try {
+    //       const { data: reply } = await queryFulfilled;
+    //       dispatch(
+    //         chatApi.util.updateQueryData(
+    //           'getConversationMessages',
+    //           conversationId,
+    //           (draft) => {
+    //             draft.push(reply);
+    //           },
+    //         ),
+    //       );
+    //     } catch {
+    //       optimisticPatch.undo();
+    //     }
+    //   },
+    // }),
   }),
 });
 

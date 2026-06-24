@@ -1,9 +1,9 @@
-import { ENTITY, type Entity } from './constants';
+import { GROUP, type Group } from './constants';
 
 export interface FieldDef { label: string; required?: boolean; helpText?: string }
 
 export const FIELDS = {
-  [ENTITY.BUSINESS]: {
+  [GROUP.WEBSITE]: {
     name:       { label: 'Business name', required: true },
     tagline:    { label: 'Tagline', helpText: 'One line shown under your name.' },
     about:      { label: 'About' },
@@ -12,14 +12,12 @@ export const FIELDS = {
     cover:      { label: 'Cover image' },
     website:    { label: 'Website' },
     instagram:  { label: 'Instagram' },
+    address:    { label: 'Address', required: true },
+    phone:      { label: 'Phone' },
+    availability: { label: 'Opening hours' },
   },
-  [ENTITY.LOCATION]: { 
-    address: { label: 'Address', required: true }, 
-    phone: { label: 'Phone' } 
-  },
-  [ENTITY.SCHEDULE]: { availability: { label: 'Opening hours' } },
-  [ENTITY.SERVICE]: {
-    type: { label: 'Service type' }, 
+  [GROUP.SERVICE]: {
+    type: { label: 'Service type' },
     name: { label: 'Service name', required: true },
     duration: { label: 'Duration' }, 
     price: { label: 'Price' }, 
@@ -31,15 +29,15 @@ export const FIELDS = {
     location: { label: 'Location' }, 
     hours: { label: 'Availability' },
   },
-} satisfies Record<Entity, Record<string, FieldDef>>;
+} satisfies Record<Group, Record<string, FieldDef>>;
 
-export type FieldId = { [E in Entity]: `${E}.${Extract<keyof typeof FIELDS[E], string>}` }[Entity];
+export type FieldId = { [G in Group]: `${G}.${Extract<keyof typeof FIELDS[G], string>}` }[Group];
 export const FIELD_IDS = Object.entries(FIELDS).flatMap(
-  ([e, defs]) => Object.keys(defs).map((n) => `${e}.${n}`),
+  ([g, defs]) => Object.keys(defs).map((n) => `${g}.${n}`),
 ) as [FieldId, ...FieldId[]];
-export const entityOf = (id: FieldId): Entity => id.split('.')[0] as Entity;
+export const groupOf = (id: FieldId): Group => id.split('.')[0] as Group;
 export const isFieldId = (s: string): s is FieldId => (FIELD_IDS as string[]).includes(s);
 export function fieldDef(id: FieldId): FieldDef {
-  const [e, n] = id.split('.') as [Entity, string];
-  return (FIELDS[e] as Record<string, FieldDef>)[n];
+  const [g, n] = id.split('.') as [Group, string];
+  return (FIELDS[g] as Record<string, FieldDef>)[n];
 }

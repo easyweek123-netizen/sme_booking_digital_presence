@@ -14,7 +14,7 @@ export function BrandingFields() {
   return (
     <VStack spacing="space.stack.md" align="stretch">
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing="space.stack.md" alignItems="start">
-        <Box maxW={{ base: '180px' }}>
+        <Box maxW={{ sm: '86px', md: '124px' }}>
           <ImageUploadField
             label="Logo"
             folder="business"

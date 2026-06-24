@@ -1,15 +1,18 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import type { Wizard } from '@shared';
 
 const MAX_OPEN_TABS = 3;
 
 export interface ChatState {
   openTabIds: number[];
   activeTabId: number | null;
+  activeWizard: Wizard | null;
 }
 
 const initialState: ChatState = {
   openTabIds: [],
   activeTabId: null,
+  activeWizard: null
 };
 
 const chatSlice = createSlice({
@@ -46,8 +49,16 @@ const chatSlice = createSlice({
       }
     },
 
+    setActiveWizard: (s, a: PayloadAction<Wizard|null>) => { s.activeWizard = a.payload; },
+
+    markWizardStepDone: (s, a: PayloadAction<string>) => {
+      const step = s.activeWizard?.steps.find((st) => st.id === a.payload);
+      if (step) step.done = true;
+    },
+
     setActiveTab: (state, action: PayloadAction<number | null>) => {
       state.activeTabId = action.payload;
+      state.activeWizard = null;
     },
 
     removeConversation: (state, action: PayloadAction<number>) => {
@@ -62,7 +73,7 @@ const chatSlice = createSlice({
   },
 });
 
-export const { openTab, closeTab, setActiveTab, removeConversation } =
+export const { openTab, closeTab, setActiveWizard, markWizardStepDone, setActiveTab, removeConversation } =
   chatSlice.actions;
 
 export default chatSlice.reducer;

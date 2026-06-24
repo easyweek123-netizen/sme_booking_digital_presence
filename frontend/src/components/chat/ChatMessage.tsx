@@ -1,10 +1,9 @@
-import { Box, Text, Link } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import ReactMarkdown, { type Components } from 'react-markdown';
-import { Suggestions } from './Suggestions';
-import type { Message } from '../../types/chat.types';
-
-const MotionBox = motion.create(Box);
+import { Box, Text, Link } from "@chakra-ui/react";
+import { MotionBox } from "../ui/MotionBox";
+import { Suggestions } from "./Suggestions";
+import type { Message } from "@shared";
+import ReactMarkdown, { type Components } from "react-markdown";
+import { ChatCards } from "./cards/ChatCards";
 
 const markdownComponents: Components = {
   p: ({ node, ref, ...props }) => (
@@ -38,45 +37,34 @@ const markdownComponents: Components = {
 
 interface ChatMessageProps {
   message: Message;
-  onSuggestionSelect?: (value: string, label: string) => void;
+  onSuggestionSelect?: (value: string, label?: string) => void;
 }
 
 export function ChatMessage({ message, onSuggestionSelect }: ChatMessageProps) {
   const isBot = message.role === 'bot';
+  const hasContent = message.content.trim().length > 0;
+  const hasCards = isBot && !!message.cards?.length;
 
   return (
     <MotionBox
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
       alignSelf={isBot ? 'flex-start' : 'flex-end'}
-      maxW="85%"
+      maxW={hasCards ? '100%' : '85%'} w={hasCards ? 'full' : undefined}
     >
-      <Box
-        bg={isBot ? 'surface.card' : 'brand.500'}
-        px={4}
-        py={2}
-        borderRadius="2xl"
-        borderTopLeftRadius={isBot ? 'lg' : '2xl'}
-        borderTopRightRadius={isBot ? '2xl' : 'lg'}
-        boxShadow={isBot ? 'sm' : 'md'}
-      >
-        {isBot ? (
-          <ReactMarkdown components={markdownComponents}>
-            {message.content}
-          </ReactMarkdown>
-        ) : (
-          <Text color="surface.card" fontSize="sm">
-            {message.content}
-          </Text>
-        )}
-        {message.suggestions && onSuggestionSelect && (
-          <Suggestions
-            suggestions={message.suggestions}
-            onSelect={onSuggestionSelect}
-          />
-        )}
-      </Box>
+      {(hasContent || !isBot) && (
+        <Box bg={isBot ? 'surface.card' : 'accent.primary'} px={4} py={2} borderRadius="2xl"
+          borderTopLeftRadius={isBot ? 'lg' : '2xl'} borderTopRightRadius={isBot ? '2xl' : 'lg'}
+          boxShadow={isBot ? 'sm' : 'md'}>
+          {isBot
+            ? <ReactMarkdown components={markdownComponents}>{message.content}</ReactMarkdown>
+            : <Text color="surface.card" fontSize="sm">{message.content}</Text>}
+          {message.suggestions && onSuggestionSelect && (
+            <Suggestions suggestions={message.suggestions} onSelect={onSuggestionSelect} />
+          )}
+        </Box>
+      )}
+      {hasCards && <ChatCards cards={message.cards!} />}
     </MotionBox>
   );
 }

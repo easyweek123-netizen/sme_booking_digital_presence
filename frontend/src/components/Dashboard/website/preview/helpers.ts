@@ -31,7 +31,7 @@ function emptyBusiness(): BusinessPreviewShape {
     services: [],
     workingHours: null,
     showNextAvailable: true,
-    showWeeklyHours: true,
+    showWeeklyHours: false,
   };
 }
 
@@ -71,6 +71,6 @@ export function websitePreviewDraft(
     locations,
     workingHours: base.workingHours,
     showNextAvailable: availability?.visibility?.showNextAvailable ?? base.showNextAvailable ?? true,
-    showWeeklyHours:  availability?.visibility?.showWeeklyHours  ?? base.showWeeklyHours  ?? true,
+    showWeeklyHours:  availability?.visibility?.showWeeklyHours  ?? base.showWeeklyHours  ?? false,
   };
 }

@@ -12,9 +12,10 @@ import type { WebsiteFormSession } from './useWebsiteFormSession';
 interface Params {
   session: WebsiteFormSession;
   onInvalid?: (errors: FieldErrors<WebsiteFormValues>) => void;
+  onSuccess?: () => void | Promise<void>;
 }
 
-export function useSaveWebsiteForm({ session, onInvalid }: Params) {
+export function useSaveWebsiteForm({ session, onInvalid, onSuccess }: Params) {
   const toast = useToast();
   const { methods, resetToInitial } = useWebsiteForm({
     business: session.business,
@@ -58,6 +59,7 @@ export function useSaveWebsiteForm({ session, onInvalid }: Params) {
           session.business.locations ?? [],
         );
         await Promise.all(ops);
+        await onSuccess?.();
         toast({ title: 'Website saved', status: 'success', duration: TOAST_DURATION.MEDIUM });
       } catch (err) {
         const data = (err as { data?: { code?: string; message?: string } }).data;

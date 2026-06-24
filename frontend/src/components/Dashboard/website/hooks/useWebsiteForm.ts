@@ -39,7 +39,7 @@ function businessToFormValues(
       hours: availability,
       visibility: {
         showNextAvailable: b.showNextAvailable ?? true,
-        showWeeklyHours: b.showWeeklyHours ?? true,
+        showWeeklyHours: b.showWeeklyHours ?? false,
       },
     },
   };

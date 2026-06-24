@@ -1,20 +1,23 @@
 import { useEffect, useRef } from 'react';
-import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, HStack, Stack, Text, VStack } from '@chakra-ui/react';
 import { useBusiness } from '../../contexts/business';
-import { useAppDispatch } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { addProposals, setPreviewContext } from '../../store/slices/canvasSlice';
+import { setActiveWizard } from '../../store/slices/chatSlice';
 import { AllMessages } from './AllMessages';
 import { ChatInput } from './ChatInput';
 import { ChatTabStrip } from './ChatTabStrip';
 import { TypingIndicator } from './TypingIndicator';
 import { SparkleIcon } from '../icons';
 import { useConversation } from './hooks/useConversation';
+import { WorkflowExecutionWizard } from './wizard/WorkflowExecutionWizard';
 
 export function ChatPanel() {
   const dispatch = useAppDispatch();
   const business = useBusiness();
   const businessName = business.name;
-
+  const activeWizard = useAppSelector((s) => s.chat.activeWizard);
+  
   const {
     activeTabId,
     openTabIds,
@@ -30,7 +33,12 @@ export function ChatPanel() {
 
   // Auto-create first conversation (idempotent inside the hook)
   useEffect(() => {
-    startChat();
+    (async () => {
+      const reply = await startChat();
+      if (reply?.wizard) dispatch(setActiveWizard(reply.wizard));
+      if (reply?.previewContext) dispatch(setPreviewContext(reply.previewContext));
+      if (reply?.proposals?.length) dispatch(addProposals(reply.proposals));
+    })();
   }, [startChat]);
 
   useEffect(() => {
@@ -41,6 +49,7 @@ export function ChatPanel() {
     if (activeTabId === null) return;
     try {
       const reply = await sendText(text);
+      if (reply?.wizard) dispatch(setActiveWizard(reply.wizard));
       if (reply?.previewContext) dispatch(setPreviewContext(reply.previewContext));
       if (reply?.proposals?.length) dispatch(addProposals(reply.proposals));
     } catch {
@@ -57,7 +66,8 @@ export function ChatPanel() {
       <HStack
         flexShrink={0}
         align="center"
-        p={2}
+        px={3}
+        py={4}
         borderBottom="1px"
         borderColor="border.subtle"
         bg="surface.card"
@@ -104,13 +114,14 @@ export function ChatPanel() {
         </VStack>
       </Box>
 
-      <Box flexShrink={0} px={4} py={2}>
+      <Stack px={4} py={2} overflow="auto">
+        {activeWizard && <WorkflowExecutionWizard key={activeWizard.proposalId} wizard={activeWizard} />}.
         <ChatInput
           placeholder="Ask me anything..."
           onSubmit={handleSubmit}
           disabled={isBusy}
         />
-      </Box>
+      </Stack>
     </Flex>
   );
 }

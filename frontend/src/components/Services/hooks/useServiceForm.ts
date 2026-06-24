@@ -35,10 +35,16 @@ function makeServiceDefaults(type: ServiceTypeValue): Partial<ServiceFormFieldsI
 
 function fromService(service: Service): ServiceFormFieldsInput {
   return {
-    type: service.type, name: service.name, description: service.description,
-    capacity: service.capacity, durationMinutes: service.durationMinutes,
-    pauseAfterMinutes: service.pauseAfterMinutes, price: service.price ?? '',
-    priceType: service.priceType, color: service.color, photoUrl: service.photoUrl,
+    type: service.type, 
+    name: service.name, 
+    description: service.description,
+    capacity: service.capacity, 
+    durationMinutes: service.durationMinutes,
+    pauseAfterMinutes: service.pauseAfterMinutes, 
+    price: service.price ?? '',
+    priceType: service.priceType, 
+    color: service.color, 
+    photoUrl: service.photoUrl,
     categoryId: service.categoryId,
   } as ServiceFormFieldsInput;
 }

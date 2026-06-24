@@ -13,7 +13,7 @@ interface ConversationalOnboardingProps {
   placeholder?: string;
   // Handlers
   onSubmit: (value: string) => void;
-  onSuggestionSelect: (value: string, label: string) => void;
+  onSuggestionSelect: (value: string, label?: string) => void;
   // Auth state
   isAuthenticated: boolean;
   isCreating: boolean;

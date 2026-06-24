@@ -990,3 +990,9 @@ export const LocateIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 );
 
+export const  CameraPlaceholderIcon = ({ size = 28 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 7h3l1.5-2h7L17 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z" />
+    <circle cx="12" cy="13" r="3.5" />
+  </svg>
+);

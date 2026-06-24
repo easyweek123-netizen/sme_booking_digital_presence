@@ -20,6 +20,7 @@ interface WebsiteFormProps {
   initialActiveTab?: WebsiteTabKey;
   onInvalid?: (errors: FieldErrors<WebsiteFormValues>) => void;
   children: (args: WebsiteFormRenderArgs) => ReactNode;
+  onSuccess?: () => void | Promise<void>;
 }
 
 // Map from a form section key to its tab key. The form shape uses different
@@ -39,7 +40,7 @@ function firstErrorTab(errors: FieldErrors<WebsiteFormValues>): WebsiteTabKey | 
   return null;
 }
 
-export function WebsiteForm({ session, initialActiveTab = 'basic', onInvalid, children }: WebsiteFormProps) {
+export function WebsiteForm({ session, initialActiveTab = 'basic', onInvalid, onSuccess, children }: WebsiteFormProps) {
   const [activeTab, setActiveTab] = useState<WebsiteTabKey>(initialActiveTab);
 
   const handleInvalid = useCallback(
@@ -54,6 +55,7 @@ export function WebsiteForm({ session, initialActiveTab = 'basic', onInvalid, ch
   const { methods, onSave, resetToInitial, isSaving } = useSaveWebsiteForm({
     session,
     onInvalid: handleInvalid,
+    onSuccess,
   });
 
   return (

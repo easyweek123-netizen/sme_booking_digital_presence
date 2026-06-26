@@ -5,10 +5,11 @@ import { groupOf, type FieldId } from './fields';
 export const StepIconSchema = z.enum(['sparkle', 'map_pin', 'scissors']);
 
 export const WizardFieldSchema = z.object({
-  id: z.string(), 
-  label: z.string(), 
-  helpText: z.string().optional(), 
+  id: z.string(),
+  label: z.string(),
+  helpText: z.string().optional(),
   required: z.boolean().optional(),
+  suggestion: z.string().optional(),
 });
 export const WizardStepSchema = z.object({
   id: z.string(),

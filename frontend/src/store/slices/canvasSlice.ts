@@ -1,44 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { ChatAction, PreviewContext } from '@shared';
 
-// ─── localStorage Persistence ───
-
-const STORAGE_KEY = 'bookeasy_proposals';
-
-/**
- * Load proposals from localStorage
- */
-function loadProposalsFromStorage(): ChatAction[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-    }
-  } catch (error) {
-    console.warn('Failed to load proposals from localStorage:', error);
-  }
-  return [];
-}
-
-/**
- * Save proposals to localStorage
- */
-function saveProposalsToStorage(proposals: ChatAction[]): void {
-  try {
-    if (proposals.length === 0) {
-      localStorage.removeItem(STORAGE_KEY);
-    } else {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(proposals));
-    }
-  } catch (error) {
-    console.warn('Failed to save proposals to localStorage:', error);
-  }
-}
-
 // ─── State ───
+// Proposals persist via redux-persist (canvas is whitelisted in store.ts) and are
+// cleared on logout by persistor.purge(). No separate localStorage layer needed.
 
 interface CanvasState {
   activeTab: 'preview' | 'actions';
@@ -46,13 +11,10 @@ interface CanvasState {
   proposals: ChatAction[];
 }
 
-// Rehydrate proposals from localStorage on init
-const storedProposals = loadProposalsFromStorage();
-
 const initialState: CanvasState = {
-  activeTab: storedProposals.length > 0 ? 'actions' : 'preview',
+  activeTab: 'preview',
   previewContext: 'booking_page',
-  proposals: storedProposals,
+  proposals: [],
 };
 
 const canvasSlice = createSlice({
@@ -71,7 +33,6 @@ const canvasSlice = createSlice({
     /** Replace all proposals with new ones */
     setProposals: (state, action: PayloadAction<ChatAction[]>) => {
       state.proposals = action.payload;
-      saveProposalsToStorage(action.payload);
       // Auto-switch to actions tab when proposals are set
       if (action.payload.length > 0) {
         state.activeTab = 'actions';
@@ -81,7 +42,6 @@ const canvasSlice = createSlice({
     /** Add new proposals to the queue */
     addProposals: (state, action: PayloadAction<ChatAction[]>) => {
       state.proposals.push(...action.payload);
-      saveProposalsToStorage(state.proposals);
       // Auto-switch to actions tab when proposals are added
       if (action.payload.length > 0) {
         state.activeTab = 'actions';
@@ -98,7 +58,6 @@ const canvasSlice = createSlice({
         // Remove by index (legacy)
         state.proposals.splice(payload, 1);
       }
-      saveProposalsToStorage(state.proposals);
       // Switch to preview if no more proposals
       if (state.proposals.length === 0) {
         state.activeTab = 'preview';
@@ -108,19 +67,18 @@ const canvasSlice = createSlice({
     /** Clear all proposals */
     clearProposals: (state) => {
       state.proposals = [];
-      saveProposalsToStorage([]);
       state.activeTab = 'preview';
     },
   },
 });
 
-export const { 
-  setActiveTab, 
-  setPreviewContext, 
-  setProposals, 
+export const {
+  setActiveTab,
+  setPreviewContext,
+  setProposals,
   addProposals,
   removeProposal,
-  clearProposals 
+  clearProposals,
 } = canvasSlice.actions;
 
 export default canvasSlice.reducer;

@@ -111,15 +111,19 @@ export function BusinessBookingPage({
               gap={isDesktop ? 12 : 0}
             >
               <Box>
-                {sections.map(({ id, present }) =>
-                  present ? (
-                    <Box key={id} ref={registerSection?.(id)}>
-                      {renderSection(id)}
-                    </Box>
-                  ) : (
-                    <Fragment key={id}>{renderPlaceholder?.(id) ?? null}</Fragment>
-                  ),
-                )}
+                {sections.map(({ id, present, enabled }) => {
+                  if (present) {
+                    return (
+                      <Box key={id} ref={registerSection?.(id)}>
+                        {renderSection(id)}
+                      </Box>
+                    );
+                  }
+                  // Intentionally turned off in settings → render nothing (no setup placeholder).
+                  if (!enabled) return <Fragment key={id} />;
+                  // Not set up yet → show the preview placeholder (preview surface only).
+                  return <Fragment key={id}>{renderPlaceholder?.(id) ?? null}</Fragment>;
+                })}
               </Box>
               {isDesktop && business.services.length > 0 && (
                 <DesktopBookingCard

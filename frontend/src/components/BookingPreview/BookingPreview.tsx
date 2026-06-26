@@ -8,11 +8,10 @@ import { BrandProvider } from '../Business/brand';
 import { DeviceModeProvider } from '../Business/context/DeviceModeContext';
 import { BREAKPOINTS } from '../../utils/breakpoints';
 import type { BusinessWithServices, Service, ServiceCategory } from '../../types';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { dismissSetupHint } from '../../store/slices/previewSlice';
 import { useBookingPageSections, type SectionId } from '../Business/hooks/useBookingPageSections';
 import { PreviewSetupBanner } from '../Business/PreviewSetupBanner';
 import { ServicesPlaceholder, AboutPlaceholder, ContactPlaceholder, HoursPlaceholder } from '../Business/sections/SectionPlaceholders';
+import { shouldShowSetupHint, setShowSetupHint } from '../../store/storeListeners';
 
 interface BookingPreviewProps {
   /**
@@ -49,13 +48,10 @@ export function BookingPreview({
   onSubmit,
 }: BookingPreviewProps) {
   const toast = useToast();
-  const dispatch = useAppDispatch();
-  const setupHintDismissed = useAppSelector((s) => s.preview.setupHintDismissed);
   const contextBusiness = useBusiness();
   const business = businessOverride ?? contextBusiness;
 
   const isCanvas = businessOverride == null;          // canvas pulls from context
-  const showSetupHints = !setupHintDismissed;
   const { sections, registerSection } = useBookingPageSections(business, {
     autoScrollOnAppear: isCanvas,
   });
@@ -98,6 +94,15 @@ export function BookingPreview({
     setWizardService(null);
   };
 
+  const [showSetup, setShowSetup] = useState(shouldShowSetupHint);
+  const dismissSetupHint = () => {
+    setShowSetupHint(false);
+    setShowSetup(false);
+  };
+
+  const hasSetupWork = sections.some((s) => s.enabled && !s.present);
+  const showSetupHints = showSetup && hasSetupWork;
+
   return (
     <DeviceModeProvider desktopMinWidth={BREAKPOINTS.lg}>
       <BrandProvider brandColor={business.brandColor} scope="container">
@@ -123,7 +128,7 @@ export function BookingPreview({
             renderPlaceholder={renderPlaceholder}
             showSetupHints={showSetupHints}
             banner={showSetupHints
-              ? <PreviewSetupBanner onDismiss={() => dispatch(dismissSetupHint())} />
+              ? <PreviewSetupBanner onDismiss={dismissSetupHint} />
               : undefined}
           />
         )}

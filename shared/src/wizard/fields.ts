@@ -15,6 +15,7 @@ export const FIELDS = {
     address:    { label: 'Address', required: true },
     phone:      { label: 'Phone' },
     availability: { label: 'Opening hours' },
+    visibility: { label: 'Website Visibility' },
   },
   [GROUP.SERVICE]: {
     type: { label: 'Service type' },

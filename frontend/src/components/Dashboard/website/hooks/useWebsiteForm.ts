@@ -6,17 +6,19 @@ import type { BusinessWithServices, AvailabilityInput } from '../../../../types'
 import { DEFAULT_BRAND_COLOR_TOKEN } from '../../../../constants/colors';
 import type { WebsiteFormValues } from '../../../../pages/dashboard/websiteForm.types';
 import { WebsiteFormSchema, type LocationDraft } from '@bookeasy/shared';
+import { useToken } from '@chakra-ui/react';
 
 function businessToFormValues(
   b: BusinessWithServices,
   availability: AvailabilityInput[],
+  defaultBrandColor: string,
 ): WebsiteFormValues {
   return {
     basic: {
       name: b.name || '',
       description: b.description || '',
       logoUrl: b.logoUrl || '',
-      brandColor: b.brandColor || DEFAULT_BRAND_COLOR_TOKEN,
+      brandColor: b.brandColor || defaultBrandColor,
       coverImageUrl: b.coverImageUrl || '',
       website: b.website || '',
       instagram: b.instagram || '',
@@ -56,10 +58,12 @@ export interface UseWebsiteFormResult {
 }
 
 export function useWebsiteForm({ business, availability }: UseWebsiteFormParams): UseWebsiteFormResult {
+  const [defaultBrandColor] = useToken('colors', [DEFAULT_BRAND_COLOR_TOKEN]);
   const formValues = useMemo(
-    () => businessToFormValues(business, availability),
-    [business, availability],
+    () => businessToFormValues(business, availability, defaultBrandColor),
+    [business, availability, defaultBrandColor],
   );
+
 
   const methods = useForm<WebsiteFormValues>({
     values: formValues,

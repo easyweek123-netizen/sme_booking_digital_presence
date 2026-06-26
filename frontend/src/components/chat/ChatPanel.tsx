@@ -11,7 +11,6 @@ import { TypingIndicator } from './TypingIndicator';
 import { SparkleIcon } from '../icons';
 import { useConversation } from './hooks/useConversation';
 import { WorkflowExecutionWizard } from './wizard/WorkflowExecutionWizard';
-import { openCanvas } from '../../store/slices/previewSlice';
 
 export function ChatPanel() {
   const dispatch = useAppDispatch();
@@ -37,12 +36,11 @@ export function ChatPanel() {
     (async () => {
       const reply = await startChat();
       if (reply?.wizard) dispatch(setActiveWizard(reply.wizard));
-      if (reply) dispatch(openCanvas());
       if (reply?.previewContext) dispatch(setPreviewContext(reply.previewContext));
       if (reply?.proposals?.length) dispatch(addProposals(reply.proposals));
     })();
   }, [startChat]);
-
+  
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, isSendingMessage, activeTabId]);

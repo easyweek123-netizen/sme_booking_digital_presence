@@ -3,18 +3,13 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { ChatPanel } from '../../components/chat/ChatPanel';
 import { CanvasPanel } from '../../components/canvas/CanvasPanel';
 import { MobileChatTabs } from '../../components/chat/MobileChatTabs';
-import { useAppSelector } from '../../store/hooks';
-import { useReducedMotion } from 'framer-motion';
-import { MotionBox } from '../../components/ui/MotionBox';
 
 const CHAT_PANEL_ID = 'chat-panel';
 const CANVAS_PANEL_ID = 'canvas-panel';
-const DEFAULT_CANVAS_SIZE = '55%'; // initial split when the canvas opens
+const DEFAULT_CANVAS_SIZE = '55%'; 
 
 export function CanvasChat() {
   const isDesktop = useBreakpointValue({ base: false, md: true }, { ssr: false });
-  const isCanvasOpen = useAppSelector((s) => s.preview.isCanvasOpen);
-  const prefersReducedMotion = useReducedMotion();
 
   if (!isDesktop) {
     return (
@@ -41,7 +36,6 @@ export function CanvasChat() {
           </Box>
         </Panel>
 
-        {isCanvasOpen && (
           <>
             <Separator id="resize-handle">
               <Box
@@ -74,18 +68,9 @@ export function CanvasChat() {
               defaultSize={DEFAULT_CANVAS_SIZE}
               style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
             >
-              <MotionBox
-                h="full"
-                overflow="hidden"
-                initial={prefersReducedMotion ? false : { opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, ease: 'easeIn' }}
-              >
                 <CanvasPanel />
-              </MotionBox>
             </Panel>
           </>
-        )}
       </Group>
     </Box>
   );

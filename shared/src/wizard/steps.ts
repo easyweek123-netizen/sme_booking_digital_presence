@@ -46,7 +46,7 @@ export const STEPS = {
     label: 'Business spot', 
     hint: 'Address & opening hours',
     icon: 'map_pin',
-    fields: [['website.address'], ['website.availability']] as FieldId[][],
+    fields: [['website.address'], ['website.availability'], ['website.visibility']] as FieldId[][],
     done: (b: BusinessProfileCompletion) => (b?.locations ?? []).some((l) => l.type === 'ADDRESS'),
   },
   service: {
@@ -55,7 +55,7 @@ export const STEPS = {
     icon: 'scissors',
     fields: [
       ['service.type', 'service.name', 'service.duration', 'service.price'],
-      ['service.description'],
+      ['service.description', 'service.category'],
       ['service.location'],
       ['service.hours'],
     ] as FieldId[][],

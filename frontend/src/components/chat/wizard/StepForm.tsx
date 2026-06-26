@@ -70,7 +70,7 @@ export function StepForm({
                 const Field = FIELD_REGISTRY[f.id as FieldId];
                 return Field ? (
                   <Box key={f.id} mb={3}>
-                    <Field />
+                    <Field suggestion={f.suggestion} />
                   </Box>
                 ) : null;
               })}
